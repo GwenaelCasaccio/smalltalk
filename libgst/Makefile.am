@@ -7,11 +7,6 @@ AM_CPPFLAGS = $(RELOC_CPPFLAGS) \
   -I$(top_srcdir)/lib-src -I$(top_builddir)/lib-src \
   $(INCFFI) $(INCLIGHTNING) $(INCSNPRINTFV) $(INCSIGSEGV) $(INCLTDL)
 
-if !HAVE_INSTALLED_LIGHTNING
-AM_CPPFLAGS += -I$(top_srcdir)/lightning -I$(top_builddir)/lightning \
-  -I$(top_srcdir) -I$(top_builddir)
-endif
-
 include_HEADERS = gstpub.h gst.h
 lib_LTLIBRARIES = libgst.la
 EXTRA_PROGRAMS = genprims genbc genvm
@@ -34,7 +29,7 @@ libgst_la_SOURCES = \
        str.c       tree.c        byte.c         comp.c       \
        sym.c       dict.c        oop.c  	opt.c        \
        save.c      cint.c    	 heap.c	        input.c      \
-       sysdep.c    callin.c      xlat.c         mpz.c        \
+       sysdep.c    callin.c      mpz.c        \
        print.c	   alloc.c	 re.c	        interp.c     \
        real.c	   sockets.c	 events.c
 
@@ -86,10 +81,10 @@ STAMP_FILES = prims.stamp match.stamp vm.stamp
 noinst_HEADERS = \
 	gstpriv.h files.h lex.h str.h re.h \
 	tree.h byte.h interp.h comp.h \
-	sym.h dict.h oop.h save.h cint.h xlat.h \
+	sym.h dict.h oop.h save.h cint.h \
 	sysdep.h callin.h gstpub.h opt.h mpz.h \
-	md-config.h heap.h real.h jitpriv.h oop.inl \
-	dict.inl interp.inl interp-bc.inl interp-jit.inl \
+	md-config.h heap.h real.h oop.inl \
+	dict.inl interp.inl interp-bc.inl \
 	sockets.h comp.inl input.h events.h \
 	print.h alloc.h genprims.h gst-parse.h \
 	genpr-parse.h genbc.h genbc-decl.h \
@@ -112,10 +107,10 @@ noinst_HEADERS = \
 $(srcdir)/match.h: $(srcdir)/match.stamp
 	@:
 
-$(srcdir)/match.stamp: byte.def byte.c opt.c xlat.c
+$(srcdir)/match.stamp: byte.def byte.c opt.c
 	@$(MAKE) genbc$(EXEEXT)
-	@echo "./genbc$(EXEEXT) $(srcdir)/byte.def $(srcdir)/byte.c $(srcdir)/opt.c $(srcdir)/xlat.c > match.h"; \
-	  ./genbc$(EXEEXT) $(srcdir)/byte.def $(srcdir)/byte.c $(srcdir)/opt.c $(srcdir)/xlat.c > _match.h
+	@echo "./genbc$(EXEEXT) $(srcdir)/byte.def $(srcdir)/byte.c $(srcdir)/opt.c > match.h"; \
+	  ./genbc$(EXEEXT) $(srcdir)/byte.def $(srcdir)/byte.c $(srcdir)/opt.c > _match.h
 	@if cmp _match.h $(srcdir)/match.h > /dev/null 2>&1; then \
 	  echo match.h is unchanged; \
 	  rm _match.h; \
