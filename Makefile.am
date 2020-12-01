@@ -151,26 +151,6 @@ gsticon.o: gsticon.ico
 gst.im: $(bin_PROGRAMS) $(srcdir)/kernel/stamp-classes $(WINEWRAPPERDEP)
 	$(GST) -iQ /dev/null
 
-
-###########################################################
-#
-#        Rules for distributing the superops program
-#
-###########################################################
-
-dist_noinst_DATA += \
-	superops/ChangeLog superops/Makefile superops/README \
-	superops/bool-array.cc superops/bool-array.h superops/bool-array.icc \
-	superops/byte_def.cc superops/byte_def.h superops/hash-table.cc \
-	superops/hash-table.h superops/hash.cc superops/hash.h \
-	superops/keyword-list.cc superops/keyword-list.h superops/keyword-list.icc \
-	superops/keyword.cc superops/keyword.h superops/keyword.icc \
-	superops/observer-list.cc superops/observer-list.h superops/options.cc \
-	superops/options.h superops/options.icc superops/positions.cc \
-	superops/positions.h superops/positions.icc superops/search.cc \
-	superops/search.h superops/superops.cc superops/table.cc superops/table.h \
-	superops/vm_def.cc superops/vm_def.h
-
 ###########################################################
 #
 #        Rules for installing and distributing
