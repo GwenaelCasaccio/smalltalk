@@ -26,8 +26,8 @@ jobs:
     - name: make distcheck
       run: make distcheck
     - name: Start SSH via Ngrok
-       if: ${{ failure() }}
-       uses: luchihoratiu/debug-via-ssh@v1.0
-       env:
+      if: ${{ failure() }}
+      uses: luchihoratiu/debug-via-ssh@v1.0
+      env:
         NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
         USER_PASS: ${{ secrets.USER_PASS }}
