@@ -673,11 +673,7 @@ static OOP free_lifo_context = lifo_contexts;
 
 #include "prims.inl"
 
-#ifdef ENABLE_JIT_TRANSLATION
-#include "interp-jit.inl"
-#else
 #include "interp-bc.inl"
-#endif
 
 
 void

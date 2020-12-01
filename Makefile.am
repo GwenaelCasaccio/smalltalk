@@ -22,10 +22,10 @@ ACLOCAL_AMFLAGS = -I build-aux
 PACKAGE=smalltalk
 gstdatadir=$(pkgdatadir)
 
-DIST_SUBDIRS = lib-src snprintfv lightning libgst \
+DIST_SUBDIRS = lib-src snprintfv libgst \
 	. $(ALL_PACKAGES) tests doc
 
-SUBDIRS = lib-src lightning $(subdirs)
+SUBDIRS = lib-src $(subdirs)
 SUBDIRS += libgst . $(BUILT_PACKAGES) doc tests
 
 # Running gst inside the build directory...

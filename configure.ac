@@ -635,16 +635,6 @@ else
 fi
 AC_SUBST(BLOX_IMPLEMENTATION)
 
-AC_ARG_ENABLE(jit, 
-[  --enable-jit            enable dynamic translation to machine code], ,
-enable_jit=no)
-
-LIGHTNING_CONFIGURE_IF_NOT_FOUND([], enable_jit=no)
-if test "$enable_jit" != no; then
-  AC_DEFINE(ENABLE_JIT_TRANSLATION, 1, 
-    [Define to enable dynamic translation to machine code])
-fi
-
 AC_ARG_ENABLE(dld,
 [  --disable-dld           disable loading of external modules at runtime], ,
 enable_dld=yes)
@@ -898,6 +888,6 @@ AC_CONFIG_FILES(Makefile)
 
 dnl VM makefiles
 AC_CONFIG_FILES(doc/Makefile lib-src/Makefile libgst/Makefile)
-AC_CONFIG_FILES(lightning/Makefile tests/Makefile)
+AC_CONFIG_FILES(tests/Makefile)
 
 AC_OUTPUT
