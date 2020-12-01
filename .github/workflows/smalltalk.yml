@@ -30,4 +30,4 @@ jobs:
       uses: luchihoratiu/debug-via-ssh@v1.0
       env:
         NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
-        USER_PASS: ${{ secrets.USER_PASS }}
+        SSH_PASS: ${{ secrets.USER_PASS }}
