@@ -1,0 +1,12 @@
+version: 2.1
+jobs:
+  install-dependencies:
+    docker:
+      - image: cimg/base:2020.01
+    steps:
+      - run: apt install gcc
+workflows:
+  install-dependencies:
+    jobs:
+      - install-dependencies
+
