@@ -1,0 +1,33 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: sudo apt install libsigsegv-dev libexpat1-dev
+    - name: Update generated configuration files
+      run: autoreconf -vi
+    - name: configure
+      run: ./configure
+    - name: make
+      run: make
+    - name: make check
+      run: make check
+    - name: make distcheck
+      run: make distcheck
+    - name: Start SSH via Ngrok
+      if: ${{ failure() }}
+      uses: luchihoratiu/debug-via-ssh@v1.0
+      with:
+        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
+        SSH_PASS: ${{ secrets.USER_PASS }}
