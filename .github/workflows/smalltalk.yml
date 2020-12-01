@@ -13,6 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: apt install libsigsegv-dev
     - name: Update generated configuration files
       run: autoreconf -vi
     - name: configure
