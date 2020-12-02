@@ -354,9 +354,6 @@ AC_CHECK_LIB(m, atan)
 GST_REPLACE_POLL
 gt_FUNC_SETENV
 GST_SOCKETS
-AC_REPLACE_FUNCS(putenv strdup strerror strsignal mkstemp getpagesize \
-	getdtablesize strstr \
-  strpbrk symlink mkdtemp)
 AC_CHECK_FUNCS_ONCE(gethostname memcpy memmove sighold uname usleep lstat \
 	grantpt popen getrusage gettimeofday fork strchr utimes utime readlink \
 	sigsetmask alarm select mprotect madvise waitpid accept4 \
