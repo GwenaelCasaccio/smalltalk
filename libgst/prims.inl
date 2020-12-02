@@ -117,63 +117,898 @@
 
 
 /* SmallInteger + arg  */
-primitive VMpr_SmallInteger_plus [succeed,fail]
+static intptr_t
+VMpr_SmallInteger_plus (int id ATTRIBUTE_UNUSED,
+                        volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_minus (int id ATTRIBUTE_UNUSED,
+                         volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_lt (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_gt (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_le (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_ge (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_eq (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_ne (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_times (int id ATTRIBUTE_UNUSED,
+                         volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_divide (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_modulo (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_intDiv (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_quo (int id ATTRIBUTE_UNUSED,
+                       volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_bitAnd (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_bitOr (int id ATTRIBUTE_UNUSED,
+                         volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_bitXor (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_bitShift (int id ATTRIBUTE_UNUSED,
+                            volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_scramble (int id ATTRIBUTE_UNUSED,
+                            volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_asFloatD (int id ATTRIBUTE_UNUSED,
+                            volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_asFloatE (int id ATTRIBUTE_UNUSED,
+                            volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_asFloatQ (int id ATTRIBUTE_UNUSED,
+                            volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_eq (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_ne (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_lt (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_le (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_gt (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_ge (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_times (int id ATTRIBUTE_UNUSED,
+                         volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_intDiv (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_modulo (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_divExact (int id ATTRIBUTE_UNUSED,
+                            volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_quo (int id ATTRIBUTE_UNUSED,
+                       volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_rem (int id ATTRIBUTE_UNUSED,
+                       volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_negated (int id ATTRIBUTE_UNUSED,
+                           volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_bitAnd (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_bitOr (int id ATTRIBUTE_UNUSED,
+                         volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_bitXor (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_bitInvert (int id ATTRIBUTE_UNUSED,
+                             volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_bitShift (int id ATTRIBUTE_UNUSED,
+                            volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_plus (int id ATTRIBUTE_UNUSED,
+                        volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_minus (int id ATTRIBUTE_UNUSED,
+                         volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_gcd (int id ATTRIBUTE_UNUSED,
+                       volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_asFloatD (int id ATTRIBUTE_UNUSED,
+                            volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_asFloatE (int id ATTRIBUTE_UNUSED,
+                            volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_LargeInteger_asFloatQ (int id ATTRIBUTE_UNUSED,
+                            volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FloatD_arith (int id ATTRIBUTE_UNUSED,
+                   volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FloatD_truncated (int id ATTRIBUTE_UNUSED,
+                       volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FloatD_fractionPart (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FloatD_exponent (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FloatD_timesTwoPower (int id ATTRIBUTE_UNUSED,
+                           volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FloatD_asFloatE (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FloatD_asFloatQ (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FloatE_arith (int id ATTRIBUTE_UNUSED,
+                   volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FloatE_truncated (int id ATTRIBUTE_UNUSED,
+                       volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FloatE_fractionPart (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FloatE_exponent (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FloatE_timesTwoPower (int id ATTRIBUTE_UNUSED,
+                           volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FloatE_asFloatD (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FloatE_asFloatQ (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FloatQ_arith (int id ATTRIBUTE_UNUSED,
+                   volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FloatQ_truncated (int id ATTRIBUTE_UNUSED,
+                       volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FloatQ_fractionPart (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FloatQ_exponent (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FloatQ_timesTwoPower (int id ATTRIBUTE_UNUSED,
+                           volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FloatQ_asFloatD (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FloatQ_asFloatE (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_basicAt (int id ATTRIBUTE_UNUSED,
+                     volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_basicAtPut (int id ATTRIBUTE_UNUSED,
+                        volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_basicSize (int id ATTRIBUTE_UNUSED,
+                       volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_CharacterArray_valueAt (int id ATTRIBUTE_UNUSED,
+                             volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_CharacterArray_valueAtPut (int id ATTRIBUTE_UNUSED,
+                                volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_CompiledCode_verificationResult (int id ATTRIBUTE_UNUSED,
+                                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_CompiledBlock_create (int id ATTRIBUTE_UNUSED,
+                           volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_CompiledMethod_create (int id ATTRIBUTE_UNUSED,
+                            volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_shallowCopy (int id ATTRIBUTE_UNUSED,
+                         volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Behavior_basicNew (int id ATTRIBUTE_UNUSED,
+                        volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Behavior_newInitialize (int id ATTRIBUTE_UNUSED,
+                             volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Behavior_basicNewColon (int id ATTRIBUTE_UNUSED,
+                             volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Behavior_newColonInitialize (int id ATTRIBUTE_UNUSED,
+                                  volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_become (int id ATTRIBUTE_UNUSED,
+                    volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_instVarAt (int id ATTRIBUTE_UNUSED,
+                       volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_instVarAtPut (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_hash (int id ATTRIBUTE_UNUSED,
+                  volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_asObject (int id ATTRIBUTE_UNUSED,
+                            volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SmallInteger_nextValidOop (int id ATTRIBUTE_UNUSED,
+                                volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Behavior_someInstance (int id ATTRIBUTE_UNUSED,
+                            volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_nextInstance (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_becomeForward (int id ATTRIBUTE_UNUSED,
+                           volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_allOwners (int id ATTRIBUTE_UNUSED,
+                       volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_ContextPart_thisContext (int id ATTRIBUTE_UNUSED,
+                              volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_ContextPart_continue (int id ATTRIBUTE_UNUSED,
+                           volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Continuation_resume (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_BlockClosure_value (int id ATTRIBUTE_UNUSED,
+                         volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_BlockClosure_cull (int id ATTRIBUTE_UNUSED,
+                        volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_BlockClosure_valueAndResumeOnUnwind (int id ATTRIBUTE_UNUSED,
+                                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_BlockClosure_valueWithArguments (int id ATTRIBUTE_UNUSED,
+                                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_perform (int id ATTRIBUTE_UNUSED,
+                     volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_performWithArguments (int id ATTRIBUTE_UNUSED,
+                                  volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Semaphore_notifyAll (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Semaphore_signalNotify (int id ATTRIBUTE_UNUSED,
+                             volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Semaphore_lock (int id ATTRIBUTE_UNUSED,
+                     volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Semaphore_wait (int id ATTRIBUTE_UNUSED,
+                     volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Semaphore_waitAfterSignalling (int id ATTRIBUTE_UNUSED,
+                                    volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Process_suspend (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Process_resume (int id ATTRIBUTE_UNUSED,
+                     volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Process_singleStepWaitingOn (int id ATTRIBUTE_UNUSED,
+                                  volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Process_yield (int id ATTRIBUTE_UNUSED,
+                    volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Processor_dispatchEvents (int id ATTRIBUTE_UNUSED,
+                               volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Processor_pause (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Behavior_flushCache (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_CompiledCode_discardTranslation (int id ATTRIBUTE_UNUSED,
+                                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_changeClassTo (int id ATTRIBUTE_UNUSED,
+                           volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Time_timezoneBias (int id ATTRIBUTE_UNUSED,
+                        volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Time_timezone (int id ATTRIBUTE_UNUSED,
+                    volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Time_secondClock (int id ATTRIBUTE_UNUSED,
+                       volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Time_nanosecondClock (int id ATTRIBUTE_UNUSED,
+                           volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Time_millisecondClock (int id ATTRIBUTE_UNUSED,
+                            volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Processor_signalAt (int id ATTRIBUTE_UNUSED,
+                         volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Processor_isTimeoutProgrammed (int id ATTRIBUTE_UNUSED,
+                                    volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_String_similarityTo (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_String_hash (int id ATTRIBUTE_UNUSED,
+                  volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_ArrayedCollection_equal (int id ATTRIBUTE_UNUSED,
+                              volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_ArrayedCollection_indexOfStartingAt (int id ATTRIBUTE_UNUSED,
+                                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_ArrayedCollection_replaceFromToWithStartingAt (int id ATTRIBUTE_UNUSED,
+                                                    volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_identity (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_class (int id ATTRIBUTE_UNUSED,
+                   volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_ObjectMemory_quit (int id ATTRIBUTE_UNUSED,
+                        volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_ObjectMemory_abort (int id ATTRIBUTE_UNUSED,
+                         volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Dictionary_at (int id ATTRIBUTE_UNUSED,
+                    volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_bootstrapException (int id ATTRIBUTE_UNUSED,
+                                volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Character_create (int id ATTRIBUTE_UNUSED,
+                       volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_UnicodeCharacter_create (int id ATTRIBUTE_UNUSED,
+                              volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Character_equal (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Symbol_intern (int id ATTRIBUTE_UNUSED,
+                    volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Dictionary_new (int id ATTRIBUTE_UNUSED,
+                     volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Memory_addressOfOOP (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Memory_addressOf (int id ATTRIBUTE_UNUSED,
+                       volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SystemDictionary_backtrace (int id ATTRIBUTE_UNUSED,
+                                 volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SystemDictionary_getTraceFlag (int id ATTRIBUTE_UNUSED,
+                                    volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SystemDictionary_setTraceFlag (int id ATTRIBUTE_UNUSED,
+                                    volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Memory_at (int id ATTRIBUTE_UNUSED,
+                volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Memory_atPut (int id ATTRIBUTE_UNUSED,
+                   volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Behavior_methodsFor (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Behavior_methodsForIfTrue (int id ATTRIBUTE_UNUSED,
+                                volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Processor_disableEnableInterrupts (int id ATTRIBUTE_UNUSED,
+                                        volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Processor_signalOnInterrupt (int id ATTRIBUTE_UNUSED,
+                                  volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_ObjectMemory_getSpaceGrowRate (int id ATTRIBUTE_UNUSED,
+                                    volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_ObjectMemory_setSpaceGrowRate (int id ATTRIBUTE_UNUSED,
+                                    volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_ObjectMemory_getSmoothingFactor (int id ATTRIBUTE_UNUSED,
+                                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_ObjectMemory_setSmoothingFactor (int id ATTRIBUTE_UNUSED,
+                                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_ObjectMemory_getGrowThresholdPercent (int id ATTRIBUTE_UNUSED,
+                                           volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_ObjectMemory_setGrowThresholdPercent (int id ATTRIBUTE_UNUSED,
+                                           volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_ObjectMemory_getBigObjectThreshold (int id ATTRIBUTE_UNUSED,
+                                         volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_ObjectMemory_setBigObjectThreshold (int id ATTRIBUTE_UNUSED,
+                                         volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_ObjectMemory_growTo (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_ObjectMemory_update (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_CObject_allocType (int id ATTRIBUTE_UNUSED,
+                        volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Float_sin (int id ATTRIBUTE_UNUSED,
+                volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Float_cos (int id ATTRIBUTE_UNUSED,
+                volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Float_tan (int id ATTRIBUTE_UNUSED,
+                volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Float_arcSin (int id ATTRIBUTE_UNUSED,
+                   volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Float_arcCos (int id ATTRIBUTE_UNUSED,
+                   volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Float_arcTan (int id ATTRIBUTE_UNUSED,
+                   volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Float_exp (int id ATTRIBUTE_UNUSED,
+                volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Float_ln (int id ATTRIBUTE_UNUSED,
+               volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Float_pow (int id ATTRIBUTE_UNUSED,
+                volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_CObject_free (int id ATTRIBUTE_UNUSED,
+                   volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Float_sqrt (int id ATTRIBUTE_UNUSED,
+                 volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Float_ceil_floor (int id ATTRIBUTE_UNUSED,
+                       volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Behavior_basicNewFixed (int id ATTRIBUTE_UNUSED,
+                             volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Behavior_basicNewFixedColon (int id ATTRIBUTE_UNUSED,
+                                  volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_tenure (int id ATTRIBUTE_UNUSED,
+                    volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_makeFixed (int id ATTRIBUTE_UNUSED,
+                       volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_CObject_at (int id ATTRIBUTE_UNUSED,
+                 volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_CObject_atPut (int id ATTRIBUTE_UNUSED,
+                    volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_CObject_address (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_CObject_addressColon (int id ATTRIBUTE_UNUSED,
+                           volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_CString_replaceWith (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_ByteArray_fromCData_size (int id ATTRIBUTE_UNUSED,
+                               volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_String_fromCData_size (int id ATTRIBUTE_UNUSED,
+                            volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_String_fromCData (int id ATTRIBUTE_UNUSED,
+                       volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_String_ByteArray_asCData (int id ATTRIBUTE_UNUSED,
+                               volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SystemDictionary_byteCodeCounter (int id ATTRIBUTE_UNUSED,
+                                       volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SystemDictionary_debug (int id ATTRIBUTE_UNUSED,
+                             volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_isReadOnly (int id ATTRIBUTE_UNUSED,
+                        volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_makeReadOnly (int id ATTRIBUTE_UNUSED,
+                          volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Behavior_primCompile (int id ATTRIBUTE_UNUSED,
+                           volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Behavior_primCompileIfError (int id ATTRIBUTE_UNUSED,
+                                  volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_CCallbackDescriptor_link (int id ATTRIBUTE_UNUSED,
+                               volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_CFuncDescriptor_addressOf (int id ATTRIBUTE_UNUSED,
+                                volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_ObjectMemory_snapshot (int id ATTRIBUTE_UNUSED,
+                            volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_basicPrint (int id ATTRIBUTE_UNUSED,
+                        volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_makeWeak (int id ATTRIBUTE_UNUSED,
+                      volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Stream_fileInLine (int id ATTRIBUTE_UNUSED,
+                        volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FileDescriptor_fileOp (int id ATTRIBUTE_UNUSED,
+                            volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_FileDescriptor_socketOp (int id ATTRIBUTE_UNUSED,
+                              volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_CFuncDescriptor_asyncCall (int id ATTRIBUTE_UNUSED,
+                                volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_CFuncDescriptor_call (int id ATTRIBUTE_UNUSED,
+                           volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Object_makeEphemeron (int id ATTRIBUTE_UNUSED,
+                           volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Namespace_setCurrent (int id ATTRIBUTE_UNUSED,
+                           volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_ObjectMemory_gcPrimitives (int id ATTRIBUTE_UNUSED,
+                                volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_SystemDictionary_rawProfile (int id ATTRIBUTE_UNUSED,
+                                  volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_Random_next (int id ATTRIBUTE_UNUSED,
+                  volatile int numArgs ATTRIBUTE_UNUSED);
+
+static intptr_t
+VMpr_HOLE (int id ATTRIBUTE_UNUSED,
+           volatile int numArgs ATTRIBUTE_UNUSED);
+
+
+intptr_t
+VMpr_SmallInteger_plus (int id,
+                        volatile int numArgs)
 {
   _gst_primitives_executed++;
   INT_BIN_OP (add_with_check (oop1, oop2, &overflow), false);
 }
 
 /* SmallInteger - arg */
-primitive VMpr_SmallInteger_minus [succeed,fail]
+intptr_t
+VMpr_SmallInteger_minus (int id,
+                         volatile int numArgs)
 {
   _gst_primitives_executed++;
   INT_BIN_OP (sub_with_check (oop1, oop2, &overflow), false);
 }
 
 /* SmallInteger < arg */
-primitive VMpr_SmallInteger_lt [succeed,fail]
+intptr_t
+VMpr_SmallInteger_lt (int id,
+                      volatile int numArgs)
 {
   _gst_primitives_executed++;
   BOOL_BIN_OP (<);
 }
 
 /* SmallInteger > arg */
-primitive VMpr_SmallInteger_gt [succeed,fail]
+intptr_t
+VMpr_SmallInteger_gt (int id,
+                      volatile int numArgs)
 {
   _gst_primitives_executed++;
   BOOL_BIN_OP (>);
 }
 
 /* SmallInteger <= arg */
-primitive VMpr_SmallInteger_le [succeed,fail]
+intptr_t
+VMpr_SmallInteger_le (int id,
+                      volatile int numArgs)
 {
   _gst_primitives_executed++;
   BOOL_BIN_OP (<=);
 }
 
 /* SmallInteger >= arg */
-primitive VMpr_SmallInteger_ge [succeed,fail]
+intptr_t
+VMpr_SmallInteger_ge (int id,
+                      volatile int numArgs)
 {
   _gst_primitives_executed++;
   BOOL_BIN_OP (>=);
 }
 
 /* SmallInteger =, == arg */
-primitive VMpr_SmallInteger_eq [succeed,fail]
+intptr_t
+VMpr_SmallInteger_eq (int id,
+                      volatile int numArgs)
 {
   _gst_primitives_executed++;
   BOOL_BIN_OP ( ==);
 }
 
 /* SmallInteger ~=, ~~ arg */
-primitive VMpr_SmallInteger_ne [succeed,fail]
+intptr_t
+VMpr_SmallInteger_ne (int id,
+                      volatile int numArgs)
 {
   _gst_primitives_executed++;
   BOOL_BIN_OP (!=);
 }
 
 /* SmallInteger * arg */
-primitive VMpr_SmallInteger_times [succeed,fail]
+intptr_t
+VMpr_SmallInteger_times (int id,
+                         volatile int numArgs)
 {
   _gst_primitives_executed++;
   INT_BIN_OP (mul_with_check (oop1, oop2, &overflow), false);
@@ -181,7 +1016,9 @@ primitive VMpr_SmallInteger_times [succeed,fail]
 
 /* SmallInteger / arg */
 /* quotient as exact as possible */
-primitive VMpr_SmallInteger_divide [succeed,fail]
+intptr_t
+VMpr_SmallInteger_divide (int id,
+                          volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -208,7 +1045,9 @@ primitive VMpr_SmallInteger_divide [succeed,fail]
 
 /* SmallInteger \\ arg */
 /* remainder truncated towards -infinity */
-primitive VMpr_SmallInteger_modulo [succeed,fail]
+intptr_t
+VMpr_SmallInteger_modulo (int id,
+                          volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -232,7 +1071,9 @@ primitive VMpr_SmallInteger_modulo [succeed,fail]
 
 /* SmallInteger // arg */
 /* quotient truncated towards -infinity */
-primitive VMpr_SmallInteger_intDiv [succeed,fail]
+intptr_t
+VMpr_SmallInteger_intDiv (int id,
+                          volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -263,7 +1104,9 @@ primitive VMpr_SmallInteger_intDiv [succeed,fail]
 
 /* SmallInteger quo: arg */
 /* quotient truncated towards 0 */
-primitive VMpr_SmallInteger_quo [succeed,fail]
+intptr_t
+VMpr_SmallInteger_quo (int id,
+                       volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -287,28 +1130,36 @@ primitive VMpr_SmallInteger_quo [succeed,fail]
 }
 
 /* SmallInteger bitAnd: arg */
-primitive VMpr_SmallInteger_bitAnd [succeed,fail]
+intptr_t
+VMpr_SmallInteger_bitAnd (int id,
+                          volatile int numArgs)
 {
   _gst_primitives_executed++;
   INT_BIN_OP (tagged_and (oop1, oop2), true);
 }
 
 /* SmallInteger bitOr: arg */
-primitive VMpr_SmallInteger_bitOr [succeed,fail]
+intptr_t
+VMpr_SmallInteger_bitOr (int id,
+                         volatile int numArgs)
 {
   _gst_primitives_executed++;
   INT_BIN_OP (tagged_or (oop1, oop2), true);
 }
 
 /* SmallInteger bitXor: arg */
-primitive VMpr_SmallInteger_bitXor [succeed,fail]
+intptr_t
+VMpr_SmallInteger_bitXor (int id,
+                          volatile int numArgs)
 {
   _gst_primitives_executed++;
   INT_BIN_OP (tagged_xor (oop1, oop2), true);
 }
 
 /* SmallInteger bitShift: arg */
-primitive VMpr_SmallInteger_bitShift [succeed,fail]
+intptr_t
+VMpr_SmallInteger_bitShift (int id,
+                            volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -347,7 +1198,9 @@ primitive VMpr_SmallInteger_bitShift [succeed,fail]
 
 /* SmallInteger scramble */
 
-primitive VMpr_SmallInteger_scramble [checks_receiver]
+intptr_t
+VMpr_SmallInteger_scramble (int id,
+                            volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -365,7 +1218,9 @@ primitive VMpr_SmallInteger_scramble [checks_receiver]
 
 /* SmallInteger asFloatD */
 
-primitive VMpr_SmallInteger_asFloatD [checks_receiver]
+intptr_t
+VMpr_SmallInteger_asFloatD (int id,
+                            volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -382,7 +1237,9 @@ primitive VMpr_SmallInteger_asFloatD [checks_receiver]
 
 /* SmallInteger asFloatE */
 
-primitive VMpr_SmallInteger_asFloatE [checks_receiver]
+intptr_t
+VMpr_SmallInteger_asFloatE (int id,
+                            volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -399,7 +1256,9 @@ primitive VMpr_SmallInteger_asFloatE [checks_receiver]
 
 /* SmallInteger asFloatQ */
 
-primitive VMpr_SmallInteger_asFloatQ [checks_receiver]
+intptr_t
+VMpr_SmallInteger_asFloatQ (int id,
+                            volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -414,7 +1273,9 @@ primitive VMpr_SmallInteger_asFloatQ [checks_receiver]
   PRIM_FAILED;
 }
 
-primitive VMpr_LargeInteger_eq [uses_gmp]
+intptr_t
+VMpr_LargeInteger_eq (int id,
+                      volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -456,7 +1317,9 @@ primitive VMpr_LargeInteger_eq [uses_gmp]
 #endif
 }
 
-primitive VMpr_LargeInteger_ne [uses_gmp]
+intptr_t
+VMpr_LargeInteger_ne (int id,
+                      volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -499,7 +1362,9 @@ primitive VMpr_LargeInteger_ne [uses_gmp]
 }
 
 
-primitive VMpr_LargeInteger_lt [uses_gmp]
+intptr_t
+VMpr_LargeInteger_lt (int id,
+                      volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -542,7 +1407,9 @@ primitive VMpr_LargeInteger_lt [uses_gmp]
 }
 
 
-primitive VMpr_LargeInteger_le [uses_gmp]
+intptr_t
+VMpr_LargeInteger_le (int id,
+                      volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -585,7 +1452,9 @@ primitive VMpr_LargeInteger_le [uses_gmp]
 }
 
 
-primitive VMpr_LargeInteger_gt [uses_gmp]
+intptr_t
+VMpr_LargeInteger_gt (int id,
+                      volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -628,7 +1497,9 @@ primitive VMpr_LargeInteger_gt [uses_gmp]
 }
 
 
-primitive VMpr_LargeInteger_ge [uses_gmp]
+intptr_t
+VMpr_LargeInteger_ge (int id,
+                      volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -671,7 +1542,9 @@ primitive VMpr_LargeInteger_ge [uses_gmp]
 }
 
 
-primitive VMpr_LargeInteger_times [uses_gmp]
+intptr_t
+VMpr_LargeInteger_times (int id,
+                         volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -717,7 +1590,9 @@ primitive VMpr_LargeInteger_times [uses_gmp]
 
 
 
-primitive VMpr_LargeInteger_intDiv [uses_gmp]
+intptr_t
+VMpr_LargeInteger_intDiv (int id,
+                          volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -767,7 +1642,9 @@ primitive VMpr_LargeInteger_intDiv [uses_gmp]
 }
 
 
-primitive VMpr_LargeInteger_modulo [uses_gmp]
+intptr_t
+VMpr_LargeInteger_modulo (int id,
+                          volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -820,7 +1697,9 @@ primitive VMpr_LargeInteger_modulo [uses_gmp]
 }
 
 
-primitive VMpr_LargeInteger_divExact [uses_gmp]
+intptr_t
+VMpr_LargeInteger_divExact (int id,
+                            volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -867,7 +1746,9 @@ primitive VMpr_LargeInteger_divExact [uses_gmp]
 #endif
 }
 
-primitive VMpr_LargeInteger_quo [uses_gmp]
+intptr_t
+VMpr_LargeInteger_quo (int id,
+                       volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -917,7 +1798,9 @@ primitive VMpr_LargeInteger_quo [uses_gmp]
 }
 
 
-primitive VMpr_LargeInteger_rem [uses_gmp]
+intptr_t
+VMpr_LargeInteger_rem (int id,
+                       volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -970,7 +1853,9 @@ primitive VMpr_LargeInteger_rem [uses_gmp]
 }
 
 
-primitive VMpr_LargeInteger_negated [uses_gmp]
+intptr_t
+VMpr_LargeInteger_negated (int id,
+                           volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -1002,7 +1887,9 @@ primitive VMpr_LargeInteger_negated [uses_gmp]
 }
 
 
-primitive VMpr_LargeInteger_bitAnd [uses_gmp]
+intptr_t
+VMpr_LargeInteger_bitAnd (int id,
+                          volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -1047,7 +1934,9 @@ primitive VMpr_LargeInteger_bitAnd [uses_gmp]
 }
 
 
-primitive VMpr_LargeInteger_bitOr [uses_gmp]
+intptr_t
+VMpr_LargeInteger_bitOr (int id,
+                         volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -1092,7 +1981,9 @@ primitive VMpr_LargeInteger_bitOr [uses_gmp]
 }
 
 
-primitive VMpr_LargeInteger_bitXor [uses_gmp]
+intptr_t
+VMpr_LargeInteger_bitXor (int id,
+                          volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -1137,7 +2028,9 @@ primitive VMpr_LargeInteger_bitXor [uses_gmp]
 }
 
 
-primitive VMpr_LargeInteger_bitInvert [uses_gmp]
+intptr_t
+VMpr_LargeInteger_bitInvert (int id,
+                             volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -1168,7 +2061,9 @@ primitive VMpr_LargeInteger_bitInvert [uses_gmp]
 }
 
 
-primitive VMpr_LargeInteger_bitShift [uses_gmp]
+intptr_t
+VMpr_LargeInteger_bitShift (int id,
+                            volatile int numArgs)
 {
 #ifdef HAVE_GMP
   int n;
@@ -1212,7 +2107,9 @@ primitive VMpr_LargeInteger_bitShift [uses_gmp]
 }
 
 
-primitive VMpr_LargeInteger_plus [uses_gmp]
+intptr_t
+VMpr_LargeInteger_plus (int id,
+                        volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -1257,7 +2154,9 @@ primitive VMpr_LargeInteger_plus [uses_gmp]
 }
 
 
-primitive VMpr_LargeInteger_minus [uses_gmp]
+intptr_t
+VMpr_LargeInteger_minus (int id,
+                         volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -1302,7 +2201,9 @@ primitive VMpr_LargeInteger_minus [uses_gmp]
 }
 
 
-primitive VMpr_LargeInteger_gcd [uses_gmp]
+intptr_t
+VMpr_LargeInteger_gcd (int id,
+                       volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -1354,7 +2255,9 @@ primitive VMpr_LargeInteger_gcd [uses_gmp]
 }
 
 
-primitive VMpr_LargeInteger_asFloatD [uses_gmp]
+intptr_t
+VMpr_LargeInteger_asFloatD (int id,
+                            volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -1387,7 +2290,9 @@ primitive VMpr_LargeInteger_asFloatD [uses_gmp]
 }
 
 
-primitive VMpr_LargeInteger_asFloatE [uses_gmp]
+intptr_t
+VMpr_LargeInteger_asFloatE (int id,
+                            volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -1420,7 +2325,9 @@ primitive VMpr_LargeInteger_asFloatE [uses_gmp]
 }
 
 
-primitive VMpr_LargeInteger_asFloatQ [uses_gmp]
+intptr_t
+VMpr_LargeInteger_asFloatQ (int id,
+                            volatile int numArgs)
 {
 #ifdef HAVE_GMP
   gst_mpz a = { 0, 0, NULL };
@@ -1452,17 +2359,9 @@ primitive VMpr_LargeInteger_asFloatQ [uses_gmp]
   PRIM_FAILED;
 }
 
-primitive VMpr_FloatD_arith :
-     prim_id VMpr_FloatD_plus [succeed,fail],
-     prim_id VMpr_FloatD_minus [succeed,fail],
-     prim_id VMpr_FloatD_lt [succeed,fail],
-     prim_id VMpr_FloatD_gt [succeed,fail],
-     prim_id VMpr_FloatD_le [succeed,fail],
-     prim_id VMpr_FloatD_ge [succeed,fail],
-     prim_id VMpr_FloatD_eq [succeed,fail],
-     prim_id VMpr_FloatD_ne [succeed,fail],
-     prim_id VMpr_FloatD_times [succeed,fail],
-     prim_id VMpr_FloatD_divide [succeed,fail]
+intptr_t
+VMpr_FloatD_arith (int id,
+                   volatile int numArgs)
 {
   double farg2;
   OOP oop1;
@@ -1487,34 +2386,34 @@ primitive VMpr_FloatD_arith :
       farg1 = FLOATD_OOP_VALUE (oop1);
       switch (id)
 	{
-	case prim_id (VMpr_FloatD_plus):
+	case 0:
 	  PUSH_OOP (floatd_new (farg1 + farg2));
 	  break;
-	case prim_id (VMpr_FloatD_minus):
+	case -1:
 	  PUSH_OOP (floatd_new (farg1 - farg2));
 	  break;
-	case prim_id (VMpr_FloatD_lt):
+	case -2:
 	  PUSH_BOOLEAN (farg1 < farg2);
 	  break;
-	case prim_id (VMpr_FloatD_gt):
+	case -3:
 	  PUSH_BOOLEAN (farg1 > farg2);
 	  break;
-	case prim_id (VMpr_FloatD_le):
+	case -4:
 	  PUSH_BOOLEAN (farg1 <= farg2);
 	  break;
-	case prim_id (VMpr_FloatD_ge):
+	case -5:
 	  PUSH_BOOLEAN (farg1 >= farg2);
 	  break;
-	case prim_id (VMpr_FloatD_eq):
+	case -6:
 	  PUSH_BOOLEAN (farg1 == farg2);
 	  break;
-	case prim_id (VMpr_FloatD_ne):
+	case -7:
 	  PUSH_BOOLEAN (farg1 != farg2);
 	  break;
-	case prim_id (VMpr_FloatD_times):
+	case -8:
 	  PUSH_OOP (floatd_new (farg1 * farg2));
 	  break;
-	case prim_id (VMpr_FloatD_divide):
+	case -9:
 	  PUSH_OOP (floatd_new (farg1 / farg2));
 	  break;
 	}
@@ -1526,7 +2425,9 @@ primitive VMpr_FloatD_arith :
 }
 
 /* FloatD truncated */
-primitive VMpr_FloatD_truncated [succeed,fail]
+intptr_t
+VMpr_FloatD_truncated (int id,
+                       volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -1546,7 +2447,9 @@ primitive VMpr_FloatD_truncated [succeed,fail]
 }
 
 /* FloatD fractionPart */
-primitive VMpr_FloatD_fractionPart [checks_receiver]
+intptr_t
+VMpr_FloatD_fractionPart (int id,
+                          volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -1566,7 +2469,9 @@ primitive VMpr_FloatD_fractionPart [checks_receiver]
 }
 
 /* FloatD exponent */
-primitive VMpr_FloatD_exponent [checks_receiver,return_small_smallinteger]
+intptr_t
+VMpr_FloatD_exponent (int id,
+                      volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -1593,7 +2498,9 @@ primitive VMpr_FloatD_exponent [checks_receiver,return_small_smallinteger]
 }
 
 /* FloatD timesTwoPower: */
-primitive VMpr_FloatD_timesTwoPower [succeed,fail]
+intptr_t
+VMpr_FloatD_timesTwoPower (int id,
+                           volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -1616,7 +2523,9 @@ primitive VMpr_FloatD_timesTwoPower [succeed,fail]
 
 /* FloatD asFloatE */
 
-primitive VMpr_FloatD_asFloatE [checks_receiver]
+intptr_t
+VMpr_FloatD_asFloatE (int id,
+                      volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -1633,7 +2542,9 @@ primitive VMpr_FloatD_asFloatE [checks_receiver]
 
 /* FloatD asFloatQ */
 
-primitive VMpr_FloatD_asFloatQ [checks_receiver]
+intptr_t
+VMpr_FloatD_asFloatQ (int id,
+                      volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -1648,17 +2559,9 @@ primitive VMpr_FloatD_asFloatQ [checks_receiver]
   PRIM_FAILED;
 }
 
-primitive VMpr_FloatE_arith :
-     prim_id VMpr_FloatE_plus [succeed,fail],
-     prim_id VMpr_FloatE_minus [succeed,fail],
-     prim_id VMpr_FloatE_lt [succeed,fail],
-     prim_id VMpr_FloatE_gt [succeed,fail],
-     prim_id VMpr_FloatE_le [succeed,fail],
-     prim_id VMpr_FloatE_ge [succeed,fail],
-     prim_id VMpr_FloatE_eq [succeed,fail],
-     prim_id VMpr_FloatE_ne [succeed,fail],
-     prim_id VMpr_FloatE_times [succeed,fail],
-     prim_id VMpr_FloatE_divide [succeed,fail]
+intptr_t
+VMpr_FloatE_arith (int id,
+                   volatile int numArgs)
 {
   double farg2;
   OOP oop1;
@@ -1683,34 +2586,34 @@ primitive VMpr_FloatE_arith :
       farg1 = FLOATE_OOP_VALUE (oop1);
       switch (id)
 	{
-	case prim_id (VMpr_FloatE_plus):
+	case 0:
 	  PUSH_OOP (floate_new (farg1 + farg2));
 	  break;
-	case prim_id (VMpr_FloatE_minus):
+	case -1:
 	  PUSH_OOP (floate_new (farg1 - farg2));
 	  break;
-	case prim_id (VMpr_FloatE_lt):
+	case -2:
 	  PUSH_BOOLEAN (farg1 < farg2);
 	  break;
-	case prim_id (VMpr_FloatE_gt):
+	case -3:
 	  PUSH_BOOLEAN (farg1 > farg2);
 	  break;
-	case prim_id (VMpr_FloatE_le):
+	case -4:
 	  PUSH_BOOLEAN (farg1 <= farg2);
 	  break;
-	case prim_id (VMpr_FloatE_ge):
+	case -5:
 	  PUSH_BOOLEAN (farg1 >= farg2);
 	  break;
-	case prim_id (VMpr_FloatE_eq):
+	case -6:
 	  PUSH_BOOLEAN (farg1 == farg2);
 	  break;
-	case prim_id (VMpr_FloatE_ne):
+	case -7:
 	  PUSH_BOOLEAN (farg1 != farg2);
 	  break;
-	case prim_id (VMpr_FloatE_times):
+	case -8:
 	  PUSH_OOP (floate_new (farg1 * farg2));
 	  break;
-	case prim_id (VMpr_FloatE_divide):
+	case -9:
 	  PUSH_OOP (floate_new (farg1 / farg2));
 	  break;
 	}
@@ -1722,7 +2625,9 @@ primitive VMpr_FloatE_arith :
 }
 
 /* FloatD truncated */
-primitive VMpr_FloatE_truncated [succeed,fail]
+intptr_t
+VMpr_FloatE_truncated (int id,
+                       volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -1742,7 +2647,9 @@ primitive VMpr_FloatE_truncated [succeed,fail]
 }
 
 /* FloatD fractionPart */
-primitive VMpr_FloatE_fractionPart [checks_receiver]
+intptr_t
+VMpr_FloatE_fractionPart (int id,
+                          volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -1762,7 +2669,9 @@ primitive VMpr_FloatE_fractionPart [checks_receiver]
 }
 
 /* FloatD exponent */
-primitive VMpr_FloatE_exponent [checks_receiver,return_small_smallinteger]
+intptr_t
+VMpr_FloatE_exponent (int id,
+                      volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -1789,7 +2698,9 @@ primitive VMpr_FloatE_exponent [checks_receiver,return_small_smallinteger]
 }
 
 /* FloatD timesTwoPower: */
-primitive VMpr_FloatE_timesTwoPower [succeed,fail]
+intptr_t
+VMpr_FloatE_timesTwoPower (int id,
+                           volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -1812,7 +2723,9 @@ primitive VMpr_FloatE_timesTwoPower [succeed,fail]
 
 /* FloatE asFloatD */
 
-primitive VMpr_FloatE_asFloatD [checks_receiver]
+intptr_t
+VMpr_FloatE_asFloatD (int id,
+                      volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -1829,7 +2742,9 @@ primitive VMpr_FloatE_asFloatD [checks_receiver]
 
 /* FloatD asFloatQ */
 
-primitive VMpr_FloatE_asFloatQ [checks_receiver]
+intptr_t
+VMpr_FloatE_asFloatQ (int id,
+                      volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -1844,17 +2759,9 @@ primitive VMpr_FloatE_asFloatQ [checks_receiver]
   PRIM_FAILED;
 }
 
-primitive VMpr_FloatQ_arith :
-     prim_id VMpr_FloatQ_plus [succeed,fail],
-     prim_id VMpr_FloatQ_minus [succeed,fail],
-     prim_id VMpr_FloatQ_lt [succeed,fail],
-     prim_id VMpr_FloatQ_gt [succeed,fail],
-     prim_id VMpr_FloatQ_le [succeed,fail],
-     prim_id VMpr_FloatQ_ge [succeed,fail],
-     prim_id VMpr_FloatQ_eq [succeed,fail],
-     prim_id VMpr_FloatQ_ne [succeed,fail],
-     prim_id VMpr_FloatQ_times [succeed,fail],
-     prim_id VMpr_FloatQ_divide [succeed,fail]
+intptr_t
+VMpr_FloatQ_arith (int id,
+                   volatile int numArgs)
 {
   long double farg2;
   OOP oop1;
@@ -1879,34 +2786,34 @@ primitive VMpr_FloatQ_arith :
       farg1 = FLOATQ_OOP_VALUE (oop1);
       switch (id)
 	{
-	case prim_id (VMpr_FloatQ_plus):
+	case 0:
 	  PUSH_OOP (floatq_new (farg1 + farg2));
 	  break;
-	case prim_id (VMpr_FloatQ_minus):
+	case -1:
 	  PUSH_OOP (floatq_new (farg1 - farg2));
 	  break;
-	case prim_id (VMpr_FloatQ_lt):
+	case -2:
 	  PUSH_BOOLEAN (farg1 < farg2);
 	  break;
-	case prim_id (VMpr_FloatQ_gt):
+	case -3:
 	  PUSH_BOOLEAN (farg1 > farg2);
 	  break;
-	case prim_id (VMpr_FloatQ_le):
+	case -4:
 	  PUSH_BOOLEAN (farg1 <= farg2);
 	  break;
-	case prim_id (VMpr_FloatQ_ge):
+	case -5:
 	  PUSH_BOOLEAN (farg1 >= farg2);
 	  break;
-	case prim_id (VMpr_FloatQ_eq):
+	case -6:
 	  PUSH_BOOLEAN (farg1 == farg2);
 	  break;
-	case prim_id (VMpr_FloatQ_ne):
+	case -7:
 	  PUSH_BOOLEAN (farg1 != farg2);
 	  break;
-	case prim_id (VMpr_FloatQ_times):
+	case -8:
 	  PUSH_OOP (floatq_new (farg1 * farg2));
 	  break;
-	case prim_id (VMpr_FloatQ_divide):
+	case -9:
 	  PUSH_OOP (floatq_new (farg1 / farg2));
 	  break;
 	}
@@ -1918,7 +2825,9 @@ primitive VMpr_FloatQ_arith :
 }
 
 /* FloatD truncated */
-primitive VMpr_FloatQ_truncated [succeed,fail]
+intptr_t
+VMpr_FloatQ_truncated (int id,
+                       volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -1938,7 +2847,9 @@ primitive VMpr_FloatQ_truncated [succeed,fail]
 }
 
 /* FloatD fractionPart */
-primitive VMpr_FloatQ_fractionPart [checks_receiver]
+intptr_t
+VMpr_FloatQ_fractionPart (int id,
+                          volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -1958,7 +2869,9 @@ primitive VMpr_FloatQ_fractionPart [checks_receiver]
 }
 
 /* FloatD exponent */
-primitive VMpr_FloatQ_exponent [checks_receiver,return_small_smallinteger]
+intptr_t
+VMpr_FloatQ_exponent (int id,
+                      volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -1985,7 +2898,9 @@ primitive VMpr_FloatQ_exponent [checks_receiver,return_small_smallinteger]
 }
 
 /* FloatD timesTwoPower: */
-primitive VMpr_FloatQ_timesTwoPower [succeed,fail]
+intptr_t
+VMpr_FloatQ_timesTwoPower (int id,
+                           volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -2008,7 +2923,9 @@ primitive VMpr_FloatQ_timesTwoPower [succeed,fail]
 
 /* FloatQ asFloatD */
 
-primitive VMpr_FloatQ_asFloatD [checks_receiver]
+intptr_t
+VMpr_FloatQ_asFloatD (int id,
+                      volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -2025,7 +2942,9 @@ primitive VMpr_FloatQ_asFloatD [checks_receiver]
 
 /* FloatD asFloatQ */
 
-primitive VMpr_FloatQ_asFloatE [checks_receiver]
+intptr_t
+VMpr_FloatQ_asFloatE (int id,
+                      volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -2044,7 +2963,9 @@ primitive VMpr_FloatQ_asFloatE [checks_receiver]
 
 /* Object at:, Object basicAt: */
 
-primitive VMpr_Object_basicAt = 60 [succeed,fail,inlined]
+intptr_t
+VMpr_Object_basicAt (int id,
+                     volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -2069,7 +2990,9 @@ primitive VMpr_Object_basicAt = 60 [succeed,fail,inlined]
 }
 
 /* Object at:put:, Object basicAt:put: */
-primitive VMpr_Object_basicAtPut = 61 [succeed,fail,inlined]
+intptr_t
+VMpr_Object_basicAtPut (int id,
+                        volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -2095,7 +3018,9 @@ primitive VMpr_Object_basicAtPut = 61 [succeed,fail,inlined]
 }
 
 /* Object basicSize; Object size; String size */
-primitive VMpr_Object_basicSize = 62 [succeed,return_small_smallinteger,inlined]
+intptr_t
+VMpr_Object_basicSize (int id,
+                       volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -2107,7 +3032,9 @@ primitive VMpr_Object_basicSize = 62 [succeed,return_small_smallinteger,inlined]
 
 /* CharacterArray valueAt: */
 
-primitive VMpr_CharacterArray_valueAt = 60 [succeed,fail]
+intptr_t
+VMpr_CharacterArray_valueAt (int id,
+                             volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -2148,7 +3075,9 @@ primitive VMpr_CharacterArray_valueAt = 60 [succeed,fail]
 }
 
 /* CharacterArray valueAt:put: */
-primitive VMpr_CharacterArray_valueAtPut = 61 [succeed,fail,inlined]
+intptr_t
+VMpr_CharacterArray_valueAtPut (int id,
+                                volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -2192,7 +3121,9 @@ primitive VMpr_CharacterArray_valueAtPut = 61 [succeed,fail,inlined]
 
 
 /* CompiledCode verificationResult */
-primitive VMpr_CompiledCode_verificationResult [succeed]
+intptr_t
+VMpr_CompiledCode_verificationResult (int id,
+                                      volatile int numArgs)
 {
   OOP oop1 = STACKTOP ();
   const char *result = _gst_verify_method (oop1, NULL, 0);
@@ -2203,7 +3134,9 @@ primitive VMpr_CompiledCode_verificationResult [succeed]
 }
 
 /* CompiledBlock numArgs:numTemps:bytecodes:depth:literals: */
-primitive VMpr_CompiledBlock_create [succeed]
+intptr_t
+VMpr_CompiledBlock_create (int id,
+                           volatile int numArgs)
 {
   OOP *_gst_literals = OOP_TO_OBJ (STACK_AT (0))->data;
   int depth = TO_INT (STACK_AT (1));
@@ -2224,7 +3157,9 @@ primitive VMpr_CompiledBlock_create [succeed]
 }
 
 /* CompiledMethod literals:numArgs:numTemps:attributes:bytecodes:depth: */
-primitive VMpr_CompiledMethod_create [succeed,fail]
+intptr_t
+VMpr_CompiledMethod_create (int id,
+                            volatile int numArgs)
 {
   int depth = TO_INT (STACK_AT (0));
   OOP bytecodesOOP = STACK_AT (1);
@@ -2250,7 +3185,9 @@ primitive VMpr_CompiledMethod_create [succeed,fail]
 }
 
 /* Object shallowCopy */
-primitive VMpr_Object_shallowCopy [succeed]
+intptr_t
+VMpr_Object_shallowCopy (int id,
+                         volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -2262,7 +3199,9 @@ primitive VMpr_Object_shallowCopy [succeed]
 }
 
 /* Behavior basicNew */
-primitive VMpr_Behavior_basicNew = 70 [succeed,fail,inlined]
+intptr_t
+VMpr_Behavior_basicNew (int id,
+                        volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -2284,7 +3223,9 @@ primitive VMpr_Behavior_basicNew = 70 [succeed,fail,inlined]
 }
 
 /* Behavior Behavior new; */
-primitive VMpr_Behavior_newInitialize [succeed,fail,reload_ip]
+intptr_t
+VMpr_Behavior_newInitialize (int id,
+                             volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -2307,7 +3248,9 @@ primitive VMpr_Behavior_newInitialize [succeed,fail,reload_ip]
 }
 
 /* Behavior basicNew: */
-primitive VMpr_Behavior_basicNewColon = 71 [succeed,fail,inlined]
+intptr_t
+VMpr_Behavior_basicNewColon (int id,
+                             volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -2336,7 +3279,9 @@ primitive VMpr_Behavior_basicNewColon = 71 [succeed,fail,inlined]
 }
 
 /* Behavior new:; */
-primitive VMpr_Behavior_newColonInitialize [succeed,fail,reload_ip]
+intptr_t
+VMpr_Behavior_newColonInitialize (int id,
+                                  volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -2366,7 +3311,9 @@ primitive VMpr_Behavior_newColonInitialize [succeed,fail,reload_ip]
 }
 
 /* Object become: */
-primitive VMpr_Object_become [succeed,fail]
+intptr_t
+VMpr_Object_become (int id,
+                    volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -2386,7 +3333,9 @@ primitive VMpr_Object_become [succeed,fail]
 }
 
 /* Object instVarAt: */
-primitive VMpr_Object_instVarAt = 73 [succeed,fail,inlined]
+intptr_t
+VMpr_Object_instVarAt (int id,
+                       volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -2409,7 +3358,9 @@ primitive VMpr_Object_instVarAt = 73 [succeed,fail,inlined]
 }
 
 /* Object inst_var_at:put: */
-primitive VMpr_Object_instVarAtPut = 74 [succeed,fail,inlined]
+intptr_t
+VMpr_Object_instVarAtPut (int id,
+                          volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -2434,7 +3385,9 @@ primitive VMpr_Object_instVarAtPut = 74 [succeed,fail,inlined]
 }
 
 /* Object asOop; Object hash; Symbol hash */
-primitive VMpr_Object_hash [succeed,fail]
+intptr_t
+VMpr_Object_hash (int id,
+                  volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -2450,7 +3403,9 @@ primitive VMpr_Object_hash [succeed,fail]
 }
 
 /* SmallInteger asObject; SmallInteger asObjectNoFail */
-primitive VMpr_SmallInteger_asObject [succeed,fail]
+intptr_t
+VMpr_SmallInteger_asObject (int id,
+                            volatile int numArgs)
 {
   OOP oop1;
   intptr_t arg1;
@@ -2472,7 +3427,9 @@ primitive VMpr_SmallInteger_asObject [succeed,fail]
 }
 
 /* SmallInteger nextValidOop */
-primitive VMpr_SmallInteger_nextValidOop [succeed,fail]
+intptr_t
+VMpr_SmallInteger_nextValidOop (int id,
+                                volatile int numArgs)
 {
   OOP oop1;
   intptr_t arg1;
@@ -2494,7 +3451,9 @@ primitive VMpr_SmallInteger_nextValidOop [succeed,fail]
 }
 
 /* Behavior someInstance */
-primitive VMpr_Behavior_someInstance [succeed,fail]
+intptr_t
+VMpr_Behavior_someInstance (int id,
+                            volatile int numArgs)
 {
   OOP oop1;
   OOP oop2, lastOOP;
@@ -2516,7 +3475,9 @@ primitive VMpr_Behavior_someInstance [succeed,fail]
 }
 
 /* Object nextInstance */
-primitive VMpr_Object_nextInstance [succeed,fail]
+intptr_t
+VMpr_Object_nextInstance (int id,
+                          volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -2552,7 +3513,9 @@ primitive VMpr_Object_nextInstance [succeed,fail]
 }
 
 /* Object becomeForward: */
-primitive VMpr_Object_becomeForward [succeed]
+intptr_t
+VMpr_Object_becomeForward (int id,
+                           volatile int numArgs)
 {
   OOP oop1, ownerOOP;
   OOP oop2, lastOOP;
@@ -2597,7 +3560,9 @@ primitive VMpr_Object_becomeForward [succeed]
 }
 
 /* Object allOwners */
-primitive VMpr_Object_allOwners [succeed]
+intptr_t
+VMpr_Object_allOwners (int id,
+                       volatile int numArgs)
 {
   OOP oop1;
   OOP oop2, lastOOP;
@@ -2627,7 +3592,9 @@ primitive VMpr_Object_allOwners [succeed]
 }
 
 
-primitive VMpr_ContextPart_thisContext [succeed]
+intptr_t
+VMpr_ContextPart_thisContext (int id,
+                              volatile int numArgs)
 {
   _gst_primitives_executed++;
   empty_context_stack ();
@@ -2635,7 +3602,9 @@ primitive VMpr_ContextPart_thisContext [succeed]
   PRIM_SUCCEEDED;
 }
 
-primitive VMpr_ContextPart_continue [checks_receiver,reload_ip]
+intptr_t
+VMpr_ContextPart_continue (int id,
+                           volatile int numArgs)
 {
   OOP oop2;
   OOP oop1;
@@ -2658,7 +3627,9 @@ primitive VMpr_ContextPart_continue [checks_receiver,reload_ip]
 }
 
 /* Continuation resume:nextContinuation: */
-primitive VMpr_Continuation_resume [fail,reload_ip]
+intptr_t
+VMpr_Continuation_resume (int id,
+                          volatile int numArgs)
 {
   OOP oop1, oop2, oop3;
 
@@ -2686,7 +3657,9 @@ primitive VMpr_Continuation_resume [fail,reload_ip]
    BlockClosure value:
    BlockClosure value:value:
    BlockClosure value:value:value: */
-primitive VMpr_BlockClosure_value [fail,reload_ip,cache_new_ip]
+intptr_t
+VMpr_BlockClosure_value (int id,
+                         volatile int numArgs)
 {
   _gst_primitives_executed++;
   if UNCOMMON (send_block_value (numArgs, 0))
@@ -2698,7 +3671,9 @@ primitive VMpr_BlockClosure_value [fail,reload_ip,cache_new_ip]
 /* BlockClosure cull:
    BlockClosure cull:cull:
    BlockClosure cull:cull:cull: */
-primitive VMpr_BlockClosure_cull [fail,reload_ip]
+intptr_t
+VMpr_BlockClosure_cull (int id,
+                        volatile int numArgs)
 {
   _gst_primitives_executed++;
   if UNCOMMON (send_block_value (numArgs, numArgs))
@@ -2710,7 +3685,9 @@ primitive VMpr_BlockClosure_cull [fail,reload_ip]
 /* We cannot cache the IP here, otherwise calls to #valueAndResumeOnUnwind
    don't actually make the context an unwind context.  If we make a provision
    for that in xlat.c, we can set the cache_new_ip attribute.  */
-primitive VMpr_BlockClosure_valueAndResumeOnUnwind [fail,reload_ip]
+intptr_t
+VMpr_BlockClosure_valueAndResumeOnUnwind (int id,
+                                          volatile int numArgs)
 {
   gst_method_context context;
 
@@ -2726,7 +3703,9 @@ primitive VMpr_BlockClosure_valueAndResumeOnUnwind [fail,reload_ip]
 }
 
 /* BlockClosure valueWithArguments: */
-primitive VMpr_BlockClosure_valueWithArguments [fail,reload_ip]
+intptr_t
+VMpr_BlockClosure_valueWithArguments (int id,
+                                      volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -2758,7 +3737,9 @@ primitive VMpr_BlockClosure_valueWithArguments [fail,reload_ip]
    Object perform:with:
    Object perform:with:with:
    Object perform:with:with:with: */
-primitive VMpr_Object_perform [fail,reload_ip]
+intptr_t
+VMpr_Object_perform (int id,
+                     volatile int numArgs)
 {
   OOP oop1;
   OOP *oopVec = alloca (numArgs * sizeof (OOP));
@@ -2806,7 +3787,9 @@ primitive VMpr_Object_perform [fail,reload_ip]
 }
 
 /* Object perform:withArguments: */
-primitive VMpr_Object_performWithArguments [fail,reload_ip]
+intptr_t
+VMpr_Object_performWithArguments (int id,
+                                  volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -2855,7 +3838,9 @@ primitive VMpr_Object_performWithArguments [fail,reload_ip]
 
 /* Semaphore notifyAll */
 
-primitive VMpr_Semaphore_notifyAll [succeed,check_interrupt]
+intptr_t
+VMpr_Semaphore_notifyAll (int id,
+                          volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -2868,20 +3853,22 @@ primitive VMpr_Semaphore_notifyAll [succeed,check_interrupt]
 }
 
 /* Semaphore signal (id = 0) or Semaphore notify (id = 1) */
-primitive VMpr_Semaphore_signalNotify :
-     prim_id VMpr_Semaphore_signal [succeed,check_interrupt],
-     prim_id VMpr_Semaphore_notify [succeed,check_interrupt]
+intptr_t
+VMpr_Semaphore_signalNotify (int id,
+                             volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
 
   oop1 = STACKTOP ();
-  _gst_sync_signal (oop1, id == prim_id (VMpr_Semaphore_signal));
+  _gst_sync_signal (oop1, id == 0);
   PRIM_SUCCEEDED;
 }
 
 /* Semaphore wait lock */
-primitive VMpr_Semaphore_lock [succeed,check_interrupt]
+intptr_t
+VMpr_Semaphore_lock (int id,
+                     volatile int numArgs)
 {
   OOP oop1;
   gst_semaphore sem;
@@ -2895,7 +3882,9 @@ primitive VMpr_Semaphore_lock [succeed,check_interrupt]
 }
 
 /* Semaphore wait */
-primitive VMpr_Semaphore_wait [succeed,check_interrupt]
+intptr_t
+VMpr_Semaphore_wait (int id,
+                     volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -2906,7 +3895,9 @@ primitive VMpr_Semaphore_wait [succeed,check_interrupt]
 }
 
 /* Semaphore waitAfterSignalling: aSemaphore */
-primitive VMpr_Semaphore_waitAfterSignalling [succeed,check_interrupt]
+intptr_t
+VMpr_Semaphore_waitAfterSignalling (int id,
+                                    volatile int numArgs)
 {
   OOP oop1, oop2;
   _gst_primitives_executed++;
@@ -2919,7 +3910,9 @@ primitive VMpr_Semaphore_waitAfterSignalling [succeed,check_interrupt]
 }
 
 /* Process suspend */
-primitive VMpr_Process_suspend [succeed,check_interrupt]
+intptr_t
+VMpr_Process_suspend (int id,
+                      volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -2930,7 +3923,9 @@ primitive VMpr_Process_suspend [succeed,check_interrupt]
 }
 
 /* Process resume */
-primitive VMpr_Process_resume [succeed,fail,check_interrupt]
+intptr_t
+VMpr_Process_resume (int id,
+                     volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -2943,7 +3938,9 @@ primitive VMpr_Process_resume [succeed,fail,check_interrupt]
 }
 
 /* Process singleStepWaitingOn: */
-primitive VMpr_Process_singleStepWaitingOn [succeed,fail]
+intptr_t
+VMpr_Process_singleStepWaitingOn (int id,
+                                  volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -2969,7 +3966,9 @@ primitive VMpr_Process_singleStepWaitingOn [succeed,fail]
 }
 
 /* Process yield */
-primitive VMpr_Process_yield [succeed,check_interrupt]
+intptr_t
+VMpr_Process_yield (int id,
+                    volatile int numArgs)
 {
   OOP oop1;
 
@@ -2984,7 +3983,9 @@ primitive VMpr_Process_yield [succeed,check_interrupt]
 }
 
 /* Processor waitForEvents */
-primitive VMpr_Processor_dispatchEvents [succeed,check_interrupt]
+intptr_t
+VMpr_Processor_dispatchEvents (int id,
+                               volatile int numArgs)
 {
   interp_jmp_buf jb;
   gst_processor_scheduler processor;
@@ -3030,7 +4031,9 @@ primitive VMpr_Processor_dispatchEvents [succeed,check_interrupt]
 }
 
 /* Processor pause: waitForSignal */
-primitive VMpr_Processor_pause [succeed,check_interrupt]
+intptr_t
+VMpr_Processor_pause (int id,
+                      volatile int numArgs)
 {
   OOP oop1;
 
@@ -3046,7 +4049,9 @@ primitive VMpr_Processor_pause [succeed,check_interrupt]
 
 
 /* Behavior flushCache */
-primitive VMpr_Behavior_flushCache [succeed]
+intptr_t
+VMpr_Behavior_flushCache (int id,
+                          volatile int numArgs)
 {
   _gst_primitives_executed++;
   _gst_invalidate_method_cache ();
@@ -3054,7 +4059,9 @@ primitive VMpr_Behavior_flushCache [succeed]
 }
 
 /* CompiledCode discardTranslation */
-primitive VMpr_CompiledCode_discardTranslation [succeed]
+intptr_t
+VMpr_CompiledCode_discardTranslation (int id,
+                                      volatile int numArgs)
 {
   _gst_primitives_executed++;
 #ifdef ENABLE_JIT_TRANSLATION
@@ -3064,7 +4071,9 @@ primitive VMpr_CompiledCode_discardTranslation [succeed]
 }
 
 /* Object changeClassTo: */
-primitive VMpr_Object_changeClassTo [succeed,fail]
+intptr_t
+VMpr_Object_changeClassTo (int id,
+                           volatile int numArgs)
 {
   OOP oop1, oop2;
   gst_object obj1, obj2;
@@ -3087,7 +4096,9 @@ primitive VMpr_Object_changeClassTo [succeed,fail]
 }
 
 /* Time class timezoneBias */
-primitive VMpr_Time_timezoneBias [succeed]
+intptr_t
+VMpr_Time_timezoneBias (int id,
+                        volatile int numArgs)
 {
   OOP oop1;
   uint64_t t;
@@ -3111,7 +4122,9 @@ primitive VMpr_Time_timezoneBias [succeed]
 }
 
 /* Time class timezone */
-primitive VMpr_Time_timezone [succeed]
+intptr_t
+VMpr_Time_timezone (int id,
+                    volatile int numArgs)
 {
   OOP oop1;
   char *result;
@@ -3130,7 +4143,9 @@ primitive VMpr_Time_timezone [succeed]
        book.  This primitive returns the
        seconds since/to Jan 1, 2000 00:00:00
        instead of Jan 1,1901.  */
-primitive VMpr_Time_secondClock [succeed]
+intptr_t
+VMpr_Time_secondClock (int id,
+                       volatile int numArgs)
 {
   _gst_primitives_executed++;
   /* 10957 = days between 1970 and 2000 */
@@ -3139,7 +4154,9 @@ primitive VMpr_Time_secondClock [succeed]
 }
 
 /* Time class nanosecondClock.  */
-primitive VMpr_Time_nanosecondClock [succeed]
+intptr_t
+VMpr_Time_nanosecondClock (int id,
+                           volatile int numArgs)
 {
   OOP nsOOP;
   uint64_t ns;
@@ -3151,7 +4168,9 @@ primitive VMpr_Time_nanosecondClock [succeed]
 }
 
 /* Time class millisecondClock.  */
-primitive VMpr_Time_millisecondClock [succeed]
+intptr_t
+VMpr_Time_millisecondClock (int id,
+                            volatile int numArgs)
 {
   OOP milliOOP;
   uint64_t milli;
@@ -3165,9 +4184,9 @@ primitive VMpr_Time_millisecondClock [succeed]
 /* Processor signal: semaphore atMilliseconds: deltaMilliseconds
    Processor signal: semaphore atNanosecondClockValue: absNanoseconds
  */
-primitive VMpr_Processor_signalAt :
-  prim_id VMpr_Processor_signalAtMilliseconds [succeed,fail,check_interrupt],
-  prim_id VMpr_Processor_signalAtNanosecondClockValue [succeed,fail,check_interrupt]
+intptr_t
+VMpr_Processor_signalAt (int id,
+                         volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -3179,7 +4198,7 @@ primitive VMpr_Processor_signalAt :
     {
       int64_t arg2 = to_c_int_64 (oop2);
       uint64_t ns = _gst_get_ns_time ();
-      if (id == prim_id(VMpr_Processor_signalAtMilliseconds))
+      if (id == 0)
         arg2 = (arg2 * 1000000) + ns;
       if (arg2 <= ns)
 	_gst_sync_signal (oop1, true);
@@ -3193,7 +4212,9 @@ primitive VMpr_Processor_signalAt :
 }
 
 /* Processor isTimeoutProgrammed */
-primitive VMpr_Processor_isTimeoutProgrammed [succeed]
+intptr_t
+VMpr_Processor_isTimeoutProgrammed (int id,
+                                    volatile int numArgs)
 {
   _gst_primitives_executed++;
   SET_STACKTOP_BOOLEAN (_gst_is_timeout_programmed ());
@@ -3202,7 +4223,9 @@ primitive VMpr_Processor_isTimeoutProgrammed [succeed]
 
 /* String similarityTo: */
 
-primitive VMpr_String_similarityTo [succeed,fail]
+intptr_t
+VMpr_String_similarityTo (int id,
+                          volatile int numArgs)
 {
   int result, l1, l2;
   gst_uchar *s1, *s2;
@@ -3238,7 +4261,9 @@ primitive VMpr_String_similarityTo [succeed,fail]
 
 /* String hash */
 
-primitive VMpr_String_hash [checks_receiver]
+intptr_t
+VMpr_String_hash (int id,
+                  volatile int numArgs)
 {
   uintptr_t hash;
   gst_uchar *base;
@@ -3261,7 +4286,9 @@ primitive VMpr_String_hash [checks_receiver]
    ByteArray =
    String =
    Array = */
-primitive VMpr_ArrayedCollection_equal [succeed,fail]
+intptr_t
+VMpr_ArrayedCollection_equal (int id,
+                              volatile int numArgs)
 {
   OOP srcOOP, dstOOP;
   int dstLen, srcLen;
@@ -3304,7 +4331,9 @@ primitive VMpr_ArrayedCollection_equal [succeed,fail]
    ByteArray indexOf:startingAt:ifAbsent:
    String indexOf:startingAt:
    String indexOf:startingAt:ifAbsent: */
-primitive VMpr_ArrayedCollection_indexOfStartingAt [succeed,fail]
+intptr_t
+VMpr_ArrayedCollection_indexOfStartingAt (int id,
+                                          volatile int numArgs)
 {
   OOP srcIndexOOP, srcOOP, targetOOP;
   int srcIndex, srcLen, target;
@@ -3351,7 +4380,9 @@ primitive VMpr_ArrayedCollection_indexOfStartingAt [succeed,fail]
    ByteArray replaceFrom:to:withString:startingAt:
    String replaceFrom:to:withByteArray:startingAt:
    Array replaceFrom:to:with:startingAt:*/
-primitive VMpr_ArrayedCollection_replaceFromToWithStartingAt [succeed,fail]
+intptr_t
+VMpr_ArrayedCollection_replaceFromToWithStartingAt (int id,
+                                                    volatile int numArgs)
 {
   OOP srcIndexOOP, srcOOP, dstEndIndexOOP, dstStartIndexOOP, dstOOP;
   int dstEndIndex, dstStartIndex, srcIndex, dstLen, srcLen, dstRangeLen;
@@ -3423,7 +4454,9 @@ primitive VMpr_ArrayedCollection_replaceFromToWithStartingAt [succeed,fail]
 
 /* Object == */
 
-primitive VMpr_Object_identity = 110 [succeed,inlined]
+intptr_t
+VMpr_Object_identity (int id,
+                      volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -3436,7 +4469,9 @@ primitive VMpr_Object_identity = 110 [succeed,inlined]
 }
 
 /* Object class */
-primitive VMpr_Object_class = 111 [succeed]
+intptr_t
+VMpr_Object_class (int id,
+                   volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -3454,7 +4489,9 @@ primitive VMpr_Object_class = 111 [succeed]
 /* ------- GNU Smalltalk specific primitives begin here -------------------- */
 /* quit: status
    Always fail because if it succeeds we don't return */
-primitive VMpr_ObjectMemory_quit [fail]
+intptr_t
+VMpr_ObjectMemory_quit (int id,
+                        volatile int numArgs)
 {
   OOP oop1;
   intptr_t arg1;
@@ -3474,7 +4511,9 @@ primitive VMpr_ObjectMemory_quit [fail]
 }
 
 /* abort */
-primitive VMpr_ObjectMemory_abort [fail]
+intptr_t
+VMpr_ObjectMemory_abort (int id,
+                         volatile int numArgs)
 {
   _gst_primitives_executed++;
   abort ();
@@ -3482,7 +4521,9 @@ primitive VMpr_ObjectMemory_abort [fail]
 
 
 /* Dictionary at: */
-primitive VMpr_Dictionary_at [succeed]
+intptr_t
+VMpr_Dictionary_at (int id,
+                    volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -3502,9 +4543,9 @@ primitive VMpr_Dictionary_at [succeed]
 
 /* Object doesNotUnderstand:
  * Object error: */
-primitive VMpr_Object_bootstrapException :
-     prim_id VMpr_Object_bootstrapError [succeed],
-     prim_id VMpr_Object_bootstrapDNU [succeed]
+intptr_t
+VMpr_Object_bootstrapException (int id,
+                                volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -3512,7 +4553,7 @@ primitive VMpr_Object_bootstrapException :
 
   oop2 = POP_OOP ();
   oop1 = STACKTOP ();
-  if (id == prim_id (VMpr_Object_bootstrapDNU))
+  if (id == -1)
     printf ("%O did not understand selector %O\n\n",
       	    oop1, MESSAGE_SELECTOR (oop2));
   else
@@ -3526,7 +4567,9 @@ primitive VMpr_Object_bootstrapException :
 
 /* Character class value: */
 
-primitive VMpr_Character_create [succeed,fail]
+intptr_t
+VMpr_Character_create (int id,
+                       volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -3550,7 +4593,9 @@ primitive VMpr_Character_create [succeed,fail]
 
 /* UnicodeCharacter class value: */
 
-primitive VMpr_UnicodeCharacter_create [succeed,fail]
+intptr_t
+VMpr_UnicodeCharacter_create (int id,
+                              volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -3573,7 +4618,9 @@ primitive VMpr_UnicodeCharacter_create [succeed,fail]
 }
 
 /* Character = */
-primitive VMpr_Character_equal [succeed]
+intptr_t
+VMpr_Character_equal (int id,
+                      volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -3589,7 +4636,9 @@ primitive VMpr_Character_equal [succeed]
 }
 
 /* Symbol class intern: aString */
-primitive VMpr_Symbol_intern [succeed,fail]
+intptr_t
+VMpr_Symbol_intern (int id,
+                    volatile int numArgs)
 {
   OOP oop2;
   _gst_primitives_executed++;
@@ -3610,7 +4659,9 @@ primitive VMpr_Symbol_intern [succeed,fail]
 }
 
 /* Dictionary new */
-primitive VMpr_Dictionary_new [succeed]
+intptr_t
+VMpr_Dictionary_new (int id,
+                     volatile int numArgs)
 {
   OOP oop1, dictionaryOOP;
   _gst_primitives_executed++;
@@ -3623,7 +4674,9 @@ primitive VMpr_Dictionary_new [succeed]
 
 
 /* Memory addressOfOOP: oop */
-primitive VMpr_Memory_addressOfOOP [succeed,fail]
+intptr_t
+VMpr_Memory_addressOfOOP (int id,
+                          volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -3641,7 +4694,9 @@ primitive VMpr_Memory_addressOfOOP [succeed,fail]
 }
 
 /* Memory addressOf: oop */
-primitive VMpr_Memory_addressOf [succeed,fail]
+intptr_t
+VMpr_Memory_addressOf (int id,
+                       volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -3661,7 +4716,9 @@ primitive VMpr_Memory_addressOf [succeed,fail]
 
 /* SystemDictionary backtrace */
 
-primitive VMpr_SystemDictionary_backtrace [succeed]
+intptr_t
+VMpr_SystemDictionary_backtrace (int id,
+                                 volatile int numArgs)
 {
   _gst_primitives_executed++;
   _gst_show_backtrace (stdout);
@@ -3669,7 +4726,9 @@ primitive VMpr_SystemDictionary_backtrace [succeed]
 }
 
 /* SystemDictionary getTraceFlag: anIndex */
-primitive VMpr_SystemDictionary_getTraceFlag [succeed,fail]
+intptr_t
+VMpr_SystemDictionary_getTraceFlag (int id,
+                                    volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -3697,7 +4756,9 @@ primitive VMpr_SystemDictionary_getTraceFlag [succeed,fail]
 }
 
 /* SystemDictionary setTraceFlag: anIndex to: aBoolean */
-primitive VMpr_SystemDictionary_setTraceFlag [succeed,fail]
+intptr_t
+VMpr_SystemDictionary_setTraceFlag (int id,
+                                    volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -3725,7 +4786,9 @@ primitive VMpr_SystemDictionary_setTraceFlag [succeed,fail]
 
 
 /* Memory type: aType at: anAddress */
-primitive VMpr_Memory_at [succeed,fail]
+intptr_t
+VMpr_Memory_at (int id,
+                volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -3797,7 +4860,9 @@ primitive VMpr_Memory_at [succeed,fail]
 }
 
 /* Memory type: aType at: anAddress put: aValue */
-primitive VMpr_Memory_atPut [succeed,fail]
+intptr_t
+VMpr_Memory_atPut (int id,
+                   volatile int numArgs)
 {
   OOP oop4;
   OOP oop3;
@@ -3936,7 +5001,9 @@ primitive VMpr_Memory_atPut [succeed,fail]
 
 
 /* methodsFor: category */
-primitive VMpr_Behavior_methodsFor [succeed,fail]
+intptr_t
+VMpr_Behavior_methodsFor (int id,
+                          volatile int numArgs)
 {
   OOP oop2 = POP_OOP ();
   OOP oop1 = STACKTOP ();
@@ -3953,7 +5020,9 @@ primitive VMpr_Behavior_methodsFor [succeed,fail]
 }
 
 /* methodsFor: category ifTrue: condition */
-primitive VMpr_Behavior_methodsForIfTrue [succeed,fail]
+intptr_t
+VMpr_Behavior_methodsForIfTrue (int id,
+                                volatile int numArgs)
 {
   OOP oop3 = POP_OOP ();
   OOP oop2 = POP_OOP ();
@@ -3973,9 +5042,9 @@ primitive VMpr_Behavior_methodsForIfTrue [succeed,fail]
 }
 
 
-primitive VMpr_Processor_disableEnableInterrupts :
-     prim_id VMpr_Processor_disableInterrupts [succeed],
-     prim_id VMpr_Processor_enableInterrupts [succeed]
+intptr_t
+VMpr_Processor_disableEnableInterrupts (int id,
+                                        volatile int numArgs)
 {
   OOP processOOP;
   gst_process process;
@@ -3989,9 +5058,9 @@ primitive VMpr_Processor_disableEnableInterrupts :
 
   count = IS_NIL (process->interrupts) ? 0 : TO_INT (process->interrupts);
 
-  if (id == prim_id (VMpr_Processor_disableInterrupts) && count++ == 0)
+  if (id == 0 && count++ == 0)
     async_queue_enabled = false;
-  else if (id == prim_id (VMpr_Processor_enableInterrupts) && --count == 0)
+  else if (id == -1 && --count == 0)
     {
       async_queue_enabled = true;
       SET_EXCEPT_FLAG (true);
@@ -4003,7 +5072,9 @@ primitive VMpr_Processor_disableEnableInterrupts :
 }
 
 /* ProcessorScheduler signal: aSemaphore onInterrupt: anInteger */
-primitive VMpr_Processor_signalOnInterrupt [succeed,fail,check_interrupt]
+intptr_t
+VMpr_Processor_signalOnInterrupt (int id,
+                                  volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -4025,7 +5096,9 @@ primitive VMpr_Processor_signalOnInterrupt [succeed,fail,check_interrupt]
 
 /* ObjectMemory spaceGrowRate */
 
-primitive VMpr_ObjectMemory_getSpaceGrowRate [succeed]
+intptr_t
+VMpr_ObjectMemory_getSpaceGrowRate (int id,
+                                    volatile int numArgs)
 {
   _gst_primitives_executed++;
   SET_STACKTOP (floatd_new ((double) _gst_mem.space_grow_rate));
@@ -4033,7 +5106,9 @@ primitive VMpr_ObjectMemory_getSpaceGrowRate [succeed]
 }
 
 /* ObjectMemory spaceGrowRate: */
-primitive VMpr_ObjectMemory_setSpaceGrowRate [succeed,fail]
+intptr_t
+VMpr_ObjectMemory_setSpaceGrowRate (int id,
+                                    volatile int numArgs)
 {
   intptr_t arg1;
   OOP oop1;
@@ -4065,7 +5140,9 @@ primitive VMpr_ObjectMemory_setSpaceGrowRate [succeed,fail]
 }
 
 /* ObjectMemory smoothingFactor */
-primitive VMpr_ObjectMemory_getSmoothingFactor [succeed]
+intptr_t
+VMpr_ObjectMemory_getSmoothingFactor (int id,
+                                      volatile int numArgs)
 {
   _gst_primitives_executed++;
   SET_STACKTOP (floatd_new ((double) _gst_mem.factor));
@@ -4073,7 +5150,9 @@ primitive VMpr_ObjectMemory_getSmoothingFactor [succeed]
 }
 
 /* ObjectMemory smoothingFactor: */
-primitive VMpr_ObjectMemory_setSmoothingFactor [succeed,fail]
+intptr_t
+VMpr_ObjectMemory_setSmoothingFactor (int id,
+                                      volatile int numArgs)
 {
   OOP oop1;
   intptr_t arg1;
@@ -4104,7 +5183,9 @@ primitive VMpr_ObjectMemory_setSmoothingFactor [succeed,fail]
 }
 
 /* ObjectMemory growThresholdPercent */
-primitive VMpr_ObjectMemory_getGrowThresholdPercent [succeed]
+intptr_t
+VMpr_ObjectMemory_getGrowThresholdPercent (int id,
+                                           volatile int numArgs)
 {
   _gst_primitives_executed++;
   SET_STACKTOP (floatd_new ((double) _gst_mem.grow_threshold_percent));
@@ -4112,7 +5193,9 @@ primitive VMpr_ObjectMemory_getGrowThresholdPercent [succeed]
 }
 
 /* ObjectMemory growThresholdPercent: */
-primitive VMpr_ObjectMemory_setGrowThresholdPercent [succeed,fail]
+intptr_t
+VMpr_ObjectMemory_setGrowThresholdPercent (int id,
+                                           volatile int numArgs)
 {
   OOP oop1;
   intptr_t arg1;
@@ -4143,7 +5226,9 @@ primitive VMpr_ObjectMemory_setGrowThresholdPercent [succeed,fail]
 }
 
 /* ObjectMemory bigObjectThreshold */
-primitive VMpr_ObjectMemory_getBigObjectThreshold [succeed]
+intptr_t
+VMpr_ObjectMemory_getBigObjectThreshold (int id,
+                                         volatile int numArgs)
 {
   _gst_primitives_executed++;
   SET_STACKTOP_INT (_gst_mem.big_object_threshold);
@@ -4151,7 +5236,9 @@ primitive VMpr_ObjectMemory_getBigObjectThreshold [succeed]
 }
 
 /* ObjectMemory bigObjectThreshold: */
-primitive VMpr_ObjectMemory_setBigObjectThreshold [succeed,fail]
+intptr_t
+VMpr_ObjectMemory_setBigObjectThreshold (int id,
+                                         volatile int numArgs)
 {
   OOP oop1;
   intptr_t arg1;
@@ -4179,7 +5266,9 @@ primitive VMpr_ObjectMemory_setBigObjectThreshold [succeed,fail]
 }
 
 /* ObjectMemory growTo: numBytes */
-primitive VMpr_ObjectMemory_growTo [succeed,fail]
+intptr_t
+VMpr_ObjectMemory_growTo (int id,
+                          volatile int numArgs)
 {
   OOP oop1;
   intptr_t arg1;
@@ -4198,7 +5287,9 @@ primitive VMpr_ObjectMemory_growTo [succeed,fail]
 }
 
 /* ObjectMemory update */
-primitive VMpr_ObjectMemory_update [checks_receiver]
+intptr_t
+VMpr_ObjectMemory_update (int id,
+                          volatile int numArgs)
 {
   _gst_primitives_executed++;
 
@@ -4213,7 +5304,9 @@ primitive VMpr_ObjectMemory_update [checks_receiver]
 
 /* CObject class alloc: nbytes type: aType */
 
-primitive VMpr_CObject_allocType [succeed,fail]
+intptr_t
+VMpr_CObject_allocType (int id,
+                        volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -4239,7 +5332,9 @@ primitive VMpr_CObject_allocType [succeed,fail]
 }
 
 /* sin */
-primitive VMpr_Float_sin [succeed,fail]
+intptr_t
+VMpr_Float_sin (int id,
+                volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -4267,7 +5362,9 @@ primitive VMpr_Float_sin [succeed,fail]
 }
 
 /* cos */
-primitive VMpr_Float_cos [succeed,fail]
+intptr_t
+VMpr_Float_cos (int id,
+                volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -4295,7 +5392,9 @@ primitive VMpr_Float_cos [succeed,fail]
 }
 
 /* tan */
-primitive VMpr_Float_tan [succeed,fail]
+intptr_t
+VMpr_Float_tan (int id,
+                volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -4323,7 +5422,9 @@ primitive VMpr_Float_tan [succeed,fail]
 }
 
 /* arcSin */
-primitive VMpr_Float_arcSin [succeed,fail]
+intptr_t
+VMpr_Float_arcSin (int id,
+                   volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -4351,7 +5452,9 @@ primitive VMpr_Float_arcSin [succeed,fail]
 }
 
 /* arcCos */
-primitive VMpr_Float_arcCos [succeed,fail]
+intptr_t
+VMpr_Float_arcCos (int id,
+                   volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -4379,7 +5482,9 @@ primitive VMpr_Float_arcCos [succeed,fail]
 }
 
 /* arcTan */
-primitive VMpr_Float_arcTan [succeed,fail]
+intptr_t
+VMpr_Float_arcTan (int id,
+                   volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -4407,7 +5512,9 @@ primitive VMpr_Float_arcTan [succeed,fail]
 }
 
 /* exp */
-primitive VMpr_Float_exp [succeed,fail]
+intptr_t
+VMpr_Float_exp (int id,
+                volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -4435,7 +5542,9 @@ primitive VMpr_Float_exp [succeed,fail]
 }
 
 /* ln */
-primitive VMpr_Float_ln [succeed,fail]
+intptr_t
+VMpr_Float_ln (int id,
+               volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -4463,7 +5572,9 @@ primitive VMpr_Float_ln [succeed,fail]
 }
 
 /* raisedTo: aNumber -- receiver ** aNumber */
-primitive VMpr_Float_pow [succeed,fail]
+intptr_t
+VMpr_Float_pow (int id,
+                volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -4537,7 +5648,9 @@ primitive VMpr_Float_pow [succeed,fail]
 }
 
 /* CObject free */
-primitive VMpr_CObject_free [succeed,fail]
+intptr_t
+VMpr_CObject_free (int id,
+                   volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -4560,7 +5673,9 @@ primitive VMpr_CObject_free [succeed,fail]
 }
 
 /* sqrt */
-primitive VMpr_Float_sqrt [succeed,fail]
+intptr_t
+VMpr_Float_sqrt (int id,
+                 volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -4588,9 +5703,9 @@ primitive VMpr_Float_sqrt [succeed,fail]
 }
 
 /* ceiling, floor */
-primitive VMpr_Float_ceil_floor :
-     prim_id VMpr_Float_ceil [succeed,fail],
-     prim_id VMpr_Float_floor [succeed,fail]
+intptr_t
+VMpr_Float_ceil_floor (int id,
+                       volatile int numArgs)
 {
   OOP oop1;
   double farg1;
@@ -4610,10 +5725,10 @@ primitive VMpr_Float_ceil_floor :
     {
       switch (id)
         {
-        case prim_id (VMpr_Float_ceil):
+        case 0:
           SET_STACKTOP_INT ((intptr_t) ceil (farg1));
           PRIM_SUCCEEDED;
-        case prim_id (VMpr_Float_floor):
+        case -1:
           SET_STACKTOP_INT ((intptr_t) floor (farg1));
           PRIM_SUCCEEDED;
         }
@@ -4623,7 +5738,9 @@ primitive VMpr_Float_ceil_floor :
 }
 
 /* Behavior basicNewInFixedSpace */
-primitive VMpr_Behavior_basicNewFixed [succeed,fail]
+intptr_t
+VMpr_Behavior_basicNewFixed (int id,
+                             volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -4644,7 +5761,9 @@ primitive VMpr_Behavior_basicNewFixed [succeed,fail]
 }
 
 /* Behavior basicNewInFixedSpace: */
-primitive VMpr_Behavior_basicNewFixedColon [succeed,fail]
+intptr_t
+VMpr_Behavior_basicNewFixedColon (int id,
+                                  volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -4673,7 +5792,9 @@ primitive VMpr_Behavior_basicNewFixedColon [succeed,fail]
   PRIM_FAILED;
 }
 
-primitive VMpr_Object_tenure [succeed,fail]
+intptr_t
+VMpr_Object_tenure (int id,
+                    volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -4688,7 +5809,9 @@ primitive VMpr_Object_tenure [succeed,fail]
   PRIM_FAILED;
 }
 
-primitive VMpr_Object_makeFixed [succeed,fail]
+intptr_t
+VMpr_Object_makeFixed (int id,
+                       volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -4706,9 +5829,9 @@ primitive VMpr_Object_makeFixed [succeed,fail]
 
 /* CObject at: byteoffset type: aType */
 
-primitive VMpr_CObject_at :
-     prim_id VMpr_CObject_derefAt [succeed,fail],
-     prim_id VMpr_CObject_at [succeed,fail]
+intptr_t
+VMpr_CObject_at (int id,
+                 volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -4719,7 +5842,7 @@ primitive VMpr_CObject_at :
   oop2 = POP_OOP ();
   oop1 = STACKTOP ();
   if (IS_INT (oop2)
-      && ((IS_INT (oop3) && id == prim_id (VMpr_CObject_at))
+      && ((IS_INT (oop3) && id == -1)
 	  || is_a_kind_of (OOP_CLASS (oop3), _gst_c_type_class)))
     {
       char *addr;
@@ -4811,7 +5934,7 @@ primitive VMpr_CObject_at :
 
 	  /* Non-integer oop3: use it as the type of the effective address. */
 
-	  if (id == prim_id (VMpr_CObject_derefAt))
+	  if (id == 0)
 	    {
 	      if (!cobject_index_check (oop1, arg2, sizeof (uintptr_t)))
 		goto fail;
@@ -4853,7 +5976,9 @@ primitive VMpr_CObject_at :
 }
 
 /* CObject at: byteOffset put: aValue type: aType */
-primitive VMpr_CObject_atPut [succeed,fail]
+intptr_t
+VMpr_CObject_atPut (int id,
+                    volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -5041,7 +6166,9 @@ primitive VMpr_CObject_atPut [succeed,fail]
 }
 
 /* CObject address */
-primitive VMpr_CObject_address [succeed]
+intptr_t
+VMpr_CObject_address (int id,
+                      volatile int numArgs)
 {
   OOP oop1;
   gst_cobject cObj;
@@ -5062,7 +6189,9 @@ primitive VMpr_CObject_address [succeed]
 
 
 /* CObject address: */
-primitive VMpr_CObject_addressColon [succeed, fail]
+intptr_t
+VMpr_CObject_addressColon (int id,
+                           volatile int numArgs)
 {
   OOP oop1, oop2;
   gst_cobject cObj;
@@ -5083,7 +6212,9 @@ primitive VMpr_CObject_addressColon [succeed, fail]
 }
 
 /* CString replaceWith: aString */
-primitive VMpr_CString_replaceWith [succeed,fail]
+intptr_t
+VMpr_CString_replaceWith (int id,
+                          volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -5115,7 +6246,9 @@ primitive VMpr_CString_replaceWith [succeed,fail]
 }
 
 /* ByteArray class fromCdata: aCObject size: anInteger */
-primitive VMpr_ByteArray_fromCData_size [succeed,fail]
+intptr_t
+VMpr_ByteArray_fromCData_size (int id,
+                               volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -5138,7 +6271,9 @@ primitive VMpr_ByteArray_fromCData_size [succeed,fail]
 }
 
 /* String class fromCdata: aCObject size: anInteger */
-primitive VMpr_String_fromCData_size [succeed,fail]
+intptr_t
+VMpr_String_fromCData_size (int id,
+                            volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -5161,7 +6296,9 @@ primitive VMpr_String_fromCData_size [succeed,fail]
 }
 
 /* String class fromCdata: aCObject */
-primitive VMpr_String_fromCData [succeed]
+intptr_t
+VMpr_String_fromCData (int id,
+                       volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -5177,9 +6314,9 @@ primitive VMpr_String_fromCData [succeed]
 
 /* String asCdata: aCType
  * ByteArray asCdata: aCType */
-primitive VMpr_String_ByteArray_asCData :
-     prim_id VMpr_String_asCData [checks_receiver],
-     prim_id VMpr_ByteArray_asCData [checks_receiver]
+intptr_t
+VMpr_String_ByteArray_asCData (int id,
+                               volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -5190,11 +6327,11 @@ primitive VMpr_String_ByteArray_asCData :
   if (is_a_kind_of (OOP_CLASS (oop2), _gst_c_type_class))
     {
       int size = NUM_INDEXABLE_FIELDS (oop1);
-      int alloc_size = (id == prim_id (VMpr_String_asCData)) ? size + 1 : size;
+      int alloc_size = (id == 0) ? size + 1 : size;
       char *data = xmalloc (alloc_size);
       OOP cObjectOOP = COBJECT_NEW (data, oop2, _gst_c_object_class);
       memcpy (data, OOP_TO_OBJ (oop1)->data, size);
-      if (id == prim_id (VMpr_String_asCData))
+      if (id == 0)
 	data[size] = 0;
       POP_N_OOPS (1);
       SET_STACKTOP (cObjectOOP);
@@ -5205,7 +6342,9 @@ primitive VMpr_String_ByteArray_asCData :
 
 
 /* SystemDictionary byteCodeCounter */
-primitive VMpr_SystemDictionary_byteCodeCounter [succeed]
+intptr_t
+VMpr_SystemDictionary_byteCodeCounter (int id,
+                                       volatile int numArgs)
 {
   _gst_primitives_executed++;
   SET_STACKTOP_INT (_gst_bytecode_counter);
@@ -5213,7 +6352,9 @@ primitive VMpr_SystemDictionary_byteCodeCounter [succeed]
 }
 
 /* SystemDictionary debug */
-primitive VMpr_SystemDictionary_debug [succeed]
+intptr_t
+VMpr_SystemDictionary_debug (int id,
+                             volatile int numArgs)
 {
   _gst_primitives_executed++;
   _gst_debug ();		/* used to allow gdb to stop based on
@@ -5223,7 +6364,9 @@ primitive VMpr_SystemDictionary_debug [succeed]
 
 
 /* Object isReadOnly */
-primitive VMpr_Object_isReadOnly [succeed]
+intptr_t
+VMpr_Object_isReadOnly (int id,
+                        volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -5234,7 +6377,9 @@ primitive VMpr_Object_isReadOnly [succeed]
 }
 
 /* Object makeReadOnly: */
-primitive VMpr_Object_makeReadOnly [succeed,fail]
+intptr_t
+VMpr_Object_makeReadOnly (int id,
+                          volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -5262,7 +6407,9 @@ primitive VMpr_Object_makeReadOnly [succeed,fail]
 
 /* Behavior primCompile: aString */
 
-primitive VMpr_Behavior_primCompile [succeed]
+intptr_t
+VMpr_Behavior_primCompile (int id,
+                           volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -5289,7 +6436,9 @@ primitive VMpr_Behavior_primCompile [succeed]
 }
 
 /* Behavior primCompile: aString ifError: aBlock */
-primitive VMpr_Behavior_primCompileIfError [fail,succeed,reload_ip]
+intptr_t
+VMpr_Behavior_primCompileIfError (int id,
+                                  volatile int numArgs)
 {
   OOP oop1;
   OOP oop2;
@@ -5355,7 +6504,9 @@ primitive VMpr_Behavior_primCompileIfError [fail,succeed,reload_ip]
 }
 
 /* CCallbackDescriptor link */
-primitive VMpr_CCallbackDescriptor_link [succeed,fail]
+intptr_t
+VMpr_CCallbackDescriptor_link (int id,
+                               volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -5368,7 +6519,9 @@ primitive VMpr_CCallbackDescriptor_link [succeed,fail]
 }
 
 /* CFunctionDescriptor addressOf: funcNameString */
-primitive VMpr_CFuncDescriptor_addressOf [succeed,fail]
+intptr_t
+VMpr_CFuncDescriptor_addressOf (int id,
+                                volatile int numArgs)
 {
   OOP oop1;
   _gst_primitives_executed++;
@@ -5392,7 +6545,9 @@ primitive VMpr_CFuncDescriptor_addressOf [succeed,fail]
 }
 
 /* Object snapshot: aString */
-primitive VMpr_ObjectMemory_snapshot [succeed,fail]
+intptr_t
+VMpr_ObjectMemory_snapshot (int id,
+                            volatile int numArgs)
 {
   char *fileName;
   OOP oop2;
@@ -5441,7 +6596,9 @@ primitive VMpr_ObjectMemory_snapshot [succeed,fail]
 }
 
 /* Object basicPrint */
-primitive VMpr_Object_basicPrint [succeed]
+intptr_t
+VMpr_Object_basicPrint (int id,
+                        volatile int numArgs)
 {
   _gst_primitives_executed++;
   printf ("Object: %O", STACKTOP ());
@@ -5450,7 +6607,9 @@ primitive VMpr_Object_basicPrint [succeed]
 }
 
 /* Object makeWeak */
-primitive VMpr_Object_makeWeak [succeed,fail]
+intptr_t
+VMpr_Object_makeWeak (int id,
+                      volatile int numArgs)
 {
   OOP oop1 = STACKTOP ();
   _gst_primitives_executed++;
@@ -5466,7 +6625,9 @@ primitive VMpr_Object_makeWeak [succeed,fail]
 
 /* Stream fileInLine: lineNum fileName: aString at: charPosInt */
 
-primitive VMpr_Stream_fileInLine [succeed,fail]
+intptr_t
+VMpr_Stream_fileInLine (int id,
+                        volatile int numArgs)
 {
   OOP oop4 = POP_OOP ();
   OOP oop3 = POP_OOP ();
@@ -5500,7 +6661,9 @@ primitive VMpr_Stream_fileInLine [succeed,fail]
 
 /* FileDescriptor>>#fileOp..., variadic */
 
-primitive VMpr_FileDescriptor_fileOp [succeed,fail]
+intptr_t
+VMpr_FileDescriptor_fileOp (int id,
+                            volatile int numArgs)
 {
   char *fileName, *fileName2;
   gst_file_stream fileStream;
@@ -5884,7 +7047,9 @@ primitive VMpr_FileDescriptor_fileOp [succeed,fail]
 
 /* FileDescriptor>>#socketOp..., socket version, variadic */
 
-primitive VMpr_FileDescriptor_socketOp [succeed,fail]
+intptr_t
+VMpr_FileDescriptor_socketOp (int id,
+                              volatile int numArgs)
 {
   gst_file_stream fileStream;
   int fd, rc;
@@ -6019,7 +7184,9 @@ primitive VMpr_FileDescriptor_socketOp [succeed,fail]
 
 /* C callout primitives.  */
 
-primitive VMpr_CFuncDescriptor_asyncCall [succeed,fail]
+intptr_t
+VMpr_CFuncDescriptor_asyncCall (int id,
+                                volatile int numArgs)
 {
   OOP resultOOP;
   volatile gst_method_context context;
@@ -6066,7 +7233,9 @@ primitive VMpr_CFuncDescriptor_asyncCall [succeed,fail]
   PRIM_FAILED;
 }
 
-primitive VMpr_CFuncDescriptor_call [succeed,fail]
+intptr_t
+VMpr_CFuncDescriptor_call (int id,
+                           volatile int numArgs)
 {
   volatile gst_method_context context;
   gst_object resultHolderObj;
@@ -6130,7 +7299,9 @@ primitive VMpr_CFuncDescriptor_call [succeed,fail]
 }
 
 
-primitive VMpr_Object_makeEphemeron [succeed,fail]
+intptr_t
+VMpr_Object_makeEphemeron (int id,
+                           volatile int numArgs)
 {
   _gst_primitives_executed++;
   if (NUM_OOPS (OOP_TO_OBJ (STACKTOP ())) == 0)
@@ -6141,7 +7312,9 @@ primitive VMpr_Object_makeEphemeron [succeed,fail]
 }
 
 /* Namespace current: aNamespace */
-primitive VMpr_Namespace_setCurrent [fail]
+intptr_t
+VMpr_Namespace_setCurrent (int id,
+                           volatile int numArgs)
 {
   OOP oop1;
 
@@ -6156,33 +7329,30 @@ primitive VMpr_Namespace_setCurrent [fail]
   PRIM_FAILED;
 }
 
-primitive VMpr_ObjectMemory_gcPrimitives :
-     prim_id VMpr_ObjectMemory_scavenge [succeed],
-     prim_id VMpr_ObjectMemory_compact [succeed],
-     prim_id VMpr_ObjectMemory_globalGarbageCollect [succeed],
-     prim_id VMpr_ObjectMemory_incrementalGCStep [succeed],
-     prim_id VMpr_ObjectMemory_finishIncrementalGC [succeed]
+intptr_t
+VMpr_ObjectMemory_gcPrimitives (int id,
+                                volatile int numArgs)
 {
   _gst_primitives_executed++;
   switch (id)
     {
-      case prim_id (VMpr_ObjectMemory_scavenge):
+      case 0:
 	_gst_scavenge ();
 	break;
 
-      case prim_id (VMpr_ObjectMemory_compact):
+      case -1:
 	_gst_global_compact ();
 	break;
 
-      case prim_id (VMpr_ObjectMemory_globalGarbageCollect):
+      case -2:
 	_gst_global_gc (0);
 	break;
 
-      case prim_id (VMpr_ObjectMemory_incrementalGCStep):
+      case -3:
 	SET_STACKTOP_BOOLEAN (_gst_incremental_gc_step ());
 	break;
 
-      case prim_id (VMpr_ObjectMemory_finishIncrementalGC):
+      case -4:
 	_gst_finish_incremental_gc ();
 	break;
     }
@@ -6191,7 +7361,9 @@ primitive VMpr_ObjectMemory_gcPrimitives :
 
 /* SystemDictionary profilerOn */
 
-primitive VMpr_SystemDictionary_rawProfile [succeed]
+intptr_t
+VMpr_SystemDictionary_rawProfile (int id,
+                                  volatile int numArgs)
 {
   OOP oop1 = POP_OOP ();
   if (_gst_raw_profile)
@@ -6213,7 +7385,9 @@ primitive VMpr_SystemDictionary_rawProfile [succeed]
   PRIM_SUCCEEDED;
 }
 
-primitive VMpr_Random_next [succeed]
+intptr_t
+VMpr_Random_next (int id,
+                  volatile int numArgs)
 {
   OOP oop1, oop2;
   mst_Object obj;
@@ -6261,3 +7435,997 @@ primitive VMpr_Random_next [succeed]
 
 #undef INT_BIN_OP
 #undef BOOL_BIN_OP
+
+intptr_t
+VMpr_HOLE (int id,
+           volatile int numArgs)
+{
+  _gst_primitives_executed++;
+  _gst_errorf ("Unhandled primitive operation %d", id);
+
+  UNPOP (numArgs);
+  PRIM_FAILED;
+}
+
+unsigned char
+_gst_primitives_md5[16] = { 225, 63, 18, 146, 66, 109, 248, 224,
+                            201, 185, 175, 54, 25, 109, 150, 224 };
+
+void
+_gst_init_primitives()
+{
+  int i;
+  _gst_default_primitive_table[1].name = "VMpr_SmallInteger_plus";
+  _gst_default_primitive_table[1].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[1].id = 0;
+  _gst_default_primitive_table[1].func = VMpr_SmallInteger_plus;
+  _gst_default_primitive_table[2].name = "VMpr_SmallInteger_minus";
+  _gst_default_primitive_table[2].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[2].id = 0;
+  _gst_default_primitive_table[2].func = VMpr_SmallInteger_minus;
+  _gst_default_primitive_table[3].name = "VMpr_SmallInteger_lt";
+  _gst_default_primitive_table[3].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[3].id = 0;
+  _gst_default_primitive_table[3].func = VMpr_SmallInteger_lt;
+  _gst_default_primitive_table[4].name = "VMpr_SmallInteger_gt";
+  _gst_default_primitive_table[4].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[4].id = 0;
+  _gst_default_primitive_table[4].func = VMpr_SmallInteger_gt;
+  _gst_default_primitive_table[5].name = "VMpr_SmallInteger_le";
+  _gst_default_primitive_table[5].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[5].id = 0;
+  _gst_default_primitive_table[5].func = VMpr_SmallInteger_le;
+  _gst_default_primitive_table[6].name = "VMpr_SmallInteger_ge";
+  _gst_default_primitive_table[6].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[6].id = 0;
+  _gst_default_primitive_table[6].func = VMpr_SmallInteger_ge;
+  _gst_default_primitive_table[7].name = "VMpr_SmallInteger_eq";
+  _gst_default_primitive_table[7].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[7].id = 0;
+  _gst_default_primitive_table[7].func = VMpr_SmallInteger_eq;
+  _gst_default_primitive_table[8].name = "VMpr_SmallInteger_ne";
+  _gst_default_primitive_table[8].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[8].id = 0;
+  _gst_default_primitive_table[8].func = VMpr_SmallInteger_ne;
+  _gst_default_primitive_table[9].name = "VMpr_SmallInteger_times";
+  _gst_default_primitive_table[9].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[9].id = 0;
+  _gst_default_primitive_table[9].func = VMpr_SmallInteger_times;
+  _gst_default_primitive_table[10].name = "VMpr_SmallInteger_divide";
+  _gst_default_primitive_table[10].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[10].id = 0;
+  _gst_default_primitive_table[10].func = VMpr_SmallInteger_divide;
+  _gst_default_primitive_table[11].name = "VMpr_SmallInteger_modulo";
+  _gst_default_primitive_table[11].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[11].id = 0;
+  _gst_default_primitive_table[11].func = VMpr_SmallInteger_modulo;
+  _gst_default_primitive_table[12].name = "VMpr_SmallInteger_intDiv";
+  _gst_default_primitive_table[12].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[12].id = 0;
+  _gst_default_primitive_table[12].func = VMpr_SmallInteger_intDiv;
+  _gst_default_primitive_table[13].name = "VMpr_SmallInteger_quo";
+  _gst_default_primitive_table[13].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[13].id = 0;
+  _gst_default_primitive_table[13].func = VMpr_SmallInteger_quo;
+  _gst_default_primitive_table[14].name = "VMpr_SmallInteger_bitAnd";
+  _gst_default_primitive_table[14].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[14].id = 0;
+  _gst_default_primitive_table[14].func = VMpr_SmallInteger_bitAnd;
+  _gst_default_primitive_table[15].name = "VMpr_SmallInteger_bitOr";
+  _gst_default_primitive_table[15].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[15].id = 0;
+  _gst_default_primitive_table[15].func = VMpr_SmallInteger_bitOr;
+  _gst_default_primitive_table[16].name = "VMpr_SmallInteger_bitXor";
+  _gst_default_primitive_table[16].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[16].id = 0;
+  _gst_default_primitive_table[16].func = VMpr_SmallInteger_bitXor;
+  _gst_default_primitive_table[17].name = "VMpr_SmallInteger_bitShift";
+  _gst_default_primitive_table[17].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[17].id = 0;
+  _gst_default_primitive_table[17].func = VMpr_SmallInteger_bitShift;
+  _gst_default_primitive_table[18].name = "VMpr_SmallInteger_scramble";
+  _gst_default_primitive_table[18].attributes = PRIM_CHECKS_RECEIVER;
+  _gst_default_primitive_table[18].id = 0;
+  _gst_default_primitive_table[18].func = VMpr_SmallInteger_scramble;
+  _gst_default_primitive_table[19].name = "VMpr_SmallInteger_asFloatD";
+  _gst_default_primitive_table[19].attributes = PRIM_CHECKS_RECEIVER;
+  _gst_default_primitive_table[19].id = 0;
+  _gst_default_primitive_table[19].func = VMpr_SmallInteger_asFloatD;
+  _gst_default_primitive_table[20].name = "VMpr_SmallInteger_asFloatE";
+  _gst_default_primitive_table[20].attributes = PRIM_CHECKS_RECEIVER;
+  _gst_default_primitive_table[20].id = 0;
+  _gst_default_primitive_table[20].func = VMpr_SmallInteger_asFloatE;
+  _gst_default_primitive_table[21].name = "VMpr_SmallInteger_asFloatQ";
+  _gst_default_primitive_table[21].attributes = PRIM_CHECKS_RECEIVER;
+  _gst_default_primitive_table[21].id = 0;
+  _gst_default_primitive_table[21].func = VMpr_SmallInteger_asFloatQ;
+  _gst_default_primitive_table[22].name = "VMpr_LargeInteger_eq";
+  _gst_default_primitive_table[22].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[22].id = 0;
+  _gst_default_primitive_table[22].func = VMpr_LargeInteger_eq;
+  _gst_default_primitive_table[23].name = "VMpr_LargeInteger_ne";
+  _gst_default_primitive_table[23].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[23].id = 0;
+  _gst_default_primitive_table[23].func = VMpr_LargeInteger_ne;
+  _gst_default_primitive_table[24].name = "VMpr_LargeInteger_lt";
+  _gst_default_primitive_table[24].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[24].id = 0;
+  _gst_default_primitive_table[24].func = VMpr_LargeInteger_lt;
+  _gst_default_primitive_table[25].name = "VMpr_LargeInteger_le";
+  _gst_default_primitive_table[25].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[25].id = 0;
+  _gst_default_primitive_table[25].func = VMpr_LargeInteger_le;
+  _gst_default_primitive_table[26].name = "VMpr_LargeInteger_gt";
+  _gst_default_primitive_table[26].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[26].id = 0;
+  _gst_default_primitive_table[26].func = VMpr_LargeInteger_gt;
+  _gst_default_primitive_table[27].name = "VMpr_LargeInteger_ge";
+  _gst_default_primitive_table[27].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[27].id = 0;
+  _gst_default_primitive_table[27].func = VMpr_LargeInteger_ge;
+  _gst_default_primitive_table[28].name = "VMpr_LargeInteger_times";
+  _gst_default_primitive_table[28].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[28].id = 0;
+  _gst_default_primitive_table[28].func = VMpr_LargeInteger_times;
+  _gst_default_primitive_table[29].name = "VMpr_LargeInteger_intDiv";
+  _gst_default_primitive_table[29].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[29].id = 0;
+  _gst_default_primitive_table[29].func = VMpr_LargeInteger_intDiv;
+  _gst_default_primitive_table[30].name = "VMpr_LargeInteger_modulo";
+  _gst_default_primitive_table[30].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[30].id = 0;
+  _gst_default_primitive_table[30].func = VMpr_LargeInteger_modulo;
+  _gst_default_primitive_table[31].name = "VMpr_LargeInteger_divExact";
+  _gst_default_primitive_table[31].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[31].id = 0;
+  _gst_default_primitive_table[31].func = VMpr_LargeInteger_divExact;
+  _gst_default_primitive_table[32].name = "VMpr_LargeInteger_quo";
+  _gst_default_primitive_table[32].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[32].id = 0;
+  _gst_default_primitive_table[32].func = VMpr_LargeInteger_quo;
+  _gst_default_primitive_table[33].name = "VMpr_LargeInteger_rem";
+  _gst_default_primitive_table[33].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[33].id = 0;
+  _gst_default_primitive_table[33].func = VMpr_LargeInteger_rem;
+  _gst_default_primitive_table[34].name = "VMpr_LargeInteger_negated";
+  _gst_default_primitive_table[34].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[34].id = 0;
+  _gst_default_primitive_table[34].func = VMpr_LargeInteger_negated;
+  _gst_default_primitive_table[35].name = "VMpr_LargeInteger_bitAnd";
+  _gst_default_primitive_table[35].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[35].id = 0;
+  _gst_default_primitive_table[35].func = VMpr_LargeInteger_bitAnd;
+  _gst_default_primitive_table[36].name = "VMpr_LargeInteger_bitOr";
+  _gst_default_primitive_table[36].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[36].id = 0;
+  _gst_default_primitive_table[36].func = VMpr_LargeInteger_bitOr;
+  _gst_default_primitive_table[37].name = "VMpr_LargeInteger_bitXor";
+  _gst_default_primitive_table[37].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[37].id = 0;
+  _gst_default_primitive_table[37].func = VMpr_LargeInteger_bitXor;
+  _gst_default_primitive_table[38].name = "VMpr_LargeInteger_bitInvert";
+  _gst_default_primitive_table[38].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[38].id = 0;
+  _gst_default_primitive_table[38].func = VMpr_LargeInteger_bitInvert;
+  _gst_default_primitive_table[39].name = "VMpr_LargeInteger_bitShift";
+  _gst_default_primitive_table[39].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[39].id = 0;
+  _gst_default_primitive_table[39].func = VMpr_LargeInteger_bitShift;
+  _gst_default_primitive_table[40].name = "VMpr_LargeInteger_plus";
+  _gst_default_primitive_table[40].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[40].id = 0;
+  _gst_default_primitive_table[40].func = VMpr_LargeInteger_plus;
+  _gst_default_primitive_table[41].name = "VMpr_LargeInteger_minus";
+  _gst_default_primitive_table[41].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[41].id = 0;
+  _gst_default_primitive_table[41].func = VMpr_LargeInteger_minus;
+  _gst_default_primitive_table[42].name = "VMpr_LargeInteger_gcd";
+  _gst_default_primitive_table[42].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[42].id = 0;
+  _gst_default_primitive_table[42].func = VMpr_LargeInteger_gcd;
+  _gst_default_primitive_table[43].name = "VMpr_LargeInteger_asFloatD";
+  _gst_default_primitive_table[43].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[43].id = 0;
+  _gst_default_primitive_table[43].func = VMpr_LargeInteger_asFloatD;
+  _gst_default_primitive_table[44].name = "VMpr_LargeInteger_asFloatE";
+  _gst_default_primitive_table[44].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[44].id = 0;
+  _gst_default_primitive_table[44].func = VMpr_LargeInteger_asFloatE;
+  _gst_default_primitive_table[45].name = "VMpr_LargeInteger_asFloatQ";
+  _gst_default_primitive_table[45].attributes = PRIM_USES_GMP;
+  _gst_default_primitive_table[45].id = 0;
+  _gst_default_primitive_table[45].func = VMpr_LargeInteger_asFloatQ;
+  _gst_default_primitive_table[46].name = "VMpr_FloatD_plus";
+  _gst_default_primitive_table[46].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[46].id = 0;
+  _gst_default_primitive_table[46].func = VMpr_FloatD_arith;
+  _gst_default_primitive_table[47].name = "VMpr_FloatD_minus";
+  _gst_default_primitive_table[47].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[47].id = -1;
+  _gst_default_primitive_table[47].func = VMpr_FloatD_arith;
+  _gst_default_primitive_table[48].name = "VMpr_FloatD_lt";
+  _gst_default_primitive_table[48].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[48].id = -2;
+  _gst_default_primitive_table[48].func = VMpr_FloatD_arith;
+  _gst_default_primitive_table[49].name = "VMpr_FloatD_gt";
+  _gst_default_primitive_table[49].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[49].id = -3;
+  _gst_default_primitive_table[49].func = VMpr_FloatD_arith;
+  _gst_default_primitive_table[50].name = "VMpr_FloatD_le";
+  _gst_default_primitive_table[50].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[50].id = -4;
+  _gst_default_primitive_table[50].func = VMpr_FloatD_arith;
+  _gst_default_primitive_table[51].name = "VMpr_FloatD_ge";
+  _gst_default_primitive_table[51].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[51].id = -5;
+  _gst_default_primitive_table[51].func = VMpr_FloatD_arith;
+  _gst_default_primitive_table[52].name = "VMpr_FloatD_eq";
+  _gst_default_primitive_table[52].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[52].id = -6;
+  _gst_default_primitive_table[52].func = VMpr_FloatD_arith;
+  _gst_default_primitive_table[53].name = "VMpr_FloatD_ne";
+  _gst_default_primitive_table[53].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[53].id = -7;
+  _gst_default_primitive_table[53].func = VMpr_FloatD_arith;
+  _gst_default_primitive_table[54].name = "VMpr_FloatD_times";
+  _gst_default_primitive_table[54].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[54].id = -8;
+  _gst_default_primitive_table[54].func = VMpr_FloatD_arith;
+  _gst_default_primitive_table[55].name = "VMpr_FloatD_divide";
+  _gst_default_primitive_table[55].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[55].id = -9;
+  _gst_default_primitive_table[55].func = VMpr_FloatD_arith;
+  _gst_default_primitive_table[56].name = "VMpr_FloatD_truncated";
+  _gst_default_primitive_table[56].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[56].id = 0;
+  _gst_default_primitive_table[56].func = VMpr_FloatD_truncated;
+  _gst_default_primitive_table[57].name = "VMpr_FloatD_fractionPart";
+  _gst_default_primitive_table[57].attributes = PRIM_CHECKS_RECEIVER;
+  _gst_default_primitive_table[57].id = 0;
+  _gst_default_primitive_table[57].func = VMpr_FloatD_fractionPart;
+  _gst_default_primitive_table[58].name = "VMpr_FloatD_exponent";
+  _gst_default_primitive_table[58].attributes = PRIM_CHECKS_RECEIVER | PRIM_RETURN_SMALL_SMALLINTEGER;
+  _gst_default_primitive_table[58].id = 0;
+  _gst_default_primitive_table[58].func = VMpr_FloatD_exponent;
+  _gst_default_primitive_table[59].name = "VMpr_FloatD_timesTwoPower";
+  _gst_default_primitive_table[59].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[59].id = 0;
+  _gst_default_primitive_table[59].func = VMpr_FloatD_timesTwoPower;
+  _gst_default_primitive_table[60].name = "VMpr_FloatD_asFloatE";
+  _gst_default_primitive_table[60].attributes = PRIM_CHECKS_RECEIVER;
+  _gst_default_primitive_table[60].id = 0;
+  _gst_default_primitive_table[60].func = VMpr_FloatD_asFloatE;
+  _gst_default_primitive_table[61].name = "VMpr_FloatD_asFloatQ";
+  _gst_default_primitive_table[61].attributes = PRIM_CHECKS_RECEIVER;
+  _gst_default_primitive_table[61].id = 0;
+  _gst_default_primitive_table[61].func = VMpr_FloatD_asFloatQ;
+  _gst_default_primitive_table[62].name = "VMpr_FloatE_plus";
+  _gst_default_primitive_table[62].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[62].id = 0;
+  _gst_default_primitive_table[62].func = VMpr_FloatE_arith;
+  _gst_default_primitive_table[63].name = "VMpr_FloatE_minus";
+  _gst_default_primitive_table[63].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[63].id = -1;
+  _gst_default_primitive_table[63].func = VMpr_FloatE_arith;
+  _gst_default_primitive_table[64].name = "VMpr_FloatE_lt";
+  _gst_default_primitive_table[64].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[64].id = -2;
+  _gst_default_primitive_table[64].func = VMpr_FloatE_arith;
+  _gst_default_primitive_table[65].name = "VMpr_FloatE_gt";
+  _gst_default_primitive_table[65].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[65].id = -3;
+  _gst_default_primitive_table[65].func = VMpr_FloatE_arith;
+  _gst_default_primitive_table[66].name = "VMpr_FloatE_le";
+  _gst_default_primitive_table[66].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[66].id = -4;
+  _gst_default_primitive_table[66].func = VMpr_FloatE_arith;
+  _gst_default_primitive_table[67].name = "VMpr_FloatE_ge";
+  _gst_default_primitive_table[67].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[67].id = -5;
+  _gst_default_primitive_table[67].func = VMpr_FloatE_arith;
+  _gst_default_primitive_table[68].name = "VMpr_FloatE_eq";
+  _gst_default_primitive_table[68].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[68].id = -6;
+  _gst_default_primitive_table[68].func = VMpr_FloatE_arith;
+  _gst_default_primitive_table[69].name = "VMpr_FloatE_ne";
+  _gst_default_primitive_table[69].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[69].id = -7;
+  _gst_default_primitive_table[69].func = VMpr_FloatE_arith;
+  _gst_default_primitive_table[70].name = "VMpr_FloatE_times";
+  _gst_default_primitive_table[70].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[70].id = -8;
+  _gst_default_primitive_table[70].func = VMpr_FloatE_arith;
+  _gst_default_primitive_table[71].name = "VMpr_FloatE_divide";
+  _gst_default_primitive_table[71].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[71].id = -9;
+  _gst_default_primitive_table[71].func = VMpr_FloatE_arith;
+  _gst_default_primitive_table[72].name = "VMpr_FloatE_truncated";
+  _gst_default_primitive_table[72].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[72].id = 0;
+  _gst_default_primitive_table[72].func = VMpr_FloatE_truncated;
+  _gst_default_primitive_table[73].name = "VMpr_FloatE_fractionPart";
+  _gst_default_primitive_table[73].attributes = PRIM_CHECKS_RECEIVER;
+  _gst_default_primitive_table[73].id = 0;
+  _gst_default_primitive_table[73].func = VMpr_FloatE_fractionPart;
+  _gst_default_primitive_table[74].name = "VMpr_FloatE_exponent";
+  _gst_default_primitive_table[74].attributes = PRIM_CHECKS_RECEIVER | PRIM_RETURN_SMALL_SMALLINTEGER;
+  _gst_default_primitive_table[74].id = 0;
+  _gst_default_primitive_table[74].func = VMpr_FloatE_exponent;
+  _gst_default_primitive_table[75].name = "VMpr_FloatE_timesTwoPower";
+  _gst_default_primitive_table[75].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[75].id = 0;
+  _gst_default_primitive_table[75].func = VMpr_FloatE_timesTwoPower;
+  _gst_default_primitive_table[76].name = "VMpr_FloatE_asFloatD";
+  _gst_default_primitive_table[76].attributes = PRIM_CHECKS_RECEIVER;
+  _gst_default_primitive_table[76].id = 0;
+  _gst_default_primitive_table[76].func = VMpr_FloatE_asFloatD;
+  _gst_default_primitive_table[77].name = "VMpr_FloatE_asFloatQ";
+  _gst_default_primitive_table[77].attributes = PRIM_CHECKS_RECEIVER;
+  _gst_default_primitive_table[77].id = 0;
+  _gst_default_primitive_table[77].func = VMpr_FloatE_asFloatQ;
+  _gst_default_primitive_table[78].name = "VMpr_FloatQ_plus";
+  _gst_default_primitive_table[78].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[78].id = 0;
+  _gst_default_primitive_table[78].func = VMpr_FloatQ_arith;
+  _gst_default_primitive_table[79].name = "VMpr_FloatQ_minus";
+  _gst_default_primitive_table[79].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[79].id = -1;
+  _gst_default_primitive_table[79].func = VMpr_FloatQ_arith;
+  _gst_default_primitive_table[80].name = "VMpr_FloatQ_lt";
+  _gst_default_primitive_table[80].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[80].id = -2;
+  _gst_default_primitive_table[80].func = VMpr_FloatQ_arith;
+  _gst_default_primitive_table[81].name = "VMpr_FloatQ_gt";
+  _gst_default_primitive_table[81].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[81].id = -3;
+  _gst_default_primitive_table[81].func = VMpr_FloatQ_arith;
+  _gst_default_primitive_table[82].name = "VMpr_FloatQ_le";
+  _gst_default_primitive_table[82].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[82].id = -4;
+  _gst_default_primitive_table[82].func = VMpr_FloatQ_arith;
+  _gst_default_primitive_table[83].name = "VMpr_FloatQ_ge";
+  _gst_default_primitive_table[83].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[83].id = -5;
+  _gst_default_primitive_table[83].func = VMpr_FloatQ_arith;
+  _gst_default_primitive_table[84].name = "VMpr_FloatQ_eq";
+  _gst_default_primitive_table[84].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[84].id = -6;
+  _gst_default_primitive_table[84].func = VMpr_FloatQ_arith;
+  _gst_default_primitive_table[85].name = "VMpr_FloatQ_ne";
+  _gst_default_primitive_table[85].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[85].id = -7;
+  _gst_default_primitive_table[85].func = VMpr_FloatQ_arith;
+  _gst_default_primitive_table[86].name = "VMpr_FloatQ_times";
+  _gst_default_primitive_table[86].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[86].id = -8;
+  _gst_default_primitive_table[86].func = VMpr_FloatQ_arith;
+  _gst_default_primitive_table[87].name = "VMpr_FloatQ_divide";
+  _gst_default_primitive_table[87].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[87].id = -9;
+  _gst_default_primitive_table[87].func = VMpr_FloatQ_arith;
+  _gst_default_primitive_table[88].name = "VMpr_FloatQ_truncated";
+  _gst_default_primitive_table[88].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[88].id = 0;
+  _gst_default_primitive_table[88].func = VMpr_FloatQ_truncated;
+  _gst_default_primitive_table[89].name = "VMpr_FloatQ_fractionPart";
+  _gst_default_primitive_table[89].attributes = PRIM_CHECKS_RECEIVER;
+  _gst_default_primitive_table[89].id = 0;
+  _gst_default_primitive_table[89].func = VMpr_FloatQ_fractionPart;
+  _gst_default_primitive_table[90].name = "VMpr_FloatQ_exponent";
+  _gst_default_primitive_table[90].attributes = PRIM_CHECKS_RECEIVER | PRIM_RETURN_SMALL_SMALLINTEGER;
+  _gst_default_primitive_table[90].id = 0;
+  _gst_default_primitive_table[90].func = VMpr_FloatQ_exponent;
+  _gst_default_primitive_table[91].name = "VMpr_FloatQ_timesTwoPower";
+  _gst_default_primitive_table[91].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[91].id = 0;
+  _gst_default_primitive_table[91].func = VMpr_FloatQ_timesTwoPower;
+  _gst_default_primitive_table[92].name = "VMpr_FloatQ_asFloatD";
+  _gst_default_primitive_table[92].attributes = PRIM_CHECKS_RECEIVER;
+  _gst_default_primitive_table[92].id = 0;
+  _gst_default_primitive_table[92].func = VMpr_FloatQ_asFloatD;
+  _gst_default_primitive_table[93].name = "VMpr_FloatQ_asFloatE";
+  _gst_default_primitive_table[93].attributes = PRIM_CHECKS_RECEIVER;
+  _gst_default_primitive_table[93].id = 0;
+  _gst_default_primitive_table[93].func = VMpr_FloatQ_asFloatE;
+  _gst_default_primitive_table[94].name = "VMpr_Object_basicAt";
+  _gst_default_primitive_table[94].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_INLINED;
+  _gst_default_primitive_table[94].id = 60;
+  _gst_default_primitive_table[94].func = VMpr_Object_basicAt;
+  _gst_default_primitive_table[95].name = "VMpr_Object_basicAtPut";
+  _gst_default_primitive_table[95].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_INLINED;
+  _gst_default_primitive_table[95].id = 61;
+  _gst_default_primitive_table[95].func = VMpr_Object_basicAtPut;
+  _gst_default_primitive_table[96].name = "VMpr_Object_basicSize";
+  _gst_default_primitive_table[96].attributes = PRIM_SUCCEED | PRIM_RETURN_SMALL_SMALLINTEGER | PRIM_INLINED;
+  _gst_default_primitive_table[96].id = 62;
+  _gst_default_primitive_table[96].func = VMpr_Object_basicSize;
+  _gst_default_primitive_table[97].name = "VMpr_CharacterArray_valueAt";
+  _gst_default_primitive_table[97].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[97].id = 60;
+  _gst_default_primitive_table[97].func = VMpr_CharacterArray_valueAt;
+  _gst_default_primitive_table[98].name = "VMpr_CharacterArray_valueAtPut";
+  _gst_default_primitive_table[98].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_INLINED;
+  _gst_default_primitive_table[98].id = 61;
+  _gst_default_primitive_table[98].func = VMpr_CharacterArray_valueAtPut;
+  _gst_default_primitive_table[99].name = "VMpr_CompiledCode_verificationResult";
+  _gst_default_primitive_table[99].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[99].id = 0;
+  _gst_default_primitive_table[99].func = VMpr_CompiledCode_verificationResult;
+  _gst_default_primitive_table[100].name = "VMpr_CompiledBlock_create";
+  _gst_default_primitive_table[100].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[100].id = 0;
+  _gst_default_primitive_table[100].func = VMpr_CompiledBlock_create;
+  _gst_default_primitive_table[101].name = "VMpr_CompiledMethod_create";
+  _gst_default_primitive_table[101].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[101].id = 0;
+  _gst_default_primitive_table[101].func = VMpr_CompiledMethod_create;
+  _gst_default_primitive_table[102].name = "VMpr_Object_shallowCopy";
+  _gst_default_primitive_table[102].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[102].id = 0;
+  _gst_default_primitive_table[102].func = VMpr_Object_shallowCopy;
+  _gst_default_primitive_table[103].name = "VMpr_Behavior_basicNew";
+  _gst_default_primitive_table[103].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_INLINED;
+  _gst_default_primitive_table[103].id = 70;
+  _gst_default_primitive_table[103].func = VMpr_Behavior_basicNew;
+  _gst_default_primitive_table[104].name = "VMpr_Behavior_newInitialize";
+  _gst_default_primitive_table[104].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_RELOAD_IP;
+  _gst_default_primitive_table[104].id = 0;
+  _gst_default_primitive_table[104].func = VMpr_Behavior_newInitialize;
+  _gst_default_primitive_table[105].name = "VMpr_Behavior_basicNewColon";
+  _gst_default_primitive_table[105].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_INLINED;
+  _gst_default_primitive_table[105].id = 71;
+  _gst_default_primitive_table[105].func = VMpr_Behavior_basicNewColon;
+  _gst_default_primitive_table[106].name = "VMpr_Behavior_newColonInitialize";
+  _gst_default_primitive_table[106].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_RELOAD_IP;
+  _gst_default_primitive_table[106].id = 0;
+  _gst_default_primitive_table[106].func = VMpr_Behavior_newColonInitialize;
+  _gst_default_primitive_table[107].name = "VMpr_Object_become";
+  _gst_default_primitive_table[107].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[107].id = 0;
+  _gst_default_primitive_table[107].func = VMpr_Object_become;
+  _gst_default_primitive_table[108].name = "VMpr_Object_instVarAt";
+  _gst_default_primitive_table[108].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_INLINED;
+  _gst_default_primitive_table[108].id = 73;
+  _gst_default_primitive_table[108].func = VMpr_Object_instVarAt;
+  _gst_default_primitive_table[109].name = "VMpr_Object_instVarAtPut";
+  _gst_default_primitive_table[109].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_INLINED;
+  _gst_default_primitive_table[109].id = 74;
+  _gst_default_primitive_table[109].func = VMpr_Object_instVarAtPut;
+  _gst_default_primitive_table[110].name = "VMpr_Object_hash";
+  _gst_default_primitive_table[110].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[110].id = 0;
+  _gst_default_primitive_table[110].func = VMpr_Object_hash;
+  _gst_default_primitive_table[111].name = "VMpr_SmallInteger_asObject";
+  _gst_default_primitive_table[111].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[111].id = 0;
+  _gst_default_primitive_table[111].func = VMpr_SmallInteger_asObject;
+  _gst_default_primitive_table[112].name = "VMpr_SmallInteger_nextValidOop";
+  _gst_default_primitive_table[112].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[112].id = 0;
+  _gst_default_primitive_table[112].func = VMpr_SmallInteger_nextValidOop;
+  _gst_default_primitive_table[113].name = "VMpr_Behavior_someInstance";
+  _gst_default_primitive_table[113].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[113].id = 0;
+  _gst_default_primitive_table[113].func = VMpr_Behavior_someInstance;
+  _gst_default_primitive_table[114].name = "VMpr_Object_nextInstance";
+  _gst_default_primitive_table[114].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[114].id = 0;
+  _gst_default_primitive_table[114].func = VMpr_Object_nextInstance;
+  _gst_default_primitive_table[115].name = "VMpr_Object_becomeForward";
+  _gst_default_primitive_table[115].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[115].id = 0;
+  _gst_default_primitive_table[115].func = VMpr_Object_becomeForward;
+  _gst_default_primitive_table[116].name = "VMpr_Object_allOwners";
+  _gst_default_primitive_table[116].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[116].id = 0;
+  _gst_default_primitive_table[116].func = VMpr_Object_allOwners;
+  _gst_default_primitive_table[117].name = "VMpr_ContextPart_thisContext";
+  _gst_default_primitive_table[117].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[117].id = 0;
+  _gst_default_primitive_table[117].func = VMpr_ContextPart_thisContext;
+  _gst_default_primitive_table[118].name = "VMpr_ContextPart_continue";
+  _gst_default_primitive_table[118].attributes = PRIM_CHECKS_RECEIVER | PRIM_RELOAD_IP;
+  _gst_default_primitive_table[118].id = 0;
+  _gst_default_primitive_table[118].func = VMpr_ContextPart_continue;
+  _gst_default_primitive_table[119].name = "VMpr_Continuation_resume";
+  _gst_default_primitive_table[119].attributes = PRIM_FAIL | PRIM_RELOAD_IP;
+  _gst_default_primitive_table[119].id = 0;
+  _gst_default_primitive_table[119].func = VMpr_Continuation_resume;
+  _gst_default_primitive_table[120].name = "VMpr_BlockClosure_value";
+  _gst_default_primitive_table[120].attributes = PRIM_FAIL | PRIM_RELOAD_IP | PRIM_CACHE_NEW_IP;
+  _gst_default_primitive_table[120].id = 0;
+  _gst_default_primitive_table[120].func = VMpr_BlockClosure_value;
+  _gst_default_primitive_table[121].name = "VMpr_BlockClosure_cull";
+  _gst_default_primitive_table[121].attributes = PRIM_FAIL | PRIM_RELOAD_IP;
+  _gst_default_primitive_table[121].id = 0;
+  _gst_default_primitive_table[121].func = VMpr_BlockClosure_cull;
+  _gst_default_primitive_table[122].name = "VMpr_BlockClosure_valueAndResumeOnUnwind";
+  _gst_default_primitive_table[122].attributes = PRIM_FAIL | PRIM_RELOAD_IP;
+  _gst_default_primitive_table[122].id = 0;
+  _gst_default_primitive_table[122].func = VMpr_BlockClosure_valueAndResumeOnUnwind;
+  _gst_default_primitive_table[123].name = "VMpr_BlockClosure_valueWithArguments";
+  _gst_default_primitive_table[123].attributes = PRIM_FAIL | PRIM_RELOAD_IP;
+  _gst_default_primitive_table[123].id = 0;
+  _gst_default_primitive_table[123].func = VMpr_BlockClosure_valueWithArguments;
+  _gst_default_primitive_table[124].name = "VMpr_Object_perform";
+  _gst_default_primitive_table[124].attributes = PRIM_FAIL | PRIM_RELOAD_IP;
+  _gst_default_primitive_table[124].id = 0;
+  _gst_default_primitive_table[124].func = VMpr_Object_perform;
+  _gst_default_primitive_table[125].name = "VMpr_Object_performWithArguments";
+  _gst_default_primitive_table[125].attributes = PRIM_FAIL | PRIM_RELOAD_IP;
+  _gst_default_primitive_table[125].id = 0;
+  _gst_default_primitive_table[125].func = VMpr_Object_performWithArguments;
+  _gst_default_primitive_table[126].name = "VMpr_Semaphore_notifyAll";
+  _gst_default_primitive_table[126].attributes = PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[126].id = 0;
+  _gst_default_primitive_table[126].func = VMpr_Semaphore_notifyAll;
+  _gst_default_primitive_table[127].name = "VMpr_Semaphore_signal";
+  _gst_default_primitive_table[127].attributes = PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[127].id = 0;
+  _gst_default_primitive_table[127].func = VMpr_Semaphore_signalNotify;
+  _gst_default_primitive_table[128].name = "VMpr_Semaphore_notify";
+  _gst_default_primitive_table[128].attributes = PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[128].id = -1;
+  _gst_default_primitive_table[128].func = VMpr_Semaphore_signalNotify;
+  _gst_default_primitive_table[129].name = "VMpr_Semaphore_lock";
+  _gst_default_primitive_table[129].attributes = PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[129].id = 0;
+  _gst_default_primitive_table[129].func = VMpr_Semaphore_lock;
+  _gst_default_primitive_table[130].name = "VMpr_Semaphore_wait";
+  _gst_default_primitive_table[130].attributes = PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[130].id = 0;
+  _gst_default_primitive_table[130].func = VMpr_Semaphore_wait;
+  _gst_default_primitive_table[131].name = "VMpr_Semaphore_waitAfterSignalling";
+  _gst_default_primitive_table[131].attributes = PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[131].id = 0;
+  _gst_default_primitive_table[131].func = VMpr_Semaphore_waitAfterSignalling;
+  _gst_default_primitive_table[132].name = "VMpr_Process_suspend";
+  _gst_default_primitive_table[132].attributes = PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[132].id = 0;
+  _gst_default_primitive_table[132].func = VMpr_Process_suspend;
+  _gst_default_primitive_table[133].name = "VMpr_Process_resume";
+  _gst_default_primitive_table[133].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[133].id = 0;
+  _gst_default_primitive_table[133].func = VMpr_Process_resume;
+  _gst_default_primitive_table[134].name = "VMpr_Process_singleStepWaitingOn";
+  _gst_default_primitive_table[134].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[134].id = 0;
+  _gst_default_primitive_table[134].func = VMpr_Process_singleStepWaitingOn;
+  _gst_default_primitive_table[135].name = "VMpr_Process_yield";
+  _gst_default_primitive_table[135].attributes = PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[135].id = 0;
+  _gst_default_primitive_table[135].func = VMpr_Process_yield;
+  _gst_default_primitive_table[136].name = "VMpr_Processor_dispatchEvents";
+  _gst_default_primitive_table[136].attributes = PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[136].id = 0;
+  _gst_default_primitive_table[136].func = VMpr_Processor_dispatchEvents;
+  _gst_default_primitive_table[137].name = "VMpr_Processor_pause";
+  _gst_default_primitive_table[137].attributes = PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[137].id = 0;
+  _gst_default_primitive_table[137].func = VMpr_Processor_pause;
+  _gst_default_primitive_table[138].name = "VMpr_Behavior_flushCache";
+  _gst_default_primitive_table[138].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[138].id = 0;
+  _gst_default_primitive_table[138].func = VMpr_Behavior_flushCache;
+  _gst_default_primitive_table[139].name = "VMpr_CompiledCode_discardTranslation";
+  _gst_default_primitive_table[139].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[139].id = 0;
+  _gst_default_primitive_table[139].func = VMpr_CompiledCode_discardTranslation;
+  _gst_default_primitive_table[140].name = "VMpr_Object_changeClassTo";
+  _gst_default_primitive_table[140].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[140].id = 0;
+  _gst_default_primitive_table[140].func = VMpr_Object_changeClassTo;
+  _gst_default_primitive_table[141].name = "VMpr_Time_timezoneBias";
+  _gst_default_primitive_table[141].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[141].id = 0;
+  _gst_default_primitive_table[141].func = VMpr_Time_timezoneBias;
+  _gst_default_primitive_table[142].name = "VMpr_Time_timezone";
+  _gst_default_primitive_table[142].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[142].id = 0;
+  _gst_default_primitive_table[142].func = VMpr_Time_timezone;
+  _gst_default_primitive_table[143].name = "VMpr_Time_secondClock";
+  _gst_default_primitive_table[143].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[143].id = 0;
+  _gst_default_primitive_table[143].func = VMpr_Time_secondClock;
+  _gst_default_primitive_table[144].name = "VMpr_Time_nanosecondClock";
+  _gst_default_primitive_table[144].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[144].id = 0;
+  _gst_default_primitive_table[144].func = VMpr_Time_nanosecondClock;
+  _gst_default_primitive_table[145].name = "VMpr_Time_millisecondClock";
+  _gst_default_primitive_table[145].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[145].id = 0;
+  _gst_default_primitive_table[145].func = VMpr_Time_millisecondClock;
+  _gst_default_primitive_table[146].name = "VMpr_Processor_signalAtMilliseconds";
+  _gst_default_primitive_table[146].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[146].id = 0;
+  _gst_default_primitive_table[146].func = VMpr_Processor_signalAt;
+  _gst_default_primitive_table[147].name = "VMpr_Processor_signalAtNanosecondClockValue";
+  _gst_default_primitive_table[147].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[147].id = -1;
+  _gst_default_primitive_table[147].func = VMpr_Processor_signalAt;
+  _gst_default_primitive_table[148].name = "VMpr_Processor_isTimeoutProgrammed";
+  _gst_default_primitive_table[148].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[148].id = 0;
+  _gst_default_primitive_table[148].func = VMpr_Processor_isTimeoutProgrammed;
+  _gst_default_primitive_table[149].name = "VMpr_String_similarityTo";
+  _gst_default_primitive_table[149].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[149].id = 0;
+  _gst_default_primitive_table[149].func = VMpr_String_similarityTo;
+  _gst_default_primitive_table[150].name = "VMpr_String_hash";
+  _gst_default_primitive_table[150].attributes = PRIM_CHECKS_RECEIVER;
+  _gst_default_primitive_table[150].id = 0;
+  _gst_default_primitive_table[150].func = VMpr_String_hash;
+  _gst_default_primitive_table[151].name = "VMpr_ArrayedCollection_equal";
+  _gst_default_primitive_table[151].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[151].id = 0;
+  _gst_default_primitive_table[151].func = VMpr_ArrayedCollection_equal;
+  _gst_default_primitive_table[152].name = "VMpr_ArrayedCollection_indexOfStartingAt";
+  _gst_default_primitive_table[152].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[152].id = 0;
+  _gst_default_primitive_table[152].func = VMpr_ArrayedCollection_indexOfStartingAt;
+  _gst_default_primitive_table[153].name = "VMpr_ArrayedCollection_replaceFromToWithStartingAt";
+  _gst_default_primitive_table[153].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[153].id = 0;
+  _gst_default_primitive_table[153].func = VMpr_ArrayedCollection_replaceFromToWithStartingAt;
+  _gst_default_primitive_table[154].name = "VMpr_Object_identity";
+  _gst_default_primitive_table[154].attributes = PRIM_SUCCEED | PRIM_INLINED;
+  _gst_default_primitive_table[154].id = 110;
+  _gst_default_primitive_table[154].func = VMpr_Object_identity;
+  _gst_default_primitive_table[155].name = "VMpr_Object_class";
+  _gst_default_primitive_table[155].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[155].id = 111;
+  _gst_default_primitive_table[155].func = VMpr_Object_class;
+  _gst_default_primitive_table[156].name = "VMpr_ObjectMemory_quit";
+  _gst_default_primitive_table[156].attributes = PRIM_FAIL;
+  _gst_default_primitive_table[156].id = 0;
+  _gst_default_primitive_table[156].func = VMpr_ObjectMemory_quit;
+  _gst_default_primitive_table[157].name = "VMpr_ObjectMemory_abort";
+  _gst_default_primitive_table[157].attributes = PRIM_FAIL;
+  _gst_default_primitive_table[157].id = 0;
+  _gst_default_primitive_table[157].func = VMpr_ObjectMemory_abort;
+  _gst_default_primitive_table[158].name = "VMpr_Dictionary_at";
+  _gst_default_primitive_table[158].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[158].id = 0;
+  _gst_default_primitive_table[158].func = VMpr_Dictionary_at;
+  _gst_default_primitive_table[159].name = "VMpr_Object_bootstrapError";
+  _gst_default_primitive_table[159].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[159].id = 0;
+  _gst_default_primitive_table[159].func = VMpr_Object_bootstrapException;
+  _gst_default_primitive_table[160].name = "VMpr_Object_bootstrapDNU";
+  _gst_default_primitive_table[160].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[160].id = -1;
+  _gst_default_primitive_table[160].func = VMpr_Object_bootstrapException;
+  _gst_default_primitive_table[161].name = "VMpr_Character_create";
+  _gst_default_primitive_table[161].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[161].id = 0;
+  _gst_default_primitive_table[161].func = VMpr_Character_create;
+  _gst_default_primitive_table[162].name = "VMpr_UnicodeCharacter_create";
+  _gst_default_primitive_table[162].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[162].id = 0;
+  _gst_default_primitive_table[162].func = VMpr_UnicodeCharacter_create;
+  _gst_default_primitive_table[163].name = "VMpr_Character_equal";
+  _gst_default_primitive_table[163].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[163].id = 0;
+  _gst_default_primitive_table[163].func = VMpr_Character_equal;
+  _gst_default_primitive_table[164].name = "VMpr_Symbol_intern";
+  _gst_default_primitive_table[164].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[164].id = 0;
+  _gst_default_primitive_table[164].func = VMpr_Symbol_intern;
+  _gst_default_primitive_table[165].name = "VMpr_Dictionary_new";
+  _gst_default_primitive_table[165].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[165].id = 0;
+  _gst_default_primitive_table[165].func = VMpr_Dictionary_new;
+  _gst_default_primitive_table[166].name = "VMpr_Memory_addressOfOOP";
+  _gst_default_primitive_table[166].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[166].id = 0;
+  _gst_default_primitive_table[166].func = VMpr_Memory_addressOfOOP;
+  _gst_default_primitive_table[167].name = "VMpr_Memory_addressOf";
+  _gst_default_primitive_table[167].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[167].id = 0;
+  _gst_default_primitive_table[167].func = VMpr_Memory_addressOf;
+  _gst_default_primitive_table[168].name = "VMpr_SystemDictionary_backtrace";
+  _gst_default_primitive_table[168].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[168].id = 0;
+  _gst_default_primitive_table[168].func = VMpr_SystemDictionary_backtrace;
+  _gst_default_primitive_table[169].name = "VMpr_SystemDictionary_getTraceFlag";
+  _gst_default_primitive_table[169].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[169].id = 0;
+  _gst_default_primitive_table[169].func = VMpr_SystemDictionary_getTraceFlag;
+  _gst_default_primitive_table[170].name = "VMpr_SystemDictionary_setTraceFlag";
+  _gst_default_primitive_table[170].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[170].id = 0;
+  _gst_default_primitive_table[170].func = VMpr_SystemDictionary_setTraceFlag;
+  _gst_default_primitive_table[171].name = "VMpr_Memory_at";
+  _gst_default_primitive_table[171].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[171].id = 0;
+  _gst_default_primitive_table[171].func = VMpr_Memory_at;
+  _gst_default_primitive_table[172].name = "VMpr_Memory_atPut";
+  _gst_default_primitive_table[172].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[172].id = 0;
+  _gst_default_primitive_table[172].func = VMpr_Memory_atPut;
+  _gst_default_primitive_table[173].name = "VMpr_Behavior_methodsFor";
+  _gst_default_primitive_table[173].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[173].id = 0;
+  _gst_default_primitive_table[173].func = VMpr_Behavior_methodsFor;
+  _gst_default_primitive_table[174].name = "VMpr_Behavior_methodsForIfTrue";
+  _gst_default_primitive_table[174].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[174].id = 0;
+  _gst_default_primitive_table[174].func = VMpr_Behavior_methodsForIfTrue;
+  _gst_default_primitive_table[175].name = "VMpr_Processor_disableInterrupts";
+  _gst_default_primitive_table[175].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[175].id = 0;
+  _gst_default_primitive_table[175].func = VMpr_Processor_disableEnableInterrupts;
+  _gst_default_primitive_table[176].name = "VMpr_Processor_enableInterrupts";
+  _gst_default_primitive_table[176].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[176].id = -1;
+  _gst_default_primitive_table[176].func = VMpr_Processor_disableEnableInterrupts;
+  _gst_default_primitive_table[177].name = "VMpr_Processor_signalOnInterrupt";
+  _gst_default_primitive_table[177].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[177].id = 0;
+  _gst_default_primitive_table[177].func = VMpr_Processor_signalOnInterrupt;
+  _gst_default_primitive_table[178].name = "VMpr_ObjectMemory_getSpaceGrowRate";
+  _gst_default_primitive_table[178].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[178].id = 0;
+  _gst_default_primitive_table[178].func = VMpr_ObjectMemory_getSpaceGrowRate;
+  _gst_default_primitive_table[179].name = "VMpr_ObjectMemory_setSpaceGrowRate";
+  _gst_default_primitive_table[179].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[179].id = 0;
+  _gst_default_primitive_table[179].func = VMpr_ObjectMemory_setSpaceGrowRate;
+  _gst_default_primitive_table[180].name = "VMpr_ObjectMemory_getSmoothingFactor";
+  _gst_default_primitive_table[180].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[180].id = 0;
+  _gst_default_primitive_table[180].func = VMpr_ObjectMemory_getSmoothingFactor;
+  _gst_default_primitive_table[181].name = "VMpr_ObjectMemory_setSmoothingFactor";
+  _gst_default_primitive_table[181].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[181].id = 0;
+  _gst_default_primitive_table[181].func = VMpr_ObjectMemory_setSmoothingFactor;
+  _gst_default_primitive_table[182].name = "VMpr_ObjectMemory_getGrowThresholdPercent";
+  _gst_default_primitive_table[182].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[182].id = 0;
+  _gst_default_primitive_table[182].func = VMpr_ObjectMemory_getGrowThresholdPercent;
+  _gst_default_primitive_table[183].name = "VMpr_ObjectMemory_setGrowThresholdPercent";
+  _gst_default_primitive_table[183].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[183].id = 0;
+  _gst_default_primitive_table[183].func = VMpr_ObjectMemory_setGrowThresholdPercent;
+  _gst_default_primitive_table[184].name = "VMpr_ObjectMemory_getBigObjectThreshold";
+  _gst_default_primitive_table[184].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[184].id = 0;
+  _gst_default_primitive_table[184].func = VMpr_ObjectMemory_getBigObjectThreshold;
+  _gst_default_primitive_table[185].name = "VMpr_ObjectMemory_setBigObjectThreshold";
+  _gst_default_primitive_table[185].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[185].id = 0;
+  _gst_default_primitive_table[185].func = VMpr_ObjectMemory_setBigObjectThreshold;
+  _gst_default_primitive_table[186].name = "VMpr_ObjectMemory_growTo";
+  _gst_default_primitive_table[186].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[186].id = 0;
+  _gst_default_primitive_table[186].func = VMpr_ObjectMemory_growTo;
+  _gst_default_primitive_table[187].name = "VMpr_ObjectMemory_update";
+  _gst_default_primitive_table[187].attributes = PRIM_CHECKS_RECEIVER;
+  _gst_default_primitive_table[187].id = 0;
+  _gst_default_primitive_table[187].func = VMpr_ObjectMemory_update;
+  _gst_default_primitive_table[188].name = "VMpr_CObject_allocType";
+  _gst_default_primitive_table[188].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[188].id = 0;
+  _gst_default_primitive_table[188].func = VMpr_CObject_allocType;
+  _gst_default_primitive_table[189].name = "VMpr_Float_sin";
+  _gst_default_primitive_table[189].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[189].id = 0;
+  _gst_default_primitive_table[189].func = VMpr_Float_sin;
+  _gst_default_primitive_table[190].name = "VMpr_Float_cos";
+  _gst_default_primitive_table[190].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[190].id = 0;
+  _gst_default_primitive_table[190].func = VMpr_Float_cos;
+  _gst_default_primitive_table[191].name = "VMpr_Float_tan";
+  _gst_default_primitive_table[191].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[191].id = 0;
+  _gst_default_primitive_table[191].func = VMpr_Float_tan;
+  _gst_default_primitive_table[192].name = "VMpr_Float_arcSin";
+  _gst_default_primitive_table[192].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[192].id = 0;
+  _gst_default_primitive_table[192].func = VMpr_Float_arcSin;
+  _gst_default_primitive_table[193].name = "VMpr_Float_arcCos";
+  _gst_default_primitive_table[193].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[193].id = 0;
+  _gst_default_primitive_table[193].func = VMpr_Float_arcCos;
+  _gst_default_primitive_table[194].name = "VMpr_Float_arcTan";
+  _gst_default_primitive_table[194].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[194].id = 0;
+  _gst_default_primitive_table[194].func = VMpr_Float_arcTan;
+  _gst_default_primitive_table[195].name = "VMpr_Float_exp";
+  _gst_default_primitive_table[195].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[195].id = 0;
+  _gst_default_primitive_table[195].func = VMpr_Float_exp;
+  _gst_default_primitive_table[196].name = "VMpr_Float_ln";
+  _gst_default_primitive_table[196].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[196].id = 0;
+  _gst_default_primitive_table[196].func = VMpr_Float_ln;
+  _gst_default_primitive_table[197].name = "VMpr_Float_pow";
+  _gst_default_primitive_table[197].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[197].id = 0;
+  _gst_default_primitive_table[197].func = VMpr_Float_pow;
+  _gst_default_primitive_table[198].name = "VMpr_CObject_free";
+  _gst_default_primitive_table[198].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[198].id = 0;
+  _gst_default_primitive_table[198].func = VMpr_CObject_free;
+  _gst_default_primitive_table[199].name = "VMpr_Float_sqrt";
+  _gst_default_primitive_table[199].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[199].id = 0;
+  _gst_default_primitive_table[199].func = VMpr_Float_sqrt;
+  _gst_default_primitive_table[200].name = "VMpr_Float_ceil";
+  _gst_default_primitive_table[200].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[200].id = 0;
+  _gst_default_primitive_table[200].func = VMpr_Float_ceil_floor;
+  _gst_default_primitive_table[201].name = "VMpr_Float_floor";
+  _gst_default_primitive_table[201].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[201].id = -1;
+  _gst_default_primitive_table[201].func = VMpr_Float_ceil_floor;
+  _gst_default_primitive_table[202].name = "VMpr_Behavior_basicNewFixed";
+  _gst_default_primitive_table[202].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[202].id = 0;
+  _gst_default_primitive_table[202].func = VMpr_Behavior_basicNewFixed;
+  _gst_default_primitive_table[203].name = "VMpr_Behavior_basicNewFixedColon";
+  _gst_default_primitive_table[203].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[203].id = 0;
+  _gst_default_primitive_table[203].func = VMpr_Behavior_basicNewFixedColon;
+  _gst_default_primitive_table[204].name = "VMpr_Object_tenure";
+  _gst_default_primitive_table[204].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[204].id = 0;
+  _gst_default_primitive_table[204].func = VMpr_Object_tenure;
+  _gst_default_primitive_table[205].name = "VMpr_Object_makeFixed";
+  _gst_default_primitive_table[205].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[205].id = 0;
+  _gst_default_primitive_table[205].func = VMpr_Object_makeFixed;
+  _gst_default_primitive_table[206].name = "VMpr_CObject_derefAt";
+  _gst_default_primitive_table[206].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[206].id = 0;
+  _gst_default_primitive_table[206].func = VMpr_CObject_at;
+  _gst_default_primitive_table[207].name = "VMpr_CObject_at";
+  _gst_default_primitive_table[207].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[207].id = -1;
+  _gst_default_primitive_table[207].func = VMpr_CObject_at;
+  _gst_default_primitive_table[208].name = "VMpr_CObject_atPut";
+  _gst_default_primitive_table[208].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[208].id = 0;
+  _gst_default_primitive_table[208].func = VMpr_CObject_atPut;
+  _gst_default_primitive_table[209].name = "VMpr_CObject_address";
+  _gst_default_primitive_table[209].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[209].id = 0;
+  _gst_default_primitive_table[209].func = VMpr_CObject_address;
+  _gst_default_primitive_table[210].name = "VMpr_CObject_addressColon";
+  _gst_default_primitive_table[210].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[210].id = 0;
+  _gst_default_primitive_table[210].func = VMpr_CObject_addressColon;
+  _gst_default_primitive_table[211].name = "VMpr_CString_replaceWith";
+  _gst_default_primitive_table[211].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[211].id = 0;
+  _gst_default_primitive_table[211].func = VMpr_CString_replaceWith;
+  _gst_default_primitive_table[212].name = "VMpr_ByteArray_fromCData_size";
+  _gst_default_primitive_table[212].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[212].id = 0;
+  _gst_default_primitive_table[212].func = VMpr_ByteArray_fromCData_size;
+  _gst_default_primitive_table[213].name = "VMpr_String_fromCData_size";
+  _gst_default_primitive_table[213].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[213].id = 0;
+  _gst_default_primitive_table[213].func = VMpr_String_fromCData_size;
+  _gst_default_primitive_table[214].name = "VMpr_String_fromCData";
+  _gst_default_primitive_table[214].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[214].id = 0;
+  _gst_default_primitive_table[214].func = VMpr_String_fromCData;
+  _gst_default_primitive_table[215].name = "VMpr_String_asCData";
+  _gst_default_primitive_table[215].attributes = PRIM_CHECKS_RECEIVER;
+  _gst_default_primitive_table[215].id = 0;
+  _gst_default_primitive_table[215].func = VMpr_String_ByteArray_asCData;
+  _gst_default_primitive_table[216].name = "VMpr_ByteArray_asCData";
+  _gst_default_primitive_table[216].attributes = PRIM_CHECKS_RECEIVER;
+  _gst_default_primitive_table[216].id = -1;
+  _gst_default_primitive_table[216].func = VMpr_String_ByteArray_asCData;
+  _gst_default_primitive_table[217].name = "VMpr_SystemDictionary_byteCodeCounter";
+  _gst_default_primitive_table[217].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[217].id = 0;
+  _gst_default_primitive_table[217].func = VMpr_SystemDictionary_byteCodeCounter;
+  _gst_default_primitive_table[218].name = "VMpr_SystemDictionary_debug";
+  _gst_default_primitive_table[218].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[218].id = 0;
+  _gst_default_primitive_table[218].func = VMpr_SystemDictionary_debug;
+  _gst_default_primitive_table[219].name = "VMpr_Object_isReadOnly";
+  _gst_default_primitive_table[219].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[219].id = 0;
+  _gst_default_primitive_table[219].func = VMpr_Object_isReadOnly;
+  _gst_default_primitive_table[220].name = "VMpr_Object_makeReadOnly";
+  _gst_default_primitive_table[220].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[220].id = 0;
+  _gst_default_primitive_table[220].func = VMpr_Object_makeReadOnly;
+  _gst_default_primitive_table[221].name = "VMpr_Behavior_primCompile";
+  _gst_default_primitive_table[221].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[221].id = 0;
+  _gst_default_primitive_table[221].func = VMpr_Behavior_primCompile;
+  _gst_default_primitive_table[222].name = "VMpr_Behavior_primCompileIfError";
+  _gst_default_primitive_table[222].attributes = PRIM_FAIL | PRIM_SUCCEED | PRIM_RELOAD_IP;
+  _gst_default_primitive_table[222].id = 0;
+  _gst_default_primitive_table[222].func = VMpr_Behavior_primCompileIfError;
+  _gst_default_primitive_table[223].name = "VMpr_CCallbackDescriptor_link";
+  _gst_default_primitive_table[223].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[223].id = 0;
+  _gst_default_primitive_table[223].func = VMpr_CCallbackDescriptor_link;
+  _gst_default_primitive_table[224].name = "VMpr_CFuncDescriptor_addressOf";
+  _gst_default_primitive_table[224].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[224].id = 0;
+  _gst_default_primitive_table[224].func = VMpr_CFuncDescriptor_addressOf;
+  _gst_default_primitive_table[225].name = "VMpr_ObjectMemory_snapshot";
+  _gst_default_primitive_table[225].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[225].id = 0;
+  _gst_default_primitive_table[225].func = VMpr_ObjectMemory_snapshot;
+  _gst_default_primitive_table[226].name = "VMpr_Object_basicPrint";
+  _gst_default_primitive_table[226].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[226].id = 0;
+  _gst_default_primitive_table[226].func = VMpr_Object_basicPrint;
+  _gst_default_primitive_table[227].name = "VMpr_Object_makeWeak";
+  _gst_default_primitive_table[227].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[227].id = 0;
+  _gst_default_primitive_table[227].func = VMpr_Object_makeWeak;
+  _gst_default_primitive_table[228].name = "VMpr_Stream_fileInLine";
+  _gst_default_primitive_table[228].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[228].id = 0;
+  _gst_default_primitive_table[228].func = VMpr_Stream_fileInLine;
+  _gst_default_primitive_table[229].name = "VMpr_FileDescriptor_fileOp";
+  _gst_default_primitive_table[229].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[229].id = 0;
+  _gst_default_primitive_table[229].func = VMpr_FileDescriptor_fileOp;
+  _gst_default_primitive_table[230].name = "VMpr_FileDescriptor_socketOp";
+  _gst_default_primitive_table[230].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[230].id = 0;
+  _gst_default_primitive_table[230].func = VMpr_FileDescriptor_socketOp;
+  _gst_default_primitive_table[231].name = "VMpr_CFuncDescriptor_asyncCall";
+  _gst_default_primitive_table[231].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[231].id = 0;
+  _gst_default_primitive_table[231].func = VMpr_CFuncDescriptor_asyncCall;
+  _gst_default_primitive_table[232].name = "VMpr_CFuncDescriptor_call";
+  _gst_default_primitive_table[232].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[232].id = 0;
+  _gst_default_primitive_table[232].func = VMpr_CFuncDescriptor_call;
+  _gst_default_primitive_table[233].name = "VMpr_Object_makeEphemeron";
+  _gst_default_primitive_table[233].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[233].id = 0;
+  _gst_default_primitive_table[233].func = VMpr_Object_makeEphemeron;
+  _gst_default_primitive_table[234].name = "VMpr_Namespace_setCurrent";
+  _gst_default_primitive_table[234].attributes = PRIM_FAIL;
+  _gst_default_primitive_table[234].id = 0;
+  _gst_default_primitive_table[234].func = VMpr_Namespace_setCurrent;
+  _gst_default_primitive_table[235].name = "VMpr_ObjectMemory_scavenge";
+  _gst_default_primitive_table[235].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[235].id = 0;
+  _gst_default_primitive_table[235].func = VMpr_ObjectMemory_gcPrimitives;
+  _gst_default_primitive_table[236].name = "VMpr_ObjectMemory_compact";
+  _gst_default_primitive_table[236].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[236].id = -1;
+  _gst_default_primitive_table[236].func = VMpr_ObjectMemory_gcPrimitives;
+  _gst_default_primitive_table[237].name = "VMpr_ObjectMemory_globalGarbageCollect";
+  _gst_default_primitive_table[237].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[237].id = -2;
+  _gst_default_primitive_table[237].func = VMpr_ObjectMemory_gcPrimitives;
+  _gst_default_primitive_table[238].name = "VMpr_ObjectMemory_incrementalGCStep";
+  _gst_default_primitive_table[238].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[238].id = -3;
+  _gst_default_primitive_table[238].func = VMpr_ObjectMemory_gcPrimitives;
+  _gst_default_primitive_table[239].name = "VMpr_ObjectMemory_finishIncrementalGC";
+  _gst_default_primitive_table[239].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[239].id = -4;
+  _gst_default_primitive_table[239].func = VMpr_ObjectMemory_gcPrimitives;
+  _gst_default_primitive_table[240].name = "VMpr_SystemDictionary_rawProfile";
+  _gst_default_primitive_table[240].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[240].id = 0;
+  _gst_default_primitive_table[240].func = VMpr_SystemDictionary_rawProfile;
+  _gst_default_primitive_table[241].name = "VMpr_Random_next";
+  _gst_default_primitive_table[241].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[241].id = 0;
+  _gst_default_primitive_table[241].func = VMpr_Random_next;
+
+  for (i = 242; i < NUM_PRIMITIVES; i++)
+    {
+      _gst_default_primitive_table[i].name = NULL;
+      _gst_default_primitive_table[i].attributes = PRIM_FAIL;
+      _gst_default_primitive_table[i].id = i;
+      _gst_default_primitive_table[i].func = VMpr_HOLE;
+    }
+}
+

@@ -11,7 +11,6 @@
 /genvm-scan.c
 /match.h
 /match.stamp
-/prims.inl
 /prims.stamp
 /vm.inl
 /vm.stamp
