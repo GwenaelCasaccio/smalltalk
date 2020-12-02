@@ -115,826 +115,7 @@
     PRIM_FAILED;                                                \
   }
 
-
-/* SmallInteger + arg  */
 static intptr_t
-VMpr_SmallInteger_plus (int id ATTRIBUTE_UNUSED,
-                        volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_minus (int id ATTRIBUTE_UNUSED,
-                         volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_lt (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_gt (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_le (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_ge (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_eq (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_ne (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_times (int id ATTRIBUTE_UNUSED,
-                         volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_divide (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_modulo (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_intDiv (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_quo (int id ATTRIBUTE_UNUSED,
-                       volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_bitAnd (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_bitOr (int id ATTRIBUTE_UNUSED,
-                         volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_bitXor (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_bitShift (int id ATTRIBUTE_UNUSED,
-                            volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_scramble (int id ATTRIBUTE_UNUSED,
-                            volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_asFloatD (int id ATTRIBUTE_UNUSED,
-                            volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_asFloatE (int id ATTRIBUTE_UNUSED,
-                            volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_asFloatQ (int id ATTRIBUTE_UNUSED,
-                            volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_eq (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_ne (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_lt (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_le (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_gt (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_ge (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_times (int id ATTRIBUTE_UNUSED,
-                         volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_intDiv (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_modulo (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_divExact (int id ATTRIBUTE_UNUSED,
-                            volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_quo (int id ATTRIBUTE_UNUSED,
-                       volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_rem (int id ATTRIBUTE_UNUSED,
-                       volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_negated (int id ATTRIBUTE_UNUSED,
-                           volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_bitAnd (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_bitOr (int id ATTRIBUTE_UNUSED,
-                         volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_bitXor (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_bitInvert (int id ATTRIBUTE_UNUSED,
-                             volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_bitShift (int id ATTRIBUTE_UNUSED,
-                            volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_plus (int id ATTRIBUTE_UNUSED,
-                        volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_minus (int id ATTRIBUTE_UNUSED,
-                         volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_gcd (int id ATTRIBUTE_UNUSED,
-                       volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_asFloatD (int id ATTRIBUTE_UNUSED,
-                            volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_asFloatE (int id ATTRIBUTE_UNUSED,
-                            volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_LargeInteger_asFloatQ (int id ATTRIBUTE_UNUSED,
-                            volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FloatD_arith (int id ATTRIBUTE_UNUSED,
-                   volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FloatD_truncated (int id ATTRIBUTE_UNUSED,
-                       volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FloatD_fractionPart (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FloatD_exponent (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FloatD_timesTwoPower (int id ATTRIBUTE_UNUSED,
-                           volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FloatD_asFloatE (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FloatD_asFloatQ (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FloatE_arith (int id ATTRIBUTE_UNUSED,
-                   volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FloatE_truncated (int id ATTRIBUTE_UNUSED,
-                       volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FloatE_fractionPart (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FloatE_exponent (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FloatE_timesTwoPower (int id ATTRIBUTE_UNUSED,
-                           volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FloatE_asFloatD (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FloatE_asFloatQ (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FloatQ_arith (int id ATTRIBUTE_UNUSED,
-                   volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FloatQ_truncated (int id ATTRIBUTE_UNUSED,
-                       volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FloatQ_fractionPart (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FloatQ_exponent (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FloatQ_timesTwoPower (int id ATTRIBUTE_UNUSED,
-                           volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FloatQ_asFloatD (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FloatQ_asFloatE (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_basicAt (int id ATTRIBUTE_UNUSED,
-                     volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_basicAtPut (int id ATTRIBUTE_UNUSED,
-                        volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_basicSize (int id ATTRIBUTE_UNUSED,
-                       volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_CharacterArray_valueAt (int id ATTRIBUTE_UNUSED,
-                             volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_CharacterArray_valueAtPut (int id ATTRIBUTE_UNUSED,
-                                volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_CompiledCode_verificationResult (int id ATTRIBUTE_UNUSED,
-                                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_CompiledBlock_create (int id ATTRIBUTE_UNUSED,
-                           volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_CompiledMethod_create (int id ATTRIBUTE_UNUSED,
-                            volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_shallowCopy (int id ATTRIBUTE_UNUSED,
-                         volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Behavior_basicNew (int id ATTRIBUTE_UNUSED,
-                        volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Behavior_newInitialize (int id ATTRIBUTE_UNUSED,
-                             volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Behavior_basicNewColon (int id ATTRIBUTE_UNUSED,
-                             volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Behavior_newColonInitialize (int id ATTRIBUTE_UNUSED,
-                                  volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_become (int id ATTRIBUTE_UNUSED,
-                    volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_instVarAt (int id ATTRIBUTE_UNUSED,
-                       volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_instVarAtPut (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_hash (int id ATTRIBUTE_UNUSED,
-                  volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_asObject (int id ATTRIBUTE_UNUSED,
-                            volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SmallInteger_nextValidOop (int id ATTRIBUTE_UNUSED,
-                                volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Behavior_someInstance (int id ATTRIBUTE_UNUSED,
-                            volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_nextInstance (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_becomeForward (int id ATTRIBUTE_UNUSED,
-                           volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_allOwners (int id ATTRIBUTE_UNUSED,
-                       volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_ContextPart_thisContext (int id ATTRIBUTE_UNUSED,
-                              volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_ContextPart_continue (int id ATTRIBUTE_UNUSED,
-                           volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Continuation_resume (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_BlockClosure_value (int id ATTRIBUTE_UNUSED,
-                         volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_BlockClosure_cull (int id ATTRIBUTE_UNUSED,
-                        volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_BlockClosure_valueAndResumeOnUnwind (int id ATTRIBUTE_UNUSED,
-                                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_BlockClosure_valueWithArguments (int id ATTRIBUTE_UNUSED,
-                                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_perform (int id ATTRIBUTE_UNUSED,
-                     volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_performWithArguments (int id ATTRIBUTE_UNUSED,
-                                  volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Semaphore_notifyAll (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Semaphore_signalNotify (int id ATTRIBUTE_UNUSED,
-                             volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Semaphore_lock (int id ATTRIBUTE_UNUSED,
-                     volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Semaphore_wait (int id ATTRIBUTE_UNUSED,
-                     volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Semaphore_waitAfterSignalling (int id ATTRIBUTE_UNUSED,
-                                    volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Process_suspend (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Process_resume (int id ATTRIBUTE_UNUSED,
-                     volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Process_singleStepWaitingOn (int id ATTRIBUTE_UNUSED,
-                                  volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Process_yield (int id ATTRIBUTE_UNUSED,
-                    volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Processor_dispatchEvents (int id ATTRIBUTE_UNUSED,
-                               volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Processor_pause (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Behavior_flushCache (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_CompiledCode_discardTranslation (int id ATTRIBUTE_UNUSED,
-                                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_changeClassTo (int id ATTRIBUTE_UNUSED,
-                           volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Time_timezoneBias (int id ATTRIBUTE_UNUSED,
-                        volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Time_timezone (int id ATTRIBUTE_UNUSED,
-                    volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Time_secondClock (int id ATTRIBUTE_UNUSED,
-                       volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Time_nanosecondClock (int id ATTRIBUTE_UNUSED,
-                           volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Time_millisecondClock (int id ATTRIBUTE_UNUSED,
-                            volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Processor_signalAt (int id ATTRIBUTE_UNUSED,
-                         volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Processor_isTimeoutProgrammed (int id ATTRIBUTE_UNUSED,
-                                    volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_String_similarityTo (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_String_hash (int id ATTRIBUTE_UNUSED,
-                  volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_ArrayedCollection_equal (int id ATTRIBUTE_UNUSED,
-                              volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_ArrayedCollection_indexOfStartingAt (int id ATTRIBUTE_UNUSED,
-                                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_ArrayedCollection_replaceFromToWithStartingAt (int id ATTRIBUTE_UNUSED,
-                                                    volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_identity (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_class (int id ATTRIBUTE_UNUSED,
-                   volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_ObjectMemory_quit (int id ATTRIBUTE_UNUSED,
-                        volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_ObjectMemory_abort (int id ATTRIBUTE_UNUSED,
-                         volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Dictionary_at (int id ATTRIBUTE_UNUSED,
-                    volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_bootstrapException (int id ATTRIBUTE_UNUSED,
-                                volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Character_create (int id ATTRIBUTE_UNUSED,
-                       volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_UnicodeCharacter_create (int id ATTRIBUTE_UNUSED,
-                              volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Character_equal (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Symbol_intern (int id ATTRIBUTE_UNUSED,
-                    volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Dictionary_new (int id ATTRIBUTE_UNUSED,
-                     volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Memory_addressOfOOP (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Memory_addressOf (int id ATTRIBUTE_UNUSED,
-                       volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SystemDictionary_backtrace (int id ATTRIBUTE_UNUSED,
-                                 volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SystemDictionary_getTraceFlag (int id ATTRIBUTE_UNUSED,
-                                    volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SystemDictionary_setTraceFlag (int id ATTRIBUTE_UNUSED,
-                                    volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Memory_at (int id ATTRIBUTE_UNUSED,
-                volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Memory_atPut (int id ATTRIBUTE_UNUSED,
-                   volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Behavior_methodsFor (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Behavior_methodsForIfTrue (int id ATTRIBUTE_UNUSED,
-                                volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Processor_disableEnableInterrupts (int id ATTRIBUTE_UNUSED,
-                                        volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Processor_signalOnInterrupt (int id ATTRIBUTE_UNUSED,
-                                  volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_ObjectMemory_getSpaceGrowRate (int id ATTRIBUTE_UNUSED,
-                                    volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_ObjectMemory_setSpaceGrowRate (int id ATTRIBUTE_UNUSED,
-                                    volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_ObjectMemory_getSmoothingFactor (int id ATTRIBUTE_UNUSED,
-                                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_ObjectMemory_setSmoothingFactor (int id ATTRIBUTE_UNUSED,
-                                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_ObjectMemory_getGrowThresholdPercent (int id ATTRIBUTE_UNUSED,
-                                           volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_ObjectMemory_setGrowThresholdPercent (int id ATTRIBUTE_UNUSED,
-                                           volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_ObjectMemory_getBigObjectThreshold (int id ATTRIBUTE_UNUSED,
-                                         volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_ObjectMemory_setBigObjectThreshold (int id ATTRIBUTE_UNUSED,
-                                         volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_ObjectMemory_growTo (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_ObjectMemory_update (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_CObject_allocType (int id ATTRIBUTE_UNUSED,
-                        volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Float_sin (int id ATTRIBUTE_UNUSED,
-                volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Float_cos (int id ATTRIBUTE_UNUSED,
-                volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Float_tan (int id ATTRIBUTE_UNUSED,
-                volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Float_arcSin (int id ATTRIBUTE_UNUSED,
-                   volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Float_arcCos (int id ATTRIBUTE_UNUSED,
-                   volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Float_arcTan (int id ATTRIBUTE_UNUSED,
-                   volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Float_exp (int id ATTRIBUTE_UNUSED,
-                volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Float_ln (int id ATTRIBUTE_UNUSED,
-               volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Float_pow (int id ATTRIBUTE_UNUSED,
-                volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_CObject_free (int id ATTRIBUTE_UNUSED,
-                   volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Float_sqrt (int id ATTRIBUTE_UNUSED,
-                 volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Float_ceil_floor (int id ATTRIBUTE_UNUSED,
-                       volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Behavior_basicNewFixed (int id ATTRIBUTE_UNUSED,
-                             volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Behavior_basicNewFixedColon (int id ATTRIBUTE_UNUSED,
-                                  volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_tenure (int id ATTRIBUTE_UNUSED,
-                    volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_makeFixed (int id ATTRIBUTE_UNUSED,
-                       volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_CObject_at (int id ATTRIBUTE_UNUSED,
-                 volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_CObject_atPut (int id ATTRIBUTE_UNUSED,
-                    volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_CObject_address (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_CObject_addressColon (int id ATTRIBUTE_UNUSED,
-                           volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_CString_replaceWith (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_ByteArray_fromCData_size (int id ATTRIBUTE_UNUSED,
-                               volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_String_fromCData_size (int id ATTRIBUTE_UNUSED,
-                            volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_String_fromCData (int id ATTRIBUTE_UNUSED,
-                       volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_String_ByteArray_asCData (int id ATTRIBUTE_UNUSED,
-                               volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SystemDictionary_byteCodeCounter (int id ATTRIBUTE_UNUSED,
-                                       volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SystemDictionary_debug (int id ATTRIBUTE_UNUSED,
-                             volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_isReadOnly (int id ATTRIBUTE_UNUSED,
-                        volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_makeReadOnly (int id ATTRIBUTE_UNUSED,
-                          volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Behavior_primCompile (int id ATTRIBUTE_UNUSED,
-                           volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Behavior_primCompileIfError (int id ATTRIBUTE_UNUSED,
-                                  volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_CCallbackDescriptor_link (int id ATTRIBUTE_UNUSED,
-                               volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_CFuncDescriptor_addressOf (int id ATTRIBUTE_UNUSED,
-                                volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_ObjectMemory_snapshot (int id ATTRIBUTE_UNUSED,
-                            volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_basicPrint (int id ATTRIBUTE_UNUSED,
-                        volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_makeWeak (int id ATTRIBUTE_UNUSED,
-                      volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Stream_fileInLine (int id ATTRIBUTE_UNUSED,
-                        volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FileDescriptor_fileOp (int id ATTRIBUTE_UNUSED,
-                            volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_FileDescriptor_socketOp (int id ATTRIBUTE_UNUSED,
-                              volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_CFuncDescriptor_asyncCall (int id ATTRIBUTE_UNUSED,
-                                volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_CFuncDescriptor_call (int id ATTRIBUTE_UNUSED,
-                           volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Object_makeEphemeron (int id ATTRIBUTE_UNUSED,
-                           volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Namespace_setCurrent (int id ATTRIBUTE_UNUSED,
-                           volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_ObjectMemory_gcPrimitives (int id ATTRIBUTE_UNUSED,
-                                volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_SystemDictionary_rawProfile (int id ATTRIBUTE_UNUSED,
-                                  volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_Random_next (int id ATTRIBUTE_UNUSED,
-                  volatile int numArgs ATTRIBUTE_UNUSED);
-
-static intptr_t
-VMpr_HOLE (int id ATTRIBUTE_UNUSED,
-           volatile int numArgs ATTRIBUTE_UNUSED);
-
-
-intptr_t
 VMpr_SmallInteger_plus (int id,
                         volatile int numArgs)
 {
@@ -943,7 +124,7 @@ VMpr_SmallInteger_plus (int id,
 }
 
 /* SmallInteger - arg */
-intptr_t
+static intptr_t
 VMpr_SmallInteger_minus (int id,
                          volatile int numArgs)
 {
@@ -952,7 +133,7 @@ VMpr_SmallInteger_minus (int id,
 }
 
 /* SmallInteger < arg */
-intptr_t
+static intptr_t
 VMpr_SmallInteger_lt (int id,
                       volatile int numArgs)
 {
@@ -961,7 +142,7 @@ VMpr_SmallInteger_lt (int id,
 }
 
 /* SmallInteger > arg */
-intptr_t
+static intptr_t
 VMpr_SmallInteger_gt (int id,
                       volatile int numArgs)
 {
@@ -970,7 +151,7 @@ VMpr_SmallInteger_gt (int id,
 }
 
 /* SmallInteger <= arg */
-intptr_t
+static intptr_t
 VMpr_SmallInteger_le (int id,
                       volatile int numArgs)
 {
@@ -979,7 +160,7 @@ VMpr_SmallInteger_le (int id,
 }
 
 /* SmallInteger >= arg */
-intptr_t
+static intptr_t
 VMpr_SmallInteger_ge (int id,
                       volatile int numArgs)
 {
@@ -988,7 +169,7 @@ VMpr_SmallInteger_ge (int id,
 }
 
 /* SmallInteger =, == arg */
-intptr_t
+static intptr_t
 VMpr_SmallInteger_eq (int id,
                       volatile int numArgs)
 {
@@ -997,7 +178,7 @@ VMpr_SmallInteger_eq (int id,
 }
 
 /* SmallInteger ~=, ~~ arg */
-intptr_t
+static intptr_t
 VMpr_SmallInteger_ne (int id,
                       volatile int numArgs)
 {
@@ -1006,7 +187,7 @@ VMpr_SmallInteger_ne (int id,
 }
 
 /* SmallInteger * arg */
-intptr_t
+static intptr_t
 VMpr_SmallInteger_times (int id,
                          volatile int numArgs)
 {
@@ -1016,7 +197,7 @@ VMpr_SmallInteger_times (int id,
 
 /* SmallInteger / arg */
 /* quotient as exact as possible */
-intptr_t
+static intptr_t
 VMpr_SmallInteger_divide (int id,
                           volatile int numArgs)
 {
@@ -1045,7 +226,7 @@ VMpr_SmallInteger_divide (int id,
 
 /* SmallInteger \\ arg */
 /* remainder truncated towards -infinity */
-intptr_t
+static intptr_t
 VMpr_SmallInteger_modulo (int id,
                           volatile int numArgs)
 {
@@ -1071,7 +252,7 @@ VMpr_SmallInteger_modulo (int id,
 
 /* SmallInteger // arg */
 /* quotient truncated towards -infinity */
-intptr_t
+static intptr_t
 VMpr_SmallInteger_intDiv (int id,
                           volatile int numArgs)
 {
@@ -1104,7 +285,7 @@ VMpr_SmallInteger_intDiv (int id,
 
 /* SmallInteger quo: arg */
 /* quotient truncated towards 0 */
-intptr_t
+static intptr_t
 VMpr_SmallInteger_quo (int id,
                        volatile int numArgs)
 {
@@ -1130,7 +311,7 @@ VMpr_SmallInteger_quo (int id,
 }
 
 /* SmallInteger bitAnd: arg */
-intptr_t
+static intptr_t
 VMpr_SmallInteger_bitAnd (int id,
                           volatile int numArgs)
 {
@@ -1139,7 +320,7 @@ VMpr_SmallInteger_bitAnd (int id,
 }
 
 /* SmallInteger bitOr: arg */
-intptr_t
+static intptr_t
 VMpr_SmallInteger_bitOr (int id,
                          volatile int numArgs)
 {
@@ -1148,7 +329,7 @@ VMpr_SmallInteger_bitOr (int id,
 }
 
 /* SmallInteger bitXor: arg */
-intptr_t
+static intptr_t
 VMpr_SmallInteger_bitXor (int id,
                           volatile int numArgs)
 {
@@ -1157,7 +338,7 @@ VMpr_SmallInteger_bitXor (int id,
 }
 
 /* SmallInteger bitShift: arg */
-intptr_t
+static intptr_t
 VMpr_SmallInteger_bitShift (int id,
                             volatile int numArgs)
 {
@@ -1198,7 +379,7 @@ VMpr_SmallInteger_bitShift (int id,
 
 /* SmallInteger scramble */
 
-intptr_t
+static intptr_t
 VMpr_SmallInteger_scramble (int id,
                             volatile int numArgs)
 {
@@ -1218,7 +399,7 @@ VMpr_SmallInteger_scramble (int id,
 
 /* SmallInteger asFloatD */
 
-intptr_t
+static intptr_t
 VMpr_SmallInteger_asFloatD (int id,
                             volatile int numArgs)
 {
@@ -1237,7 +418,7 @@ VMpr_SmallInteger_asFloatD (int id,
 
 /* SmallInteger asFloatE */
 
-intptr_t
+static intptr_t
 VMpr_SmallInteger_asFloatE (int id,
                             volatile int numArgs)
 {
@@ -1256,7 +437,7 @@ VMpr_SmallInteger_asFloatE (int id,
 
 /* SmallInteger asFloatQ */
 
-intptr_t
+static intptr_t
 VMpr_SmallInteger_asFloatQ (int id,
                             volatile int numArgs)
 {
@@ -1273,7 +454,7 @@ VMpr_SmallInteger_asFloatQ (int id,
   PRIM_FAILED;
 }
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_eq (int id,
                       volatile int numArgs)
 {
@@ -1317,7 +498,7 @@ VMpr_LargeInteger_eq (int id,
 #endif
 }
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_ne (int id,
                       volatile int numArgs)
 {
@@ -1362,7 +543,7 @@ VMpr_LargeInteger_ne (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_lt (int id,
                       volatile int numArgs)
 {
@@ -1407,7 +588,7 @@ VMpr_LargeInteger_lt (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_le (int id,
                       volatile int numArgs)
 {
@@ -1452,7 +633,7 @@ VMpr_LargeInteger_le (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_gt (int id,
                       volatile int numArgs)
 {
@@ -1497,7 +678,7 @@ VMpr_LargeInteger_gt (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_ge (int id,
                       volatile int numArgs)
 {
@@ -1542,7 +723,7 @@ VMpr_LargeInteger_ge (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_times (int id,
                          volatile int numArgs)
 {
@@ -1590,7 +771,7 @@ VMpr_LargeInteger_times (int id,
 
 
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_intDiv (int id,
                           volatile int numArgs)
 {
@@ -1642,7 +823,7 @@ VMpr_LargeInteger_intDiv (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_modulo (int id,
                           volatile int numArgs)
 {
@@ -1697,7 +878,7 @@ VMpr_LargeInteger_modulo (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_divExact (int id,
                             volatile int numArgs)
 {
@@ -1746,7 +927,7 @@ VMpr_LargeInteger_divExact (int id,
 #endif
 }
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_quo (int id,
                        volatile int numArgs)
 {
@@ -1798,7 +979,7 @@ VMpr_LargeInteger_quo (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_rem (int id,
                        volatile int numArgs)
 {
@@ -1853,7 +1034,7 @@ VMpr_LargeInteger_rem (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_negated (int id,
                            volatile int numArgs)
 {
@@ -1887,7 +1068,7 @@ VMpr_LargeInteger_negated (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_bitAnd (int id,
                           volatile int numArgs)
 {
@@ -1934,7 +1115,7 @@ VMpr_LargeInteger_bitAnd (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_bitOr (int id,
                          volatile int numArgs)
 {
@@ -1981,7 +1162,7 @@ VMpr_LargeInteger_bitOr (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_bitXor (int id,
                           volatile int numArgs)
 {
@@ -2028,7 +1209,7 @@ VMpr_LargeInteger_bitXor (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_bitInvert (int id,
                              volatile int numArgs)
 {
@@ -2061,7 +1242,7 @@ VMpr_LargeInteger_bitInvert (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_bitShift (int id,
                             volatile int numArgs)
 {
@@ -2107,7 +1288,7 @@ VMpr_LargeInteger_bitShift (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_plus (int id,
                         volatile int numArgs)
 {
@@ -2154,7 +1335,7 @@ VMpr_LargeInteger_plus (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_minus (int id,
                          volatile int numArgs)
 {
@@ -2201,7 +1382,7 @@ VMpr_LargeInteger_minus (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_gcd (int id,
                        volatile int numArgs)
 {
@@ -2255,7 +1436,7 @@ VMpr_LargeInteger_gcd (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_asFloatD (int id,
                             volatile int numArgs)
 {
@@ -2290,7 +1471,7 @@ VMpr_LargeInteger_asFloatD (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_asFloatE (int id,
                             volatile int numArgs)
 {
@@ -2325,7 +1506,7 @@ VMpr_LargeInteger_asFloatE (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_LargeInteger_asFloatQ (int id,
                             volatile int numArgs)
 {
@@ -2359,7 +1540,7 @@ VMpr_LargeInteger_asFloatQ (int id,
   PRIM_FAILED;
 }
 
-intptr_t
+static intptr_t
 VMpr_FloatD_arith (int id,
                    volatile int numArgs)
 {
@@ -2425,7 +1606,7 @@ VMpr_FloatD_arith (int id,
 }
 
 /* FloatD truncated */
-intptr_t
+static intptr_t
 VMpr_FloatD_truncated (int id,
                        volatile int numArgs)
 {
@@ -2447,7 +1628,7 @@ VMpr_FloatD_truncated (int id,
 }
 
 /* FloatD fractionPart */
-intptr_t
+static intptr_t
 VMpr_FloatD_fractionPart (int id,
                           volatile int numArgs)
 {
@@ -2469,7 +1650,7 @@ VMpr_FloatD_fractionPart (int id,
 }
 
 /* FloatD exponent */
-intptr_t
+static intptr_t
 VMpr_FloatD_exponent (int id,
                       volatile int numArgs)
 {
@@ -2498,7 +1679,7 @@ VMpr_FloatD_exponent (int id,
 }
 
 /* FloatD timesTwoPower: */
-intptr_t
+static intptr_t
 VMpr_FloatD_timesTwoPower (int id,
                            volatile int numArgs)
 {
@@ -2523,7 +1704,7 @@ VMpr_FloatD_timesTwoPower (int id,
 
 /* FloatD asFloatE */
 
-intptr_t
+static intptr_t
 VMpr_FloatD_asFloatE (int id,
                       volatile int numArgs)
 {
@@ -2542,7 +1723,7 @@ VMpr_FloatD_asFloatE (int id,
 
 /* FloatD asFloatQ */
 
-intptr_t
+static intptr_t
 VMpr_FloatD_asFloatQ (int id,
                       volatile int numArgs)
 {
@@ -2559,7 +1740,7 @@ VMpr_FloatD_asFloatQ (int id,
   PRIM_FAILED;
 }
 
-intptr_t
+static intptr_t
 VMpr_FloatE_arith (int id,
                    volatile int numArgs)
 {
@@ -2625,7 +1806,7 @@ VMpr_FloatE_arith (int id,
 }
 
 /* FloatD truncated */
-intptr_t
+static intptr_t
 VMpr_FloatE_truncated (int id,
                        volatile int numArgs)
 {
@@ -2647,7 +1828,7 @@ VMpr_FloatE_truncated (int id,
 }
 
 /* FloatD fractionPart */
-intptr_t
+static intptr_t
 VMpr_FloatE_fractionPart (int id,
                           volatile int numArgs)
 {
@@ -2669,7 +1850,7 @@ VMpr_FloatE_fractionPart (int id,
 }
 
 /* FloatD exponent */
-intptr_t
+static intptr_t
 VMpr_FloatE_exponent (int id,
                       volatile int numArgs)
 {
@@ -2698,7 +1879,7 @@ VMpr_FloatE_exponent (int id,
 }
 
 /* FloatD timesTwoPower: */
-intptr_t
+static intptr_t
 VMpr_FloatE_timesTwoPower (int id,
                            volatile int numArgs)
 {
@@ -2723,7 +1904,7 @@ VMpr_FloatE_timesTwoPower (int id,
 
 /* FloatE asFloatD */
 
-intptr_t
+static intptr_t
 VMpr_FloatE_asFloatD (int id,
                       volatile int numArgs)
 {
@@ -2742,7 +1923,7 @@ VMpr_FloatE_asFloatD (int id,
 
 /* FloatD asFloatQ */
 
-intptr_t
+static intptr_t
 VMpr_FloatE_asFloatQ (int id,
                       volatile int numArgs)
 {
@@ -2759,7 +1940,7 @@ VMpr_FloatE_asFloatQ (int id,
   PRIM_FAILED;
 }
 
-intptr_t
+static intptr_t
 VMpr_FloatQ_arith (int id,
                    volatile int numArgs)
 {
@@ -2825,7 +2006,7 @@ VMpr_FloatQ_arith (int id,
 }
 
 /* FloatD truncated */
-intptr_t
+static intptr_t
 VMpr_FloatQ_truncated (int id,
                        volatile int numArgs)
 {
@@ -2847,7 +2028,7 @@ VMpr_FloatQ_truncated (int id,
 }
 
 /* FloatD fractionPart */
-intptr_t
+static intptr_t
 VMpr_FloatQ_fractionPart (int id,
                           volatile int numArgs)
 {
@@ -2869,7 +2050,7 @@ VMpr_FloatQ_fractionPart (int id,
 }
 
 /* FloatD exponent */
-intptr_t
+static intptr_t
 VMpr_FloatQ_exponent (int id,
                       volatile int numArgs)
 {
@@ -2898,7 +2079,7 @@ VMpr_FloatQ_exponent (int id,
 }
 
 /* FloatD timesTwoPower: */
-intptr_t
+static intptr_t
 VMpr_FloatQ_timesTwoPower (int id,
                            volatile int numArgs)
 {
@@ -2923,7 +2104,7 @@ VMpr_FloatQ_timesTwoPower (int id,
 
 /* FloatQ asFloatD */
 
-intptr_t
+static intptr_t
 VMpr_FloatQ_asFloatD (int id,
                       volatile int numArgs)
 {
@@ -2942,7 +2123,7 @@ VMpr_FloatQ_asFloatD (int id,
 
 /* FloatD asFloatQ */
 
-intptr_t
+static intptr_t
 VMpr_FloatQ_asFloatE (int id,
                       volatile int numArgs)
 {
@@ -2963,7 +2144,7 @@ VMpr_FloatQ_asFloatE (int id,
 
 /* Object at:, Object basicAt: */
 
-intptr_t
+static intptr_t
 VMpr_Object_basicAt (int id,
                      volatile int numArgs)
 {
@@ -2990,7 +2171,7 @@ VMpr_Object_basicAt (int id,
 }
 
 /* Object at:put:, Object basicAt:put: */
-intptr_t
+static intptr_t
 VMpr_Object_basicAtPut (int id,
                         volatile int numArgs)
 {
@@ -3018,7 +2199,7 @@ VMpr_Object_basicAtPut (int id,
 }
 
 /* Object basicSize; Object size; String size */
-intptr_t
+static intptr_t
 VMpr_Object_basicSize (int id,
                        volatile int numArgs)
 {
@@ -3032,7 +2213,7 @@ VMpr_Object_basicSize (int id,
 
 /* CharacterArray valueAt: */
 
-intptr_t
+static intptr_t
 VMpr_CharacterArray_valueAt (int id,
                              volatile int numArgs)
 {
@@ -3075,7 +2256,7 @@ VMpr_CharacterArray_valueAt (int id,
 }
 
 /* CharacterArray valueAt:put: */
-intptr_t
+static intptr_t
 VMpr_CharacterArray_valueAtPut (int id,
                                 volatile int numArgs)
 {
@@ -3121,7 +2302,7 @@ VMpr_CharacterArray_valueAtPut (int id,
 
 
 /* CompiledCode verificationResult */
-intptr_t
+static intptr_t
 VMpr_CompiledCode_verificationResult (int id,
                                       volatile int numArgs)
 {
@@ -3134,7 +2315,7 @@ VMpr_CompiledCode_verificationResult (int id,
 }
 
 /* CompiledBlock numArgs:numTemps:bytecodes:depth:literals: */
-intptr_t
+static intptr_t
 VMpr_CompiledBlock_create (int id,
                            volatile int numArgs)
 {
@@ -3157,7 +2338,7 @@ VMpr_CompiledBlock_create (int id,
 }
 
 /* CompiledMethod literals:numArgs:numTemps:attributes:bytecodes:depth: */
-intptr_t
+static intptr_t
 VMpr_CompiledMethod_create (int id,
                             volatile int numArgs)
 {
@@ -3185,7 +2366,7 @@ VMpr_CompiledMethod_create (int id,
 }
 
 /* Object shallowCopy */
-intptr_t
+static intptr_t
 VMpr_Object_shallowCopy (int id,
                          volatile int numArgs)
 {
@@ -3199,7 +2380,7 @@ VMpr_Object_shallowCopy (int id,
 }
 
 /* Behavior basicNew */
-intptr_t
+static intptr_t
 VMpr_Behavior_basicNew (int id,
                         volatile int numArgs)
 {
@@ -3223,7 +2404,7 @@ VMpr_Behavior_basicNew (int id,
 }
 
 /* Behavior Behavior new; */
-intptr_t
+static intptr_t
 VMpr_Behavior_newInitialize (int id,
                              volatile int numArgs)
 {
@@ -3248,7 +2429,7 @@ VMpr_Behavior_newInitialize (int id,
 }
 
 /* Behavior basicNew: */
-intptr_t
+static intptr_t
 VMpr_Behavior_basicNewColon (int id,
                              volatile int numArgs)
 {
@@ -3279,7 +2460,7 @@ VMpr_Behavior_basicNewColon (int id,
 }
 
 /* Behavior new:; */
-intptr_t
+static intptr_t
 VMpr_Behavior_newColonInitialize (int id,
                                   volatile int numArgs)
 {
@@ -3311,7 +2492,7 @@ VMpr_Behavior_newColonInitialize (int id,
 }
 
 /* Object become: */
-intptr_t
+static intptr_t
 VMpr_Object_become (int id,
                     volatile int numArgs)
 {
@@ -3333,7 +2514,7 @@ VMpr_Object_become (int id,
 }
 
 /* Object instVarAt: */
-intptr_t
+static intptr_t
 VMpr_Object_instVarAt (int id,
                        volatile int numArgs)
 {
@@ -3358,7 +2539,7 @@ VMpr_Object_instVarAt (int id,
 }
 
 /* Object inst_var_at:put: */
-intptr_t
+static intptr_t
 VMpr_Object_instVarAtPut (int id,
                           volatile int numArgs)
 {
@@ -3385,7 +2566,7 @@ VMpr_Object_instVarAtPut (int id,
 }
 
 /* Object asOop; Object hash; Symbol hash */
-intptr_t
+static intptr_t
 VMpr_Object_hash (int id,
                   volatile int numArgs)
 {
@@ -3403,7 +2584,7 @@ VMpr_Object_hash (int id,
 }
 
 /* SmallInteger asObject; SmallInteger asObjectNoFail */
-intptr_t
+static intptr_t
 VMpr_SmallInteger_asObject (int id,
                             volatile int numArgs)
 {
@@ -3427,7 +2608,7 @@ VMpr_SmallInteger_asObject (int id,
 }
 
 /* SmallInteger nextValidOop */
-intptr_t
+static intptr_t
 VMpr_SmallInteger_nextValidOop (int id,
                                 volatile int numArgs)
 {
@@ -3451,7 +2632,7 @@ VMpr_SmallInteger_nextValidOop (int id,
 }
 
 /* Behavior someInstance */
-intptr_t
+static intptr_t
 VMpr_Behavior_someInstance (int id,
                             volatile int numArgs)
 {
@@ -3475,7 +2656,7 @@ VMpr_Behavior_someInstance (int id,
 }
 
 /* Object nextInstance */
-intptr_t
+static intptr_t
 VMpr_Object_nextInstance (int id,
                           volatile int numArgs)
 {
@@ -3513,7 +2694,7 @@ VMpr_Object_nextInstance (int id,
 }
 
 /* Object becomeForward: */
-intptr_t
+static intptr_t
 VMpr_Object_becomeForward (int id,
                            volatile int numArgs)
 {
@@ -3560,7 +2741,7 @@ VMpr_Object_becomeForward (int id,
 }
 
 /* Object allOwners */
-intptr_t
+static intptr_t
 VMpr_Object_allOwners (int id,
                        volatile int numArgs)
 {
@@ -3592,7 +2773,7 @@ VMpr_Object_allOwners (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_ContextPart_thisContext (int id,
                               volatile int numArgs)
 {
@@ -3602,7 +2783,7 @@ VMpr_ContextPart_thisContext (int id,
   PRIM_SUCCEEDED;
 }
 
-intptr_t
+static intptr_t
 VMpr_ContextPart_continue (int id,
                            volatile int numArgs)
 {
@@ -3627,7 +2808,7 @@ VMpr_ContextPart_continue (int id,
 }
 
 /* Continuation resume:nextContinuation: */
-intptr_t
+static intptr_t
 VMpr_Continuation_resume (int id,
                           volatile int numArgs)
 {
@@ -3657,7 +2838,7 @@ VMpr_Continuation_resume (int id,
    BlockClosure value:
    BlockClosure value:value:
    BlockClosure value:value:value: */
-intptr_t
+static intptr_t
 VMpr_BlockClosure_value (int id,
                          volatile int numArgs)
 {
@@ -3671,7 +2852,7 @@ VMpr_BlockClosure_value (int id,
 /* BlockClosure cull:
    BlockClosure cull:cull:
    BlockClosure cull:cull:cull: */
-intptr_t
+static intptr_t
 VMpr_BlockClosure_cull (int id,
                         volatile int numArgs)
 {
@@ -3685,7 +2866,7 @@ VMpr_BlockClosure_cull (int id,
 /* We cannot cache the IP here, otherwise calls to #valueAndResumeOnUnwind
    don't actually make the context an unwind context.  If we make a provision
    for that in xlat.c, we can set the cache_new_ip attribute.  */
-intptr_t
+static intptr_t
 VMpr_BlockClosure_valueAndResumeOnUnwind (int id,
                                           volatile int numArgs)
 {
@@ -3703,7 +2884,7 @@ VMpr_BlockClosure_valueAndResumeOnUnwind (int id,
 }
 
 /* BlockClosure valueWithArguments: */
-intptr_t
+static intptr_t
 VMpr_BlockClosure_valueWithArguments (int id,
                                       volatile int numArgs)
 {
@@ -3737,7 +2918,7 @@ VMpr_BlockClosure_valueWithArguments (int id,
    Object perform:with:
    Object perform:with:with:
    Object perform:with:with:with: */
-intptr_t
+static intptr_t
 VMpr_Object_perform (int id,
                      volatile int numArgs)
 {
@@ -3787,7 +2968,7 @@ VMpr_Object_perform (int id,
 }
 
 /* Object perform:withArguments: */
-intptr_t
+static intptr_t
 VMpr_Object_performWithArguments (int id,
                                   volatile int numArgs)
 {
@@ -3838,7 +3019,7 @@ VMpr_Object_performWithArguments (int id,
 
 /* Semaphore notifyAll */
 
-intptr_t
+static intptr_t
 VMpr_Semaphore_notifyAll (int id,
                           volatile int numArgs)
 {
@@ -3853,7 +3034,7 @@ VMpr_Semaphore_notifyAll (int id,
 }
 
 /* Semaphore signal (id = 0) or Semaphore notify (id = 1) */
-intptr_t
+static intptr_t
 VMpr_Semaphore_signalNotify (int id,
                              volatile int numArgs)
 {
@@ -3866,7 +3047,7 @@ VMpr_Semaphore_signalNotify (int id,
 }
 
 /* Semaphore wait lock */
-intptr_t
+static intptr_t
 VMpr_Semaphore_lock (int id,
                      volatile int numArgs)
 {
@@ -3882,7 +3063,7 @@ VMpr_Semaphore_lock (int id,
 }
 
 /* Semaphore wait */
-intptr_t
+static intptr_t
 VMpr_Semaphore_wait (int id,
                      volatile int numArgs)
 {
@@ -3895,7 +3076,7 @@ VMpr_Semaphore_wait (int id,
 }
 
 /* Semaphore waitAfterSignalling: aSemaphore */
-intptr_t
+static intptr_t
 VMpr_Semaphore_waitAfterSignalling (int id,
                                     volatile int numArgs)
 {
@@ -3910,7 +3091,7 @@ VMpr_Semaphore_waitAfterSignalling (int id,
 }
 
 /* Process suspend */
-intptr_t
+static intptr_t
 VMpr_Process_suspend (int id,
                       volatile int numArgs)
 {
@@ -3923,7 +3104,7 @@ VMpr_Process_suspend (int id,
 }
 
 /* Process resume */
-intptr_t
+static intptr_t
 VMpr_Process_resume (int id,
                      volatile int numArgs)
 {
@@ -3938,7 +3119,7 @@ VMpr_Process_resume (int id,
 }
 
 /* Process singleStepWaitingOn: */
-intptr_t
+static intptr_t
 VMpr_Process_singleStepWaitingOn (int id,
                                   volatile int numArgs)
 {
@@ -3966,7 +3147,7 @@ VMpr_Process_singleStepWaitingOn (int id,
 }
 
 /* Process yield */
-intptr_t
+static intptr_t
 VMpr_Process_yield (int id,
                     volatile int numArgs)
 {
@@ -3983,7 +3164,7 @@ VMpr_Process_yield (int id,
 }
 
 /* Processor waitForEvents */
-intptr_t
+static intptr_t
 VMpr_Processor_dispatchEvents (int id,
                                volatile int numArgs)
 {
@@ -4031,7 +3212,7 @@ VMpr_Processor_dispatchEvents (int id,
 }
 
 /* Processor pause: waitForSignal */
-intptr_t
+static intptr_t
 VMpr_Processor_pause (int id,
                       volatile int numArgs)
 {
@@ -4049,7 +3230,7 @@ VMpr_Processor_pause (int id,
 
 
 /* Behavior flushCache */
-intptr_t
+static intptr_t
 VMpr_Behavior_flushCache (int id,
                           volatile int numArgs)
 {
@@ -4059,7 +3240,7 @@ VMpr_Behavior_flushCache (int id,
 }
 
 /* CompiledCode discardTranslation */
-intptr_t
+static intptr_t
 VMpr_CompiledCode_discardTranslation (int id,
                                       volatile int numArgs)
 {
@@ -4071,7 +3252,7 @@ VMpr_CompiledCode_discardTranslation (int id,
 }
 
 /* Object changeClassTo: */
-intptr_t
+static intptr_t
 VMpr_Object_changeClassTo (int id,
                            volatile int numArgs)
 {
@@ -4096,7 +3277,7 @@ VMpr_Object_changeClassTo (int id,
 }
 
 /* Time class timezoneBias */
-intptr_t
+static intptr_t
 VMpr_Time_timezoneBias (int id,
                         volatile int numArgs)
 {
@@ -4122,7 +3303,7 @@ VMpr_Time_timezoneBias (int id,
 }
 
 /* Time class timezone */
-intptr_t
+static intptr_t
 VMpr_Time_timezone (int id,
                     volatile int numArgs)
 {
@@ -4143,7 +3324,7 @@ VMpr_Time_timezone (int id,
        book.  This primitive returns the
        seconds since/to Jan 1, 2000 00:00:00
        instead of Jan 1,1901.  */
-intptr_t
+static intptr_t
 VMpr_Time_secondClock (int id,
                        volatile int numArgs)
 {
@@ -4154,7 +3335,7 @@ VMpr_Time_secondClock (int id,
 }
 
 /* Time class nanosecondClock.  */
-intptr_t
+static intptr_t
 VMpr_Time_nanosecondClock (int id,
                            volatile int numArgs)
 {
@@ -4168,7 +3349,7 @@ VMpr_Time_nanosecondClock (int id,
 }
 
 /* Time class millisecondClock.  */
-intptr_t
+static intptr_t
 VMpr_Time_millisecondClock (int id,
                             volatile int numArgs)
 {
@@ -4184,7 +3365,7 @@ VMpr_Time_millisecondClock (int id,
 /* Processor signal: semaphore atMilliseconds: deltaMilliseconds
    Processor signal: semaphore atNanosecondClockValue: absNanoseconds
  */
-intptr_t
+static intptr_t
 VMpr_Processor_signalAt (int id,
                          volatile int numArgs)
 {
@@ -4212,7 +3393,7 @@ VMpr_Processor_signalAt (int id,
 }
 
 /* Processor isTimeoutProgrammed */
-intptr_t
+static intptr_t
 VMpr_Processor_isTimeoutProgrammed (int id,
                                     volatile int numArgs)
 {
@@ -4223,7 +3404,7 @@ VMpr_Processor_isTimeoutProgrammed (int id,
 
 /* String similarityTo: */
 
-intptr_t
+static intptr_t
 VMpr_String_similarityTo (int id,
                           volatile int numArgs)
 {
@@ -4261,7 +3442,7 @@ VMpr_String_similarityTo (int id,
 
 /* String hash */
 
-intptr_t
+static intptr_t
 VMpr_String_hash (int id,
                   volatile int numArgs)
 {
@@ -4286,7 +3467,7 @@ VMpr_String_hash (int id,
    ByteArray =
    String =
    Array = */
-intptr_t
+static intptr_t
 VMpr_ArrayedCollection_equal (int id,
                               volatile int numArgs)
 {
@@ -4331,7 +3512,7 @@ VMpr_ArrayedCollection_equal (int id,
    ByteArray indexOf:startingAt:ifAbsent:
    String indexOf:startingAt:
    String indexOf:startingAt:ifAbsent: */
-intptr_t
+static intptr_t
 VMpr_ArrayedCollection_indexOfStartingAt (int id,
                                           volatile int numArgs)
 {
@@ -4380,7 +3561,7 @@ VMpr_ArrayedCollection_indexOfStartingAt (int id,
    ByteArray replaceFrom:to:withString:startingAt:
    String replaceFrom:to:withByteArray:startingAt:
    Array replaceFrom:to:with:startingAt:*/
-intptr_t
+static intptr_t
 VMpr_ArrayedCollection_replaceFromToWithStartingAt (int id,
                                                     volatile int numArgs)
 {
@@ -4454,7 +3635,7 @@ VMpr_ArrayedCollection_replaceFromToWithStartingAt (int id,
 
 /* Object == */
 
-intptr_t
+static intptr_t
 VMpr_Object_identity (int id,
                       volatile int numArgs)
 {
@@ -4469,7 +3650,7 @@ VMpr_Object_identity (int id,
 }
 
 /* Object class */
-intptr_t
+static intptr_t
 VMpr_Object_class (int id,
                    volatile int numArgs)
 {
@@ -4489,7 +3670,7 @@ VMpr_Object_class (int id,
 /* ------- GNU Smalltalk specific primitives begin here -------------------- */
 /* quit: status
    Always fail because if it succeeds we don't return */
-intptr_t
+static intptr_t
 VMpr_ObjectMemory_quit (int id,
                         volatile int numArgs)
 {
@@ -4511,7 +3692,7 @@ VMpr_ObjectMemory_quit (int id,
 }
 
 /* abort */
-intptr_t
+static intptr_t
 VMpr_ObjectMemory_abort (int id,
                          volatile int numArgs)
 {
@@ -4521,7 +3702,7 @@ VMpr_ObjectMemory_abort (int id,
 
 
 /* Dictionary at: */
-intptr_t
+static intptr_t
 VMpr_Dictionary_at (int id,
                     volatile int numArgs)
 {
@@ -4543,7 +3724,7 @@ VMpr_Dictionary_at (int id,
 
 /* Object doesNotUnderstand:
  * Object error: */
-intptr_t
+static intptr_t
 VMpr_Object_bootstrapException (int id,
                                 volatile int numArgs)
 {
@@ -4567,7 +3748,7 @@ VMpr_Object_bootstrapException (int id,
 
 /* Character class value: */
 
-intptr_t
+static intptr_t
 VMpr_Character_create (int id,
                        volatile int numArgs)
 {
@@ -4593,7 +3774,7 @@ VMpr_Character_create (int id,
 
 /* UnicodeCharacter class value: */
 
-intptr_t
+static intptr_t
 VMpr_UnicodeCharacter_create (int id,
                               volatile int numArgs)
 {
@@ -4618,7 +3799,7 @@ VMpr_UnicodeCharacter_create (int id,
 }
 
 /* Character = */
-intptr_t
+static intptr_t
 VMpr_Character_equal (int id,
                       volatile int numArgs)
 {
@@ -4636,7 +3817,7 @@ VMpr_Character_equal (int id,
 }
 
 /* Symbol class intern: aString */
-intptr_t
+static intptr_t
 VMpr_Symbol_intern (int id,
                     volatile int numArgs)
 {
@@ -4659,7 +3840,7 @@ VMpr_Symbol_intern (int id,
 }
 
 /* Dictionary new */
-intptr_t
+static intptr_t
 VMpr_Dictionary_new (int id,
                      volatile int numArgs)
 {
@@ -4674,7 +3855,7 @@ VMpr_Dictionary_new (int id,
 
 
 /* Memory addressOfOOP: oop */
-intptr_t
+static intptr_t
 VMpr_Memory_addressOfOOP (int id,
                           volatile int numArgs)
 {
@@ -4694,7 +3875,7 @@ VMpr_Memory_addressOfOOP (int id,
 }
 
 /* Memory addressOf: oop */
-intptr_t
+static intptr_t
 VMpr_Memory_addressOf (int id,
                        volatile int numArgs)
 {
@@ -4716,7 +3897,7 @@ VMpr_Memory_addressOf (int id,
 
 /* SystemDictionary backtrace */
 
-intptr_t
+static intptr_t
 VMpr_SystemDictionary_backtrace (int id,
                                  volatile int numArgs)
 {
@@ -4726,7 +3907,7 @@ VMpr_SystemDictionary_backtrace (int id,
 }
 
 /* SystemDictionary getTraceFlag: anIndex */
-intptr_t
+static intptr_t
 VMpr_SystemDictionary_getTraceFlag (int id,
                                     volatile int numArgs)
 {
@@ -4756,7 +3937,7 @@ VMpr_SystemDictionary_getTraceFlag (int id,
 }
 
 /* SystemDictionary setTraceFlag: anIndex to: aBoolean */
-intptr_t
+static intptr_t
 VMpr_SystemDictionary_setTraceFlag (int id,
                                     volatile int numArgs)
 {
@@ -4786,7 +3967,7 @@ VMpr_SystemDictionary_setTraceFlag (int id,
 
 
 /* Memory type: aType at: anAddress */
-intptr_t
+static intptr_t
 VMpr_Memory_at (int id,
                 volatile int numArgs)
 {
@@ -4860,7 +4041,7 @@ VMpr_Memory_at (int id,
 }
 
 /* Memory type: aType at: anAddress put: aValue */
-intptr_t
+static intptr_t
 VMpr_Memory_atPut (int id,
                    volatile int numArgs)
 {
@@ -5001,7 +4182,7 @@ VMpr_Memory_atPut (int id,
 
 
 /* methodsFor: category */
-intptr_t
+static intptr_t
 VMpr_Behavior_methodsFor (int id,
                           volatile int numArgs)
 {
@@ -5020,7 +4201,7 @@ VMpr_Behavior_methodsFor (int id,
 }
 
 /* methodsFor: category ifTrue: condition */
-intptr_t
+static intptr_t
 VMpr_Behavior_methodsForIfTrue (int id,
                                 volatile int numArgs)
 {
@@ -5042,7 +4223,7 @@ VMpr_Behavior_methodsForIfTrue (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_Processor_disableEnableInterrupts (int id,
                                         volatile int numArgs)
 {
@@ -5072,7 +4253,7 @@ VMpr_Processor_disableEnableInterrupts (int id,
 }
 
 /* ProcessorScheduler signal: aSemaphore onInterrupt: anInteger */
-intptr_t
+static intptr_t
 VMpr_Processor_signalOnInterrupt (int id,
                                   volatile int numArgs)
 {
@@ -5096,7 +4277,7 @@ VMpr_Processor_signalOnInterrupt (int id,
 
 /* ObjectMemory spaceGrowRate */
 
-intptr_t
+static intptr_t
 VMpr_ObjectMemory_getSpaceGrowRate (int id,
                                     volatile int numArgs)
 {
@@ -5106,7 +4287,7 @@ VMpr_ObjectMemory_getSpaceGrowRate (int id,
 }
 
 /* ObjectMemory spaceGrowRate: */
-intptr_t
+static intptr_t
 VMpr_ObjectMemory_setSpaceGrowRate (int id,
                                     volatile int numArgs)
 {
@@ -5140,7 +4321,7 @@ VMpr_ObjectMemory_setSpaceGrowRate (int id,
 }
 
 /* ObjectMemory smoothingFactor */
-intptr_t
+static intptr_t
 VMpr_ObjectMemory_getSmoothingFactor (int id,
                                       volatile int numArgs)
 {
@@ -5150,7 +4331,7 @@ VMpr_ObjectMemory_getSmoothingFactor (int id,
 }
 
 /* ObjectMemory smoothingFactor: */
-intptr_t
+static intptr_t
 VMpr_ObjectMemory_setSmoothingFactor (int id,
                                       volatile int numArgs)
 {
@@ -5183,7 +4364,7 @@ VMpr_ObjectMemory_setSmoothingFactor (int id,
 }
 
 /* ObjectMemory growThresholdPercent */
-intptr_t
+static intptr_t
 VMpr_ObjectMemory_getGrowThresholdPercent (int id,
                                            volatile int numArgs)
 {
@@ -5193,7 +4374,7 @@ VMpr_ObjectMemory_getGrowThresholdPercent (int id,
 }
 
 /* ObjectMemory growThresholdPercent: */
-intptr_t
+static intptr_t
 VMpr_ObjectMemory_setGrowThresholdPercent (int id,
                                            volatile int numArgs)
 {
@@ -5226,7 +4407,7 @@ VMpr_ObjectMemory_setGrowThresholdPercent (int id,
 }
 
 /* ObjectMemory bigObjectThreshold */
-intptr_t
+static intptr_t
 VMpr_ObjectMemory_getBigObjectThreshold (int id,
                                          volatile int numArgs)
 {
@@ -5236,7 +4417,7 @@ VMpr_ObjectMemory_getBigObjectThreshold (int id,
 }
 
 /* ObjectMemory bigObjectThreshold: */
-intptr_t
+static intptr_t
 VMpr_ObjectMemory_setBigObjectThreshold (int id,
                                          volatile int numArgs)
 {
@@ -5266,7 +4447,7 @@ VMpr_ObjectMemory_setBigObjectThreshold (int id,
 }
 
 /* ObjectMemory growTo: numBytes */
-intptr_t
+static intptr_t
 VMpr_ObjectMemory_growTo (int id,
                           volatile int numArgs)
 {
@@ -5287,7 +4468,7 @@ VMpr_ObjectMemory_growTo (int id,
 }
 
 /* ObjectMemory update */
-intptr_t
+static intptr_t
 VMpr_ObjectMemory_update (int id,
                           volatile int numArgs)
 {
@@ -5304,7 +4485,7 @@ VMpr_ObjectMemory_update (int id,
 
 /* CObject class alloc: nbytes type: aType */
 
-intptr_t
+static intptr_t
 VMpr_CObject_allocType (int id,
                         volatile int numArgs)
 {
@@ -5332,7 +4513,7 @@ VMpr_CObject_allocType (int id,
 }
 
 /* sin */
-intptr_t
+static intptr_t
 VMpr_Float_sin (int id,
                 volatile int numArgs)
 {
@@ -5362,7 +4543,7 @@ VMpr_Float_sin (int id,
 }
 
 /* cos */
-intptr_t
+static intptr_t
 VMpr_Float_cos (int id,
                 volatile int numArgs)
 {
@@ -5392,7 +4573,7 @@ VMpr_Float_cos (int id,
 }
 
 /* tan */
-intptr_t
+static intptr_t
 VMpr_Float_tan (int id,
                 volatile int numArgs)
 {
@@ -5422,7 +4603,7 @@ VMpr_Float_tan (int id,
 }
 
 /* arcSin */
-intptr_t
+static intptr_t
 VMpr_Float_arcSin (int id,
                    volatile int numArgs)
 {
@@ -5452,7 +4633,7 @@ VMpr_Float_arcSin (int id,
 }
 
 /* arcCos */
-intptr_t
+static intptr_t
 VMpr_Float_arcCos (int id,
                    volatile int numArgs)
 {
@@ -5482,7 +4663,7 @@ VMpr_Float_arcCos (int id,
 }
 
 /* arcTan */
-intptr_t
+static intptr_t
 VMpr_Float_arcTan (int id,
                    volatile int numArgs)
 {
@@ -5512,7 +4693,7 @@ VMpr_Float_arcTan (int id,
 }
 
 /* exp */
-intptr_t
+static intptr_t
 VMpr_Float_exp (int id,
                 volatile int numArgs)
 {
@@ -5542,7 +4723,7 @@ VMpr_Float_exp (int id,
 }
 
 /* ln */
-intptr_t
+static intptr_t
 VMpr_Float_ln (int id,
                volatile int numArgs)
 {
@@ -5572,7 +4753,7 @@ VMpr_Float_ln (int id,
 }
 
 /* raisedTo: aNumber -- receiver ** aNumber */
-intptr_t
+static intptr_t
 VMpr_Float_pow (int id,
                 volatile int numArgs)
 {
@@ -5648,7 +4829,7 @@ VMpr_Float_pow (int id,
 }
 
 /* CObject free */
-intptr_t
+static intptr_t
 VMpr_CObject_free (int id,
                    volatile int numArgs)
 {
@@ -5673,7 +4854,7 @@ VMpr_CObject_free (int id,
 }
 
 /* sqrt */
-intptr_t
+static intptr_t
 VMpr_Float_sqrt (int id,
                  volatile int numArgs)
 {
@@ -5703,7 +4884,7 @@ VMpr_Float_sqrt (int id,
 }
 
 /* ceiling, floor */
-intptr_t
+static intptr_t
 VMpr_Float_ceil_floor (int id,
                        volatile int numArgs)
 {
@@ -5738,7 +4919,7 @@ VMpr_Float_ceil_floor (int id,
 }
 
 /* Behavior basicNewInFixedSpace */
-intptr_t
+static intptr_t
 VMpr_Behavior_basicNewFixed (int id,
                              volatile int numArgs)
 {
@@ -5761,7 +4942,7 @@ VMpr_Behavior_basicNewFixed (int id,
 }
 
 /* Behavior basicNewInFixedSpace: */
-intptr_t
+static intptr_t
 VMpr_Behavior_basicNewFixedColon (int id,
                                   volatile int numArgs)
 {
@@ -5792,7 +4973,7 @@ VMpr_Behavior_basicNewFixedColon (int id,
   PRIM_FAILED;
 }
 
-intptr_t
+static intptr_t
 VMpr_Object_tenure (int id,
                     volatile int numArgs)
 {
@@ -5809,7 +4990,7 @@ VMpr_Object_tenure (int id,
   PRIM_FAILED;
 }
 
-intptr_t
+static intptr_t
 VMpr_Object_makeFixed (int id,
                        volatile int numArgs)
 {
@@ -5829,7 +5010,7 @@ VMpr_Object_makeFixed (int id,
 
 /* CObject at: byteoffset type: aType */
 
-intptr_t
+static intptr_t
 VMpr_CObject_at (int id,
                  volatile int numArgs)
 {
@@ -5976,7 +5157,7 @@ VMpr_CObject_at (int id,
 }
 
 /* CObject at: byteOffset put: aValue type: aType */
-intptr_t
+static intptr_t
 VMpr_CObject_atPut (int id,
                     volatile int numArgs)
 {
@@ -6166,7 +5347,7 @@ VMpr_CObject_atPut (int id,
 }
 
 /* CObject address */
-intptr_t
+static intptr_t
 VMpr_CObject_address (int id,
                       volatile int numArgs)
 {
@@ -6189,7 +5370,7 @@ VMpr_CObject_address (int id,
 
 
 /* CObject address: */
-intptr_t
+static intptr_t
 VMpr_CObject_addressColon (int id,
                            volatile int numArgs)
 {
@@ -6212,7 +5393,7 @@ VMpr_CObject_addressColon (int id,
 }
 
 /* CString replaceWith: aString */
-intptr_t
+static intptr_t
 VMpr_CString_replaceWith (int id,
                           volatile int numArgs)
 {
@@ -6246,7 +5427,7 @@ VMpr_CString_replaceWith (int id,
 }
 
 /* ByteArray class fromCdata: aCObject size: anInteger */
-intptr_t
+static intptr_t
 VMpr_ByteArray_fromCData_size (int id,
                                volatile int numArgs)
 {
@@ -6271,7 +5452,7 @@ VMpr_ByteArray_fromCData_size (int id,
 }
 
 /* String class fromCdata: aCObject size: anInteger */
-intptr_t
+static intptr_t
 VMpr_String_fromCData_size (int id,
                             volatile int numArgs)
 {
@@ -6296,7 +5477,7 @@ VMpr_String_fromCData_size (int id,
 }
 
 /* String class fromCdata: aCObject */
-intptr_t
+static intptr_t
 VMpr_String_fromCData (int id,
                        volatile int numArgs)
 {
@@ -6314,7 +5495,7 @@ VMpr_String_fromCData (int id,
 
 /* String asCdata: aCType
  * ByteArray asCdata: aCType */
-intptr_t
+static intptr_t
 VMpr_String_ByteArray_asCData (int id,
                                volatile int numArgs)
 {
@@ -6342,7 +5523,7 @@ VMpr_String_ByteArray_asCData (int id,
 
 
 /* SystemDictionary byteCodeCounter */
-intptr_t
+static intptr_t
 VMpr_SystemDictionary_byteCodeCounter (int id,
                                        volatile int numArgs)
 {
@@ -6352,7 +5533,7 @@ VMpr_SystemDictionary_byteCodeCounter (int id,
 }
 
 /* SystemDictionary debug */
-intptr_t
+static intptr_t
 VMpr_SystemDictionary_debug (int id,
                              volatile int numArgs)
 {
@@ -6364,7 +5545,7 @@ VMpr_SystemDictionary_debug (int id,
 
 
 /* Object isReadOnly */
-intptr_t
+static intptr_t
 VMpr_Object_isReadOnly (int id,
                         volatile int numArgs)
 {
@@ -6377,7 +5558,7 @@ VMpr_Object_isReadOnly (int id,
 }
 
 /* Object makeReadOnly: */
-intptr_t
+static intptr_t
 VMpr_Object_makeReadOnly (int id,
                           volatile int numArgs)
 {
@@ -6407,7 +5588,7 @@ VMpr_Object_makeReadOnly (int id,
 
 /* Behavior primCompile: aString */
 
-intptr_t
+static intptr_t
 VMpr_Behavior_primCompile (int id,
                            volatile int numArgs)
 {
@@ -6436,7 +5617,7 @@ VMpr_Behavior_primCompile (int id,
 }
 
 /* Behavior primCompile: aString ifError: aBlock */
-intptr_t
+static intptr_t
 VMpr_Behavior_primCompileIfError (int id,
                                   volatile int numArgs)
 {
@@ -6504,7 +5685,7 @@ VMpr_Behavior_primCompileIfError (int id,
 }
 
 /* CCallbackDescriptor link */
-intptr_t
+static intptr_t
 VMpr_CCallbackDescriptor_link (int id,
                                volatile int numArgs)
 {
@@ -6519,7 +5700,7 @@ VMpr_CCallbackDescriptor_link (int id,
 }
 
 /* CFunctionDescriptor addressOf: funcNameString */
-intptr_t
+static intptr_t
 VMpr_CFuncDescriptor_addressOf (int id,
                                 volatile int numArgs)
 {
@@ -6545,7 +5726,7 @@ VMpr_CFuncDescriptor_addressOf (int id,
 }
 
 /* Object snapshot: aString */
-intptr_t
+static intptr_t
 VMpr_ObjectMemory_snapshot (int id,
                             volatile int numArgs)
 {
@@ -6596,7 +5777,7 @@ VMpr_ObjectMemory_snapshot (int id,
 }
 
 /* Object basicPrint */
-intptr_t
+static intptr_t
 VMpr_Object_basicPrint (int id,
                         volatile int numArgs)
 {
@@ -6607,7 +5788,7 @@ VMpr_Object_basicPrint (int id,
 }
 
 /* Object makeWeak */
-intptr_t
+static intptr_t
 VMpr_Object_makeWeak (int id,
                       volatile int numArgs)
 {
@@ -6625,7 +5806,7 @@ VMpr_Object_makeWeak (int id,
 
 /* Stream fileInLine: lineNum fileName: aString at: charPosInt */
 
-intptr_t
+static intptr_t
 VMpr_Stream_fileInLine (int id,
                         volatile int numArgs)
 {
@@ -6661,7 +5842,7 @@ VMpr_Stream_fileInLine (int id,
 
 /* FileDescriptor>>#fileOp..., variadic */
 
-intptr_t
+static intptr_t
 VMpr_FileDescriptor_fileOp (int id,
                             volatile int numArgs)
 {
@@ -7047,7 +6228,7 @@ VMpr_FileDescriptor_fileOp (int id,
 
 /* FileDescriptor>>#socketOp..., socket version, variadic */
 
-intptr_t
+static intptr_t
 VMpr_FileDescriptor_socketOp (int id,
                               volatile int numArgs)
 {
@@ -7184,7 +6365,7 @@ VMpr_FileDescriptor_socketOp (int id,
 
 /* C callout primitives.  */
 
-intptr_t
+static intptr_t
 VMpr_CFuncDescriptor_asyncCall (int id,
                                 volatile int numArgs)
 {
@@ -7233,7 +6414,7 @@ VMpr_CFuncDescriptor_asyncCall (int id,
   PRIM_FAILED;
 }
 
-intptr_t
+static intptr_t
 VMpr_CFuncDescriptor_call (int id,
                            volatile int numArgs)
 {
@@ -7299,7 +6480,7 @@ VMpr_CFuncDescriptor_call (int id,
 }
 
 
-intptr_t
+static intptr_t
 VMpr_Object_makeEphemeron (int id,
                            volatile int numArgs)
 {
@@ -7312,7 +6493,7 @@ VMpr_Object_makeEphemeron (int id,
 }
 
 /* Namespace current: aNamespace */
-intptr_t
+static intptr_t
 VMpr_Namespace_setCurrent (int id,
                            volatile int numArgs)
 {
@@ -7329,7 +6510,7 @@ VMpr_Namespace_setCurrent (int id,
   PRIM_FAILED;
 }
 
-intptr_t
+static intptr_t
 VMpr_ObjectMemory_gcPrimitives (int id,
                                 volatile int numArgs)
 {
@@ -7361,7 +6542,7 @@ VMpr_ObjectMemory_gcPrimitives (int id,
 
 /* SystemDictionary profilerOn */
 
-intptr_t
+static intptr_t
 VMpr_SystemDictionary_rawProfile (int id,
                                   volatile int numArgs)
 {
@@ -7385,7 +6566,7 @@ VMpr_SystemDictionary_rawProfile (int id,
   PRIM_SUCCEEDED;
 }
 
-intptr_t
+static intptr_t
 VMpr_Random_next (int id,
                   volatile int numArgs)
 {
@@ -7436,7 +6617,7 @@ VMpr_Random_next (int id,
 #undef INT_BIN_OP
 #undef BOOL_BIN_OP
 
-intptr_t
+static intptr_t
 VMpr_HOLE (int id,
            volatile int numArgs)
 {
