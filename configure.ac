@@ -354,10 +354,6 @@ AC_CHECK_LIB(m, atan)
 GST_REPLACE_POLL
 gt_FUNC_SETENV
 GST_SOCKETS
-AC_REPLACE_FUNCS(putenv strdup strerror strsignal mkstemp getpagesize \
-	getdtablesize strstr ftruncate floorl ceill sqrtl frexpl ldexpl asinl \
-	acosl atanl logl expl tanl sinl cosl powl truncl lrintl truncf lrintf \
-        lrint trunc strsep strpbrk symlink mkdtemp)
 AC_CHECK_FUNCS_ONCE(gethostname memcpy memmove sighold uname usleep lstat \
 	grantpt popen getrusage gettimeofday fork strchr utimes utime readlink \
 	sigsetmask alarm select mprotect madvise waitpid accept4 \
@@ -865,7 +861,6 @@ AC_CONFIG_COMMANDS_PRE([
   LTLIBOBJS=`echo "$LIB@&t@OBJS" |
                 sed 's,\.[[^.]]* ,.lo ,g;s,\.[[^.]]*$,.lo,'`
 
-  LTALLOCA=`echo "$ALLOCA" | sed 's/\.o/.lo/g'`
 ])
 
 GST_RUN='$(top_builddir)/gst -I $(top_builddir)/gst.im -f'
@@ -874,7 +869,6 @@ AC_SUBST(GST_RUN)
 AC_SUBST(CFLAGS)
 AC_SUBST(INCLTDL)
 AC_SUBST(LIBLTDL)
-AC_SUBST(LTALLOCA)
 AC_SUBST(LTLIBOBJS)
 
 dnl Scripts & data files

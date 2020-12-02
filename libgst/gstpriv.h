@@ -554,7 +554,6 @@ extern OOP _gst_nil_oop
 #endif
 
 #include "ansidecl.h"
-#include "mathl.h"
 #include "socketx.h"
 #include "strspell.h"
 #include "alloc.h"

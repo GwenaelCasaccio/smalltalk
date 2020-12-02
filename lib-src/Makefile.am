@@ -1,9 +1,9 @@
 noinst_LTLIBRARIES = library.la
 
-library_la_LIBADD =  @LTLIBOBJS@ @LTALLOCA@ $(LIBTHREAD) $(LIBADD_DL) \
+library_la_LIBADD =  @LTLIBOBJS@ $(LIBTHREAD) $(LIBADD_DL) \
          $(SOCKET_LIBS)
 
-library_la_DEPENDENCIES =  @LTLIBOBJS@ @LTALLOCA@
+library_la_DEPENDENCIES =  @LTLIBOBJS@ 
 
 # These are to be included *always*, the rest are driven by configure.in
 library_la_SOURCES = \
@@ -12,7 +12,7 @@ library_la_SOURCES = \
 
 noinst_HEADERS = \
        obstack.h poll_.h getopt.h md5.h ansidecl.h strspell.h lock.h \
-       mathl.h trigl.h avltrees.h rbtrees.h trigl.c sincosl.c getaddrinfo.h \
+       avltrees.h rbtrees.h getaddrinfo.h \
        socketx.h regex.h pointer-set.h
 
 DISTCLEANFILES = poll.h
