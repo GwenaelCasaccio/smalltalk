@@ -112,18 +112,7 @@ typedef enum {
 } mst_Boolean;
 #endif
 
-/* An indirect pointer to object data.  */
-typedef struct oop_s *OOP;
-
-/* A direct pointer to the object data.  */
-typedef struct object_s *gst_object, *mst_Object;
-
-/* The contents of an indirect pointer to object data.  */
-struct oop_s
-{
-  gst_object object;
-  unsigned long flags;		/* FIXME, use uintptr_t */
-};
+#include "forward_object.h"
 
 /* The header of all objects in the system.
    Note how structural inheritance is achieved without adding extra levels of 
@@ -150,16 +139,6 @@ struct object_s
 				   but will always be at least this
 				   big.  */
 };
-
-/* Convert an OOP (indirect pointer to an object) to the real object
-   data.  */
-#define OOP_TO_OBJ(oop) \
-  ((oop)->object)
-
-/* Retrieve the class for the object pointed to by OOP.  OOP must be
-   a real pointer, not a SmallInteger.  */
-#define OOP_CLASS(oop) \
-  (OOP_TO_OBJ(oop)->objClass)
 
 
 /* Answer whether OOP is a SmallInteger or a `real' object pointer.  */
