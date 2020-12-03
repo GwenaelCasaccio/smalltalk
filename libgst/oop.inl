@@ -112,11 +112,6 @@ static inline OOP alloc_oop (PTR obj, intptr_t flags);
 #define IS_BUILTIN_OOP(oop) \
   ( (OOP)(oop) - _gst_mem.ot < 0 )
 
-/* Set the indirect object pointer OOP to point to OBJ.  */
-#define SET_OOP_OBJECT(oop, obj) do {				\
-  (oop)->object = (gst_object) (obj);				\
-} while(0)
-
 /* Answer whether ADDR is part of the OOP table.  */
 #define IS_OOP_ADDR(addr)					\
   ((OOP)(addr) >= _gst_mem.ot_base 	 			\

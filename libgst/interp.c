@@ -828,7 +828,7 @@ activate_new_context (int size,
 
   /* printf("[[[[ Context (size %d) allocated at %p (oop = %p)\n",
      size, newContext, oop); */
-  SET_OOP_OBJECT (oop, newContext);
+  OOP_SET_OBJECT (oop, newContext);
 
   newContext->parentContext = _gst_this_context_oop;
 

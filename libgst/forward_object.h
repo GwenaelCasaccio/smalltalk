@@ -26,4 +26,9 @@ struct oop_s
 #define OOP_CLASS(oop) \
   (OOP_TO_OBJ(oop)->objClass)
 
+/* Set the indirect object pointer OOP to point to OBJ.  */
+#define OOP_SET_OBJECT(oop, obj) do {				\
+  (oop)->object = (gst_object) (obj);				\
+} while(0)
+
 #endif /* GST_FORWARD_OBJECT_H */

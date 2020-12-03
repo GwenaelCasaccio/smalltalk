@@ -783,7 +783,7 @@ init_proto_oops()
   /* the symbol table ...  */
   numWords = OBJ_HEADER_SIZE_WORDS + SYMBOL_TABLE_SIZE;
   symbolTable = _gst_alloc_words (numWords);
-  SET_OOP_OBJECT (_gst_symbol_table, symbolTable);
+  OOP_SET_OBJECT (_gst_symbol_table, symbolTable);
 
   symbolTable->objClass = _gst_array_class;
   nil_fill (symbolTable->data,
@@ -794,7 +794,7 @@ init_proto_oops()
 
   /* ... now the Smalltalk dictionary ...  */
   smalltalkDictionary = (gst_namespace) _gst_alloc_words (numWords);
-  SET_OOP_OBJECT (_gst_smalltalk_dictionary, smalltalkDictionary);
+  OOP_SET_OBJECT (_gst_smalltalk_dictionary, smalltalkDictionary);
 
   smalltalkDictionary->objClass = _gst_system_dictionary_class;
   smalltalkDictionary->tally = FROM_INT(0);
@@ -808,7 +808,7 @@ init_proto_oops()
   /* ... and finally Processor */
   numWords = sizeof (struct gst_processor_scheduler) / sizeof (PTR);
   processorScheduler = _gst_alloc_words (numWords);
-  SET_OOP_OBJECT (_gst_processor_oop, processorScheduler);
+  OOP_SET_OBJECT (_gst_processor_oop, processorScheduler);
 
   processorScheduler->objClass = _gst_processor_scheduler_class;
   nil_fill (processorScheduler->data,
