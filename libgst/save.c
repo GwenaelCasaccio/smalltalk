@@ -378,7 +378,7 @@ make_oop_table_to_be_saved (struct save_file_header *header)
       if (IS_OOP_VALID_GC (oop))
 	{
           myOOPTable[i].flags = (oop->flags & ~F_RUNTIME) | F_OLD;
-	  myOOPTable[i].object = (gst_object) TO_INT (oop->object->objSize);
+	  myOOPTable[i].object = (gst_object) TO_INT (OOP_TO_OBJ (oop)->objSize);
 	}
       else
 	{
