@@ -244,10 +244,6 @@ enum gst_vm_hook {
   GST_FINISHED_SNAPSHOT
 };
 
-#define INDEXED_WORD(obj, n)   ( ((long *) ((obj) + 1))		    [(n)-1] )
-#define INDEXED_BYTE(obj, n)   ( ((char *) ((obj) + 1))		    [(n)-1] )
-#define INDEXED_OOP(obj, n)    ( ((OOP  *) ((obj) + 1))		    [(n)-1] )
-#define ARRAY_OOP_AT(obj, n)   ( ((OOP  *) ((gst_object) obj)->data) [(n)-1] )
-#define STRING_OOP_AT(obj, n)  ( ((char *) ((gst_object) obj)->data) [(n)-1] )
+#include "object_pointer.h"
 
 #endif /* GST_GST_H */

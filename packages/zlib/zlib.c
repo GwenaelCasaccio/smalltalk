@@ -136,8 +136,8 @@ zlib_wrapper (OOP oop, int flush, int inSize, int (*func) (z_stream *, int))
   z_stream *zlib_obj = vmProxy->OOPToCObject (zs->zlibObject);
   OOP inBytesOOP = zs->inBytes;
   OOP outBytesOOP = zs->outBytes;
-  char *inBytes = &STRING_OOP_AT (OOP_TO_OBJ (inBytesOOP), 1);
-  char *outBytes = &STRING_OOP_AT (OOP_TO_OBJ (outBytesOOP), 1);
+  char *inBytes = &OBJ_STRING_AT (OOP_TO_OBJ (inBytesOOP), 1);
+  char *outBytes = &OBJ_STRING_AT (OOP_TO_OBJ (outBytesOOP), 1);
   size_t outSize = vmProxy->OOPSize (outBytesOOP);
   int ret;
 
