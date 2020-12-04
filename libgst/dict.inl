@@ -740,7 +740,7 @@ instantiate_numbytes (OOP class_oop,
   dest += 3;
   n -= 3;
   do
-    *dest++ = src;
+    * (dest++) = src;
   while (--n > 0);
   return p_instance;
 }

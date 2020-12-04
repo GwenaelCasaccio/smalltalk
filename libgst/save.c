@@ -373,7 +373,7 @@ make_oop_table_to_be_saved (struct save_file_header *header)
 
   myOOPTable = xmalloc (sizeof (struct oop_s) * num_used_oops);
 
-  for (i = 0, oop = _gst_mem.ot; i < num_used_oops; oop++, i++)
+  for (i = 0, oop = _gst_mem.ot; i < num_used_oops; OOP_NEXT (oop), i++)
     {
       if (IS_OOP_VALID_GC (oop))
 	{
@@ -396,7 +396,7 @@ save_all_objects (int imageFd)
   OOP oop;
 
   for (oop = _gst_mem.ot; oop < &_gst_mem.ot[num_used_oops];
-       oop++)
+       OOP_NEXT (oop))
     if (IS_OOP_VALID_GC (oop))
       save_object (imageFd, oop);
 }

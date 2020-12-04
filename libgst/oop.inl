@@ -192,7 +192,7 @@ alloc_oop (PTR objData, intptr_t flags)
 	      _gst_finished_incremental_gc ();
 	      goto fast;
 	    }
-	  oop++;
+	  OOP_NEXT (oop);
 	}
       _gst_sweep_oop (oop);
       if (oop >= lastOOP)
@@ -202,7 +202,7 @@ alloc_oop (PTR objData, intptr_t flags)
     while (IS_OOP_VALID_GC (oop))
       {
        fast:
-	oop++;
+	OOP_NEXT (oop);
       }
 
   _gst_mem.last_swept_oop = oop;

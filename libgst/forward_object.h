@@ -31,4 +31,10 @@ struct oop_s
   (oop)->object = (gst_object) (obj);				\
 } while(0)
 
+#define OOP_NEXT(oop) \
+  (oop)++
+
+#define OOP_PREV(oop) \
+  (oop)--
+
 #endif /* GST_FORWARD_OBJECT_H */

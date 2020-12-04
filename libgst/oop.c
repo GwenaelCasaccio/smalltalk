@@ -515,7 +515,7 @@ _gst_dump_oop_table()
 {
   OOP oop;
 
-  for (oop = _gst_mem.ot; oop <= _gst_mem.last_allocated_oop; oop++)
+  for (oop = _gst_mem.ot; oop <= _gst_mem.last_allocated_oop; OOP_NEXT (oop))
     if (!IS_OOP_FREE (oop))
       {
         if (IS_OOP_VALID (oop))
@@ -531,7 +531,7 @@ _gst_dump_owners (OOP oop)
   OOP oop2, lastOOP;
 
   for (oop2 = _gst_mem.ot_base, lastOOP = &_gst_mem.ot[_gst_mem.ot_size];
-       oop2 < lastOOP; oop2++)
+       oop2 < lastOOP; OOP_NEXT (oop2))
     if UNCOMMON (IS_OOP_VALID (oop2) && is_owner(oop2, oop))
       _gst_display_oop (oop2);
 }
@@ -542,7 +542,7 @@ _gst_check_oop_table ()
   OOP oop, lastOOP;
 
   for (oop = _gst_mem.ot_base, lastOOP = &_gst_mem.ot[_gst_mem.ot_size];
-       oop < lastOOP; oop++)
+       oop < lastOOP; OOP_NEXT (oop))
     {
       gst_object object;
       OOP *scanPtr;
@@ -595,7 +595,7 @@ _gst_find_an_instance (OOP class_oop)
 
   PREFETCH_START (_gst_mem.ot, PREF_READ | PREF_NTA);
   for (oop = _gst_mem.ot;
-       oop <= _gst_mem.last_allocated_oop; oop++)
+       oop <= _gst_mem.last_allocated_oop; OOP_NEXT (oop))
     {
       PREFETCH_LOOP (oop, PREF_READ | PREF_NTA);
       if (IS_OOP_VALID (oop) && (OOP_CLASS (oop) == class_oop))
@@ -1036,7 +1036,7 @@ compact (size_t new_heap_limit)
   /* Now do the copying loop which will compact oldspace.  */
   PREFETCH_START (_gst_mem.ot, PREF_READ | PREF_NTA);
   for (oop = _gst_mem.ot;
-       oop < &_gst_mem.ot[_gst_mem.ot_size]; oop++)
+       oop < &_gst_mem.ot[_gst_mem.ot_size]; OOP_NEXT (oop))
     {
       PREFETCH_LOOP (oop, PREF_READ | PREF_NTA);
       if ((oop->flags & (F_OLD | F_FIXED | F_LOADED)) == F_OLD)
@@ -1292,7 +1292,7 @@ _gst_finish_incremental_gc ()
 
   PREFETCH_START (_gst_mem.next_oop_to_sweep, PREF_BACKWARDS | PREF_READ | PREF_NTA);
   for (oop = _gst_mem.next_oop_to_sweep, firstOOP = _gst_mem.last_swept_oop;
-       oop > firstOOP; oop--)
+       oop > firstOOP; OOP_PREV (oop))
     {
       PREFETCH_LOOP (oop, PREF_BACKWARDS | PREF_READ | PREF_NTA);
       if (IS_OOP_VALID_GC (oop))
@@ -1305,7 +1305,7 @@ _gst_finish_incremental_gc ()
           _gst_sweep_oop (oop);
 	  _gst_mem.num_free_oops++;
           if (oop == _gst_mem.last_allocated_oop)
-            _gst_mem.last_allocated_oop--;
+            OOP_PREV (_gst_mem.last_allocated_oop);
         }
     }
 
@@ -1347,7 +1347,7 @@ _gst_incremental_gc_step ()
 
   i = 0;
   firstOOP = _gst_mem.last_swept_oop;
-  for (oop = _gst_mem.next_oop_to_sweep; oop > firstOOP; oop--)
+  for (oop = _gst_mem.next_oop_to_sweep; oop > firstOOP; OOP_PREV (oop))
     {
       if (IS_OOP_VALID_GC (oop))
 	{
@@ -1359,10 +1359,10 @@ _gst_incremental_gc_step ()
           _gst_sweep_oop (oop);
   	  _gst_mem.num_free_oops++;
           if (oop == _gst_mem.last_allocated_oop)
-            _gst_mem.last_allocated_oop--;
+            OOP_PREV (_gst_mem.last_allocated_oop);
 	  if (++i == INCREMENTAL_SWEEP_STEP)
 	    {
-	      _gst_mem.next_oop_to_sweep = oop - 1;
+	      _gst_mem.next_oop_to_sweep = OOP_PREV(oop);
 	      return false;
 	    }
         }
@@ -1380,7 +1380,7 @@ reset_incremental_gc (OOP firstOOP)
 
   /* This loop is the same as that in alloc_oop.  Skip low OOPs
      that are allocated */
-  for (oop = firstOOP; IS_OOP_VALID_GC (oop); oop->flags &= ~F_REACHABLE, oop++)
+  for (oop = firstOOP; IS_OOP_VALID_GC (oop); oop->flags &= ~F_REACHABLE, OOP_NEXT (oop))
 #if defined(ENABLE_JIT_TRANSLATION)
     if (oop->flags & F_XLAT)
       {
@@ -1410,7 +1410,7 @@ reset_incremental_gc (OOP firstOOP)
   _gst_finish_incremental_gc ();
 #else
   /* Skip high OOPs that are unallocated.  */
-  for (oop = _gst_mem.last_allocated_oop; !IS_OOP_VALID (oop); oop--)
+  for (oop = _gst_mem.last_allocated_oop; !IS_OOP_VALID (oop); OOP_PREV (oop))
     _gst_sweep_oop (oop);
 
   _gst_mem.last_allocated_oop = oop;
