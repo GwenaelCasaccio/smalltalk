@@ -196,7 +196,7 @@ alloc_oop (PTR objData, intptr_t flags)
   if (oop > _gst_mem.last_allocated_oop)
     _gst_mem.last_allocated_oop = oop;
 
-  oop->object = (gst_object) objData;
+  OOP_SET_OBJECT (oop, (gst_object) objData);
   OOP_SET_FLAGS (oop, flags);
   return (oop);
 }
