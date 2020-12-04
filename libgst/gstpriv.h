@@ -344,24 +344,26 @@ enum {
 
 /* Answer whether a method, OOP, has already been verified. */
 #define IS_OOP_VERIFIED(oop) \
-  (((oop)->flags & F_VERIFIED) != 0)
+  ((OOP_GET_FLAGS ((oop)) & F_VERIFIED) != 0)
 
 /* Answer whether an object, OOP, is weak.  */
 #define IS_OOP_WEAK(oop) \
-  (((oop)->flags & F_WEAK) != 0)
+  ((OOP_GET_FLAGS ((oop)) & F_WEAK) != 0)
 
 /* Answer whether an object, OOP, is readonly.  */
 #define IS_OOP_READONLY(oop) \
-  (IS_INT ((oop)) || ((oop)->flags & F_READONLY))
+  (IS_INT ((oop)) || (OOP_GET_FLAGS ((oop)) & F_READONLY))
 
 /* Set whether an object, OOP, is readonly or readwrite.  */
-#define MAKE_OOP_READONLY(oop, ro) \
-  (((oop)->flags &= ~F_READONLY), \
-   ((oop)->flags |= (ro) ? F_READONLY : 0))
+#define MAKE_OOP_READONLY(oop, ro) do {                                   \
+  OOP_SET_FLAGS ((oop), OOP_GET_FLAGS ((oop)) & ~F_READONLY);             \
+  OOP_SET_FLAGS ((oop), OOP_GET_FLAGS ((oop)) | ((ro) ? F_READONLY : 0)); \
+} while (0)
 
 /* Set whether an object, OOP, has ephemeron semantics.  */
-#define MAKE_OOP_EPHEMERON(oop) \
-  (oop)->flags |= F_EPHEMERON;
+#define MAKE_OOP_EPHEMERON(oop) do { \
+  OOP_SET_FLAGS ((oop), OOP_GET_FLAGS ((oop)) | F_EPHEMERON); \
+} while (0)
 
 
 /* the current execution stack pointer */
@@ -471,8 +473,9 @@ extern OOP _gst_nil_oop
    Note that F_BYTE is a bit more than EMPTY_BYTES, so that if value 
    is a multiple of sizeof (PTR) the flags identified by F_BYTE are
    not zero.  */
-#define INIT_UNALIGNED_OBJECT(oop, value) \
-    ((oop)->flags |= sizeof (PTR) | (value))
+#define INIT_UNALIGNED_OBJECT(oop, value) do { \
+    OOP_SET_FLAGS ((oop), OOP_GET_FLAGS ((oop)) | (sizeof (PTR) | (value)));  \
+} while (0)
 
 
 /* Generally useful conversion functions */

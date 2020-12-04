@@ -31,6 +31,13 @@ struct oop_s
   (oop)->object = (gst_object) (obj);				\
 } while(0)
 
+#define OOP_GET_FLAGS(oop) \
+  ((oop)->flags)
+
+#define OOP_SET_FLAGS(oop, value) do {	\
+  (oop)->flags = (value);               \
+} while(0)
+
 #define OOP_NEXT(oop) \
   (oop)++
 

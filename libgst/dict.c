@@ -1899,7 +1899,7 @@ _gst_object_copy (OOP oop)
   old = OOP_TO_OBJ (oop);
   memcpy (new, old, SIZE_TO_BYTES (TO_INT (old->objSize)));
 
-  newOOP->flags |= (oop->flags & F_CONTEXT);
+  OOP_SET_FLAGS (newOOP, OOP_GET_FLAGS (newOOP) | (oop->flags & F_CONTEXT));
   return (newOOP);
 }
 
