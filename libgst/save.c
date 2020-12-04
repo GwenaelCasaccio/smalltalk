@@ -373,12 +373,12 @@ make_oop_table_to_be_saved (struct save_file_header *header)
 
   myOOPTable = xmalloc (sizeof (struct oop_s) * num_used_oops);
 
-  for (i = 0, oop = _gst_mem.ot; i < num_used_oops; oop++, i++)
+  for (i = 0, oop = _gst_mem.ot; i < num_used_oops; OOP_NEXT (oop), i++)
     {
       if (IS_OOP_VALID_GC (oop))
 	{
-          myOOPTable[i].flags = (oop->flags & ~F_RUNTIME) | F_OLD;
-	  myOOPTable[i].object = (gst_object) TO_INT (oop->object->objSize);
+          myOOPTable[i].flags = (OOP_GET_FLAGS (oop) & ~F_RUNTIME) | F_OLD;
+	  myOOPTable[i].object = (gst_object) TO_INT (OOP_TO_OBJ (oop)->objSize);
 	}
       else
 	{
@@ -396,7 +396,7 @@ save_all_objects (int imageFd)
   OOP oop;
 
   for (oop = _gst_mem.ot; oop < &_gst_mem.ot[num_used_oops];
-       oop++)
+       OOP_NEXT (oop))
     if (IS_OOP_VALID_GC (oop))
       save_object (imageFd, oop);
 }
@@ -612,7 +612,7 @@ load_normal_oops (int imageFd)
       intptr_t flags;
 
       PREFETCH_LOOP (oop, PREF_WRITE | PREF_NTA);
-      flags = oop->flags;
+      flags = OOP_GET_FLAGS (oop);
       if (IS_OOP_FREE (oop))
 	continue;
 
@@ -626,10 +626,10 @@ load_normal_oops (int imageFd)
 	 as possible.  */
 
       _gst_mem.numOldOOPs++;
-      size = sizeof (PTR) * (size_t) oop->object;
+      size = sizeof (PTR) * (size_t) OOP_TO_OBJ (oop);
       if (use_copy_on_write)
 	{
-	  oop->flags |= F_LOADED;
+	  OOP_SET_FLAGS (oop, OOP_GET_FLAGS (oop) | F_LOADED);
 	  object = buffer_advance (imageFd, size);
 	}
 
@@ -668,8 +668,8 @@ load_normal_oops (int imageFd)
      do another pass here and fix the byte objects using the now
      correct class objects.  */
   if UNCOMMON (wrong_endianness)
-    for (oop = _gst_mem.ot, i = num_used_oops; i--; oop++)
-      if (oop->flags & F_BYTE)
+    for (oop = _gst_mem.ot, i = num_used_oops; i--; OOP_NEXT (oop))
+      if (OOP_GET_FLAGS (oop) & F_BYTE)
 	{
 	  OOP classOOP;
 	  object = OOP_TO_OBJ (oop);
@@ -704,7 +704,7 @@ fixup_object (OOP oop, gst_object dest, gst_object src, int numBytes)
 
   class_oop = src->objClass;
 
-  if (oop->flags & F_CONTEXT)
+  if (OOP_GET_FLAGS (oop) & F_CONTEXT)
     {
       /* this is another quirk; this is not the best place to do
          it. We have to reset the nativeIPs so that we can find

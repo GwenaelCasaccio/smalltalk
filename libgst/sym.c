@@ -1440,7 +1440,7 @@ alloc_symbol_oop (const char *str, int len)
   INIT_UNALIGNED_OBJECT (symbolOOP, alignedBytes - numBytes);
 
   memcpy (symbol->symString, str, len);
-  symbolOOP->flags |= F_READONLY;
+  OOP_SET_FLAGS (symbolOOP, OOP_GET_FLAGS (symbolOOP) | F_READONLY);
   return symbolOOP;
 }
 
@@ -1460,7 +1460,7 @@ is_same_string (const char *str,
 int
 _gst_string_oop_len (OOP oop)
 {
-  return (OOP_SIZE_BYTES (oop) - (oop->flags & EMPTY_BYTES));
+  return (OOP_SIZE_BYTES (oop) - (OOP_GET_FLAGS (oop) & EMPTY_BYTES));
 }
 
 uintptr_t

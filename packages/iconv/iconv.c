@@ -75,11 +75,11 @@ iconvWrapper (iconv_t handle, OOP readBufferOOP, int readPos,
   gst_object bytesLeft, readBuffer, writeBuffer;
 
   readBuffer = OOP_TO_OBJ (readBufferOOP);
-  inbuf = &STRING_OOP_AT (readBuffer, readPos);
+  inbuf = &OBJ_STRING_AT (readBuffer, readPos);
   inbytesleft = readCount;
 
   writeBuffer = OOP_TO_OBJ (writeBufferOOP);
-  outbuf = &STRING_OOP_AT (writeBuffer, 1);
+  outbuf = &OBJ_STRING_AT (writeBuffer, 1);
   outbytesleft = writeCount;
 
   iconv (handle, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
@@ -87,8 +87,8 @@ iconvWrapper (iconv_t handle, OOP readBufferOOP, int readPos,
   errno = 0;
 
   bytesLeft = OOP_TO_OBJ (bytesLeftOOP);
-  ARRAY_OOP_AT (bytesLeft, 1) = vmProxy->intToOOP (inbytesleft);
-  ARRAY_OOP_AT (bytesLeft, 2) = vmProxy->intToOOP (outbytesleft);
+  OBJ_ARRAY_AT (bytesLeft, 1) = vmProxy->intToOOP (inbytesleft);
+  OBJ_ARRAY_AT (bytesLeft, 2) = vmProxy->intToOOP (outbytesleft);
   return (save_errno != EILSEQ);
 }
 

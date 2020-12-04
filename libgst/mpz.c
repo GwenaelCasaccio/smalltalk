@@ -1623,7 +1623,7 @@ _gst_mpz_from_oop(gst_mpz *mpz, OOP srcOOP)
       return;
     }
 
-  adjust = ((mp_limb_t) ~0UL) >> (8 * (srcOOP->flags & EMPTY_BYTES));
+  adjust = ((mp_limb_t) ~0UL) >> (8 * (OOP_GET_FLAGS (srcOOP) & EMPTY_BYTES));
 
 #ifdef WORDS_BIGENDIAN
   /* Big-endian code, we cannot optimize anything...  */

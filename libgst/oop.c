@@ -437,19 +437,19 @@ _gst_init_oop_table (PTR address, size_t size)
 
   alloc_oop_table (size);
 
-  _gst_nil_oop->flags = F_READONLY | F_OLD | F_REACHABLE;
-  _gst_nil_oop->object = (gst_object) & _gst_nil_object;
-  _gst_nil_object.objSize =
-    FROM_INT (ROUNDED_WORDS (sizeof (struct gst_undefined_object)));
+  OOP_SET_FLAGS (_gst_nil_oop, F_READONLY | F_OLD | F_REACHABLE);
+  OOP_SET_OBJECT (_gst_nil_oop, (gst_object) & _gst_nil_object);
+  _gst_nil_object.objSize = FROM_INT (ROUNDED_WORDS (sizeof (struct gst_undefined_object)));
 
-  _gst_true_oop->flags = F_READONLY | F_OLD | F_REACHABLE;
-  _gst_true_oop->object = (gst_object) & _gst_boolean_objects[0];
-  _gst_false_oop->flags = F_READONLY | F_OLD | F_REACHABLE;
-  _gst_false_oop->object = (gst_object) & _gst_boolean_objects[1];
-  _gst_boolean_objects[0].objSize =
-    FROM_INT (ROUNDED_WORDS (sizeof (struct gst_boolean)));
-  _gst_boolean_objects[1].objSize =
-    FROM_INT (ROUNDED_WORDS (sizeof (struct gst_boolean)));
+  OOP_SET_FLAGS (_gst_true_oop, F_READONLY | F_OLD | F_REACHABLE);
+  OOP_SET_OBJECT (_gst_true_oop,  (gst_object) & _gst_boolean_objects[0]);
+  
+  OOP_SET_FLAGS (_gst_false_oop, F_READONLY | F_OLD | F_REACHABLE);
+  OOP_SET_OBJECT (_gst_false_oop, (gst_object) & _gst_boolean_objects[1]);
+
+  _gst_boolean_objects[0].objSize = FROM_INT (ROUNDED_WORDS (sizeof (struct gst_boolean)));
+  _gst_boolean_objects[1].objSize = FROM_INT (ROUNDED_WORDS (sizeof (struct gst_boolean)));
+
   _gst_boolean_objects[0].booleanValue = _gst_true_oop;
   _gst_boolean_objects[1].booleanValue = _gst_false_oop;
 
@@ -458,10 +458,8 @@ _gst_init_oop_table (PTR address, size_t size)
       _gst_char_object_table[i].objSize =
 	FROM_INT (ROUNDED_WORDS (sizeof (struct gst_character)));
       _gst_char_object_table[i].charVal = FROM_INT (i);
-      _gst_mem.ot[i + CHAR_OBJECT_BASE].object =
-	(gst_object) & _gst_char_object_table[i];
-      _gst_mem.ot[i + CHAR_OBJECT_BASE].flags =
-	F_READONLY | F_OLD | F_REACHABLE;
+      OOP_SET_OBJECT (&_gst_mem.ot[i + CHAR_OBJECT_BASE],	(gst_object) & _gst_char_object_table[i]);
+      OOP_SET_FLAGS (&_gst_mem.ot[i + CHAR_OBJECT_BASE], F_READONLY | F_OLD | F_REACHABLE);
     }
 }
 
@@ -515,7 +513,7 @@ _gst_dump_oop_table()
 {
   OOP oop;
 
-  for (oop = _gst_mem.ot; oop <= _gst_mem.last_allocated_oop; oop++)
+  for (oop = _gst_mem.ot; oop <= _gst_mem.last_allocated_oop; OOP_NEXT (oop))
     if (!IS_OOP_FREE (oop))
       {
         if (IS_OOP_VALID (oop))
@@ -531,7 +529,7 @@ _gst_dump_owners (OOP oop)
   OOP oop2, lastOOP;
 
   for (oop2 = _gst_mem.ot_base, lastOOP = &_gst_mem.ot[_gst_mem.ot_size];
-       oop2 < lastOOP; oop2++)
+       oop2 < lastOOP; OOP_NEXT (oop2))
     if UNCOMMON (IS_OOP_VALID (oop2) && is_owner(oop2, oop))
       _gst_display_oop (oop2);
 }
@@ -542,7 +540,7 @@ _gst_check_oop_table ()
   OOP oop, lastOOP;
 
   for (oop = _gst_mem.ot_base, lastOOP = &_gst_mem.ot[_gst_mem.ot_size];
-       oop < lastOOP; oop++)
+       oop < lastOOP; OOP_NEXT (oop))
     {
       gst_object object;
       OOP *scanPtr;
@@ -553,7 +551,7 @@ _gst_check_oop_table ()
 
       object = OOP_TO_OBJ (oop);
       scanPtr = &object->objClass;
-      if (oop->flags & F_CONTEXT)
+      if (OOP_GET_FLAGS (oop) & F_CONTEXT)
         {
           gst_method_context ctx;
           intptr_t methodSP;
@@ -595,7 +593,7 @@ _gst_find_an_instance (OOP class_oop)
 
   PREFETCH_START (_gst_mem.ot, PREF_READ | PREF_NTA);
   for (oop = _gst_mem.ot;
-       oop <= _gst_mem.last_allocated_oop; oop++)
+       oop <= _gst_mem.last_allocated_oop; OOP_NEXT (oop))
     {
       PREFETCH_LOOP (oop, PREF_READ | PREF_NTA);
       if (IS_OOP_VALID (oop) && (OOP_CLASS (oop) == class_oop))
@@ -611,7 +609,7 @@ _gst_make_oop_non_weak (OOP oop)
 {
   weak_area_tree *entry = _gst_mem.weak_areas;
 
-  oop->flags &= ~F_WEAK;
+  OOP_SET_FLAGS (oop, OOP_GET_FLAGS (oop) & ~F_WEAK);
   _gst_mem.numWeakOOPs--;
   while (entry)
     {
@@ -634,7 +632,7 @@ _gst_make_oop_weak (OOP oop)
   weak_area_tree *node = NULL;
   rb_node_t **p = (rb_node_t **) &_gst_mem.weak_areas;
 
-  oop->flags |= F_WEAK;
+  OOP_SET_FLAGS (oop, OOP_GET_FLAGS (oop) | F_WEAK);
   _gst_mem.numWeakOOPs++;
 
   while (*p)
@@ -669,28 +667,17 @@ _gst_swap_objects (OOP oop1,
   INC_ADD_OOP (oop1);
   INC_ADD_OOP (oop2);
 
-  if (oop2->flags & F_WEAK)
+  if (OOP_GET_FLAGS (oop2) & F_WEAK)
     _gst_make_oop_non_weak (oop2);
 
-  if (oop1->flags & F_WEAK)
+  if (OOP_GET_FLAGS (oop1) & F_WEAK)
     _gst_make_oop_non_weak (oop1);
 
   /* Put the two objects in the same generation.  FIXME: this can be
      a cause of early tenuring, especially since one of them is often
      garbage!  */
-  if ((oop1->flags & F_OLD) ^ (oop2->flags & F_OLD))
-    _gst_tenure_oop ((oop1->flags & F_OLD) ? oop2 : oop1);
-
-#ifdef ENABLE_JIT_TRANSLATION
-  /* We may exchange the translations, but it is very likely that
-     one of the objects does not have one yet, and the other one
-     will never be needed anymore (the object becomes garbage).  */
-  if (oop1->flags & F_XLAT)
-    _gst_discard_native_code (oop1);
-
-  if (oop2->flags & F_XLAT)
-    _gst_discard_native_code (oop2);
-#endif
+  if ((OOP_GET_FLAGS (oop1) & F_OLD) ^ (OOP_GET_FLAGS (oop2) & F_OLD))
+    _gst_tenure_oop ((OOP_GET_FLAGS (oop1) & F_OLD) ? oop2 : oop1);
 
   tempOOP = *oop2;		/* note structure assignment going on here */
   *oop2 = *oop1;
@@ -699,16 +686,16 @@ _gst_swap_objects (OOP oop1,
   /* If the incremental GC has reached oop1 but not oop2 (or vice versa),
      this flag will end up in the wrong OOP, i.e. in the one that has already
      been scanned by the incremental GC.  Restore things.  */
-  if ((oop1->flags & F_REACHABLE) ^ (oop2->flags & F_REACHABLE))
+  if ((OOP_GET_FLAGS (oop1) & F_REACHABLE) ^ (OOP_GET_FLAGS (oop2) & F_REACHABLE))
     {
-      oop1->flags ^= F_REACHABLE;
-      oop2->flags ^= F_REACHABLE;
+      OOP_SET_FLAGS (oop1, OOP_GET_FLAGS (oop1) ^ F_REACHABLE);
+      OOP_SET_FLAGS (oop2, OOP_GET_FLAGS (oop2) ^ F_REACHABLE);
     }
 
-  if (oop2->flags & F_WEAK)
+  if (OOP_GET_FLAGS (oop2) & F_WEAK)
     _gst_make_oop_weak (oop2);
 
-  if (oop1->flags & F_WEAK)
+  if (OOP_GET_FLAGS (oop1) & F_WEAK)
     _gst_make_oop_weak (oop1);
 
   INC_RESTORE_POINTER (incPtr);
@@ -720,51 +707,51 @@ _gst_make_oop_fixed (OOP oop)
 {
   gst_object newObj;
   int size;
-  if (oop->flags & F_FIXED)
+  if (OOP_GET_FLAGS (oop) & F_FIXED)
     return;
 
-  if ((oop->flags & F_LOADED) == 0)
+  if ((OOP_GET_FLAGS (oop) & F_LOADED) == 0)
     {
-      size = SIZE_TO_BYTES (TO_INT(oop->object->objSize));
+      size = SIZE_TO_BYTES (TO_INT(OOP_TO_OBJ (oop)->objSize));
       newObj = (gst_object) _gst_mem_alloc (_gst_mem.fixed, size);
       if (!newObj)
         abort ();
 
-      memcpy (newObj, oop->object, size);
-      if ((oop->flags & F_OLD) == 0)
+      memcpy (newObj, OOP_TO_OBJ (oop), size);
+      if ((OOP_GET_FLAGS (oop) & F_OLD) == 0)
 	_gst_mem.numOldOOPs++;
       else
         _gst_mem_free (_gst_mem.old, oop->object);
 
-      oop->object = newObj;
+      OOP_SET_OBJECT (oop, newObj);
     }
 
-  oop->flags &= ~(F_SPACES | F_POOLED);
-  oop->flags |= F_OLD | F_FIXED;
+  OOP_SET_FLAGS (oop, OOP_GET_FLAGS (oop) & ~(F_SPACES | F_POOLED));
+  OOP_SET_FLAGS (oop, OOP_GET_FLAGS (oop) | F_OLD | F_FIXED);
 }
 
 void
 _gst_tenure_oop (OOP oop)
 {
   gst_object newObj;
-  if (oop->flags & F_OLD)
+  if (OOP_GET_FLAGS (oop) & F_OLD)
     return;
 
-  if (!(oop->flags & F_FIXED))
+  if (!(OOP_GET_FLAGS (oop) & F_FIXED))
     {
-      int size = SIZE_TO_BYTES (TO_INT(oop->object->objSize));
+      int size = SIZE_TO_BYTES (TO_INT(OOP_TO_OBJ (oop)->objSize));
       newObj = (gst_object) _gst_mem_alloc (_gst_mem.old, size);
       if (!newObj)
         abort ();
 
-      memcpy (newObj, oop->object, size);
+      memcpy (newObj, OOP_TO_OBJ (oop), size);
       _gst_mem.numOldOOPs++;
 
-      oop->object = newObj;
+      OOP_SET_OBJECT (oop, newObj);
     }
 
-  oop->flags &= ~(F_SPACES | F_POOLED);
-  oop->flags |= F_OLD;
+  OOP_SET_FLAGS (oop, OOP_GET_FLAGS (oop) & ~(F_SPACES | F_POOLED));
+  OOP_SET_FLAGS (oop, OOP_GET_FLAGS (oop) | F_OLD);
 }
 
 
@@ -1036,17 +1023,17 @@ compact (size_t new_heap_limit)
   /* Now do the copying loop which will compact oldspace.  */
   PREFETCH_START (_gst_mem.ot, PREF_READ | PREF_NTA);
   for (oop = _gst_mem.ot;
-       oop < &_gst_mem.ot[_gst_mem.ot_size]; oop++)
+       oop < &_gst_mem.ot[_gst_mem.ot_size]; OOP_NEXT (oop))
     {
       PREFETCH_LOOP (oop, PREF_READ | PREF_NTA);
-      if ((oop->flags & (F_OLD | F_FIXED | F_LOADED)) == F_OLD)
+      if ((OOP_GET_FLAGS (oop) & (F_OLD | F_FIXED | F_LOADED)) == F_OLD)
         {
           gst_object new;
-          size_t size = SIZE_TO_BYTES (TO_INT (oop->object->objSize));
+          size_t size = SIZE_TO_BYTES (TO_INT (OOP_TO_OBJ (oop)->objSize));
           new = _gst_mem_alloc (new_heap, size);
-          memcpy (new, oop->object, size);
-          _gst_mem_free (_gst_mem.old, oop->object);
-          oop->object = new;
+          memcpy (new, OOP_TO_OBJ (oop), size);
+          _gst_mem_free (_gst_mem.old, OOP_TO_OBJ (oop));
+          OOP_SET_OBJECT (oop, new);
         }
     }
 
@@ -1292,20 +1279,20 @@ _gst_finish_incremental_gc ()
 
   PREFETCH_START (_gst_mem.next_oop_to_sweep, PREF_BACKWARDS | PREF_READ | PREF_NTA);
   for (oop = _gst_mem.next_oop_to_sweep, firstOOP = _gst_mem.last_swept_oop;
-       oop > firstOOP; oop--)
+       oop > firstOOP; OOP_PREV (oop))
     {
       PREFETCH_LOOP (oop, PREF_BACKWARDS | PREF_READ | PREF_NTA);
       if (IS_OOP_VALID_GC (oop))
 	{
 	  maybe_release_xlat (oop);
-	  oop->flags &= ~F_REACHABLE;
+	  OOP_SET_FLAGS (oop, OOP_GET_FLAGS (oop) & ~F_REACHABLE);
 	}
       else
         {
           _gst_sweep_oop (oop);
 	  _gst_mem.num_free_oops++;
           if (oop == _gst_mem.last_allocated_oop)
-            _gst_mem.last_allocated_oop--;
+            OOP_PREV (_gst_mem.last_allocated_oop);
         }
     }
 
@@ -1347,22 +1334,22 @@ _gst_incremental_gc_step ()
 
   i = 0;
   firstOOP = _gst_mem.last_swept_oop;
-  for (oop = _gst_mem.next_oop_to_sweep; oop > firstOOP; oop--)
+  for (oop = _gst_mem.next_oop_to_sweep; oop > firstOOP; OOP_PREV (oop))
     {
       if (IS_OOP_VALID_GC (oop))
 	{
 	  maybe_release_xlat (oop);
-	  oop->flags &= ~F_REACHABLE;
+	  OOP_SET_FLAGS (oop, OOP_GET_FLAGS (oop) & ~F_REACHABLE);
 	}
       else
         {
           _gst_sweep_oop (oop);
   	  _gst_mem.num_free_oops++;
           if (oop == _gst_mem.last_allocated_oop)
-            _gst_mem.last_allocated_oop--;
+            OOP_PREV (_gst_mem.last_allocated_oop);
 	  if (++i == INCREMENTAL_SWEEP_STEP)
 	    {
-	      _gst_mem.next_oop_to_sweep = oop - 1;
+	      _gst_mem.next_oop_to_sweep = OOP_PREV(oop);
 	      return false;
 	    }
         }
@@ -1380,27 +1367,10 @@ reset_incremental_gc (OOP firstOOP)
 
   /* This loop is the same as that in alloc_oop.  Skip low OOPs
      that are allocated */
-  for (oop = firstOOP; IS_OOP_VALID_GC (oop); oop->flags &= ~F_REACHABLE, oop++)
-#if defined(ENABLE_JIT_TRANSLATION)
-    if (oop->flags & F_XLAT)
-      {
-        if (oop->flags & F_XLAT_REACHABLE)
-          /* Reachable, and referenced by active contexts.  Keep it
-             around.  */
-          oop->flags &= ~F_XLAT_2NDCHANCE;
-        else
-          {
-            /* Reachable, but not referenced by active contexts.  We
-               give it a second chance...  */
-            if (oop->flags & F_XLAT_2NDCHANCE)
-              _gst_release_native_code (oop);
-
-            oop->flags ^= F_XLAT_2NDCHANCE;
-          }
-      }
-#else
-      ;
-#endif
+  for (oop = firstOOP; IS_OOP_VALID_GC (oop); ) {
+    OOP_SET_FLAGS (oop, OOP_GET_FLAGS (oop) & ~F_REACHABLE);
+    OOP_NEXT (oop);
+  }
 
   /* Initialize these here so that IS_OOP_VALID works correctly.  */
   _gst_mem.next_oop_to_sweep = _gst_mem.last_allocated_oop;
@@ -1410,7 +1380,7 @@ reset_incremental_gc (OOP firstOOP)
   _gst_finish_incremental_gc ();
 #else
   /* Skip high OOPs that are unallocated.  */
-  for (oop = _gst_mem.last_allocated_oop; !IS_OOP_VALID (oop); oop--)
+  for (oop = _gst_mem.last_allocated_oop; !IS_OOP_VALID (oop); OOP_PREV (oop))
     _gst_sweep_oop (oop);
 
   _gst_mem.last_allocated_oop = oop;
@@ -1441,37 +1411,28 @@ _gst_sweep_oop (OOP oop)
   if (IS_OOP_FREE (oop))
     return;
 
-#ifdef ENABLE_JIT_TRANSLATION
-  if (oop->flags & F_XLAT)
-    /* Unreachable, always free the native code.  It is *not* optional
-       to free the code in this case -- and I'm not talking about memory
-       leaks: a different method could use the same OOP as this one and
-       the old method would be executed instead of the new one! */
-    _gst_release_native_code (oop);
-#endif
-
-  if UNCOMMON (oop->flags & F_WEAK)
+  if UNCOMMON (OOP_GET_FLAGS (oop) & F_WEAK)
     _gst_make_oop_non_weak (oop);
 
   /* Free unreachable oldspace objects.  */
-  if UNCOMMON (oop->flags & F_FIXED)
+  if UNCOMMON (OOP_GET_FLAGS (oop) & F_FIXED)
     {
       _gst_mem.numOldOOPs--;
       stats.reclaimedOldSpaceBytesSinceLastGlobalGC +=
 	SIZE_TO_BYTES (TO_INT (OOP_TO_OBJ (oop)->objSize));
-      if ((oop->flags & F_LOADED) == 0)
-        _gst_mem_free (_gst_mem.fixed, oop->object);
+      if ((OOP_GET_FLAGS (oop) & F_LOADED) == 0)
+        _gst_mem_free (_gst_mem.fixed, OOP_TO_OBJ (oop));
     }
-  else if UNCOMMON (oop->flags & F_OLD)
+  else if UNCOMMON (OOP_GET_FLAGS (oop) & F_OLD)
     {
       _gst_mem.numOldOOPs--;
       stats.reclaimedOldSpaceBytesSinceLastGlobalGC +=
 	SIZE_TO_BYTES (TO_INT (OOP_TO_OBJ (oop)->objSize));
-      if ((oop->flags & F_LOADED) == 0)
-        _gst_mem_free (_gst_mem.old, oop->object);
+      if ((OOP_GET_FLAGS (oop) & F_LOADED) == 0)
+        _gst_mem_free (_gst_mem.old, OOP_TO_OBJ (oop));
     }
 
-  oop->flags = 0;
+  OOP_SET_FLAGS (oop, 0);
 }
 
 void
@@ -1647,14 +1608,14 @@ add_grey_object (OOP oop)
 {
   grey_area_node *entry;
   gst_object obj = OOP_TO_OBJ (oop);
-  int numFields = scanned_fields_in (obj, oop->flags);
+  int numFields = scanned_fields_in (obj, OOP_GET_FLAGS (oop));
   OOP *base = &(obj->objClass);
 
   if (!numFields)
     return;
 
   /* For ephemeron, skip the first field and the class.  */
-  if (oop->flags & F_EPHEMERON)
+  if (OOP_GET_FLAGS (oop) & F_EPHEMERON)
     {
       numFields -= &(obj->data[1]) - base;
       base = &(obj->data[1]); 
@@ -1897,7 +1858,7 @@ scan_grey_objects()
       oop = node->oop;
       obj = OOP_TO_OBJ (oop);
 
-      if (oop->flags & F_EPHEMERON)
+      if (OOP_GET_FLAGS (oop) & F_EPHEMERON)
 	/* Objects might have moved, so update node->base.  */
 	node->base = (OOP *) &obj->data[1];
 
@@ -1907,7 +1868,7 @@ scan_grey_objects()
 
       _gst_copy_oop_range (node->base, node->base + node->n);
 
-      if (oop->flags & F_EPHEMERON)
+      if (OOP_GET_FLAGS (oop) & F_EPHEMERON)
         {
 	  OOP key = obj->data[0];
 
@@ -1990,11 +1951,11 @@ cheney_scan (void)
       _gst_mem.scan.current = oop;
       _gst_mem.scan.queue_at++;
 
-      if (oop->flags & F_EPHEMERON)
+      if (OOP_GET_FLAGS (oop) & F_EPHEMERON)
 	continue;
 
       _gst_mem.scan.at = (OOP *) OOP_TO_OBJ (oop);
-      numFields = scanned_fields_in (OOP_TO_OBJ (oop), oop->flags);
+      numFields = scanned_fields_in (OOP_TO_OBJ (oop), OOP_GET_FLAGS (oop));
 
       /* The +1 below is to skip the size field.  */
       for (i = 0; i < numFields; i++)
@@ -2044,13 +2005,13 @@ _gst_copy_an_oop (OOP oop)
 	  abort ();
 	}
 
-      if UNCOMMON (oop->flags == 0)
+      if UNCOMMON (OOP_GET_FLAGS (oop) == 0)
 	{
 	  printf ("Free OOP %p was referenced\n", oop);
 	  abort ();
 	}
 
-      if UNCOMMON ((oop->flags & F_OLD) ||
+      if UNCOMMON ((OOP_GET_FLAGS (oop) & F_OLD) ||
 	  IS_SURVIVOR_ADDR(obj, _gst_mem.active_half == &_gst_mem.surv[1]))
         {
 	  printf ("Copying an already copied object\n");
@@ -2063,15 +2024,15 @@ _gst_copy_an_oop (OOP oop)
       obj = oop->object = (gst_object)
 	queue_put (_gst_mem.active_half, pData, TO_INT (obj->objSize));
 
-      oop->flags &= ~(F_SPACES | F_POOLED);
-      oop->flags |= _gst_mem.active_flag;
+      OOP_SET_FLAGS (oop, OOP_GET_FLAGS (oop) & ~(F_SPACES | F_POOLED));
+      OOP_SET_FLAGS (oop, OOP_GET_FLAGS (oop) | _gst_mem.active_flag);
 
       /* Look for a child that has not been copied and move it
          near the object.  This improves the locality of reference.  
          We do not copy the class (that's the reason for the -1
 	 here).  */
-      n = scanned_fields_in (obj, oop->flags) - 1;
-      if (oop->flags & F_EPHEMERON)
+      n = scanned_fields_in (obj, OOP_GET_FLAGS (oop)) - 1;
+      if (OOP_GET_FLAGS (oop) & F_EPHEMERON)
 	{
 	  /* For ephemerons, do the work later.  */
           add_grey_object (oop);
@@ -2122,10 +2083,10 @@ mark_ephemeron_oops (void)
       gst_object obj = OOP_TO_OBJ(oop);
       OOP key = obj->data[0];
 
-      if (key->flags & F_REACHABLE)
-        oop->flags &= ~F_EPHEMERON;
+      if (OOP_GET_FLAGS (key) & F_REACHABLE)
+        OOP_SET_FLAGS (oop, OOP_GET_FLAGS (oop) & ~F_EPHEMERON);
 
-      key->flags |= F_REACHABLE;
+      OOP_SET_FLAGS (key, OOP_GET_FLAGS (key) | F_REACHABLE);
     }
 
   for (pOOP = pDeadOOP = base, i = size; i--; )
@@ -2138,21 +2099,21 @@ mark_ephemeron_oops (void)
 
       /* Find if the key is reachable from the objects (so that
          we can mourn the ephemeron if this is not so).  */
-      key->flags &= ~F_REACHABLE;
+      OOP_SET_FLAGS (key, OOP_GET_FLAGS (key) & ~F_REACHABLE);
 
       for (j = 1; j < num; j++)
         MAYBE_MARK_OOP (obj->data[j]);
 
       /* Remember that above we cleared F_EPHEMERON if the key
          is alive.  */
-      if (!IS_OOP_MARKED (key) && (oop->flags & F_EPHEMERON))
+      if (!IS_OOP_MARKED (key) && (OOP_GET_FLAGS (oop) & F_EPHEMERON))
         *pDeadOOP++ = oop;
 
       /* Ok, now mark the key.  */
       MAYBE_MARK_OOP (key);
 
       /* Restore the flag in case it was cleared.  */
-      oop->flags |= F_EPHEMERON;
+      OOP_SET_FLAGS (oop, OOP_GET_FLAGS (oop) | F_EPHEMERON);
     }
 
   /* If more ephemerons were reachable from the object, go on...  */
@@ -2195,7 +2156,7 @@ _gst_mark_an_oop_internal (OOP oop)
         oop = *curOOP++;
         if (IS_OOP (oop) && !IS_OOP_MARKED (oop))
           {
-            oop->flags |= F_REACHABLE;
+            OOP_SET_FLAGS (oop, OOP_GET_FLAGS (oop) | F_REACHABLE);
             firstOOP = oop;
             break;
           }
@@ -2268,10 +2229,10 @@ _gst_mark_an_oop_internal (OOP oop)
 
     /* see if the object has pointers, set up to copy them if so. 
     */
-    oop->flags |= F_REACHABLE;
+    OOP_SET_FLAGS (oop, OOP_GET_FLAGS (oop) | F_REACHABLE);
     object = OOP_TO_OBJ (oop);
     objClass = object->objClass;
-    if UNCOMMON (oop->flags & F_CONTEXT)
+    if UNCOMMON (OOP_GET_FLAGS (oop) & F_CONTEXT)
       {
         gst_method_context ctx;
         intptr_t methodSP;
@@ -2283,9 +2244,9 @@ _gst_mark_an_oop_internal (OOP oop)
                             ctx->contextStack + methodSP + 1);
 
       }
-    else if UNCOMMON (oop->flags & (F_EPHEMERON | F_WEAK))
+    else if UNCOMMON (OOP_GET_FLAGS (oop) & (F_EPHEMERON | F_WEAK))
       {
-        if (oop->flags & F_EPHEMERON)
+        if (OOP_GET_FLAGS (oop) & F_EPHEMERON)
           _gst_add_buf_pointer (oop);
 
         /* In general, there will be many instances of a class,

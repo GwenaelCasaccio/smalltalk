@@ -2643,7 +2643,7 @@ VMpr_Behavior_someInstance (int id,
   oop1 = STACKTOP ();
   PREFETCH_START (_gst_mem.ot_base, PREF_READ | PREF_NTA);
   for (oop2 = _gst_mem.ot_base, lastOOP = &_gst_mem.ot[_gst_mem.ot_size];
-       oop2 < lastOOP; oop2++)
+       oop2 < lastOOP; OOP_NEXT (oop2))
     {
       PREFETCH_LOOP (oop2, PREF_READ | PREF_NTA);
       if UNCOMMON (IS_OOP_VALID (oop2) && oop1 == OOP_CLASS (oop2))
@@ -2715,7 +2715,7 @@ VMpr_Object_becomeForward (int id,
   empty_context_stack ();
   PREFETCH_START (_gst_mem.ot_base, PREF_READ | PREF_NTA);
   for (ownerOOP = _gst_mem.ot_base, lastOOP = &_gst_mem.ot[_gst_mem.ot_size];
-       ownerOOP < lastOOP; ownerOOP++)
+       ownerOOP < lastOOP; OOP_NEXT (ownerOOP))
     {
       gst_object object;
       OOP *scanPtr;

@@ -72,27 +72,27 @@ static inline OOP alloc_oop (PTR obj, intptr_t flags);
   (IS_INT(oop) || IS_OOP_VALID_GC (oop))
 
 #define IS_OOP_NEW(oop) \
-  (((oop)->flags & F_SPACES) != 0)
+  ((OOP_GET_FLAGS ((oop)) & F_SPACES) != 0)
 
 /* This can only be used at the start or the end of an incremental
    GC cycle.  */
 #define IS_OOP_VALID_GC(oop) \
-  (((oop)->flags & _gst_mem.live_flags) != 0)
+  ((OOP_GET_FLAGS ((oop)) & _gst_mem.live_flags) != 0)
 
 /* After a global GC, the live_flags say that an object is live
    if it is marked reachable.  Old objects that have already survived
    the incremental sweep pass, however, are not marked as reachable.  */
 #define IS_OOP_VALID(oop) \
-  ((oop)->flags & _gst_mem.live_flags \
-   || (((oop)->flags & F_OLD) \
+  (OOP_GET_FLAGS ((oop)) & _gst_mem.live_flags \
+   || ((OOP_GET_FLAGS ((oop)) & F_OLD) \
        && ((oop) <= _gst_mem.last_swept_oop \
 	   || (oop) > _gst_mem.next_oop_to_sweep)))
 
 #define IS_OOP_MARKED(oop) \
-  (((oop)->flags & F_REACHABLE) != 0)
+  ((OOP_GET_FLAGS ((oop)) & F_REACHABLE) != 0)
 
 #define IS_OOP_FREE(oop) \
-  ((oop)->flags == 0)
+  (OOP_GET_FLAGS ((oop)) == 0)
 
 /* Checks to see if INDEX (a long index into the OOP table, 1 based
    due to being called from Smalltalk via a primitive) represents a
@@ -111,11 +111,6 @@ static inline OOP alloc_oop (PTR obj, intptr_t flags);
 /* Answer whether OOP is a builtin OOP (a Character, true, false, nil).  */
 #define IS_BUILTIN_OOP(oop) \
   ( (OOP)(oop) - _gst_mem.ot < 0 )
-
-/* Set the indirect object pointer OOP to point to OBJ.  */
-#define SET_OOP_OBJECT(oop, obj) do {				\
-  (oop)->object = (gst_object) (obj);				\
-} while(0)
 
 /* Answer whether ADDR is part of the OOP table.  */
 #define IS_OOP_ADDR(addr)					\
@@ -155,24 +150,6 @@ inc_current_depth (void)
 static inline void
 maybe_release_xlat (OOP oop)
 {
-#if defined(ENABLE_JIT_TRANSLATION)
-  if (oop->flags & F_XLAT)
-    {
-      if (oop->flags & F_XLAT_REACHABLE)
-	/* Reachable, and referenced by active contexts.  Keep it
-    	   around.  */
-       	oop->flags &= ~F_XLAT_2NDCHANCE;
-      else
-	{
-    	  /* Reachable, but not referenced by active contexts.  We
-    	     give it a second chance...  */
-	  if (oop->flags & F_XLAT_2NDCHANCE)
-    	    _gst_release_native_code (oop);
-
-	  oop->flags ^= F_XLAT_2NDCHANCE;
-      	}
-    }
-#endif
 }
 
 /* Given an object OBJ, allocate an OOP table slot for it and returns
@@ -191,13 +168,13 @@ alloc_oop (PTR objData, intptr_t flags)
       while (IS_OOP_VALID_GC (oop))
 	{
 	  maybe_release_xlat (oop);
-	  oop->flags &= ~F_REACHABLE;
+	  OOP_SET_FLAGS (oop, OOP_GET_FLAGS(oop) & ~F_REACHABLE);
 	  if (oop >= lastOOP)
 	    {
 	      _gst_finished_incremental_gc ();
 	      goto fast;
 	    }
-	  oop++;
+	  OOP_NEXT (oop);
 	}
       _gst_sweep_oop (oop);
       if (oop >= lastOOP)
@@ -207,7 +184,7 @@ alloc_oop (PTR objData, intptr_t flags)
     while (IS_OOP_VALID_GC (oop))
       {
        fast:
-	oop++;
+	OOP_NEXT (oop);
       }
 
   _gst_mem.last_swept_oop = oop;
@@ -220,6 +197,6 @@ alloc_oop (PTR objData, intptr_t flags)
     _gst_mem.last_allocated_oop = oop;
 
   oop->object = (gst_object) objData;
-  oop->flags = flags;
+  OOP_SET_FLAGS (oop, flags);
   return (oop);
 }

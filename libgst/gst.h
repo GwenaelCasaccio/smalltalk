@@ -112,18 +112,7 @@ typedef enum {
 } mst_Boolean;
 #endif
 
-/* An indirect pointer to object data.  */
-typedef struct oop_s *OOP;
-
-/* A direct pointer to the object data.  */
-typedef struct object_s *gst_object, *mst_Object;
-
-/* The contents of an indirect pointer to object data.  */
-struct oop_s
-{
-  gst_object object;
-  unsigned long flags;		/* FIXME, use uintptr_t */
-};
+#include "forward_object.h"
 
 /* The header of all objects in the system.
    Note how structural inheritance is achieved without adding extra levels of 
@@ -150,16 +139,6 @@ struct object_s
 				   but will always be at least this
 				   big.  */
 };
-
-/* Convert an OOP (indirect pointer to an object) to the real object
-   data.  */
-#define OOP_TO_OBJ(oop) \
-  ((oop)->object)
-
-/* Retrieve the class for the object pointed to by OOP.  OOP must be
-   a real pointer, not a SmallInteger.  */
-#define OOP_CLASS(oop) \
-  (OOP_TO_OBJ(oop)->objClass)
 
 
 /* Answer whether OOP is a SmallInteger or a `real' object pointer.  */
@@ -244,10 +223,6 @@ enum gst_vm_hook {
   GST_FINISHED_SNAPSHOT
 };
 
-#define INDEXED_WORD(obj, n)   ( ((long *) ((obj) + 1))		    [(n)-1] )
-#define INDEXED_BYTE(obj, n)   ( ((char *) ((obj) + 1))		    [(n)-1] )
-#define INDEXED_OOP(obj, n)    ( ((OOP  *) ((obj) + 1))		    [(n)-1] )
-#define ARRAY_OOP_AT(obj, n)   ( ((OOP  *) ((gst_object) obj)->data) [(n)-1] )
-#define STRING_OOP_AT(obj, n)  ( ((char *) ((gst_object) obj)->data) [(n)-1] )
+#include "object_pointer.h"
 
 #endif /* GST_GST_H */

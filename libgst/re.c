@@ -117,7 +117,7 @@ compileRegex (OOP patternOOP, struct pre_pattern_buffer *regex)
   const char *pattern;
   const char *ress;
 
-  pattern = &STRING_OOP_AT (OOP_TO_OBJ (patternOOP), 1);
+  pattern = &OBJ_STRING_AT (OOP_TO_OBJ (patternOOP), 1);
   patternLength = _gst_basic_size (patternOOP);
 
   /* compile pattern */
@@ -215,7 +215,7 @@ _gst_re_make_cacheable (OOP patternOOP)
 
   /* Search in the cache */
   patternLength = _gst_basic_size (patternOOP);
-  pattern = &STRING_OOP_AT (OOP_TO_OBJ (patternOOP), 1);
+  pattern = &OBJ_STRING_AT (OOP_TO_OBJ (patternOOP), 1);
 
   for (i = 0; i < REGEX_CACHE_SIZE; i++)
     {
@@ -223,7 +223,7 @@ _gst_re_make_cacheable (OOP patternOOP)
 	break;
 
       regexOOP = cache[i].patternOOP;
-      regex = &STRING_OOP_AT (OOP_TO_OBJ (regexOOP), 1);
+      regex = &OBJ_STRING_AT (OOP_TO_OBJ (regexOOP), 1);
       if (_gst_basic_size (regexOOP) == patternLength &&
 	  memcmp (regex, pattern, patternLength) == 0)
 	{
@@ -234,7 +234,7 @@ _gst_re_make_cacheable (OOP patternOOP)
 
   /* No way, must allocate a new Regex object */
   regexOOP = _gst_object_alloc (regexClassOOP, patternLength);
-  regex = &STRING_OOP_AT (OOP_TO_OBJ (regexOOP), 1);
+  regex = &OBJ_STRING_AT (OOP_TO_OBJ (regexOOP), 1);
   memcpy (regex, pattern, patternLength);
 
   /* Put it in the cache (we must compile it to check that it
@@ -331,7 +331,7 @@ _gst_re_search (OOP srcOOP, OOP patternOOP, int from, int to)
     return NULL;
 
   /* now search */
-  src = &STRING_OOP_AT (OOP_TO_OBJ (srcOOP), 1);
+  src = &OBJ_STRING_AT (OOP_TO_OBJ (srcOOP), 1);
   regs = (struct pre_registers *) calloc (1, sizeof (struct pre_registers));
   pre_search (regex, src, to, from - 1, to - from + 1, regs);
 
@@ -363,7 +363,7 @@ _gst_re_match (OOP srcOOP, OOP patternOOP, int from, int to)
     return -100;
 
   /* now search */
-  src = &STRING_OOP_AT (OOP_TO_OBJ (srcOOP), 1);
+  src = &OBJ_STRING_AT (OOP_TO_OBJ (srcOOP), 1);
   res = pre_match (regex, src, to, from - 1, NULL);
 
   if (caching == REGEX_NOT_CACHED)

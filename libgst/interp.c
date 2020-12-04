@@ -706,7 +706,7 @@ empty_context_stack (void)
          last = _gst_this_context_oop,
          context = (gst_method_context) OOP_TO_OBJ (contextOOP);;)
       {
-	oop = alloc_oop (context, contextOOP->flags | _gst_mem.active_flag);
+	oop = alloc_oop (context, OOP_GET_FLAGS (contextOOP) | _gst_mem.active_flag);
 
         /* Fill the object's uninitialized fields. */
         context->objClass = CONTEXT_FLAGS (context) & MCF_IS_METHOD_CONTEXT
@@ -828,7 +828,7 @@ activate_new_context (int size,
 
   /* printf("[[[[ Context (size %d) allocated at %p (oop = %p)\n",
      size, newContext, oop); */
-  SET_OOP_OBJECT (oop, newContext);
+  OOP_SET_OBJECT (oop, newContext);
 
   newContext->parentContext = _gst_this_context_oop;
 
