@@ -721,7 +721,7 @@ _gst_make_oop_fixed (OOP oop)
       if ((OOP_GET_FLAGS (oop) & F_OLD) == 0)
 	_gst_mem.numOldOOPs++;
       else
-        _gst_mem_free (_gst_mem.old, oop->object);
+        _gst_mem_free (_gst_mem.old, OOP_TO_OBJ (oop));
 
       OOP_SET_OBJECT (oop, newObj);
     }
@@ -1561,7 +1561,7 @@ tenure_one_object ()
 #endif
 
       _gst_tenure_oop (oop);
-      _gst_mem.scan.at = (OOP *) oop->object;
+      _gst_mem.scan.at = (OOP *) OOP_TO_OBJ (oop);
     }
 
   else if (_gst_mem.scan.queue_at == _gst_mem.tenuring_queue.tenurePtr)
@@ -1585,7 +1585,7 @@ tenure_one_object ()
     _gst_tenure_oop (oop);
 
   queue_get (&_gst_mem.tenuring_queue, 1);
-  queue_get (_gst_mem.active_half, TO_INT (oop->object->objSize));
+  queue_get (_gst_mem.active_half, TO_INT (OOP_TO_OBJ (oop)->objSize));
 }
 
 void
@@ -1679,8 +1679,8 @@ check_weak_refs ()
       if (!IS_OOP_VALID_GC (oop))
 	continue;
 
-      for (field = (OOP *) oop->object + OBJ_HEADER_SIZE_WORDS,
-	   n = NUM_OOPS (oop->object); n--; field++)
+      for (field = (OOP *) OOP_TO_OBJ (oop) + OBJ_HEADER_SIZE_WORDS,
+	   n = NUM_OOPS (OOP_TO_OBJ (oop)); n--; field++)
         {
 	  OOP oop = *field;
           if (IS_INT (oop))
@@ -2021,8 +2021,7 @@ _gst_copy_an_oop (OOP oop)
 #endif
 
       queue_put (&_gst_mem.tenuring_queue, &oop, 1);
-      obj = oop->object = (gst_object)
-	queue_put (_gst_mem.active_half, pData, TO_INT (obj->objSize));
+      OOP_SET_OBJECT (oop, obj = (gst_object) queue_put (_gst_mem.active_half, pData, TO_INT (obj->objSize)));
 
       OOP_SET_FLAGS (oop, OOP_GET_FLAGS (oop) & ~(F_SPACES | F_POOLED));
       OOP_SET_FLAGS (oop, OOP_GET_FLAGS (oop) | _gst_mem.active_flag);
@@ -2124,7 +2123,7 @@ mark_ephemeron_oops (void)
 }
 
 #define TAIL_MARK_OOP(newOOP) do { \
-  PREFETCH_ADDR ((newOOP)->object, PREF_READ | PREF_NTA); \
+  PREFETCH_ADDR (OOP_TO_OBJ ((newOOP)), PREF_READ | PREF_NTA); \
   oop = (newOOP); \
   goto markOne;		/* tail recurse!!! */ \
 } while(0)

@@ -653,11 +653,11 @@ load_normal_oops (int imageFd)
 	  /* Would be nice, but causes us to touch every page and lose most
 	     of the startup-time benefits of copy-on-write.  So we only
 	     do it in the slow case, anyway.  */
-	  if (object->objSize != FROM_INT ((size_t) oop->object))
+	  if (object->objSize != FROM_INT ((size_t) OOP_TO_OBJ (oop)))
 	    abort ();
         }
 
-      oop->object = object;
+      OOP_SET_OBJECT (oop, object);
       if (flags & F_WEAK)
 	_gst_make_oop_weak (oop);
     }

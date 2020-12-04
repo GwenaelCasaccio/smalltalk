@@ -3848,7 +3848,7 @@ VMpr_Dictionary_new (int id,
   _gst_primitives_executed++;
   oop1 = STACKTOP();
   dictionaryOOP = _gst_dictionary_new (32);
-  dictionaryOOP->object->objClass = oop1;
+  OOP_TO_OBJ (dictionaryOOP)->objClass = oop1;
   SET_STACKTOP (dictionaryOOP);
   PRIM_SUCCEEDED;
 }
