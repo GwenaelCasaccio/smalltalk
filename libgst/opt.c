@@ -1343,17 +1343,17 @@ _gst_verify_method (OOP methodOOP, int *num_outer_temps, int depth)
 
 	case MTH_USER_DEFINED:
 	case MTH_RETURN_SELF:
-	  methodOOP->flags |= F_VERIFIED;
+	  OOP_SET_FLAGS (methodOOP, OOP_GET_FLAGS (methodOOP) | F_VERIFIED);
 	  return (NULL);
 
 	case MTH_RETURN_INSTVAR:
 	  CHECK_REC_VAR (0, header.primitiveIndex);
-	  methodOOP->flags |= F_VERIFIED;
+	  OOP_SET_FLAGS (methodOOP, OOP_GET_FLAGS (methodOOP) | F_VERIFIED);
 	  return (NULL);
 
 	case MTH_RETURN_LITERAL:
 	  CHECK_LITERAL (0);
-	  methodOOP->flags |= F_VERIFIED;
+	  OOP_SET_FLAGS (methodOOP, OOP_GET_FLAGS (methodOOP) | F_VERIFIED);
 	  return (NULL);
         }
     }
@@ -1896,7 +1896,7 @@ _gst_verify_method (OOP methodOOP, int *num_outer_temps, int depth)
     }
 #endif /* !NO_VERIFIER */
 
-  methodOOP->flags |= F_VERIFIED;
+	OOP_SET_FLAGS (methodOOP, OOP_GET_FLAGS (methodOOP) | F_VERIFIED);
   return (NULL);
 }
 

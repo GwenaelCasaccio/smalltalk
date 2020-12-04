@@ -902,13 +902,13 @@ oop_num_fields (OOP oop)
   object = OOP_TO_OBJ (oop);
   words = NUM_WORDS (object);
 
-  if COMMON (!(oop->flags & F_BYTE))
+  if COMMON (!(OOP_GET_FLAGS (oop) & F_BYTE))
     return words;
 
   instanceSpec = GET_INSTANCE_SPEC (object);
   fixed = instanceSpec >> ISP_NUMFIXEDFIELDS;
   words -= fixed;
-  dataBytes = SIZE_TO_BYTES (words) - (oop->flags & EMPTY_BYTES);
+  dataBytes = SIZE_TO_BYTES (words) - (OOP_GET_FLAGS (oop) & EMPTY_BYTES);
   return fixed + (dataBytes >> _gst_log2_sizes[instanceSpec & ISP_SHAPE]);
 }
 
@@ -919,7 +919,7 @@ num_valid_oops (OOP oop)
   gst_object object;
 
   object = OOP_TO_OBJ (oop);
-  if UNCOMMON (oop->flags & F_CONTEXT)
+  if UNCOMMON (OOP_GET_FLAGS (oop) & F_CONTEXT)
     {
       gst_method_context ctx;
       intptr_t methodSP;
@@ -989,7 +989,7 @@ index_oop_spec (OOP oop,
     /* Find the number of bytes in the object.  */			\
     maxByte = NUM_WORDS (object) * sizeof (PTR);			\
     if (sizeof (type) <= sizeof (PTR))					\
-      maxByte -= (oop->flags & EMPTY_BYTES);				\
+      maxByte -= (OOP_GET_FLAGS (oop) & EMPTY_BYTES);				\
 									\
     base = (instanceSpec >> ISP_NUMFIXEDFIELDS) * sizeof (PTR);		\
     index = base + index * sizeof(type);				\
@@ -1125,7 +1125,7 @@ index_oop_put_spec (OOP oop,
         /* Find the number of bytes in the object.  */			\
         size_t maxByte = NUM_WORDS (object) * sizeof (PTR);		\
         if (sizeof (type) <= sizeof (PTR))				\
-          maxByte -= (oop->flags & EMPTY_BYTES);			\
+          maxByte -= (OOP_GET_FLAGS (oop) & EMPTY_BYTES);			\
 									\
           base = (instanceSpec >> ISP_NUMFIXEDFIELDS) * sizeof (PTR);	\
           index = base + index * sizeof(type);				\
@@ -1615,8 +1615,8 @@ static inline mst_Boolean cobject_index_check (OOP oop, intptr_t offset,
     return false;
 
   maxOffset = SIZE_TO_BYTES (NUM_WORDS (OOP_TO_OBJ (baseOOP)));
-  if (baseOOP->flags & F_BYTE)
-    maxOffset -= (baseOOP->flags & EMPTY_BYTES);
+  if (OOP_GET_FLAGS (baseOOP) & F_BYTE)
+    maxOffset -= (OOP_GET_FLAGS (baseOOP) & EMPTY_BYTES);
 
   return (offset + size - 1 < maxOffset);
 }
