@@ -324,21 +324,21 @@ _gst_display_oop_short (OOP oop)
     printf ("%-10p   Free\n", oop);
   else
     {
-      printf ("%-10p   %-10p  %-10s %-10s %-10s\n", oop, oop->object,
-            oop->flags & F_CONTEXT ? "Context" :
-            oop->flags & F_WEAK ? "Weak" :
-            oop->flags & F_EPHEMERON ? "Ephemeron" : "",
+      printf ("%-10p   %-10p  %-10s %-10s %-10s\n", oop, OOP_TO_OBJ (oop),
+            OOP_GET_FLAGS (oop) & F_CONTEXT ? "Context" :
+            OOP_GET_FLAGS (oop) & F_WEAK ? "Weak" :
+            OOP_GET_FLAGS (oop) & F_EPHEMERON ? "Ephemeron" : "",
 
-            oop->flags & F_FIXED ? "Fixed" :
-            oop->flags & F_LOADED ? "Permanent" :
-            oop->flags & F_OLD ? "Old" :
-            oop->flags & _gst_mem.active_flag ? "To-space" : "From-space",
+            OOP_GET_FLAGS (oop) & F_FIXED ? "Fixed" :
+            OOP_GET_FLAGS (oop) & F_LOADED ? "Permanent" :
+            OOP_GET_FLAGS (oop) & F_OLD ? "Old" :
+            OOP_GET_FLAGS (oop) & _gst_mem.active_flag ? "To-space" : "From-space",
 
-	    IS_EDEN_ADDR (oop->object) ? "Eden" :
-	    IS_SURVIVOR_ADDR (oop->object, 0) ? "Surv (Even)" :
-	    IS_SURVIVOR_ADDR (oop->object, 1) ? "Surv (Odd)" :
-            oop->flags & F_POOLED ? "Pooled" :
-	    oop->flags & F_REACHABLE ? "Old/marked" : "Old");
+	    IS_EDEN_ADDR (OOP_TO_OBJ (oop)) ? "Eden" :
+	    IS_SURVIVOR_ADDR (OOP_TO_OBJ (oop), 0) ? "Surv (Even)" :
+	    IS_SURVIVOR_ADDR (OOP_TO_OBJ (oop), 1) ? "Surv (Odd)" :
+            OOP_GET_FLAGS (oop) & F_POOLED ? "Pooled" :
+	    OOP_GET_FLAGS (oop) & F_REACHABLE ? "Old/marked" : "Old");
     }
 }
 
@@ -355,24 +355,24 @@ _gst_display_oop (OOP oop)
     printf ("%-10p   Free\n", oop);
   else
     {
-      printf ("%-10p   %-10p  %-10s %-10s %-10s", oop, oop->object,
-            oop->flags & F_CONTEXT ? "Context" :
-            oop->flags & F_WEAK ? "Weak" :
-            oop->flags & F_EPHEMERON ? "Ephemeron" : "",
+      printf ("%-10p   %-10p  %-10s %-10s %-10s", oop, OOP_TO_OBJ (oop),
+            OOP_GET_FLAGS (oop) & F_CONTEXT ? "Context" :
+            OOP_GET_FLAGS (oop) & F_WEAK ? "Weak" :
+            OOP_GET_FLAGS (oop) & F_EPHEMERON ? "Ephemeron" : "",
 
-            oop->flags & F_FIXED ? "Fixed" :
-            oop->flags & F_LOADED ? "Permanent" :
-            oop->flags & F_OLD ? "Old" :
-            oop->flags & _gst_mem.active_flag ? "To-space" : "From-space",
+            OOP_GET_FLAGS (oop) & F_FIXED ? "Fixed" :
+            OOP_GET_FLAGS (oop) & F_LOADED ? "Permanent" :
+            OOP_GET_FLAGS (oop) & F_OLD ? "Old" :
+            OOP_GET_FLAGS (oop) & _gst_mem.active_flag ? "To-space" : "From-space",
 
-	    IS_EDEN_ADDR (oop->object) ? "Eden" :
-	    IS_SURVIVOR_ADDR (oop->object, 0) ? "Surv (Even)" :
-	    IS_SURVIVOR_ADDR (oop->object, 1) ? "Surv (Odd)" :
-            oop->flags & F_POOLED ? "Pooled" :
-	    oop->flags & F_REACHABLE ? "Old/marked" : "Old");
+	    IS_EDEN_ADDR (OOP_TO_OBJ (oop)) ? "Eden" :
+	    IS_SURVIVOR_ADDR (OOP_TO_OBJ (oop), 0) ? "Surv (Even)" :
+	    IS_SURVIVOR_ADDR (OOP_TO_OBJ (oop), 1) ? "Surv (Odd)" :
+            OOP_GET_FLAGS (oop) & F_POOLED ? "Pooled" :
+	    OOP_GET_FLAGS (oop) & F_REACHABLE ? "Old/marked" : "Old");
 
-      if (IS_OOP_ADDR (oop->object->objClass))
-        printf ("   %O (%O)\n", oop->object->objClass, oop->object->objSize);
+      if (IS_OOP_ADDR (OOP_TO_OBJ (oop)->objClass))
+        printf ("   %O (%O)\n", OOP_TO_OBJ (oop)->objClass, OOP_TO_OBJ (oop)->objSize);
       else
         printf ("   (invalid class)\n");
     }
