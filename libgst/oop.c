@@ -426,11 +426,12 @@ void _gst_update_object_memory_oop (OOP oop)
 void
 _gst_init_oop_table (PTR address, size_t size)
 {
-  int i;
+  size_t i;
 
   oop_heap = NULL;
-  for (i = MAX_OOP_TABLE_SIZE; i && !oop_heap; i >>= 1)
+  for (i = MAX_OOP_TABLE_SIZE; i && !oop_heap; i >>= 1) {
     oop_heap = _gst_heap_create (address, i * sizeof (struct oop_s));
+  }
 
   if (!oop_heap)
     nomemory (true);
@@ -496,8 +497,7 @@ _gst_realloc_oop_table (size_t newSize)
     return (true);
 
   if (!_gst_heap_sbrk (oop_heap, bytes))
-    {
-      /* try to recover.  Note that we cannot move the OOP table like
+    { /* try to recover.  Note that we cannot move the OOP table like
          we do with the object data.  */
       nomemory (false);
       return (false);

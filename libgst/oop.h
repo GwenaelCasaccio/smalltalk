@@ -76,7 +76,14 @@
    True, False, and UndefinedObject (nil) oops, which are
    built-ins.  */
 #define INITIAL_OOP_TABLE_SIZE	(1024 * 128 + BUILTIN_OBJECT_BASE)
-#define MAX_OOP_TABLE_SIZE	(1 << 23)
+
+#if SIZEOF_OOP == 4
+  #define MAX_OOP_TABLE_SIZE	(1 << 23)
+#endif
+
+#if SIZEOF_OOP == 8
+  #define MAX_OOP_TABLE_SIZE	(1UL << 36)
+#endif
 
 /* The number of free OOPs under which we trigger GCs.  0 is not
    enough because _gst_scavenge might still need some oops in
@@ -205,7 +212,7 @@ struct memory_space
 
   /* The number of OOPs in the free list and in the full OOP
      table.  num_free_oops is only correct after a GC!  */
-  int num_free_oops, ot_size;
+  size_t num_free_oops, ot_size;
 
   /* The root set of the scavenger.  This includes pages in oldspace that
      were written to, and objects that had to be tenured before they were
