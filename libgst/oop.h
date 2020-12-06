@@ -173,7 +173,7 @@ typedef struct surv_space {
 typedef struct grey_area_node {
   struct grey_area_node *next;
   OOP *base;
-  int n;
+  size_t n;
   OOP oop;
 } grey_area_node;
 

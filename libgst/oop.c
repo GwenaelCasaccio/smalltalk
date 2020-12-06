@@ -197,7 +197,7 @@ static void scan_grey_objects ();
 static void scan_grey_pages ();
 
 /* Greys a page worth of pointers starting at BASE.  */
-static void add_to_grey_list (OOP *base, int n);
+static void add_to_grey_list (OOP *base, size_t n);
 
 /* Greys the object OOP.  */
 static void add_grey_object (OOP oop);
@@ -1608,7 +1608,7 @@ add_grey_object (OOP oop)
 {
   grey_area_node *entry;
   gst_object obj = OOP_TO_OBJ (oop);
-  int numFields = scanned_fields_in (obj, OOP_GET_FLAGS (oop));
+  size_t numFields = scanned_fields_in (obj, OOP_GET_FLAGS (oop));
   OOP *base = &(obj->objClass);
 
   if (!numFields)
@@ -1635,7 +1635,7 @@ add_grey_object (OOP oop)
 }
 
 void
-add_to_grey_list (OOP *base, int n)
+add_to_grey_list (OOP *base, size_t n)
 {
   grey_area_node *entry = (grey_area_node *) xmalloc (sizeof (grey_area_node));
   entry->base = base;
@@ -1739,7 +1739,7 @@ _gst_print_grey_list (mst_Boolean check_pointers)
 {
   grey_area_node *node;
   OOP *pOOP, oop;
-  int i, n;
+  size_t i, n;
 
   for (n = 0, node = _gst_mem.grey_pages.head; node; node = node->next, n++)
     {
@@ -1776,7 +1776,7 @@ scan_grey_pages ()
 {
   grey_area_node *node, **next, *last;
   OOP *pOOP, oop;
-  int i, n;
+  size_t i, n;
 
 #if defined (MMAN_DEBUG_OUTPUT)
   printf ("Pages on the grey list:\n");
