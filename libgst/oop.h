@@ -173,7 +173,7 @@ typedef struct surv_space {
 typedef struct grey_area_node {
   struct grey_area_node *next;
   OOP *base;
-  size_t n;
+  int n;
   OOP oop;
 } grey_area_node;
 
@@ -305,7 +305,7 @@ extern void _gst_scavenge (void)
    sweeper to sweep unreachable objects.  Decide whether the heap should
    be compacted or even grown, so that allocating NEXT_ALLOCATION bytes
    leaves it empty enough.  */
-extern void _gst_global_gc (size_t next_allocation)
+extern void _gst_global_gc (int next_allocation) 
   ATTRIBUTE_HIDDEN;
 
 /* Mark, sweep & compact the old objects.  */

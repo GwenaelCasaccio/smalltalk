@@ -197,7 +197,7 @@ static void scan_grey_objects ();
 static void scan_grey_pages ();
 
 /* Greys a page worth of pointers starting at BASE.  */
-static void add_to_grey_list (OOP *base, size_t n);
+static void add_to_grey_list (OOP *base, int n);
 
 /* Greys the object OOP.  */
 static void add_grey_object (OOP oop);
@@ -872,23 +872,23 @@ oldspace_before_freeing (heap_data *h, heap_block *blk, size_t sz)
   
   /* Remove related entries from the remembered table.  */
   for (last = NULL, next = &_gst_mem.grey_pages.head; (node = *next); )
-  {
-    if (node->base >= (OOP *)blk && node->base + node->n <= (OOP *)( ((char *)blk) + sz))
-    {
+    if (node->base >= (OOP *)blk
+	&& node->base + node->n <= (OOP *)( ((char *)blk) + sz))
+      {
 #ifdef MMAN_DEBUG_OUTPUT
-	    printf ("  Remembered table entry removed %p..%p\n", node->base, node->base+node->n);
+	printf ("  Remembered table entry removed %p..%p\n",
+		node->base, node->base+node->n);
 #endif
   
-      _gst_mem.rememberedTableEntries--;
-	    *next = node->next;
-	    xfree (node);
-    }
+        _gst_mem.rememberedTableEntries--;
+	*next = node->next;
+	xfree (node);
+      }
     else
-    {
-      last = node;
-	    next = &(node->next);
-    }
-  }
+      {
+        last = node;
+	next = &(node->next);
+      }
 
   _gst_mem.grey_pages.tail = last;
   _gst_mem_protect ((PTR) blk, sz, PROT_READ | PROT_WRITE);
@@ -1055,10 +1055,10 @@ _gst_global_compact ()
 }
 
 void
-_gst_global_gc (size_t next_allocation)
+_gst_global_gc (int next_allocation)
 {
   const char *s;
-  size_t old_limit;
+  int old_limit;
 
   _gst_mem.numGlobalGCs++;
 
@@ -1126,7 +1126,6 @@ _gst_global_gc (size_t next_allocation)
 	  if (target_limit < old_limit)
             {
               s = "done, heap compacted";
-
               compact (0);
               grow_memory_no_compact (target_limit);
             }
@@ -1145,7 +1144,6 @@ _gst_global_gc (size_t next_allocation)
 	       * 100.0 /_gst_mem.grow_threshold_percent;
 
           s = "done, heap grown";
-
           grow_memory_no_compact (MAX (grow_amount_to_satisfy_rate,
 				       grow_amount_to_satisfy_threshold));
         }
@@ -1637,7 +1635,7 @@ add_grey_object (OOP oop)
 }
 
 void
-add_to_grey_list (OOP *base, size_t n)
+add_to_grey_list (OOP *base, int n)
 {
   grey_area_node *entry = (grey_area_node *) xmalloc (sizeof (grey_area_node));
   entry->base = base;
@@ -1778,7 +1776,7 @@ scan_grey_pages ()
 {
   grey_area_node *node, **next, *last;
   OOP *pOOP, oop;
-  size_t i, n;
+  int i, n;
 
 #if defined (MMAN_DEBUG_OUTPUT)
   printf ("Pages on the grey list:\n");
