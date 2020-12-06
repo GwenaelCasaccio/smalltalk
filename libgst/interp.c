@@ -470,7 +470,7 @@ static inline void prepare_context (gst_context_part context,
 
 /* Return from the current context and restore the virtual machine's
    status (ip, sp, _gst_this_method, _gst_self, ...).  */
-static void __attribute__ ((__always_inline__)) unwind_context (void);
+static inline void unwind_context (void);
 
 /* Check whether it is true that sending SENDSELECTOR to RECEIVER
    accepts NUMARGS arguments.  Note that the RECEIVER is only used to
@@ -709,9 +709,9 @@ empty_context_stack (void)
 	oop = alloc_oop (context, OOP_GET_FLAGS (contextOOP) | _gst_mem.active_flag);
 
         /* Fill the object's uninitialized fields. */
-        context->objClass = CONTEXT_FLAGS (context) & MCF_IS_METHOD_CONTEXT
+        OBJ_SET_CLASS (context, CONTEXT_FLAGS (context) & MCF_IS_METHOD_CONTEXT
           ? _gst_method_context_class
-	  : _gst_block_context_class;
+	  : _gst_block_context_class);
 
 #ifndef ENABLE_JIT_TRANSLATION
 	/* This field is unused without the JIT compiler, but it must 
@@ -1749,7 +1749,7 @@ resume_process (OOP processOOP,
   OOP processLists;
   OOP processList;
   gst_process process, active;
-  mst_Boolean ints_enabled;
+  /* mst_Boolean ints_enabled; */
 
   /* 2002-19-12: tried get_active_process instead of get_scheduled_process.  */
   activeOOP = get_active_process ();
@@ -1758,9 +1758,9 @@ resume_process (OOP processOOP,
   priority = TO_INT (process->priority);
 
   /* As a special exception, don't preempt a process that has disabled
-     interrupts. ### this behavior is currently disabled.  */
+     interrupts. ### this behavior is currently disabled.  
   ints_enabled = IS_NIL (active->interrupts)
-	         || TO_INT(active->interrupts) <= 0;
+	         || TO_INT(active->interrupts) <= 0; */
 
   /* resume_process is also used when changing the priority of a ready/active
      process.  In this case, first remove the process from its current list.  */
@@ -2239,7 +2239,7 @@ _gst_prepare_execution_environment (void)
 
   empty_context_stack ();
   dummyContext = alloc_stack_context (4);
-  dummyContext->objClass = _gst_method_context_class;
+  OBJ_SET_CLASS (dummyContext, _gst_method_context_class);
   dummyContext->parentContext = _gst_nil_oop;
   dummyContext->method = _gst_get_termination_method ();
   dummyContext->flags = MCF_IS_METHOD_CONTEXT

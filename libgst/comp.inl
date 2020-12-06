@@ -104,7 +104,7 @@ get_method_info (OOP oop)
 {
   gst_object obj;
   obj = OOP_TO_OBJ (oop);
-  if UNCOMMON (obj->objClass == _gst_compiled_block_class)
+  if UNCOMMON (OBJ_CLASS (obj) == _gst_compiled_block_class)
     {
       oop = ((gst_compiled_block) obj)->method;
       obj = OOP_TO_OBJ (oop);

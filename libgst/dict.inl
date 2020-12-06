@@ -431,7 +431,7 @@ static inline uint64_t to_c_uint_64 (OOP oop);
 
 /* Answer the instance specification of the object OBJ (*not* an OOP).  */
 #define GET_INSTANCE_SPEC(obj) \
-  CLASS_INSTANCE_SPEC((obj)->objClass)
+  CLASS_INSTANCE_SPEC(OBJ_CLASS ((obj)))
 
 /* Answer the instance specification of OOP.  */
 #define OOP_INSTANCE_SPEC(oop) \
@@ -474,8 +474,8 @@ static inline uint64_t to_c_uint_64 (OOP oop);
 /* Return the number of pointer instance variables (both fixed and
    indexed), in the object OBJ.  */
 #define NUM_OOPS(obj) \
-  ((size_t) (COMMON (CLASS_IS_SCALAR ((obj)->objClass)) \
-    ? (CLASS_INSTANCE_SPEC((obj)->objClass) >> ISP_NUMFIXEDFIELDS) \
+  ((size_t) (COMMON (CLASS_IS_SCALAR (OBJ_CLASS ((obj)))) \
+    ? (CLASS_INSTANCE_SPEC(OBJ_CLASS ((obj))) >> ISP_NUMFIXEDFIELDS) \
     : NUM_WORDS(obj) \
   ))
 
@@ -681,7 +681,7 @@ new_instance_with (OOP class_oop,
   p_instance = _gst_alloc_obj (alignedBytes, p_oop);
   INIT_UNALIGNED_OBJECT (*p_oop, alignedBytes - numBytes);
 
-  p_instance->objClass = class_oop;
+  OBJ_SET_CLASS (p_instance, class_oop);
 
   return p_instance;
 }
@@ -700,7 +700,7 @@ new_instance (OOP class_oop,
     SIZE_TO_BYTES(instanceSpec >> ISP_NUMFIXEDFIELDS);
 
   p_instance = _gst_alloc_obj (numBytes, p_oop);
-  p_instance->objClass = class_oop;
+  OBJ_SET_CLASS (p_instance, class_oop);
 
   return p_instance;
 }
@@ -717,7 +717,7 @@ instantiate_numbytes (OOP class_oop,
   OOP src, *dest;
 
   p_instance = _gst_alloc_obj (numBytes, p_oop);
-  p_instance->objClass = class_oop;
+  OBJ_SET_CLASS (p_instance, class_oop);
 
   n = instanceSpec >> ISP_NUMFIXEDFIELDS;
   if UNCOMMON (n == 0)
@@ -769,7 +769,7 @@ instantiate_with (OOP class_oop,
   if COMMON ((instanceSpec & ISP_INDEXEDVARS) == GST_ISP_POINTER)
     {
       p_instance = _gst_alloc_obj (numBytes, p_oop);
-      p_instance->objClass = class_oop;
+      OBJ_SET_CLASS (p_instance, class_oop);
       nil_fill (p_instance->data,
 	        (instanceSpec >> ISP_NUMFIXEDFIELDS) + numIndexFields);
     }
@@ -942,7 +942,7 @@ is_owner (OOP scannedOOP,
   int n;
 
   object = OOP_TO_OBJ (scannedOOP);
-  if UNCOMMON (object->objClass == targetOOP)
+  if UNCOMMON (OBJ_CLASS (object) == targetOOP)
     return true;
 
   n = num_valid_oops (scannedOOP);
@@ -1301,8 +1301,8 @@ is_c_int_32 (OOP oop)
 #endif
 
   ba = (gst_byte_array) OOP_TO_OBJ (oop);
-  if (COMMON (ba->objClass == _gst_large_positive_integer_class)
-      || ba->objClass == _gst_large_negative_integer_class)
+  if (COMMON (OBJ_CLASS (ba) == _gst_large_positive_integer_class)
+      || OBJ_CLASS (ba) == _gst_large_negative_integer_class)
     return (NUM_INDEXABLE_FIELDS (oop) == 4);
 
   return (false);
@@ -1321,7 +1321,7 @@ is_c_uint_32 (OOP oop)
 #endif
 
   ba = (gst_byte_array) OOP_TO_OBJ (oop);
-  if COMMON (ba->objClass == _gst_large_positive_integer_class)
+  if COMMON (OBJ_CLASS (ba) == _gst_large_positive_integer_class)
     {
       switch (NUM_INDEXABLE_FIELDS (oop))
 	{
@@ -1414,8 +1414,8 @@ is_c_int_64 (OOP oop)
     return (true);
 
   ba = (gst_byte_array) OOP_TO_OBJ (oop);
-  if COMMON (ba->objClass == _gst_large_negative_integer_class
-             || ba->objClass == _gst_large_positive_integer_class)
+  if COMMON (OBJ_CLASS (ba) == _gst_large_negative_integer_class
+             || OBJ_CLASS (ba) == _gst_large_positive_integer_class)
     {
       switch (NUM_INDEXABLE_FIELDS (oop))
 	{
@@ -1440,7 +1440,7 @@ is_c_uint_64 (OOP oop)
     return (TO_INT (oop) >= 0);
 
   ba = (gst_byte_array) OOP_TO_OBJ (oop);
-  if COMMON (ba->objClass == _gst_large_positive_integer_class)
+  if COMMON (OBJ_CLASS (ba) == _gst_large_positive_integer_class)
     {
       switch (NUM_INDEXABLE_FIELDS (oop))
 	{
@@ -1496,7 +1496,7 @@ to_c_int_64 (OOP oop)
 
   ba = (gst_byte_array) OOP_TO_OBJ (oop);
   mask = (((uint64_t)2) << (NUM_INDEXABLE_FIELDS (oop) * 8 - 1)) - 1;
-  result = (ba->objClass == _gst_large_negative_integer_class) ? ~mask : 0;
+  result = (OBJ_CLASS (ba) == _gst_large_negative_integer_class) ? ~mask : 0;
   result |= ((int64_t) (
 	   (((uint64_t) ba->bytes[3]) << 24) +
 	   (((uint64_t) ba->bytes[2]) << 16) +
