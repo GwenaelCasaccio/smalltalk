@@ -709,9 +709,9 @@ empty_context_stack (void)
 	oop = alloc_oop (context, OOP_GET_FLAGS (contextOOP) | _gst_mem.active_flag);
 
         /* Fill the object's uninitialized fields. */
-        context->objClass = CONTEXT_FLAGS (context) & MCF_IS_METHOD_CONTEXT
+        OBJ_SET_CLASS (context, CONTEXT_FLAGS (context) & MCF_IS_METHOD_CONTEXT
           ? _gst_method_context_class
-	  : _gst_block_context_class;
+	  : _gst_block_context_class);
 
 #ifndef ENABLE_JIT_TRANSLATION
 	/* This field is unused without the JIT compiler, but it must 
@@ -2239,7 +2239,7 @@ _gst_prepare_execution_environment (void)
 
   empty_context_stack ();
   dummyContext = alloc_stack_context (4);
-  dummyContext->objClass = _gst_method_context_class;
+  OBJ_SET_CLASS (dummyContext, _gst_method_context_class);
   dummyContext->parentContext = _gst_nil_oop;
   dummyContext->method = _gst_get_termination_method ();
   dummyContext->flags = MCF_IS_METHOD_CONTEXT

@@ -785,7 +785,7 @@ init_proto_oops()
   symbolTable = _gst_alloc_words (numWords);
   OOP_SET_OBJECT (_gst_symbol_table, symbolTable);
 
-  symbolTable->objClass = _gst_array_class;
+  OBJ_SET_CLASS (symbolTable, _gst_array_class);
   nil_fill (symbolTable->data,
 	    numWords - OBJ_HEADER_SIZE_WORDS);
 
@@ -796,7 +796,7 @@ init_proto_oops()
   smalltalkDictionary = (gst_namespace) _gst_alloc_words (numWords);
   OOP_SET_OBJECT (_gst_smalltalk_dictionary, smalltalkDictionary);
 
-  smalltalkDictionary->objClass = _gst_system_dictionary_class;
+  OBJ_SET_CLASS (smalltalkDictionary, _gst_system_dictionary_class);
   smalltalkDictionary->tally = FROM_INT(0);
   smalltalkDictionary->name = _gst_smalltalk_namespace_symbol;
   smalltalkDictionary->superspace = _gst_nil_oop;
@@ -810,7 +810,7 @@ init_proto_oops()
   processorScheduler = _gst_alloc_words (numWords);
   OOP_SET_OBJECT (_gst_processor_oop, processorScheduler);
 
-  processorScheduler->objClass = _gst_processor_scheduler_class;
+  OBJ_SET_CLASS (processorScheduler, _gst_processor_scheduler_class);
   nil_fill (processorScheduler->data,
 	    numWords - OBJ_HEADER_SIZE_WORDS);
 }
@@ -890,13 +890,13 @@ create_classes_pass2 (const class_definition *ci,
       class_oop = *ci->classVar;
       class = (gst_class) OOP_TO_OBJ (class_oop);
 
-      if (!class->objClass)
+      if (!OBJ_CLASS (class))
 	{
           numSubclasses = TO_INT (class->subClasses);
 	  create_metaclass (class_oop, numSubclasses, numSubclasses);
 	}
 
-      init_metaclass (class->objClass);
+      init_metaclass (OBJ_CLASS (class));
       init_class (class_oop, ci);
     }
 }
@@ -912,7 +912,7 @@ create_metaclass (OOP class_oop,
 
   class = (gst_class) OOP_TO_OBJ (class_oop);
   metaclass = (gst_metaclass) new_instance (_gst_metaclass_class,
-					    &class->objClass);
+					    &OBJ_CLASS (class));
 
   metaclass->instanceClass = class_oop;
 
@@ -1282,7 +1282,7 @@ create_class (const class_definition *ci)
 
   class = (gst_class) _gst_alloc_obj (sizeof (struct gst_class), &classOOP);
 
-  class->objClass = NULL;
+  OBJ_SET_CLASS (class, NULL);
   class->superclass = superClassOOP;
   class->instanceSpec = GST_ISP_INTMARK
     | ci->instanceSpec
