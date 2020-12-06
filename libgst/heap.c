@@ -79,7 +79,7 @@ struct heap
    heap instead of the pointer to the base location available to
    clients.  */
 static PTR heap_sbrk_internal (struct heap *hdp,
-			       int size);
+			       size_t size);
 
 /* Cache pagesize-1 for the current host machine.  Note that if the
    host does not readily provide a getpagesize() function, we need to
@@ -100,7 +100,7 @@ extern int getpagesize ();
 
 
 heap
-_gst_heap_create (PTR address, int size)
+_gst_heap_create (PTR address, size_t size)
 {
   struct heap mtemp;
   struct heap *hdp;
@@ -189,7 +189,7 @@ _gst_heap_sbrk (heap hd,
 
 PTR
 heap_sbrk_internal (struct heap * hdp,
-		    int size)
+		    size_t size)
 {
   char *result = NULL;
   size_t mapbytes;		/* Number of bytes to map */

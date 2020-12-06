@@ -64,7 +64,7 @@ typedef char *heap;
    implementation details.
 
    On failure returns NULL.  */
-extern heap _gst_heap_create (PTR address, int size) 
+extern heap _gst_heap_create (PTR address, size_t size)
   ATTRIBUTE_HIDDEN;
 
 /* Terminate access to a heap managed region by unmapping all memory pages

@@ -10,10 +10,10 @@
  slots. I put a=74,000 just to leave some margin. With IdentityDictionaries,
  I got a up to 130,000 (because they don't chew up OOPs for the associations)."
 
-a := 100000.
+a := 1024 * 1024 * 40.
 
-d := Dictionary new.
+d := Array new: a.
 1 to: a do: [ :i |
-    d at: i put: 'a little test ', i printString.
-    (i \\ 100) = 0 ifTrue: [ i printNl ]
+    d at: i put: Object new.
+    (i \\ 1000) = 0 ifTrue: [ i printNl ]
 ]!
