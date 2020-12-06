@@ -81,25 +81,22 @@
 #define PRIM_SUCCEEDED_RELOAD_IP	return (false)
 #endif
 
-#define INT_BIN_OP(op, noOverflow) {            \
-    OOP	oop1;					\
-    OOP	oop2;					\
-    mst_Boolean overflow;                       \
-    oop2 = POP_OOP();				\
-    oop1 = POP_OOP();				\
-    if COMMON (RECEIVER_IS_INT(oop1) && IS_INT(oop2)) {\
-      intptr_t iarg1, iarg2;			\
-      iarg1 = TO_INT(oop1);			\
-      iarg2 = TO_INT(oop2);			\
-						\
-      oop1 = op;                                \
-      if COMMON (noOverflow || !overflow) {	\
-        PUSH_OOP(oop1);				\
-        PRIM_SUCCEEDED;				\
-      }                                         \
-    }						\
-    UNPOP(2);					\
-    PRIM_FAILED;                                \
+#define INT_BIN_OP(op, noOverflow) {                    \
+    OOP	oop1;					                                  \
+    OOP	oop2;					                                  \
+    mst_Boolean overflow;                               \
+    oop2 = POP_OOP();				                            \
+    oop1 = POP_OOP();				                            \
+    if COMMON (RECEIVER_IS_INT(oop1) && IS_INT(oop2)) { \
+						                                            \
+      oop1 = op;                                        \
+      if COMMON (noOverflow || !overflow) {	            \
+        PUSH_OOP(oop1);				                          \
+        PRIM_SUCCEEDED;				                          \
+      }                                                 \
+    }						                                        \
+    UNPOP(2);					                                  \
+    PRIM_FAILED;                                        \
   }
 
 #define BOOL_BIN_OP(operator) {					\
@@ -2888,12 +2885,10 @@ static intptr_t
 VMpr_BlockClosure_valueWithArguments (int id,
                                       volatile int numArgs)
 {
-  OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
   oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
   if (IS_CLASS (oop2, _gst_array_class))
     {
       int i;
@@ -3752,12 +3747,10 @@ static intptr_t
 VMpr_Character_create (int id,
                        volatile int numArgs)
 {
-  OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
   oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
   if (IS_INT (oop2))
     {
       intptr_t arg2;
@@ -3778,12 +3771,10 @@ static intptr_t
 VMpr_UnicodeCharacter_create (int id,
                               volatile int numArgs)
 {
-  OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
   oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
   if (IS_INT (oop2))
     {
       intptr_t arg2;
@@ -3859,12 +3850,11 @@ static intptr_t
 VMpr_Memory_addressOfOOP (int id,
                           volatile int numArgs)
 {
-  OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
   oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
+  POP_N_OOPS (1);
   if (IS_OOP (oop2))
     {
       PUSH_OOP (FROM_C_ULONG ((uintptr_t) oop2));
@@ -3879,12 +3869,11 @@ static intptr_t
 VMpr_Memory_addressOf (int id,
                        volatile int numArgs)
 {
-  OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
   oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
+  POP_N_OOPS (1);
   if (IS_OOP (oop2))
     {
       PUSH_OOP (FROM_C_ULONG ((uintptr_t) OOP_TO_OBJ (oop2)));
@@ -3971,14 +3960,13 @@ static intptr_t
 VMpr_Memory_at (int id,
                 volatile int numArgs)
 {
-  OOP oop1;
   OOP oop2;
   OOP oop3;
   _gst_primitives_executed++;
 
   oop3 = POP_OOP ();
   oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
+  POP_N_OOPS (1);
   if (IS_C_LONG (oop3) && IS_INT (oop2))
     {
       intptr_t arg1, arg2;
@@ -5431,14 +5419,12 @@ static intptr_t
 VMpr_ByteArray_fromCData_size (int id,
                                volatile int numArgs)
 {
-  OOP oop1;
   OOP oop2;
   OOP oop3;
   _gst_primitives_executed++;
 
   oop3 = POP_OOP ();
   oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
   if (IS_INT (oop3))
     {
       intptr_t arg3 = TO_INT (oop3);
@@ -5456,14 +5442,12 @@ static intptr_t
 VMpr_String_fromCData_size (int id,
                             volatile int numArgs)
 {
-  OOP oop1;
   OOP oop2;
   OOP oop3;
   _gst_primitives_executed++;
 
   oop3 = POP_OOP ();
   oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
   if (IS_INT (oop3))
     {
       intptr_t arg3 = TO_INT (oop3);
@@ -5481,13 +5465,11 @@ static intptr_t
 VMpr_String_fromCData (int id,
                        volatile int numArgs)
 {
-  OOP oop1;
   OOP oop2;
   OOP stringOOP;
   _gst_primitives_executed++;
 
   oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
   stringOOP = _gst_string_new (cobject_value (oop2));
   SET_STACKTOP (stringOOP);
   PRIM_SUCCEEDED;
@@ -6261,7 +6243,6 @@ VMpr_FileDescriptor_socketOp (int id,
 
     case PRIM_CLOSE_FILE:	/* FileDescriptor close */
       {
-	int result;
         _gst_remove_fd_polling_handlers (fd);
         rc = close (fd);
         if (rc == 0)
