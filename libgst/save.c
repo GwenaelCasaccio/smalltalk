@@ -673,7 +673,7 @@ load_normal_oops (int imageFd)
 	{
 	  OOP classOOP;
 	  object = OOP_TO_OBJ (oop);
-          classOOP = OOP_ABSOLUTE (object->objClass);
+          classOOP = OOP_ABSOLUTE (OBJ_CLASS (object));
 	  fixup_byte_order (object->data, CLASS_FIXED_FIELDS (classOOP));
 	}
 
@@ -702,7 +702,7 @@ fixup_object (OOP oop, gst_object dest, gst_object src, int numBytes)
      Semaphore and CallinProcess for example are just there to terminate all
      CallinProcess objects.  */
 
-  class_oop = src->objClass;
+  class_oop = OBJ_CLASS (src);
 
   if (OOP_GET_FLAGS (oop) & F_CONTEXT)
     {
@@ -744,7 +744,7 @@ fixup_object (OOP oop, gst_object dest, gst_object src, int numBytes)
       while (!IS_NIL (linkOOP))
 	{
 	  gst_process process = (gst_process) OOP_TO_OBJ (linkOOP);
-	  if (process->objClass != _gst_callin_process_class)
+	  if (OBJ_CLASS (process) != _gst_callin_process_class)
 	    {
 	      if (IS_NIL (destSem->firstLink))
 		destSem->firstLink = linkOOP;
@@ -791,7 +791,7 @@ restore_oop_pointer_slots (OOP oop)
   OOP *i;
 
   object = OOP_TO_OBJ (oop);
-  object->objClass = OOP_ABSOLUTE (object->objClass);
+  OBJ_SET_CLASS (object, OOP_ABSOLUTE (OBJ_CLASS (object)));
 
   numPointers = NUM_OOPS (object);
   for (i = object->data; numPointers--; i++)

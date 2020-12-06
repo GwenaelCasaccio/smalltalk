@@ -371,8 +371,8 @@ _gst_display_oop (OOP oop)
             OOP_GET_FLAGS (oop) & F_POOLED ? "Pooled" :
 	    OOP_GET_FLAGS (oop) & F_REACHABLE ? "Old/marked" : "Old");
 
-      if (IS_OOP_ADDR (OOP_TO_OBJ (oop)->objClass))
-        printf ("   %O (%O)\n", OOP_TO_OBJ (oop)->objClass, OOP_TO_OBJ (oop)->objSize);
+      if (IS_OOP_ADDR (OBJ_CLASS (OOP_TO_OBJ (oop))))
+        printf ("   %O (%O)\n", OBJ_CLASS (OOP_TO_OBJ (oop)), OOP_TO_OBJ (oop)->objSize);
       else
         printf ("   (invalid class)\n");
     }
@@ -393,9 +393,9 @@ _gst_display_object (gst_object obj)
 	  IS_SURVIVOR_ADDR (obj, 0) ? "Even" :
 	  IS_SURVIVOR_ADDR (obj, 1) ? "Odd" : "Old");
 
-  if (IS_OOP_ADDR (obj->objClass))
+  if (IS_OOP_ADDR (OBJ_CLASS (obj)))
     printf (", size %O (%zu OOPs), class %O\n",
-	    obj->objSize, NUM_OOPS (obj), obj->objClass);
+	    obj->objSize, NUM_OOPS (obj), OBJ_CLASS (obj));
   else
     printf (", contains invalid data\n");
 }

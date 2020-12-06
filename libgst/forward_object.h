@@ -24,7 +24,7 @@ struct oop_s
 /* Retrieve the class for the object pointed to by OOP.  OOP must be
    a real pointer, not a SmallInteger.  */
 #define OOP_CLASS(oop) \
-  (OOP_TO_OBJ(oop)->objClass)
+  (OBJ_CLASS (OOP_TO_OBJ((oop))))
 
 /* Set the indirect object pointer OOP to point to OBJ.  */
 #define OOP_SET_OBJECT(oop, obj) do {				\

@@ -2727,8 +2727,8 @@ VMpr_Object_becomeForward (int id,
 
       object = OOP_TO_OBJ (ownerOOP);
       n = num_valid_oops (ownerOOP);
-      if UNCOMMON (object->objClass == oop1)
-        object->objClass = oop2;
+      if UNCOMMON (OBJ_CLASS (object) == oop1)
+        OBJ_SET_CLASS (object, oop2);
       for (scanPtr = object->data; n--; scanPtr++)
 	if UNCOMMON (*scanPtr == oop1)
 	  *scanPtr = oop2;
@@ -3269,7 +3269,7 @@ VMpr_Object_changeClassTo (int id,
       && (IS_NIL (obj1->data[0])
 	  || is_a_kind_of (OOP_CLASS (obj1->data[0]), _gst_behavior_class)))
     {
-      obj2->objClass = oop1;
+      OBJ_SET_CLASS (obj2, oop1);
       PRIM_SUCCEEDED;
     }
   UNPOP (1);			/* trying to do Bad Things */
@@ -3848,7 +3848,7 @@ VMpr_Dictionary_new (int id,
   _gst_primitives_executed++;
   oop1 = STACKTOP();
   dictionaryOOP = _gst_dictionary_new (32);
-  OOP_TO_OBJ (dictionaryOOP)->objClass = oop1;
+  OBJ_SET_CLASS (OOP_TO_OBJ (dictionaryOOP),  oop1);
   SET_STACKTOP (dictionaryOOP);
   PRIM_SUCCEEDED;
 }

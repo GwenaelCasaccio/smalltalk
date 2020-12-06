@@ -550,7 +550,7 @@ _gst_check_oop_table ()
 	continue;
 
       object = OOP_TO_OBJ (oop);
-      scanPtr = &object->objClass;
+      scanPtr = &OBJ_CLASS (object);
       if (OOP_GET_FLAGS (oop) & F_CONTEXT)
         {
           gst_method_context ctx;
@@ -578,12 +578,12 @@ _gst_init_builtin_objects_classes (void)
 {
   int i;
 
-  _gst_nil_object.objClass = _gst_undefined_object_class;
-  _gst_boolean_objects[0].objClass = _gst_true_class;
-  _gst_boolean_objects[1].objClass = _gst_false_class;
+  OBJ_SET_CLASS (&_gst_nil_object, _gst_undefined_object_class);
+  OBJ_SET_CLASS (&_gst_boolean_objects[0], _gst_true_class);
+  OBJ_SET_CLASS (&_gst_boolean_objects[1], _gst_false_class);
 
   for (i = 0; i < NUM_CHAR_OBJECTS; i++)
-    _gst_char_object_table[i].objClass = _gst_char_class;
+    OBJ_SET_CLASS (&_gst_char_object_table[i], _gst_char_class);
 }
 
 OOP
@@ -1609,7 +1609,7 @@ add_grey_object (OOP oop)
   grey_area_node *entry;
   gst_object obj = OOP_TO_OBJ (oop);
   size_t numFields = scanned_fields_in (obj, OOP_GET_FLAGS (oop));
-  OOP *base = &(obj->objClass);
+  OOP *base = &(OBJ_CLASS (obj));
 
   if (!numFields)
     return;
@@ -1901,7 +1901,7 @@ scanned_fields_in (gst_object object,
   if COMMON (!(flags & (F_WEAK | F_CONTEXT)))
     {
       int size = NUM_OOPS (object);
-      return object->data + size - &object->objClass;
+      return object->data + size - &OBJ_CLASS (object);
     }
 
   if COMMON (flags & F_CONTEXT)
@@ -1910,7 +1910,7 @@ scanned_fields_in (gst_object object,
       intptr_t methodSP;
       ctx = (gst_method_context) object;
       methodSP = TO_INT (ctx->spOffset);
-      return ctx->contextStack + methodSP + 1 - &ctx->objClass;
+      return ctx->contextStack + methodSP + 1 - &OBJ_CLASS (ctx);
     }
 
   /* Weak object, only mark the class.  */
@@ -2230,7 +2230,7 @@ _gst_mark_an_oop_internal (OOP oop)
     */
     OOP_SET_FLAGS (oop, OOP_GET_FLAGS (oop) | F_REACHABLE);
     object = OOP_TO_OBJ (oop);
-    objClass = object->objClass;
+    objClass = OBJ_CLASS (object);
     if UNCOMMON (OOP_GET_FLAGS (oop) & F_CONTEXT)
       {
         gst_method_context ctx;
@@ -2239,7 +2239,7 @@ _gst_mark_an_oop_internal (OOP oop)
         methodSP = TO_INT (ctx->spOffset);
         /* printf("setting up for loop on context %x, sp = %d\n", 
            ctx, methodSP); */
-        TAIL_MARK_OOPRANGE (&ctx->objClass,
+        TAIL_MARK_OOPRANGE (&OBJ_CLASS (ctx),
                             ctx->contextStack + methodSP + 1);
 
       }
@@ -2258,7 +2258,7 @@ _gst_mark_an_oop_internal (OOP oop)
       {
         size = NUM_OOPS (object);
         if COMMON (size)
-          TAIL_MARK_OOPRANGE (&object->objClass,
+          TAIL_MARK_OOPRANGE (&OBJ_CLASS (object),
                               object->data + size);
 
         else if UNCOMMON (!IS_OOP_MARKED (objClass))

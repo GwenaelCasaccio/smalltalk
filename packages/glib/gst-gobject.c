@@ -124,8 +124,10 @@ g_object_attach_oop (GObject *obj, OOP oop)
 {
   OOP class = g_type_get_qdata (G_OBJECT_TYPE (obj), q_gst_object);
 
-  if (class)
-    OOP_TO_OBJ (oop)->objClass = class;
+  if (class) 
+  {
+    OBJ_SET_CLASS (OOP_TO_OBJ (oop), class);
+  }
 
   g_object_set_qdata (obj, q_gst_object, oop);
   g_object_ref (obj);
@@ -152,7 +154,9 @@ g_boxed_get_oop (gpointer obj, GType type)
   OOP class = g_type_get_qdata (type, q_gst_object);
 
   if (class)
-    OOP_TO_OBJ (oop)->objClass = class;
+  {
+    OBJ_SET_CLASS (OOP_TO_OBJ (oop), class);
+  }
 
   return oop;
 }

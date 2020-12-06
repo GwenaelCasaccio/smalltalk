@@ -1384,7 +1384,7 @@ alloc_symlink (OOP symbolOOP, uintptr_t index)
   OOP linkOOP;
 
   symbol = (gst_symbol) OOP_TO_OBJ (symbolOOP);
-  symbol->objClass = _gst_symbol_class;
+  OBJ_SET_CLASS (symbol, _gst_symbol_class);
 
   link = (sym_link) new_instance (_gst_sym_link_class, &linkOOP);
   link->nextLink = ARRAY_AT (_gst_symbol_table, index);
