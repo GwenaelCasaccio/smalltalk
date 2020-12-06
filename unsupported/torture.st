@@ -12,7 +12,7 @@
 
 a := 1024 * 1024 * 40.
 
-d := Dictionary new.
+d := Array new: a.
 1 to: a do: [ :i |
     d at: i put: Object new.
     (i \\ 1000) = 0 ifTrue: [ i printNl ]
