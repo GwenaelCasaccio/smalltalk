@@ -914,18 +914,14 @@ oop_num_fields (OOP oop)
 
 
 static int
-num_valid_oops (OOP oop)
+num_valid_oops (const OOP oop)
 {
-  gst_object object;
+  const gst_object object = OOP_TO_OBJ (oop);
 
-  object = OOP_TO_OBJ (oop);
   if UNCOMMON (OOP_GET_FLAGS (oop) & F_CONTEXT)
     {
-      gst_method_context ctx;
-      intptr_t methodSP;
-      ctx = (gst_method_context) object;
-      methodSP = TO_INT (ctx->spOffset);
-      return ctx->contextStack + methodSP + 1 - object->data;
+      const intptr_t methodSP = TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET (object));
+      return OBJ_METHOD_CONTEXT_CONTEXT_STACK (object) + methodSP + 1 - object->data;
     }
   else
     return NUM_OOPS (object);
