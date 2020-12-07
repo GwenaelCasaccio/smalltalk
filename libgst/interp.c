@@ -441,7 +441,7 @@ static void alloc_new_chunk ();
 
 /* This allocates a context object which is SIZE words big from
    a pool, allocating one if the current pool is full.  */
-static inline gst_method_context alloc_stack_context (int size);
+static inline gst_object alloc_stack_context (int size);
 
 /* This frees the most recently allocated stack from the current
    context pool.  It is called when unwinding.  */
@@ -454,7 +454,7 @@ static inline void dealloc_stack_context (gst_context_part context);
    because the other fields can be desumed from the execution state:
    these other fields instead are filled in the parent context since
    the execution state will soon be overwritten.  */
-static inline gst_method_context activate_new_context (int size,
+static inline gst_object activate_new_context (int size,
 						       int sendArgs);
 
 /* Push the ARGS topmost words below the stack pointer, and then TEMPS
@@ -759,15 +759,15 @@ alloc_new_chunk (void)
     ((char *) cur_chunk_begin) + SIZE_TO_BYTES(CHUNK_SIZE));
 }
 
-gst_method_context
+gst_object
 alloc_stack_context (int size)
 {
-  gst_method_context newContext;
+  gst_object newContext;
 
   size = CTX_SIZE (size);
   for (;;)
     {
-      newContext = (gst_method_context) cur_chunk_begin;
+      newContext = (gst_object) cur_chunk_begin;
       cur_chunk_begin += size;
       if COMMON (cur_chunk_begin < cur_chunk_end)
         {
@@ -780,13 +780,13 @@ alloc_stack_context (int size)
     }
 }
 
-gst_method_context
+gst_object
 activate_new_context (int size,
 		      int sendArgs)
 {
   OOP oop;
-  gst_method_context newContext;
-  gst_method_context thisContext;
+  gst_object newContext;
+  gst_object thisContext;
 
 #ifndef OPTIMIZE
   if (IS_NIL (_gst_this_context_oop))
@@ -806,17 +806,17 @@ activate_new_context (int size,
      size, newContext, oop); */
   OOP_SET_OBJECT (oop, newContext);
 
-  OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT ((gst_object) newContext, _gst_this_context_oop);
+  OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT (newContext, _gst_this_context_oop);
 
   /* save old context information */
   /* leave sp pointing to receiver, which is replaced on return with
      value */
-  thisContext = (gst_method_context) OOP_TO_OBJ (_gst_this_context_oop);
-  OBJ_METHOD_CONTEXT_SET_METHOD ((gst_object) thisContext, _gst_this_method);
-  OBJ_METHOD_CONTEXT_SET_RECEIVER ((gst_object) thisContext, _gst_self);
-  OBJ_METHOD_CONTEXT_SET_SP_OFFSET ((gst_object) thisContext,
-    FROM_INT ((sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK ((gst_object) thisContext)) - sendArgs));
-  OBJ_METHOD_CONTEXT_SET_IP_OFFSET ((gst_object) thisContext, FROM_INT (ip - method_base));
+  thisContext = OOP_TO_OBJ (_gst_this_context_oop);
+  OBJ_METHOD_CONTEXT_SET_METHOD (thisContext, _gst_this_method);
+  OBJ_METHOD_CONTEXT_SET_RECEIVER (thisContext, _gst_self);
+  OBJ_METHOD_CONTEXT_SET_SP_OFFSET (thisContext,
+    FROM_INT ((sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK (thisContext)) - sendArgs));
+  OBJ_METHOD_CONTEXT_SET_IP_OFFSET (thisContext, FROM_INT (ip - method_base));
 
   _gst_this_context_oop = oop;
 
@@ -2199,23 +2199,21 @@ _gst_init_interpreter (void)
 OOP
 _gst_prepare_execution_environment (void)
 {
-  gst_method_context dummyContext;
+  gst_object dummyContext;
   OOP dummyContextOOP, processOOP;
   inc_ptr inc = INC_SAVE_POINTER ();
 
   empty_context_stack ();
   dummyContext = alloc_stack_context (4);
   OBJ_SET_CLASS (dummyContext, _gst_method_context_class);
-  OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT ((gst_object) dummyContext, _gst_nil_oop);
-  OBJ_METHOD_CONTEXT_SET_METHOD ((gst_object) dummyContext, _gst_get_termination_method ());
-  dummyContext->flags = MCF_IS_METHOD_CONTEXT
-	 | MCF_IS_EXECUTION_ENVIRONMENT
-	 | MCF_IS_UNWIND_CONTEXT;
-  OBJ_METHOD_CONTEXT_SET_RECEIVER ((gst_object) dummyContext, _gst_nil_oop);
-  OBJ_METHOD_CONTEXT_SET_IP_OFFSET ((gst_object) dummyContext, FROM_INT (0));
-  OBJ_METHOD_CONTEXT_SET_SP_OFFSET ((gst_object) dummyContext, FROM_INT (-1));
+  OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT (dummyContext, _gst_nil_oop);
+  OBJ_METHOD_CONTEXT_SET_METHOD (dummyContext, _gst_get_termination_method ());
+  OBJ_METHOD_CONTEXT_SET_FLAGS (dummyContext, (OOP) (MCF_IS_METHOD_CONTEXT | MCF_IS_EXECUTION_ENVIRONMENT | MCF_IS_UNWIND_CONTEXT));
+  OBJ_METHOD_CONTEXT_SET_RECEIVER (dummyContext, _gst_nil_oop);
+  OBJ_METHOD_CONTEXT_SET_IP_OFFSET (dummyContext, FROM_INT (0));
+  OBJ_METHOD_CONTEXT_SET_SP_OFFSET (dummyContext, FROM_INT (-1));
 
-  OBJ_METHOD_CONTEXT_SET_NATIVE_IP ((gst_object) dummyContext, DUMMY_NATIVE_IP);	/* See empty_context_stack */
+  OBJ_METHOD_CONTEXT_SET_NATIVE_IP (dummyContext, DUMMY_NATIVE_IP);	/* See empty_context_stack */
 
   dummyContextOOP = alloc_oop (dummyContext,
 			       _gst_mem.active_flag | F_POOLED | F_CONTEXT);
