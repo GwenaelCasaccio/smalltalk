@@ -304,7 +304,7 @@ _gst_send_message_internal (OOP sendSelector,
   /* Prepare new state.  */
 
   newContext = activate_new_context (header.stack_depth, sendArgs);
-  newContext->flags = MCF_IS_METHOD_CONTEXT;
+  OBJ_METHOD_CONTEXT_SET_FLAGS ((gst_object) newContext, (OOP) MCF_IS_METHOD_CONTEXT);
   /* push args and temps, set sp and _gst_temporaries */
   prepare_context ((gst_context_part) newContext, sendArgs, header.numTemps);
   _gst_self = receiver;
@@ -391,7 +391,7 @@ _gst_send_method (OOP methodOOP)
 
   /* prepare new state */
   newContext = activate_new_context (header.stack_depth, sendArgs);
-  newContext->flags = MCF_IS_METHOD_CONTEXT;
+  OBJ_METHOD_CONTEXT_SET_FLAGS ((gst_object) newContext, (OOP) MCF_IS_METHOD_CONTEXT);
   /* push args and temps, set sp and _gst_temporaries */
   prepare_context ((gst_context_part) newContext, sendArgs, header.numTemps);
   _gst_self = receiver;
