@@ -52,2782 +52,2324 @@
  ***********************************************************************/
 
 #ifdef OPTIMIZE
-#define RECEIVER_IS_INT(x)		(true)
-#define RECEIVER_IS_OOP(x)		(true)
-#define RECEIVER_IS_CLASS(x, y)		(true)
-#define RECEIVER_IS_A_KIND_OF(x, y)	(true)
-#define PRIM_CHECKS_RECEIVER		PRIM_SUCCEED
+#define RECEIVER_IS_INT(x) (true)
+#define RECEIVER_IS_OOP(x) (true)
+#define RECEIVER_IS_CLASS(x, y) (true)
+#define RECEIVER_IS_A_KIND_OF(x, y) (true)
+#define PRIM_CHECKS_RECEIVER PRIM_SUCCEED
 #else
-#define RECEIVER_IS_INT(x)		IS_INT((x))
-#define RECEIVER_IS_OOP(x)		IS_OOP((x))
-#define RECEIVER_IS_CLASS(x, y)		IS_CLASS((x), (y))
-#define RECEIVER_IS_A_KIND_OF(x, y)	is_a_kind_of((x), (y))
-#define PRIM_CHECKS_RECEIVER		(PRIM_SUCCEED | PRIM_FAIL)
+#define RECEIVER_IS_INT(x) IS_INT((x))
+#define RECEIVER_IS_OOP(x) IS_OOP((x))
+#define RECEIVER_IS_CLASS(x, y) IS_CLASS((x), (y))
+#define RECEIVER_IS_A_KIND_OF(x, y) is_a_kind_of((x), (y))
+#define PRIM_CHECKS_RECEIVER (PRIM_SUCCEED | PRIM_FAIL)
 #endif
 
 #ifdef HAVE_GMP
-#define PRIM_USES_GMP                   (PRIM_SUCCEED | PRIM_FAIL)
+#define PRIM_USES_GMP (PRIM_SUCCEED | PRIM_FAIL)
 #else
-#define PRIM_USES_GMP                   PRIM_FAIL
+#define PRIM_USES_GMP PRIM_FAIL
 #endif
 
 #ifdef ENABLE_JIT_TRANSLATION
-#define PRIM_FAILED			return ((intptr_t) -1)
-#define PRIM_SUCCEEDED			return ((intptr_t) 0)
-#define PRIM_SUCCEEDED_RELOAD_IP	return ((intptr_t) native_ip)
+#define PRIM_FAILED return ((intptr_t)-1)
+#define PRIM_SUCCEEDED return ((intptr_t)0)
+#define PRIM_SUCCEEDED_RELOAD_IP return ((intptr_t)native_ip)
 #else
-#define PRIM_FAILED			return (true)
-#define PRIM_SUCCEEDED			return (false)
-#define PRIM_SUCCEEDED_RELOAD_IP	return (false)
+#define PRIM_FAILED return (true)
+#define PRIM_SUCCEEDED return (false)
+#define PRIM_SUCCEEDED_RELOAD_IP return (false)
 #endif
 
-#define INT_BIN_OP(op, noOverflow) {                    \
-    OOP	oop1;					                                  \
-    OOP	oop2;					                                  \
-    mst_Boolean overflow;                               \
-    oop2 = POP_OOP();				                            \
-    oop1 = POP_OOP();				                            \
-    if COMMON (RECEIVER_IS_INT(oop1) && IS_INT(oop2)) { \
-						                                            \
-      oop1 = op;                                        \
-      if COMMON (noOverflow || !overflow) {	            \
-        PUSH_OOP(oop1);				                          \
-        PRIM_SUCCEEDED;				                          \
-      }                                                 \
-    }						                                        \
-    UNPOP(2);					                                  \
-    PRIM_FAILED;                                        \
+#define INT_BIN_OP(op, noOverflow)                                             \
+  {                                                                            \
+    OOP oop1;                                                                  \
+    OOP oop2;                                                                  \
+    mst_Boolean overflow;                                                      \
+    oop2 = POP_OOP();                                                          \
+    oop1 = POP_OOP();                                                          \
+    if COMMON (RECEIVER_IS_INT(oop1) && IS_INT(oop2)) {                        \
+                                                                               \
+      oop1 = op;                                                               \
+      if COMMON (noOverflow || !overflow) {                                    \
+        PUSH_OOP(oop1);                                                        \
+        PRIM_SUCCEEDED;                                                        \
+      }                                                                        \
+    }                                                                          \
+    UNPOP(2);                                                                  \
+    PRIM_FAILED;                                                               \
   }
 
-#define BOOL_BIN_OP(operator) {					\
-    OOP	oop1;							\
-    OOP	oop2;							\
-    oop2 = POP_OOP();						\
-    oop1 = POP_OOP();						\
-    if COMMON (RECEIVER_IS_INT(oop1) && IS_INT(oop2)) {		\
-      PUSH_BOOLEAN( ((intptr_t)oop1) operator ((intptr_t)oop2) );	\
-      PRIM_SUCCEEDED;						\
-    }								\
-    UNPOP(2);							\
-    PRIM_FAILED;                                                \
+#define BOOL_BIN_OP(operator)                                                  \
+  {                                                                            \
+    OOP oop1;                                                                  \
+    OOP oop2;                                                                  \
+    oop2 = POP_OOP();                                                          \
+    oop1 = POP_OOP();                                                          \
+    if COMMON (RECEIVER_IS_INT(oop1) && IS_INT(oop2)) {                        \
+      PUSH_BOOLEAN(((intptr_t)oop1) operator((intptr_t)oop2));                 \
+      PRIM_SUCCEEDED;                                                          \
+    }                                                                          \
+    UNPOP(2);                                                                  \
+    PRIM_FAILED;                                                               \
   }
 
-static intptr_t
-VMpr_SmallInteger_plus (int id,
-                        volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_plus(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  INT_BIN_OP (add_with_check (oop1, oop2, &overflow), false);
+  INT_BIN_OP(add_with_check(oop1, oop2, &overflow), false);
 }
 
 /* SmallInteger - arg */
-static intptr_t
-VMpr_SmallInteger_minus (int id,
-                         volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_minus(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  INT_BIN_OP (sub_with_check (oop1, oop2, &overflow), false);
+  INT_BIN_OP(sub_with_check(oop1, oop2, &overflow), false);
 }
 
 /* SmallInteger < arg */
-static intptr_t
-VMpr_SmallInteger_lt (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_lt(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  BOOL_BIN_OP (<);
+  BOOL_BIN_OP(<);
 }
 
 /* SmallInteger > arg */
-static intptr_t
-VMpr_SmallInteger_gt (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_gt(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  BOOL_BIN_OP (>);
+  BOOL_BIN_OP(>);
 }
 
 /* SmallInteger <= arg */
-static intptr_t
-VMpr_SmallInteger_le (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_le(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  BOOL_BIN_OP (<=);
+  BOOL_BIN_OP(<=);
 }
 
 /* SmallInteger >= arg */
-static intptr_t
-VMpr_SmallInteger_ge (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_ge(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  BOOL_BIN_OP (>=);
+  BOOL_BIN_OP(>=);
 }
 
 /* SmallInteger =, == arg */
-static intptr_t
-VMpr_SmallInteger_eq (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_eq(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  BOOL_BIN_OP ( ==);
+  BOOL_BIN_OP(==);
 }
 
 /* SmallInteger ~=, ~~ arg */
-static intptr_t
-VMpr_SmallInteger_ne (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_ne(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  BOOL_BIN_OP (!=);
+  BOOL_BIN_OP(!=);
 }
 
 /* SmallInteger * arg */
-static intptr_t
-VMpr_SmallInteger_times (int id,
-                         volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_times(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  INT_BIN_OP (mul_with_check (oop1, oop2, &overflow), false);
+  INT_BIN_OP(mul_with_check(oop1, oop2, &overflow), false);
 }
 
 /* SmallInteger / arg */
 /* quotient as exact as possible */
-static intptr_t
-VMpr_SmallInteger_divide (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_divide(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if (RECEIVER_IS_INT (oop1) && IS_INT (oop2) && oop2 != FROM_INT (0))
-    {
-      intptr_t iarg1, iarg2, result;
-      iarg1 = TO_INT (oop1);
-      iarg2 = TO_INT (oop2);
-      result = iarg1 / iarg2;
-      iarg2 *= result;
-      if COMMON (iarg1 == iarg2)
-	{
-	  PUSH_INT (result);
-	  PRIM_SUCCEEDED;
-	}
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if (RECEIVER_IS_INT(oop1) && IS_INT(oop2) && oop2 != FROM_INT(0)) {
+    intptr_t iarg1, iarg2, result;
+    iarg1 = TO_INT(oop1);
+    iarg2 = TO_INT(oop2);
+    result = iarg1 / iarg2;
+    iarg2 *= result;
+    if COMMON (iarg1 == iarg2) {
+      PUSH_INT(result);
+      PRIM_SUCCEEDED;
     }
-  UNPOP (2);
+  }
+  UNPOP(2);
   PRIM_FAILED;
 }
 
 /* SmallInteger \\ arg */
 /* remainder truncated towards -infinity */
-static intptr_t
-VMpr_SmallInteger_modulo (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_modulo(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_INT (oop1) && IS_INT (oop2) && oop2 != FROM_INT (0))
-    {
-      intptr_t iarg1, iarg2, result;
-      iarg1 = TO_INT (oop1);
-      iarg2 = TO_INT (oop2);
-      result = iarg1 % iarg2;
-      PUSH_INT (result
-		&& ((result ^ iarg2) < 0) ? result + iarg2 : result);
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (2);
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_INT(oop1) && IS_INT(oop2) && oop2 != FROM_INT(0)) {
+    intptr_t iarg1, iarg2, result;
+    iarg1 = TO_INT(oop1);
+    iarg2 = TO_INT(oop2);
+    result = iarg1 % iarg2;
+    PUSH_INT(result && ((result ^ iarg2) < 0) ? result + iarg2 : result);
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(2);
   PRIM_FAILED;
 }
 
 /* SmallInteger // arg */
 /* quotient truncated towards -infinity */
-static intptr_t
-VMpr_SmallInteger_intDiv (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_intDiv(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_INT (oop1) && IS_INT (oop2) && oop2 != FROM_INT (0))
-    {
-      intptr_t iarg1, iarg2;
-      iarg1 = TO_INT (oop1);
-      iarg2 = TO_INT (oop2);
-      if (iarg2 < 0)
-	{			/* make the divisor positive */
-	  iarg1 = -iarg1;
-	  iarg2 = -iarg2;
-	}
-      if (iarg1 < 0)		/* differing signs => use black magic */
-	PUSH_INT (-((iarg2 - 1 - iarg1) / iarg2));
-      else
-	PUSH_INT (iarg1 / iarg2);
-
-      PRIM_SUCCEEDED;
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_INT(oop1) && IS_INT(oop2) && oop2 != FROM_INT(0)) {
+    intptr_t iarg1, iarg2;
+    iarg1 = TO_INT(oop1);
+    iarg2 = TO_INT(oop2);
+    if (iarg2 < 0) { /* make the divisor positive */
+      iarg1 = -iarg1;
+      iarg2 = -iarg2;
     }
-  UNPOP (2);
+    if (iarg1 < 0) /* differing signs => use black magic */
+      PUSH_INT(-((iarg2 - 1 - iarg1) / iarg2));
+    else
+      PUSH_INT(iarg1 / iarg2);
+
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(2);
   PRIM_FAILED;
 }
 
 /* SmallInteger quo: arg */
 /* quotient truncated towards 0 */
-static intptr_t
-VMpr_SmallInteger_quo (int id,
-                       volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_quo(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_INT (oop1) && IS_INT (oop2))
-    {
-      intptr_t iarg1, iarg2;
-      iarg1 = TO_INT (oop1);
-      iarg2 = TO_INT (oop2);
-      if COMMON (iarg2 != 0)
-	{
-	  PUSH_INT (iarg1 / iarg2);
-	  PRIM_SUCCEEDED;
-	}
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_INT(oop1) && IS_INT(oop2)) {
+    intptr_t iarg1, iarg2;
+    iarg1 = TO_INT(oop1);
+    iarg2 = TO_INT(oop2);
+    if COMMON (iarg2 != 0) {
+      PUSH_INT(iarg1 / iarg2);
+      PRIM_SUCCEEDED;
     }
-  UNPOP (2);
+  }
+  UNPOP(2);
   PRIM_FAILED;
 }
 
 /* SmallInteger bitAnd: arg */
-static intptr_t
-VMpr_SmallInteger_bitAnd (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_bitAnd(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  INT_BIN_OP (tagged_and (oop1, oop2), true);
+  INT_BIN_OP(tagged_and(oop1, oop2), true);
 }
 
 /* SmallInteger bitOr: arg */
-static intptr_t
-VMpr_SmallInteger_bitOr (int id,
-                         volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_bitOr(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  INT_BIN_OP (tagged_or (oop1, oop2), true);
+  INT_BIN_OP(tagged_or(oop1, oop2), true);
 }
 
 /* SmallInteger bitXor: arg */
-static intptr_t
-VMpr_SmallInteger_bitXor (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_bitXor(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  INT_BIN_OP (tagged_xor (oop1, oop2), true);
+  INT_BIN_OP(tagged_xor(oop1, oop2), true);
 }
 
 /* SmallInteger bitShift: arg */
-static intptr_t
-VMpr_SmallInteger_bitShift (int id,
-                            volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_bitShift(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_INT (oop1) && IS_INT (oop2))
-    {
-      intptr_t iarg1;
-      intptr_t iarg2;
-      iarg1 = TO_INT (oop1);
-      iarg2 = TO_INT (oop2);
-      if (iarg2 < 0)
-	{
-	  if (iarg2 >= -ST_INT_SIZE)
-	    PUSH_INT (iarg1 >> -iarg2);
-	  else
-	    PUSH_INT (iarg1 >> ST_INT_SIZE);
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_INT(oop1) && IS_INT(oop2)) {
+    intptr_t iarg1;
+    intptr_t iarg2;
+    iarg1 = TO_INT(oop1);
+    iarg2 = TO_INT(oop2);
+    if (iarg2 < 0) {
+      if (iarg2 >= -ST_INT_SIZE)
+        PUSH_INT(iarg1 >> -iarg2);
+      else
+        PUSH_INT(iarg1 >> ST_INT_SIZE);
 
-	  PRIM_SUCCEEDED;
-	}
-      if COMMON (iarg2 < ST_INT_SIZE)
-	{
-	  intptr_t result = iarg1 << iarg2;
-	  if ((result >> iarg2) == iarg1 && !INT_OVERFLOW(result))
-	    {
-	      PUSH_INT (result);
-	      PRIM_SUCCEEDED;
-	    }
-	}
+      PRIM_SUCCEEDED;
     }
-  UNPOP (2);
+    if COMMON (iarg2 < ST_INT_SIZE) {
+      intptr_t result = iarg1 << iarg2;
+      if ((result >> iarg2) == iarg1 && !INT_OVERFLOW(result)) {
+        PUSH_INT(result);
+        PRIM_SUCCEEDED;
+      }
+    }
+  }
+  UNPOP(2);
   PRIM_FAILED;
 }
-
+
 /* SmallInteger scramble */
 
-static intptr_t
-VMpr_SmallInteger_scramble (int id,
-                            volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_scramble(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_INT (oop1))
-    {
-      PUSH_INT (scramble (TO_INT (oop1)));
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (1);
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_INT(oop1)) {
+    PUSH_INT(scramble(TO_INT(oop1)));
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
-
 
 /* SmallInteger asFloatD */
 
-static intptr_t
-VMpr_SmallInteger_asFloatD (int id,
-                            volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_asFloatD(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_INT (oop1))
-    {
-      PUSH_OOP (floatd_new ((double) TO_INT (oop1)));
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (1);
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_INT(oop1)) {
+    PUSH_OOP(floatd_new((double)TO_INT(oop1)));
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* SmallInteger asFloatE */
 
-static intptr_t
-VMpr_SmallInteger_asFloatE (int id,
-                            volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_asFloatE(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_INT (oop1))
-    {
-      PUSH_OOP (floate_new ((float) TO_INT (oop1)));
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (1);
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_INT(oop1)) {
+    PUSH_OOP(floate_new((float)TO_INT(oop1)));
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* SmallInteger asFloatQ */
 
-static intptr_t
-VMpr_SmallInteger_asFloatQ (int id,
-                            volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_asFloatQ(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_INT (oop1))
-    {
-      PUSH_OOP (floatq_new ((long double) TO_INT (oop1)));
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (1);
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_INT(oop1)) {
+    PUSH_OOP(floatq_new((long double)TO_INT(oop1)));
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
-static intptr_t
-VMpr_LargeInteger_eq (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_eq(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
-  gst_mpz b = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
+  gst_mpz b = {0, 0, NULL};
   OOP oop1, oop2;
   int result;
 
   _gst_primitives_executed++;
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (IS_INT (oop2)
-      || SUPERCLASS (OOP_CLASS (oop2)) == _gst_large_integer_class
-      || OOP_CLASS (oop2) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&b, oop2);
-  else
-    {
-      _gst_mpz_clear (&a);
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  if COMMON (IS_INT(oop2) ||
+             SUPERCLASS(OOP_CLASS(oop2)) == _gst_large_integer_class ||
+             OOP_CLASS(oop2) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&b, oop2);
+  else {
+    _gst_mpz_clear(&a);
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  result = _gst_mpz_cmp (&a, &b);
-  _gst_mpz_clear (&a);
-  _gst_mpz_clear (&b);
-  PUSH_BOOLEAN (result == 0);
+  result = _gst_mpz_cmp(&a, &b);
+  _gst_mpz_clear(&a);
+  _gst_mpz_clear(&b);
+  PUSH_BOOLEAN(result == 0);
   PRIM_SUCCEEDED;
 #else
   PRIM_FAILED;
 #endif
 }
 
-static intptr_t
-VMpr_LargeInteger_ne (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_ne(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
-  gst_mpz b = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
+  gst_mpz b = {0, 0, NULL};
   OOP oop1, oop2;
   int result;
 
   _gst_primitives_executed++;
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (IS_INT (oop2)
-      || SUPERCLASS (OOP_CLASS (oop2)) == _gst_large_integer_class
-      || OOP_CLASS (oop2) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&b, oop2);
-  else
-    {
-      _gst_mpz_clear (&a);
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  if COMMON (IS_INT(oop2) ||
+             SUPERCLASS(OOP_CLASS(oop2)) == _gst_large_integer_class ||
+             OOP_CLASS(oop2) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&b, oop2);
+  else {
+    _gst_mpz_clear(&a);
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  result = _gst_mpz_cmp (&a, &b);
-  _gst_mpz_clear (&a);
-  _gst_mpz_clear (&b);
-  PUSH_BOOLEAN (result != 0);
+  result = _gst_mpz_cmp(&a, &b);
+  _gst_mpz_clear(&a);
+  _gst_mpz_clear(&b);
+  PUSH_BOOLEAN(result != 0);
   PRIM_SUCCEEDED;
 #else
   PRIM_FAILED;
 #endif
 }
 
-
-static intptr_t
-VMpr_LargeInteger_lt (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_lt(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
-  gst_mpz b = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
+  gst_mpz b = {0, 0, NULL};
   OOP oop1, oop2;
   int result;
 
   _gst_primitives_executed++;
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (IS_INT (oop2)
-      || SUPERCLASS (OOP_CLASS (oop2)) == _gst_large_integer_class
-      || OOP_CLASS (oop2) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&b, oop2);
-  else
-    {
-      _gst_mpz_clear (&a);
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  if COMMON (IS_INT(oop2) ||
+             SUPERCLASS(OOP_CLASS(oop2)) == _gst_large_integer_class ||
+             OOP_CLASS(oop2) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&b, oop2);
+  else {
+    _gst_mpz_clear(&a);
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  result = _gst_mpz_cmp (&a, &b);
-  _gst_mpz_clear (&a);
-  _gst_mpz_clear (&b);
-  PUSH_BOOLEAN (result < 0);
+  result = _gst_mpz_cmp(&a, &b);
+  _gst_mpz_clear(&a);
+  _gst_mpz_clear(&b);
+  PUSH_BOOLEAN(result < 0);
   PRIM_SUCCEEDED;
 #else
   PRIM_FAILED;
 #endif
 }
 
-
-static intptr_t
-VMpr_LargeInteger_le (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_le(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
-  gst_mpz b = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
+  gst_mpz b = {0, 0, NULL};
   OOP oop1, oop2;
   int result;
 
   _gst_primitives_executed++;
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (IS_INT (oop2)
-      || SUPERCLASS (OOP_CLASS (oop2)) == _gst_large_integer_class
-      || OOP_CLASS (oop2) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&b, oop2);
-  else
-    {
-      _gst_mpz_clear (&a);
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  if COMMON (IS_INT(oop2) ||
+             SUPERCLASS(OOP_CLASS(oop2)) == _gst_large_integer_class ||
+             OOP_CLASS(oop2) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&b, oop2);
+  else {
+    _gst_mpz_clear(&a);
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  result = _gst_mpz_cmp (&a, &b);
-  _gst_mpz_clear (&a);
-  _gst_mpz_clear (&b);
-  PUSH_BOOLEAN (result <= 0);
+  result = _gst_mpz_cmp(&a, &b);
+  _gst_mpz_clear(&a);
+  _gst_mpz_clear(&b);
+  PUSH_BOOLEAN(result <= 0);
   PRIM_SUCCEEDED;
 #else
   PRIM_FAILED;
 #endif
 }
 
-
-static intptr_t
-VMpr_LargeInteger_gt (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_gt(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
-  gst_mpz b = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
+  gst_mpz b = {0, 0, NULL};
   OOP oop1, oop2;
   int result;
 
   _gst_primitives_executed++;
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (IS_INT (oop2)
-      || SUPERCLASS (OOP_CLASS (oop2)) == _gst_large_integer_class
-      || OOP_CLASS (oop2) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&b, oop2);
-  else
-    {
-      _gst_mpz_clear (&a);
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  if COMMON (IS_INT(oop2) ||
+             SUPERCLASS(OOP_CLASS(oop2)) == _gst_large_integer_class ||
+             OOP_CLASS(oop2) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&b, oop2);
+  else {
+    _gst_mpz_clear(&a);
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  result = _gst_mpz_cmp (&a, &b);
-  _gst_mpz_clear (&a);
-  _gst_mpz_clear (&b);
-  PUSH_BOOLEAN (result > 0);
+  result = _gst_mpz_cmp(&a, &b);
+  _gst_mpz_clear(&a);
+  _gst_mpz_clear(&b);
+  PUSH_BOOLEAN(result > 0);
   PRIM_SUCCEEDED;
 #else
   PRIM_FAILED;
 #endif
 }
 
-
-static intptr_t
-VMpr_LargeInteger_ge (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_ge(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
-  gst_mpz b = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
+  gst_mpz b = {0, 0, NULL};
   OOP oop1, oop2;
   int result;
 
   _gst_primitives_executed++;
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (IS_INT (oop2)
-      || SUPERCLASS (OOP_CLASS (oop2)) == _gst_large_integer_class
-      || OOP_CLASS (oop2) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&b, oop2);
-  else
-    {
-      _gst_mpz_clear (&a);
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  if COMMON (IS_INT(oop2) ||
+             SUPERCLASS(OOP_CLASS(oop2)) == _gst_large_integer_class ||
+             OOP_CLASS(oop2) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&b, oop2);
+  else {
+    _gst_mpz_clear(&a);
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  result = _gst_mpz_cmp (&a, &b);
-  _gst_mpz_clear (&a);
-  _gst_mpz_clear (&b);
-  PUSH_BOOLEAN (result >= 0);
+  result = _gst_mpz_cmp(&a, &b);
+  _gst_mpz_clear(&a);
+  _gst_mpz_clear(&b);
+  PUSH_BOOLEAN(result >= 0);
   PRIM_SUCCEEDED;
 #else
   PRIM_FAILED;
 #endif
 }
 
-
-static intptr_t
-VMpr_LargeInteger_times (int id,
-                         volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_times(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
-  gst_mpz b = { 0, 0, NULL };
-  gst_mpz c = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
+  gst_mpz b = {0, 0, NULL};
+  gst_mpz c = {0, 0, NULL};
   OOP oop1, oop2, oop3;
 
   _gst_primitives_executed++;
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (IS_INT (oop2)
-      || SUPERCLASS (OOP_CLASS (oop2)) == _gst_large_integer_class
-      || OOP_CLASS (oop2) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&b, oop2);
-  else
-    {
-      _gst_mpz_clear (&a);
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  if COMMON (IS_INT(oop2) ||
+             SUPERCLASS(OOP_CLASS(oop2)) == _gst_large_integer_class ||
+             OOP_CLASS(oop2) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&b, oop2);
+  else {
+    _gst_mpz_clear(&a);
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  _gst_mpz_mul (&c, &a, &b);
-  oop3 = _gst_oop_from_mpz (&c);
-  _gst_mpz_clear (&a);
-  _gst_mpz_clear (&b);
-  _gst_mpz_clear (&c);
-  PUSH_OOP (oop3);
+  _gst_mpz_mul(&c, &a, &b);
+  oop3 = _gst_oop_from_mpz(&c);
+  _gst_mpz_clear(&a);
+  _gst_mpz_clear(&b);
+  _gst_mpz_clear(&c);
+  PUSH_OOP(oop3);
   PRIM_SUCCEEDED;
 #else
   PRIM_FAILED;
 #endif
 }
 
-
-
-static intptr_t
-VMpr_LargeInteger_intDiv (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_intDiv(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
-  gst_mpz b = { 0, 0, NULL };
-  gst_mpz q = { 0, 0, NULL };
-  gst_mpz r = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
+  gst_mpz b = {0, 0, NULL};
+  gst_mpz q = {0, 0, NULL};
+  gst_mpz r = {0, 0, NULL};
   OOP oop1, oop2, oop3;
 
   _gst_primitives_executed++;
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (IS_INT (oop2) && oop2 != FROM_INT (0))
-    _gst_mpz_fdiv_qr_si (&q, &a, TO_INT(oop2));
-  else if (IS_OOP (oop2)
-	   && SUPERCLASS (OOP_CLASS (oop2)) == _gst_large_integer_class)
-    {
-      _gst_mpz_from_oop (&b, oop2);
-      _gst_mpz_fdiv_qr (&q, &r, &a, &b);
-      _gst_mpz_clear (&r);
-      _gst_mpz_clear (&b);
-    }
-  else
-    {
-      _gst_mpz_clear (&a);
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  if COMMON (IS_INT(oop2) && oop2 != FROM_INT(0))
+    _gst_mpz_fdiv_qr_si(&q, &a, TO_INT(oop2));
+  else if (IS_OOP(oop2) &&
+           SUPERCLASS(OOP_CLASS(oop2)) == _gst_large_integer_class) {
+    _gst_mpz_from_oop(&b, oop2);
+    _gst_mpz_fdiv_qr(&q, &r, &a, &b);
+    _gst_mpz_clear(&r);
+    _gst_mpz_clear(&b);
+  } else {
+    _gst_mpz_clear(&a);
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  oop3 = _gst_oop_from_mpz (&q);
-  _gst_mpz_clear (&a);
-  _gst_mpz_clear (&q);
-  PUSH_OOP (oop3);
+  oop3 = _gst_oop_from_mpz(&q);
+  _gst_mpz_clear(&a);
+  _gst_mpz_clear(&q);
+  PUSH_OOP(oop3);
   PRIM_SUCCEEDED;
 #else
   PRIM_FAILED;
 #endif
 }
 
-
-static intptr_t
-VMpr_LargeInteger_modulo (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_modulo(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
-  gst_mpz b = { 0, 0, NULL };
-  gst_mpz q = { 0, 0, NULL };
-  gst_mpz r = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
+  gst_mpz b = {0, 0, NULL};
+  gst_mpz q = {0, 0, NULL};
+  gst_mpz r = {0, 0, NULL};
   OOP oop1, oop2, oop3;
 
   _gst_primitives_executed++;
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (IS_INT (oop2) && oop2 != FROM_INT (0))
-    {
-      mp_limb_t rem = _gst_mpz_fdiv_qr_si (&q, &a, TO_INT(oop2));
-      oop3 = FROM_INT (rem);
-    }
-  else if (IS_OOP (oop2)
-	   && SUPERCLASS (OOP_CLASS (oop2)) == _gst_large_integer_class)
-    {
-      _gst_mpz_from_oop (&b, oop2);
-      _gst_mpz_fdiv_qr (&q, &r, &a, &b);
-      oop3 = _gst_oop_from_mpz (&r);
-      _gst_mpz_clear (&r);
-      _gst_mpz_clear (&b);
-    }
-  else
-    {
-      _gst_mpz_clear (&a);
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  if COMMON (IS_INT(oop2) && oop2 != FROM_INT(0)) {
+    mp_limb_t rem = _gst_mpz_fdiv_qr_si(&q, &a, TO_INT(oop2));
+    oop3 = FROM_INT(rem);
+  } else if (IS_OOP(oop2) &&
+             SUPERCLASS(OOP_CLASS(oop2)) == _gst_large_integer_class) {
+    _gst_mpz_from_oop(&b, oop2);
+    _gst_mpz_fdiv_qr(&q, &r, &a, &b);
+    oop3 = _gst_oop_from_mpz(&r);
+    _gst_mpz_clear(&r);
+    _gst_mpz_clear(&b);
+  } else {
+    _gst_mpz_clear(&a);
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  _gst_mpz_clear (&a);
-  _gst_mpz_clear (&q);
-  PUSH_OOP (oop3);
+  _gst_mpz_clear(&a);
+  _gst_mpz_clear(&q);
+  PUSH_OOP(oop3);
   PRIM_SUCCEEDED;
 #else
   PRIM_FAILED;
 #endif
 }
 
-
-static intptr_t
-VMpr_LargeInteger_divExact (int id,
-                            volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_divExact(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
-  gst_mpz b = { 0, 0, NULL };
-  gst_mpz q = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
+  gst_mpz b = {0, 0, NULL};
+  gst_mpz q = {0, 0, NULL};
   OOP oop1, oop2, oop3;
 
   _gst_primitives_executed++;
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (IS_INT (oop2) && oop2 != FROM_INT (0))
-    _gst_mpz_tdiv_qr_si (&q, &a, TO_INT(oop2));
-  else if (IS_OOP (oop2)
-	   && SUPERCLASS (OOP_CLASS (oop2)) == _gst_large_integer_class)
-    {
-      _gst_mpz_from_oop (&b, oop2);
-      _gst_mpz_divexact (&q, &a, &b);
-      _gst_mpz_clear (&b);
-    }
-  else
-    {
-      _gst_mpz_clear (&a);
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  if COMMON (IS_INT(oop2) && oop2 != FROM_INT(0))
+    _gst_mpz_tdiv_qr_si(&q, &a, TO_INT(oop2));
+  else if (IS_OOP(oop2) &&
+           SUPERCLASS(OOP_CLASS(oop2)) == _gst_large_integer_class) {
+    _gst_mpz_from_oop(&b, oop2);
+    _gst_mpz_divexact(&q, &a, &b);
+    _gst_mpz_clear(&b);
+  } else {
+    _gst_mpz_clear(&a);
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  oop3 = _gst_oop_from_mpz (&q);
-  _gst_mpz_clear (&a);
-  _gst_mpz_clear (&q);
-  PUSH_OOP (oop3);
+  oop3 = _gst_oop_from_mpz(&q);
+  _gst_mpz_clear(&a);
+  _gst_mpz_clear(&q);
+  PUSH_OOP(oop3);
   PRIM_SUCCEEDED;
 #else
   PRIM_FAILED;
 #endif
 }
 
-static intptr_t
-VMpr_LargeInteger_quo (int id,
-                       volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_quo(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
-  gst_mpz b = { 0, 0, NULL };
-  gst_mpz q = { 0, 0, NULL };
-  gst_mpz r = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
+  gst_mpz b = {0, 0, NULL};
+  gst_mpz q = {0, 0, NULL};
+  gst_mpz r = {0, 0, NULL};
   OOP oop1, oop2, oop3;
 
   _gst_primitives_executed++;
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (IS_INT (oop2) && oop2 != FROM_INT (0))
-    _gst_mpz_tdiv_qr_si (&q, &a, TO_INT(oop2));
-  else if (IS_OOP (oop2)
-	   && SUPERCLASS (OOP_CLASS (oop2)) == _gst_large_integer_class)
-    {
-      _gst_mpz_from_oop (&b, oop2);
-      _gst_mpz_tdiv_qr (&q, &r, &a, &b);
-      _gst_mpz_clear (&r);
-      _gst_mpz_clear (&b);
-    }
-  else
-    {
-      _gst_mpz_clear (&a);
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  if COMMON (IS_INT(oop2) && oop2 != FROM_INT(0))
+    _gst_mpz_tdiv_qr_si(&q, &a, TO_INT(oop2));
+  else if (IS_OOP(oop2) &&
+           SUPERCLASS(OOP_CLASS(oop2)) == _gst_large_integer_class) {
+    _gst_mpz_from_oop(&b, oop2);
+    _gst_mpz_tdiv_qr(&q, &r, &a, &b);
+    _gst_mpz_clear(&r);
+    _gst_mpz_clear(&b);
+  } else {
+    _gst_mpz_clear(&a);
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  oop3 = _gst_oop_from_mpz (&q);
-  _gst_mpz_clear (&a);
-  _gst_mpz_clear (&q);
-  PUSH_OOP (oop3);
+  oop3 = _gst_oop_from_mpz(&q);
+  _gst_mpz_clear(&a);
+  _gst_mpz_clear(&q);
+  PUSH_OOP(oop3);
   PRIM_SUCCEEDED;
 #else
   PRIM_FAILED;
 #endif
 }
 
-
-static intptr_t
-VMpr_LargeInteger_rem (int id,
-                       volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_rem(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
-  gst_mpz b = { 0, 0, NULL };
-  gst_mpz q = { 0, 0, NULL };
-  gst_mpz r = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
+  gst_mpz b = {0, 0, NULL};
+  gst_mpz q = {0, 0, NULL};
+  gst_mpz r = {0, 0, NULL};
   OOP oop1, oop2, oop3;
 
   _gst_primitives_executed++;
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (IS_INT (oop2) && oop2 != FROM_INT (0))
-    {
-      mp_limb_t rem = _gst_mpz_tdiv_qr_si (&q, &a, TO_INT(oop2));
-      oop3 = FROM_INT (rem);
-    }
-  else if (IS_OOP (oop2)
-	   && SUPERCLASS (OOP_CLASS (oop2)) == _gst_large_integer_class)
-    {
-      _gst_mpz_from_oop (&b, oop2);
-      _gst_mpz_tdiv_qr (&q, &r, &a, &b);
-      oop3 = _gst_oop_from_mpz (&r);
-      _gst_mpz_clear (&r);
-      _gst_mpz_clear (&b);
-    }
-  else
-    {
-      _gst_mpz_clear (&a);
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  if COMMON (IS_INT(oop2) && oop2 != FROM_INT(0)) {
+    mp_limb_t rem = _gst_mpz_tdiv_qr_si(&q, &a, TO_INT(oop2));
+    oop3 = FROM_INT(rem);
+  } else if (IS_OOP(oop2) &&
+             SUPERCLASS(OOP_CLASS(oop2)) == _gst_large_integer_class) {
+    _gst_mpz_from_oop(&b, oop2);
+    _gst_mpz_tdiv_qr(&q, &r, &a, &b);
+    oop3 = _gst_oop_from_mpz(&r);
+    _gst_mpz_clear(&r);
+    _gst_mpz_clear(&b);
+  } else {
+    _gst_mpz_clear(&a);
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  _gst_mpz_clear (&a);
-  _gst_mpz_clear (&q);
-  PUSH_OOP (oop3);
+  _gst_mpz_clear(&a);
+  _gst_mpz_clear(&q);
+  PUSH_OOP(oop3);
   PRIM_SUCCEEDED;
 #else
   PRIM_FAILED;
 #endif
 }
 
-
-static intptr_t
-VMpr_LargeInteger_negated (int id,
-                           volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_negated(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
-  gst_mpz b = { 0, 0, NULL };
-  gst_mpz c = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
+  gst_mpz b = {0, 0, NULL};
+  gst_mpz c = {0, 0, NULL};
   OOP oop2, oop3;
 
   _gst_primitives_executed++;
-  oop2 = POP_OOP ();
-  if COMMON (IS_INT (oop2)
-      || SUPERCLASS (OOP_CLASS (oop2)) == _gst_large_integer_class
-      || OOP_CLASS (oop2) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&b, oop2);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  if COMMON (IS_INT(oop2) ||
+             SUPERCLASS(OOP_CLASS(oop2)) == _gst_large_integer_class ||
+             OOP_CLASS(oop2) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&b, oop2);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  _gst_mpz_sub (&c, &a, &b);
-  oop3 = _gst_oop_from_mpz (&c);
-  _gst_mpz_clear (&b);
-  _gst_mpz_clear (&c);
-  PUSH_OOP (oop3);
+  _gst_mpz_sub(&c, &a, &b);
+  oop3 = _gst_oop_from_mpz(&c);
+  _gst_mpz_clear(&b);
+  _gst_mpz_clear(&c);
+  PUSH_OOP(oop3);
   PRIM_SUCCEEDED;
 #else
   PRIM_FAILED;
 #endif
 }
 
-
-static intptr_t
-VMpr_LargeInteger_bitAnd (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_bitAnd(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
-  gst_mpz b = { 0, 0, NULL };
-  gst_mpz c = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
+  gst_mpz b = {0, 0, NULL};
+  gst_mpz c = {0, 0, NULL};
   OOP oop1, oop2, oop3;
 
   _gst_primitives_executed++;
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (IS_INT (oop2)
-      || SUPERCLASS (OOP_CLASS (oop2)) == _gst_large_integer_class
-      || OOP_CLASS (oop2) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&b, oop2);
-  else
-    {
-      _gst_mpz_clear (&a);
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  if COMMON (IS_INT(oop2) ||
+             SUPERCLASS(OOP_CLASS(oop2)) == _gst_large_integer_class ||
+             OOP_CLASS(oop2) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&b, oop2);
+  else {
+    _gst_mpz_clear(&a);
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  _gst_mpz_and (&c, &a, &b);
-  oop3 = _gst_oop_from_mpz (&c);
-  _gst_mpz_clear (&a);
-  _gst_mpz_clear (&b);
-  _gst_mpz_clear (&c);
-  PUSH_OOP (oop3);
+  _gst_mpz_and(&c, &a, &b);
+  oop3 = _gst_oop_from_mpz(&c);
+  _gst_mpz_clear(&a);
+  _gst_mpz_clear(&b);
+  _gst_mpz_clear(&c);
+  PUSH_OOP(oop3);
   PRIM_SUCCEEDED;
 #else
   PRIM_FAILED;
 #endif
 }
 
-
-static intptr_t
-VMpr_LargeInteger_bitOr (int id,
-                         volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_bitOr(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
-  gst_mpz b = { 0, 0, NULL };
-  gst_mpz c = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
+  gst_mpz b = {0, 0, NULL};
+  gst_mpz c = {0, 0, NULL};
   OOP oop1, oop2, oop3;
 
   _gst_primitives_executed++;
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (IS_INT (oop2)
-      || SUPERCLASS (OOP_CLASS (oop2)) == _gst_large_integer_class
-      || OOP_CLASS (oop2) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&b, oop2);
-  else
-    {
-      _gst_mpz_clear (&a);
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  if COMMON (IS_INT(oop2) ||
+             SUPERCLASS(OOP_CLASS(oop2)) == _gst_large_integer_class ||
+             OOP_CLASS(oop2) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&b, oop2);
+  else {
+    _gst_mpz_clear(&a);
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  _gst_mpz_ior (&c, &a, &b);
-  oop3 = _gst_oop_from_mpz (&c);
-  _gst_mpz_clear (&a);
-  _gst_mpz_clear (&b);
-  _gst_mpz_clear (&c);
-  PUSH_OOP (oop3);
+  _gst_mpz_ior(&c, &a, &b);
+  oop3 = _gst_oop_from_mpz(&c);
+  _gst_mpz_clear(&a);
+  _gst_mpz_clear(&b);
+  _gst_mpz_clear(&c);
+  PUSH_OOP(oop3);
   PRIM_SUCCEEDED;
 #else
   PRIM_FAILED;
 #endif
 }
 
-
-static intptr_t
-VMpr_LargeInteger_bitXor (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_bitXor(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
-  gst_mpz b = { 0, 0, NULL };
-  gst_mpz c = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
+  gst_mpz b = {0, 0, NULL};
+  gst_mpz c = {0, 0, NULL};
   OOP oop1, oop2, oop3;
 
   _gst_primitives_executed++;
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (IS_INT (oop2)
-      || SUPERCLASS (OOP_CLASS (oop2)) == _gst_large_integer_class
-      || OOP_CLASS (oop2) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&b, oop2);
-  else
-    {
-      _gst_mpz_clear (&a);
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  if COMMON (IS_INT(oop2) ||
+             SUPERCLASS(OOP_CLASS(oop2)) == _gst_large_integer_class ||
+             OOP_CLASS(oop2) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&b, oop2);
+  else {
+    _gst_mpz_clear(&a);
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  _gst_mpz_xor (&c, &a, &b);
-  oop3 = _gst_oop_from_mpz (&c);
-  _gst_mpz_clear (&a);
-  _gst_mpz_clear (&b);
-  _gst_mpz_clear (&c);
-  PUSH_OOP (oop3);
+  _gst_mpz_xor(&c, &a, &b);
+  oop3 = _gst_oop_from_mpz(&c);
+  _gst_mpz_clear(&a);
+  _gst_mpz_clear(&b);
+  _gst_mpz_clear(&c);
+  PUSH_OOP(oop3);
   PRIM_SUCCEEDED;
 #else
   PRIM_FAILED;
 #endif
 }
 
-
-static intptr_t
-VMpr_LargeInteger_bitInvert (int id,
-                             volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_bitInvert(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
-  gst_mpz c = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
+  gst_mpz c = {0, 0, NULL};
   OOP oop2, oop3;
 
   _gst_primitives_executed++;
-  oop2 = POP_OOP ();
-  if COMMON (IS_INT (oop2)
-      || SUPERCLASS (OOP_CLASS (oop2)) == _gst_large_integer_class
-      || OOP_CLASS (oop2) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop2);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  if COMMON (IS_INT(oop2) ||
+             SUPERCLASS(OOP_CLASS(oop2)) == _gst_large_integer_class ||
+             OOP_CLASS(oop2) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop2);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  _gst_mpz_com (&c, &a);
-  oop3 = _gst_oop_from_mpz (&c);
-  _gst_mpz_clear (&a);
-  _gst_mpz_clear (&c);
-  PUSH_OOP (oop3);
+  _gst_mpz_com(&c, &a);
+  oop3 = _gst_oop_from_mpz(&c);
+  _gst_mpz_clear(&a);
+  _gst_mpz_clear(&c);
+  PUSH_OOP(oop3);
   PRIM_SUCCEEDED;
 #else
   PRIM_FAILED;
 #endif
 }
 
-
-static intptr_t
-VMpr_LargeInteger_bitShift (int id,
-                            volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_bitShift(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
   int n;
-  gst_mpz a = { 0, 0, NULL };
-  gst_mpz c = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
+  gst_mpz c = {0, 0, NULL};
   OOP oop1, oop2, oop3;
 
   _gst_primitives_executed++;
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop2))
-    n = TO_INT (oop2);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop2))
+    n = TO_INT(oop2);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
   if (n > 0)
-    _gst_mpz_mul_2exp (&c, &a, n);
+    _gst_mpz_mul_2exp(&c, &a, n);
   else
-    _gst_mpz_div_2exp (&c, &a, -n);
+    _gst_mpz_div_2exp(&c, &a, -n);
 
-  oop3 = _gst_oop_from_mpz (&c);
-  _gst_mpz_clear (&a);
-  _gst_mpz_clear (&c);
-  PUSH_OOP (oop3);
+  oop3 = _gst_oop_from_mpz(&c);
+  _gst_mpz_clear(&a);
+  _gst_mpz_clear(&c);
+  PUSH_OOP(oop3);
   PRIM_SUCCEEDED;
 #endif
   PRIM_FAILED;
 }
 
-
-static intptr_t
-VMpr_LargeInteger_plus (int id,
-                        volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_plus(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
-  gst_mpz b = { 0, 0, NULL };
-  gst_mpz c = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
+  gst_mpz b = {0, 0, NULL};
+  gst_mpz c = {0, 0, NULL};
   OOP oop1, oop2, oop3;
 
   _gst_primitives_executed++;
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (IS_INT (oop2)
-      || SUPERCLASS (OOP_CLASS (oop2)) == _gst_large_integer_class
-      || OOP_CLASS (oop2) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&b, oop2);
-  else
-    {
-      _gst_mpz_clear (&a);
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  if COMMON (IS_INT(oop2) ||
+             SUPERCLASS(OOP_CLASS(oop2)) == _gst_large_integer_class ||
+             OOP_CLASS(oop2) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&b, oop2);
+  else {
+    _gst_mpz_clear(&a);
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  _gst_mpz_add (&c, &a, &b);
-  oop3 = _gst_oop_from_mpz (&c);
-  _gst_mpz_clear (&a);
-  _gst_mpz_clear (&b);
-  _gst_mpz_clear (&c);
-  PUSH_OOP (oop3);
+  _gst_mpz_add(&c, &a, &b);
+  oop3 = _gst_oop_from_mpz(&c);
+  _gst_mpz_clear(&a);
+  _gst_mpz_clear(&b);
+  _gst_mpz_clear(&c);
+  PUSH_OOP(oop3);
   PRIM_SUCCEEDED;
 #else
   PRIM_FAILED;
 #endif
 }
 
-
-static intptr_t
-VMpr_LargeInteger_minus (int id,
-                         volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_minus(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
-  gst_mpz b = { 0, 0, NULL };
-  gst_mpz c = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
+  gst_mpz b = {0, 0, NULL};
+  gst_mpz c = {0, 0, NULL};
   OOP oop1, oop2, oop3;
 
   _gst_primitives_executed++;
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (IS_INT (oop2)
-      || SUPERCLASS (OOP_CLASS (oop2)) == _gst_large_integer_class
-      || OOP_CLASS (oop2) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&b, oop2);
-  else
-    {
-      _gst_mpz_clear (&a);
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  if COMMON (IS_INT(oop2) ||
+             SUPERCLASS(OOP_CLASS(oop2)) == _gst_large_integer_class ||
+             OOP_CLASS(oop2) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&b, oop2);
+  else {
+    _gst_mpz_clear(&a);
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  _gst_mpz_sub (&c, &a, &b);
-  oop3 = _gst_oop_from_mpz (&c);
-  _gst_mpz_clear (&a);
-  _gst_mpz_clear (&b);
-  _gst_mpz_clear (&c);
-  PUSH_OOP (oop3);
+  _gst_mpz_sub(&c, &a, &b);
+  oop3 = _gst_oop_from_mpz(&c);
+  _gst_mpz_clear(&a);
+  _gst_mpz_clear(&b);
+  _gst_mpz_clear(&c);
+  PUSH_OOP(oop3);
   PRIM_SUCCEEDED;
 #else
   PRIM_FAILED;
 #endif
 }
 
-
-static intptr_t
-VMpr_LargeInteger_gcd (int id,
-                       volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_gcd(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
-  gst_mpz b = { 0, 0, NULL };
-  gst_mpz c = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
+  gst_mpz b = {0, 0, NULL};
+  gst_mpz c = {0, 0, NULL};
   OOP oop1, oop2, oop3;
 
   _gst_primitives_executed++;
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (IS_INT (oop2)
-      || SUPERCLASS (OOP_CLASS (oop2)) == _gst_large_integer_class
-      || OOP_CLASS (oop2) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&b, oop2);
-  else
-    {
-      _gst_mpz_clear (&a);
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  if COMMON (IS_INT(oop2) ||
+             SUPERCLASS(OOP_CLASS(oop2)) == _gst_large_integer_class ||
+             OOP_CLASS(oop2) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&b, oop2);
+  else {
+    _gst_mpz_clear(&a);
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if (oop1 == FROM_INT(0) || oop2 == FROM_INT(0)
-      || (IS_OOP(oop1) && OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-      || (IS_OOP(oop2) && OOP_CLASS (oop2) == _gst_large_zero_integer_class))
+  if (oop1 == FROM_INT(0) || oop2 == FROM_INT(0) ||
+      (IS_OOP(oop1) && OOP_CLASS(oop1) == _gst_large_zero_integer_class) ||
+      (IS_OOP(oop2) && OOP_CLASS(oop2) == _gst_large_zero_integer_class))
     /* Return the non-zero number between a and b */
-    _gst_mpz_add (&c, &a, &b);
+    _gst_mpz_add(&c, &a, &b);
   else
-    _gst_mpz_gcd (&c, &a, &b);
+    _gst_mpz_gcd(&c, &a, &b);
 
-  oop3 = _gst_oop_from_mpz (&c);
-  _gst_mpz_clear (&a);
-  _gst_mpz_clear (&b);
-  _gst_mpz_clear (&c);
-  PUSH_OOP (oop3);
+  oop3 = _gst_oop_from_mpz(&c);
+  _gst_mpz_clear(&a);
+  _gst_mpz_clear(&b);
+  _gst_mpz_clear(&c);
+  PUSH_OOP(oop3);
   PRIM_SUCCEEDED;
 #else
   PRIM_FAILED;
 #endif
 }
 
-
-static intptr_t
-VMpr_LargeInteger_asFloatD (int id,
-                            volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_asFloatD(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
   OOP oop1, oop2;
   double d;
 
   _gst_primitives_executed++;
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (1);
-      PRIM_FAILED;
-    }
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(1);
+    PRIM_FAILED;
+  }
 
-  if (_gst_mpz_get_d (&a, &d))
-    {
-      oop2 = floatd_new (d);
-      _gst_mpz_clear (&a);
-      PUSH_OOP (oop2);
-      PRIM_SUCCEEDED;
-    }
+  if (_gst_mpz_get_d(&a, &d)) {
+    oop2 = floatd_new(d);
+    _gst_mpz_clear(&a);
+    PUSH_OOP(oop2);
+    PRIM_SUCCEEDED;
+  }
 
-  UNPOP (1);
+  UNPOP(1);
 #endif
   PRIM_FAILED;
 }
 
-
-static intptr_t
-VMpr_LargeInteger_asFloatE (int id,
-                            volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_asFloatE(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
   OOP oop1, oop2;
   double d;
 
   _gst_primitives_executed++;
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (1);
-      PRIM_FAILED;
-    }
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(1);
+    PRIM_FAILED;
+  }
 
-  if (_gst_mpz_get_d (&a, &d) && (double) (float) d == d)
-    {
-      oop2 = floate_new (d);
-      _gst_mpz_clear (&a);
-      PUSH_OOP (oop2);
-      PRIM_SUCCEEDED;
-    }
+  if (_gst_mpz_get_d(&a, &d) && (double)(float)d == d) {
+    oop2 = floate_new(d);
+    _gst_mpz_clear(&a);
+    PUSH_OOP(oop2);
+    PRIM_SUCCEEDED;
+  }
 
-  UNPOP (1);
+  UNPOP(1);
 #endif
   PRIM_FAILED;
 }
 
-
-static intptr_t
-VMpr_LargeInteger_asFloatQ (int id,
-                            volatile int numArgs)
-{
+static intptr_t VMpr_LargeInteger_asFloatQ(int id, volatile int numArgs) {
 #ifdef HAVE_GMP
-  gst_mpz a = { 0, 0, NULL };
+  gst_mpz a = {0, 0, NULL};
   OOP oop1, oop2;
   long double d;
 
   _gst_primitives_executed++;
-  oop1 = POP_OOP ();
-  if COMMON (IS_INT (oop1)
-      || SUPERCLASS (OOP_CLASS (oop1)) == _gst_large_integer_class
-      || OOP_CLASS (oop1) == _gst_large_zero_integer_class)
-    _gst_mpz_from_oop (&a, oop1);
-  else
-    {
-      UNPOP (1);
-      PRIM_FAILED;
-    }
+  oop1 = POP_OOP();
+  if COMMON (IS_INT(oop1) ||
+             SUPERCLASS(OOP_CLASS(oop1)) == _gst_large_integer_class ||
+             OOP_CLASS(oop1) == _gst_large_zero_integer_class)
+    _gst_mpz_from_oop(&a, oop1);
+  else {
+    UNPOP(1);
+    PRIM_FAILED;
+  }
 
-  if (_gst_mpz_get_ld (&a, &d) && (long double) (float) d == d)
-    {
-      oop2 = floatq_new (d);
-      _gst_mpz_clear (&a);
-      PUSH_OOP (oop2);
-      PRIM_SUCCEEDED;
-    }
+  if (_gst_mpz_get_ld(&a, &d) && (long double)(float)d == d) {
+    oop2 = floatq_new(d);
+    _gst_mpz_clear(&a);
+    PUSH_OOP(oop2);
+    PRIM_SUCCEEDED;
+  }
 
-  UNPOP (1);
+  UNPOP(1);
 #endif
   PRIM_FAILED;
 }
 
-static intptr_t
-VMpr_FloatD_arith (int id,
-                   volatile int numArgs)
-{
+static intptr_t VMpr_FloatD_arith(int id, volatile int numArgs) {
   double farg2;
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if (IS_CLASS (oop2, _gst_floatd_class))
-    farg2 = FLOATD_OOP_VALUE (oop2);
-  else if (IS_INT (oop2))
-    farg2 = (double) TO_INT (oop2);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if (IS_CLASS(oop2, _gst_floatd_class))
+    farg2 = FLOATD_OOP_VALUE(oop2);
+  else if (IS_INT(oop2))
+    farg2 = (double)TO_INT(oop2);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (RECEIVER_IS_CLASS (oop1, _gst_floatd_class))
-    {
-      double farg1;
-      farg1 = FLOATD_OOP_VALUE (oop1);
-      switch (id)
-	{
-	case 0:
-	  PUSH_OOP (floatd_new (farg1 + farg2));
-	  break;
-	case -1:
-	  PUSH_OOP (floatd_new (farg1 - farg2));
-	  break;
-	case -2:
-	  PUSH_BOOLEAN (farg1 < farg2);
-	  break;
-	case -3:
-	  PUSH_BOOLEAN (farg1 > farg2);
-	  break;
-	case -4:
-	  PUSH_BOOLEAN (farg1 <= farg2);
-	  break;
-	case -5:
-	  PUSH_BOOLEAN (farg1 >= farg2);
-	  break;
-	case -6:
-	  PUSH_BOOLEAN (farg1 == farg2);
-	  break;
-	case -7:
-	  PUSH_BOOLEAN (farg1 != farg2);
-	  break;
-	case -8:
-	  PUSH_OOP (floatd_new (farg1 * farg2));
-	  break;
-	case -9:
-	  PUSH_OOP (floatd_new (farg1 / farg2));
-	  break;
-	}
-      PRIM_SUCCEEDED;
+  if COMMON (RECEIVER_IS_CLASS(oop1, _gst_floatd_class)) {
+    double farg1;
+    farg1 = FLOATD_OOP_VALUE(oop1);
+    switch (id) {
+    case 0:
+      PUSH_OOP(floatd_new(farg1 + farg2));
+      break;
+    case -1:
+      PUSH_OOP(floatd_new(farg1 - farg2));
+      break;
+    case -2:
+      PUSH_BOOLEAN(farg1 < farg2);
+      break;
+    case -3:
+      PUSH_BOOLEAN(farg1 > farg2);
+      break;
+    case -4:
+      PUSH_BOOLEAN(farg1 <= farg2);
+      break;
+    case -5:
+      PUSH_BOOLEAN(farg1 >= farg2);
+      break;
+    case -6:
+      PUSH_BOOLEAN(farg1 == farg2);
+      break;
+    case -7:
+      PUSH_BOOLEAN(farg1 != farg2);
+      break;
+    case -8:
+      PUSH_OOP(floatd_new(farg1 * farg2));
+      break;
+    case -9:
+      PUSH_OOP(floatd_new(farg1 / farg2));
+      break;
     }
+    PRIM_SUCCEEDED;
+  }
 
-  UNPOP (2);
+  UNPOP(2);
   PRIM_FAILED;
 }
 
 /* FloatD truncated */
-static intptr_t
-VMpr_FloatD_truncated (int id,
-                       volatile int numArgs)
-{
+static intptr_t VMpr_FloatD_truncated(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_CLASS (oop1, _gst_floatd_class))
-    {
-      double oopValue = FLOATD_OOP_VALUE (oop1);
-      if COMMON (oopValue >= MIN_ST_INT && oopValue <= MAX_ST_INT)
-	{
-	  PUSH_INT (lrint (trunc (oopValue)));
-	  PRIM_SUCCEEDED;
-	}
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_CLASS(oop1, _gst_floatd_class)) {
+    double oopValue = FLOATD_OOP_VALUE(oop1);
+    if COMMON (oopValue >= MIN_ST_INT && oopValue <= MAX_ST_INT) {
+      PUSH_INT(lrint(trunc(oopValue)));
+      PRIM_SUCCEEDED;
     }
-  UNPOP (1);
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* FloatD fractionPart */
-static intptr_t
-VMpr_FloatD_fractionPart (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_FloatD_fractionPart(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_CLASS (oop1, _gst_floatd_class))
-    {
-      double farg1;
-      farg1 = FLOATD_OOP_VALUE (oop1);
-      farg1 -= (farg1 < 0.0) ? ceil (farg1) : floor (farg1);
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_CLASS(oop1, _gst_floatd_class)) {
+    double farg1;
+    farg1 = FLOATD_OOP_VALUE(oop1);
+    farg1 -= (farg1 < 0.0) ? ceil(farg1) : floor(farg1);
 
-      PUSH_OOP (floatd_new (farg1));
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (1);
+    PUSH_OOP(floatd_new(farg1));
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* FloatD exponent */
-static intptr_t
-VMpr_FloatD_exponent (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_FloatD_exponent(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_CLASS (oop1, _gst_floatd_class))
-    {
-      double farg1;
-      int intArg1;
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_CLASS(oop1, _gst_floatd_class)) {
+    double farg1;
+    int intArg1;
 
-      farg1 = FLOATD_OOP_VALUE (oop1);
-      if (farg1 == 0.0)
-	intArg1 = 1;
-      else
-	{
-	  frexp (FLOATD_OOP_VALUE (oop1), &intArg1);
-	  intArg1--;
-	}
-      PUSH_INT (intArg1);
-      PRIM_SUCCEEDED;
+    farg1 = FLOATD_OOP_VALUE(oop1);
+    if (farg1 == 0.0)
+      intArg1 = 1;
+    else {
+      frexp(FLOATD_OOP_VALUE(oop1), &intArg1);
+      intArg1--;
     }
-  UNPOP (1);
+    PUSH_INT(intArg1);
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* FloatD timesTwoPower: */
-static intptr_t
-VMpr_FloatD_timesTwoPower (int id,
-                           volatile int numArgs)
-{
+static intptr_t VMpr_FloatD_timesTwoPower(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if (RECEIVER_IS_CLASS (oop1, _gst_floatd_class) && IS_INT (oop2))
-    {
-      double farg1;
-      intptr_t iarg2;
-      farg1 = FLOATD_OOP_VALUE (oop1);
-      iarg2 = TO_INT (oop2);
-      PUSH_OOP (floatd_new (ldexp (farg1, iarg2)));
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (2);
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if (RECEIVER_IS_CLASS(oop1, _gst_floatd_class) && IS_INT(oop2)) {
+    double farg1;
+    intptr_t iarg2;
+    farg1 = FLOATD_OOP_VALUE(oop1);
+    iarg2 = TO_INT(oop2);
+    PUSH_OOP(floatd_new(ldexp(farg1, iarg2)));
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(2);
   PRIM_FAILED;
 }
 
 /* FloatD asFloatE */
 
-static intptr_t
-VMpr_FloatD_asFloatE (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_FloatD_asFloatE(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_CLASS (oop1, _gst_floatd_class))
-    {
-      PUSH_OOP (floate_new (FLOATD_OOP_VALUE (oop1)));
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (1);
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_CLASS(oop1, _gst_floatd_class)) {
+    PUSH_OOP(floate_new(FLOATD_OOP_VALUE(oop1)));
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* FloatD asFloatQ */
 
-static intptr_t
-VMpr_FloatD_asFloatQ (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_FloatD_asFloatQ(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_CLASS (oop1, _gst_floatd_class))
-    {
-      PUSH_OOP (floatq_new (FLOATD_OOP_VALUE (oop1)));
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (1);
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_CLASS(oop1, _gst_floatd_class)) {
+    PUSH_OOP(floatq_new(FLOATD_OOP_VALUE(oop1)));
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
-static intptr_t
-VMpr_FloatE_arith (int id,
-                   volatile int numArgs)
-{
+static intptr_t VMpr_FloatE_arith(int id, volatile int numArgs) {
   double farg2;
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if (IS_CLASS (oop2, _gst_floate_class))
-    farg2 = FLOATE_OOP_VALUE (oop2);
-  else if (IS_INT (oop2))
-    farg2 = (double) TO_INT (oop2);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if (IS_CLASS(oop2, _gst_floate_class))
+    farg2 = FLOATE_OOP_VALUE(oop2);
+  else if (IS_INT(oop2))
+    farg2 = (double)TO_INT(oop2);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (RECEIVER_IS_CLASS (oop1, _gst_floate_class))
-    {
-      double farg1;
-      farg1 = FLOATE_OOP_VALUE (oop1);
-      switch (id)
-	{
-	case 0:
-	  PUSH_OOP (floate_new (farg1 + farg2));
-	  break;
-	case -1:
-	  PUSH_OOP (floate_new (farg1 - farg2));
-	  break;
-	case -2:
-	  PUSH_BOOLEAN (farg1 < farg2);
-	  break;
-	case -3:
-	  PUSH_BOOLEAN (farg1 > farg2);
-	  break;
-	case -4:
-	  PUSH_BOOLEAN (farg1 <= farg2);
-	  break;
-	case -5:
-	  PUSH_BOOLEAN (farg1 >= farg2);
-	  break;
-	case -6:
-	  PUSH_BOOLEAN (farg1 == farg2);
-	  break;
-	case -7:
-	  PUSH_BOOLEAN (farg1 != farg2);
-	  break;
-	case -8:
-	  PUSH_OOP (floate_new (farg1 * farg2));
-	  break;
-	case -9:
-	  PUSH_OOP (floate_new (farg1 / farg2));
-	  break;
-	}
-      PRIM_SUCCEEDED;
+  if COMMON (RECEIVER_IS_CLASS(oop1, _gst_floate_class)) {
+    double farg1;
+    farg1 = FLOATE_OOP_VALUE(oop1);
+    switch (id) {
+    case 0:
+      PUSH_OOP(floate_new(farg1 + farg2));
+      break;
+    case -1:
+      PUSH_OOP(floate_new(farg1 - farg2));
+      break;
+    case -2:
+      PUSH_BOOLEAN(farg1 < farg2);
+      break;
+    case -3:
+      PUSH_BOOLEAN(farg1 > farg2);
+      break;
+    case -4:
+      PUSH_BOOLEAN(farg1 <= farg2);
+      break;
+    case -5:
+      PUSH_BOOLEAN(farg1 >= farg2);
+      break;
+    case -6:
+      PUSH_BOOLEAN(farg1 == farg2);
+      break;
+    case -7:
+      PUSH_BOOLEAN(farg1 != farg2);
+      break;
+    case -8:
+      PUSH_OOP(floate_new(farg1 * farg2));
+      break;
+    case -9:
+      PUSH_OOP(floate_new(farg1 / farg2));
+      break;
     }
+    PRIM_SUCCEEDED;
+  }
 
-  UNPOP (2);
+  UNPOP(2);
   PRIM_FAILED;
 }
 
 /* FloatD truncated */
-static intptr_t
-VMpr_FloatE_truncated (int id,
-                       volatile int numArgs)
-{
+static intptr_t VMpr_FloatE_truncated(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_CLASS (oop1, _gst_floate_class))
-    {
-      double oopValue = FLOATE_OOP_VALUE (oop1);
-      if COMMON (oopValue >= MIN_ST_INT && oopValue <= MAX_ST_INT)
-	{
-	  PUSH_INT (lrintf (truncf (oopValue)));
-	  PRIM_SUCCEEDED;
-	}
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_CLASS(oop1, _gst_floate_class)) {
+    double oopValue = FLOATE_OOP_VALUE(oop1);
+    if COMMON (oopValue >= MIN_ST_INT && oopValue <= MAX_ST_INT) {
+      PUSH_INT(lrintf(truncf(oopValue)));
+      PRIM_SUCCEEDED;
     }
-  UNPOP (1);
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* FloatD fractionPart */
-static intptr_t
-VMpr_FloatE_fractionPart (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_FloatE_fractionPart(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_CLASS (oop1, _gst_floate_class))
-    {
-      double farg1;
-      farg1 = FLOATE_OOP_VALUE (oop1);
-      farg1 -= (farg1 < 0.0) ? ceil (farg1) : floor (farg1);
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_CLASS(oop1, _gst_floate_class)) {
+    double farg1;
+    farg1 = FLOATE_OOP_VALUE(oop1);
+    farg1 -= (farg1 < 0.0) ? ceil(farg1) : floor(farg1);
 
-      PUSH_OOP (floate_new (farg1));
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (1);
+    PUSH_OOP(floate_new(farg1));
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* FloatD exponent */
-static intptr_t
-VMpr_FloatE_exponent (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_FloatE_exponent(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_CLASS (oop1, _gst_floate_class))
-    {
-      double farg1;
-      int intArg1;
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_CLASS(oop1, _gst_floate_class)) {
+    double farg1;
+    int intArg1;
 
-      farg1 = FLOATE_OOP_VALUE (oop1);
-      if (farg1 == 0.0)
-	intArg1 = 1;
-      else
-	{
-	  frexp (FLOATE_OOP_VALUE (oop1), &intArg1);
-	  intArg1--;
-	}
-      PUSH_INT (intArg1);
-      PRIM_SUCCEEDED;
+    farg1 = FLOATE_OOP_VALUE(oop1);
+    if (farg1 == 0.0)
+      intArg1 = 1;
+    else {
+      frexp(FLOATE_OOP_VALUE(oop1), &intArg1);
+      intArg1--;
     }
-  UNPOP (1);
+    PUSH_INT(intArg1);
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* FloatD timesTwoPower: */
-static intptr_t
-VMpr_FloatE_timesTwoPower (int id,
-                           volatile int numArgs)
-{
+static intptr_t VMpr_FloatE_timesTwoPower(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if (RECEIVER_IS_CLASS (oop1, _gst_floate_class) && IS_INT (oop2))
-    {
-      double farg1;
-      intptr_t iarg2;
-      farg1 = FLOATE_OOP_VALUE (oop1);
-      iarg2 = TO_INT (oop2);
-      PUSH_OOP (floate_new (ldexp (farg1, iarg2)));
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (2);
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if (RECEIVER_IS_CLASS(oop1, _gst_floate_class) && IS_INT(oop2)) {
+    double farg1;
+    intptr_t iarg2;
+    farg1 = FLOATE_OOP_VALUE(oop1);
+    iarg2 = TO_INT(oop2);
+    PUSH_OOP(floate_new(ldexp(farg1, iarg2)));
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(2);
   PRIM_FAILED;
 }
 
 /* FloatE asFloatD */
 
-static intptr_t
-VMpr_FloatE_asFloatD (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_FloatE_asFloatD(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_CLASS (oop1, _gst_floate_class))
-    {
-      PUSH_OOP (floatd_new (FLOATE_OOP_VALUE (oop1)));
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (1);
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_CLASS(oop1, _gst_floate_class)) {
+    PUSH_OOP(floatd_new(FLOATE_OOP_VALUE(oop1)));
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* FloatD asFloatQ */
 
-static intptr_t
-VMpr_FloatE_asFloatQ (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_FloatE_asFloatQ(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_CLASS (oop1, _gst_floate_class))
-    {
-      PUSH_OOP (floatq_new (FLOATE_OOP_VALUE (oop1)));
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (1);
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_CLASS(oop1, _gst_floate_class)) {
+    PUSH_OOP(floatq_new(FLOATE_OOP_VALUE(oop1)));
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
-static intptr_t
-VMpr_FloatQ_arith (int id,
-                   volatile int numArgs)
-{
+static intptr_t VMpr_FloatQ_arith(int id, volatile int numArgs) {
   long double farg2;
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if (IS_CLASS (oop2, _gst_floatq_class))
-    farg2 = FLOATQ_OOP_VALUE (oop2);
-  else if (IS_INT (oop2))
-    farg2 = (long double) TO_INT (oop2);
-  else
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if (IS_CLASS(oop2, _gst_floatq_class))
+    farg2 = FLOATQ_OOP_VALUE(oop2);
+  else if (IS_INT(oop2))
+    farg2 = (long double)TO_INT(oop2);
+  else {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
-  if COMMON (RECEIVER_IS_CLASS (oop1, _gst_floatq_class))
-    {
-      long double farg1;
-      farg1 = FLOATQ_OOP_VALUE (oop1);
-      switch (id)
-	{
-	case 0:
-	  PUSH_OOP (floatq_new (farg1 + farg2));
-	  break;
-	case -1:
-	  PUSH_OOP (floatq_new (farg1 - farg2));
-	  break;
-	case -2:
-	  PUSH_BOOLEAN (farg1 < farg2);
-	  break;
-	case -3:
-	  PUSH_BOOLEAN (farg1 > farg2);
-	  break;
-	case -4:
-	  PUSH_BOOLEAN (farg1 <= farg2);
-	  break;
-	case -5:
-	  PUSH_BOOLEAN (farg1 >= farg2);
-	  break;
-	case -6:
-	  PUSH_BOOLEAN (farg1 == farg2);
-	  break;
-	case -7:
-	  PUSH_BOOLEAN (farg1 != farg2);
-	  break;
-	case -8:
-	  PUSH_OOP (floatq_new (farg1 * farg2));
-	  break;
-	case -9:
-	  PUSH_OOP (floatq_new (farg1 / farg2));
-	  break;
-	}
-      PRIM_SUCCEEDED;
+  if COMMON (RECEIVER_IS_CLASS(oop1, _gst_floatq_class)) {
+    long double farg1;
+    farg1 = FLOATQ_OOP_VALUE(oop1);
+    switch (id) {
+    case 0:
+      PUSH_OOP(floatq_new(farg1 + farg2));
+      break;
+    case -1:
+      PUSH_OOP(floatq_new(farg1 - farg2));
+      break;
+    case -2:
+      PUSH_BOOLEAN(farg1 < farg2);
+      break;
+    case -3:
+      PUSH_BOOLEAN(farg1 > farg2);
+      break;
+    case -4:
+      PUSH_BOOLEAN(farg1 <= farg2);
+      break;
+    case -5:
+      PUSH_BOOLEAN(farg1 >= farg2);
+      break;
+    case -6:
+      PUSH_BOOLEAN(farg1 == farg2);
+      break;
+    case -7:
+      PUSH_BOOLEAN(farg1 != farg2);
+      break;
+    case -8:
+      PUSH_OOP(floatq_new(farg1 * farg2));
+      break;
+    case -9:
+      PUSH_OOP(floatq_new(farg1 / farg2));
+      break;
     }
+    PRIM_SUCCEEDED;
+  }
 
-  UNPOP (2);
+  UNPOP(2);
   PRIM_FAILED;
 }
 
 /* FloatD truncated */
-static intptr_t
-VMpr_FloatQ_truncated (int id,
-                       volatile int numArgs)
-{
+static intptr_t VMpr_FloatQ_truncated(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_CLASS (oop1, _gst_floatq_class))
-    {
-      long double oopValue = FLOATQ_OOP_VALUE (oop1);
-      if COMMON (oopValue >= MIN_ST_INT && oopValue <= MAX_ST_INT)
-	{
-	  PUSH_INT (lrintl (truncl (oopValue)));
-	  PRIM_SUCCEEDED;
-	}
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_CLASS(oop1, _gst_floatq_class)) {
+    long double oopValue = FLOATQ_OOP_VALUE(oop1);
+    if COMMON (oopValue >= MIN_ST_INT && oopValue <= MAX_ST_INT) {
+      PUSH_INT(lrintl(truncl(oopValue)));
+      PRIM_SUCCEEDED;
     }
-  UNPOP (1);
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* FloatD fractionPart */
-static intptr_t
-VMpr_FloatQ_fractionPart (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_FloatQ_fractionPart(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_CLASS (oop1, _gst_floatq_class))
-    {
-      long double farg1;
-      farg1 = FLOATQ_OOP_VALUE (oop1);
-      farg1 -= (farg1 < 0.0) ? ceill (farg1) : floorl (farg1);
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_CLASS(oop1, _gst_floatq_class)) {
+    long double farg1;
+    farg1 = FLOATQ_OOP_VALUE(oop1);
+    farg1 -= (farg1 < 0.0) ? ceill(farg1) : floorl(farg1);
 
-      PUSH_OOP (floatq_new (farg1));
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (1);
+    PUSH_OOP(floatq_new(farg1));
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* FloatD exponent */
-static intptr_t
-VMpr_FloatQ_exponent (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_FloatQ_exponent(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_CLASS (oop1, _gst_floatq_class))
-    {
-      long double farg1;
-      int intArg1;
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_CLASS(oop1, _gst_floatq_class)) {
+    long double farg1;
+    int intArg1;
 
-      farg1 = FLOATQ_OOP_VALUE (oop1);
-      if (farg1 == 0.0)
-	intArg1 = 1;
-      else
-	{
-	  frexpl (FLOATQ_OOP_VALUE (oop1), &intArg1);
-	  intArg1--;
-	}
-      PUSH_INT (intArg1);
-      PRIM_SUCCEEDED;
+    farg1 = FLOATQ_OOP_VALUE(oop1);
+    if (farg1 == 0.0)
+      intArg1 = 1;
+    else {
+      frexpl(FLOATQ_OOP_VALUE(oop1), &intArg1);
+      intArg1--;
     }
-  UNPOP (1);
+    PUSH_INT(intArg1);
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* FloatD timesTwoPower: */
-static intptr_t
-VMpr_FloatQ_timesTwoPower (int id,
-                           volatile int numArgs)
-{
+static intptr_t VMpr_FloatQ_timesTwoPower(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if (RECEIVER_IS_CLASS (oop1, _gst_floatq_class) && IS_INT (oop2))
-    {
-      long double farg1;
-      intptr_t iarg2;
-      farg1 = FLOATQ_OOP_VALUE (oop1);
-      iarg2 = TO_INT (oop2);
-      PUSH_OOP (floatq_new (ldexpl (farg1, iarg2)));
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (2);
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if (RECEIVER_IS_CLASS(oop1, _gst_floatq_class) && IS_INT(oop2)) {
+    long double farg1;
+    intptr_t iarg2;
+    farg1 = FLOATQ_OOP_VALUE(oop1);
+    iarg2 = TO_INT(oop2);
+    PUSH_OOP(floatq_new(ldexpl(farg1, iarg2)));
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(2);
   PRIM_FAILED;
 }
 
 /* FloatQ asFloatD */
 
-static intptr_t
-VMpr_FloatQ_asFloatD (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_FloatQ_asFloatD(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_CLASS (oop1, _gst_floatq_class))
-    {
-      PUSH_OOP (floatd_new (FLOATQ_OOP_VALUE (oop1)));
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (1);
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_CLASS(oop1, _gst_floatq_class)) {
+    PUSH_OOP(floatd_new(FLOATQ_OOP_VALUE(oop1)));
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* FloatD asFloatQ */
 
-static intptr_t
-VMpr_FloatQ_asFloatE (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_FloatQ_asFloatE(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if COMMON (RECEIVER_IS_CLASS (oop1, _gst_floatq_class))
-    {
-      PUSH_OOP (floate_new (FLOATQ_OOP_VALUE (oop1)));
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (1);
+  oop1 = POP_OOP();
+  if COMMON (RECEIVER_IS_CLASS(oop1, _gst_floatq_class)) {
+    PUSH_OOP(floate_new(FLOATQ_OOP_VALUE(oop1)));
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
-
-
 /* Object at:, Object basicAt: */
 
-static intptr_t
-VMpr_Object_basicAt (int id,
-                     volatile int numArgs)
-{
+static intptr_t VMpr_Object_basicAt(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  POP_N_OOPS (numArgs - 1);
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
-  if COMMON (IS_INT (oop2))
-    {
-      intptr_t arg2;
-      arg2 = TO_INT (oop2);
-      oop1 = index_oop (oop1, arg2);
-      if COMMON (oop1)
-	{
-	  SET_STACKTOP (oop1);
-	  PRIM_SUCCEEDED;
-	}
+  POP_N_OOPS(numArgs - 1);
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
+  if COMMON (IS_INT(oop2)) {
+    intptr_t arg2;
+    arg2 = TO_INT(oop2);
+    oop1 = index_oop(oop1, arg2);
+    if COMMON (oop1) {
+      SET_STACKTOP(oop1);
+      PRIM_SUCCEEDED;
     }
-  UNPOP (numArgs);
+  }
+  UNPOP(numArgs);
   PRIM_FAILED;
 }
 
 /* Object at:put:, Object basicAt:put: */
-static intptr_t
-VMpr_Object_basicAtPut (int id,
-                        volatile int numArgs)
-{
+static intptr_t VMpr_Object_basicAtPut(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   OOP oop3;
   _gst_primitives_executed++;
 
-  oop3 = POP_OOP ();
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
-  if COMMON (IS_INT (oop2) && !IS_OOP_READONLY (oop1))
-    {
-      intptr_t arg2;
-      arg2 = TO_INT (oop2);
-      if COMMON (index_oop_put (oop1, arg2, oop3))
-	{
-	  SET_STACKTOP (oop3);
-	  PRIM_SUCCEEDED;
-	}
+  oop3 = POP_OOP();
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
+  if COMMON (IS_INT(oop2) && !IS_OOP_READONLY(oop1)) {
+    intptr_t arg2;
+    arg2 = TO_INT(oop2);
+    if COMMON (index_oop_put(oop1, arg2, oop3)) {
+      SET_STACKTOP(oop3);
+      PRIM_SUCCEEDED;
     }
+  }
 
-  UNPOP (2);
+  UNPOP(2);
   PRIM_FAILED;
 }
 
 /* Object basicSize; Object size; String size */
-static intptr_t
-VMpr_Object_basicSize (int id,
-                       volatile int numArgs)
-{
+static intptr_t VMpr_Object_basicSize(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  PUSH_INT (NUM_INDEXABLE_FIELDS (oop1));
+  oop1 = POP_OOP();
+  PUSH_INT(NUM_INDEXABLE_FIELDS(oop1));
   PRIM_SUCCEEDED;
 }
 
 /* CharacterArray valueAt: */
 
-static intptr_t
-VMpr_CharacterArray_valueAt (int id,
-                             volatile int numArgs)
-{
+static intptr_t VMpr_CharacterArray_valueAt(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   intptr_t spec;
 
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
-  spec = CLASS_INSTANCE_SPEC (OOP_CLASS (oop1));
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
+  spec = CLASS_INSTANCE_SPEC(OOP_CLASS(oop1));
 
-  switch (spec & ISP_INDEXEDVARS)
-    {
-    case GST_ISP_CHARACTER:
-      spec ^= GST_ISP_CHARACTER ^ GST_ISP_UCHAR;
-      break;
-    case GST_ISP_UTF32:
-      spec ^= GST_ISP_UTF32 ^ GST_ISP_UINT;
-      break;
-    default:
-      UNPOP (1);
-      PRIM_FAILED;
-    }
+  switch (spec & ISP_INDEXEDVARS) {
+  case GST_ISP_CHARACTER:
+    spec ^= GST_ISP_CHARACTER ^ GST_ISP_UCHAR;
+    break;
+  case GST_ISP_UTF32:
+    spec ^= GST_ISP_UTF32 ^ GST_ISP_UINT;
+    break;
+  default:
+    UNPOP(1);
+    PRIM_FAILED;
+  }
 
-  if COMMON (IS_INT (oop2))
-    {
-      intptr_t arg2;
-      arg2 = TO_INT (oop2);
-      oop1 = index_oop_spec (oop1, OOP_TO_OBJ (oop1), arg2, spec);
-      if COMMON (oop1)
-	{
-	  SET_STACKTOP (oop1);
-	  PRIM_SUCCEEDED;
-	}
+  if COMMON (IS_INT(oop2)) {
+    intptr_t arg2;
+    arg2 = TO_INT(oop2);
+    oop1 = index_oop_spec(oop1, OOP_TO_OBJ(oop1), arg2, spec);
+    if COMMON (oop1) {
+      SET_STACKTOP(oop1);
+      PRIM_SUCCEEDED;
     }
-  UNPOP (1);
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* CharacterArray valueAt:put: */
-static intptr_t
-VMpr_CharacterArray_valueAtPut (int id,
-                                volatile int numArgs)
-{
+static intptr_t VMpr_CharacterArray_valueAtPut(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   OOP oop3;
   intptr_t spec;
   _gst_primitives_executed++;
 
-  oop3 = POP_OOP ();
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
-  spec = CLASS_INSTANCE_SPEC (OOP_CLASS (oop1));
+  oop3 = POP_OOP();
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
+  spec = CLASS_INSTANCE_SPEC(OOP_CLASS(oop1));
 
-  switch (spec & ISP_INDEXEDVARS)
-    {
-    case GST_ISP_CHARACTER:
-      spec ^= GST_ISP_CHARACTER ^ GST_ISP_UCHAR;
-      break;
-    case GST_ISP_UTF32:
-      spec ^= GST_ISP_UTF32 ^ GST_ISP_UINT;
-      break;
-    default:
-      UNPOP (2);
-      PRIM_FAILED;
+  switch (spec & ISP_INDEXEDVARS) {
+  case GST_ISP_CHARACTER:
+    spec ^= GST_ISP_CHARACTER ^ GST_ISP_UCHAR;
+    break;
+  case GST_ISP_UTF32:
+    spec ^= GST_ISP_UTF32 ^ GST_ISP_UINT;
+    break;
+  default:
+    UNPOP(2);
+    PRIM_FAILED;
+  }
+
+  if COMMON (IS_INT(oop2) && !IS_OOP_READONLY(oop1)) {
+    intptr_t arg2;
+    arg2 = TO_INT(oop2);
+    if COMMON (index_oop_put_spec(oop1, OOP_TO_OBJ(oop1), arg2, oop3, spec)) {
+      SET_STACKTOP(oop3);
+      PRIM_SUCCEEDED;
     }
+  }
 
-  if COMMON (IS_INT (oop2) && !IS_OOP_READONLY (oop1))
-    {
-      intptr_t arg2;
-      arg2 = TO_INT (oop2);
-      if COMMON (index_oop_put_spec (oop1, OOP_TO_OBJ (oop1), arg2, oop3, spec))
-	{
-	  SET_STACKTOP (oop3);
-	  PRIM_SUCCEEDED;
-	}
-    }
-
-  UNPOP (2);
+  UNPOP(2);
   PRIM_FAILED;
 }
 
-
-
 /* CompiledCode verificationResult */
-static intptr_t
-VMpr_CompiledCode_verificationResult (int id,
-                                      volatile int numArgs)
-{
-  OOP oop1 = STACKTOP ();
-  const char *result = _gst_verify_method (oop1, NULL, 0);
-  OOP resultOOP = result ? _gst_string_new (result) : _gst_nil_oop;
+static intptr_t VMpr_CompiledCode_verificationResult(int id,
+                                                     volatile int numArgs) {
+  OOP oop1 = STACKTOP();
+  const char *result = _gst_verify_method(oop1, NULL, 0);
+  OOP resultOOP = result ? _gst_string_new(result) : _gst_nil_oop;
 
-  SET_STACKTOP (resultOOP);
+  SET_STACKTOP(resultOOP);
   PRIM_SUCCEEDED;
 }
 
 /* CompiledBlock numArgs:numTemps:bytecodes:depth:literals: */
-static intptr_t
-VMpr_CompiledBlock_create (int id,
-                           volatile int numArgs)
-{
-  OOP *_gst_literals = OOP_TO_OBJ (STACK_AT (0))->data;
-  int depth = TO_INT (STACK_AT (1));
-  OOP bytecodesOOP = STACK_AT (2);
-  int blockTemps = TO_INT (STACK_AT (3));
-  int blockArgs = TO_INT (STACK_AT (4));
-  bc_vector bytecodes = _gst_extract_bytecodes (bytecodesOOP);
+static intptr_t VMpr_CompiledBlock_create(int id, volatile int numArgs) {
+  OOP *_gst_literals = OOP_TO_OBJ(STACK_AT(0))->data;
+  int depth = TO_INT(STACK_AT(1));
+  OOP bytecodesOOP = STACK_AT(2);
+  int blockTemps = TO_INT(STACK_AT(3));
+  int blockArgs = TO_INT(STACK_AT(4));
+  bc_vector bytecodes = _gst_extract_bytecodes(bytecodesOOP);
 
   OOP block =
-    _gst_block_new (blockArgs, blockTemps, bytecodes, depth, _gst_literals);
+      _gst_block_new(blockArgs, blockTemps, bytecodes, depth, _gst_literals);
 
-  POP_N_OOPS (5);
-  OOP_CLASS(block) = STACKTOP ();
+  POP_N_OOPS(5);
+  OOP_CLASS(block) = STACKTOP();
 
   _gst_primitives_executed++;
-  SET_STACKTOP (block);
+  SET_STACKTOP(block);
   PRIM_SUCCEEDED;
 }
 
 /* CompiledMethod literals:numArgs:numTemps:attributes:bytecodes:depth: */
-static intptr_t
-VMpr_CompiledMethod_create (int id,
-                            volatile int numArgs)
-{
-  int depth = TO_INT (STACK_AT (0));
-  OOP bytecodesOOP = STACK_AT (1);
-  OOP attributesOOP = STACK_AT (2);
-  int methodTemps = TO_INT (STACK_AT (3));
-  int methodArgs = TO_INT (STACK_AT (4));
-  OOP literals = STACK_AT (5);
-  bc_vector bytecodes = _gst_extract_bytecodes (bytecodesOOP);
+static intptr_t VMpr_CompiledMethod_create(int id, volatile int numArgs) {
+  int depth = TO_INT(STACK_AT(0));
+  OOP bytecodesOOP = STACK_AT(1);
+  OOP attributesOOP = STACK_AT(2);
+  int methodTemps = TO_INT(STACK_AT(3));
+  int methodArgs = TO_INT(STACK_AT(4));
+  OOP literals = STACK_AT(5);
+  bc_vector bytecodes = _gst_extract_bytecodes(bytecodesOOP);
   OOP method;
 
-  method = _gst_make_new_method (methodArgs, methodTemps, depth, attributesOOP,
-			         literals, bytecodes, _gst_nil_oop,
-				 _gst_nil_oop, _gst_nil_oop, -1, -1);
-  if (IS_NIL (method))
+  method = _gst_make_new_method(methodArgs, methodTemps, depth, attributesOOP,
+                                literals, bytecodes, _gst_nil_oop, _gst_nil_oop,
+                                _gst_nil_oop, -1, -1);
+  if (IS_NIL(method))
     PRIM_FAILED;
 
   POP_N_OOPS(6);
-  OOP_CLASS(method) = STACKTOP ();
+  OOP_CLASS(method) = STACKTOP();
 
   _gst_primitives_executed++;
-  SET_STACKTOP (method);
+  SET_STACKTOP(method);
   PRIM_SUCCEEDED;
 }
 
 /* Object shallowCopy */
-static intptr_t
-VMpr_Object_shallowCopy (int id,
-                         volatile int numArgs)
-{
+static intptr_t VMpr_Object_shallowCopy(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  oop1 = _gst_object_copy (oop1);
-  SET_STACKTOP (oop1);
+  oop1 = STACKTOP();
+  oop1 = _gst_object_copy(oop1);
+  SET_STACKTOP(oop1);
   PRIM_SUCCEEDED;
 }
 
 /* Behavior basicNew */
-static intptr_t
-VMpr_Behavior_basicNew (int id,
-                        volatile int numArgs)
-{
+static intptr_t VMpr_Behavior_basicNew(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  if COMMON (RECEIVER_IS_OOP (oop1))
-    {
-      if COMMON (!CLASS_IS_INDEXABLE (oop1))
-	{
-	  /* Note: you cannot pass &STACKTOP() because if the stack
-	     moves it ain't valid anymore by the time it is set!!! */
-	  OOP result;
-	  instantiate (oop1, &result);
-	  SET_STACKTOP (result);
-	  PRIM_SUCCEEDED;
-	}
+  oop1 = STACKTOP();
+  if COMMON (RECEIVER_IS_OOP(oop1)) {
+    if COMMON (!CLASS_IS_INDEXABLE(oop1)) {
+      /* Note: you cannot pass &STACKTOP() because if the stack
+         moves it ain't valid anymore by the time it is set!!! */
+      OOP result;
+      instantiate(oop1, &result);
+      SET_STACKTOP(result);
+      PRIM_SUCCEEDED;
     }
+  }
   PRIM_FAILED;
 }
 
 /* Behavior Behavior new; */
-static intptr_t
-VMpr_Behavior_newInitialize (int id,
-                             volatile int numArgs)
-{
+static intptr_t VMpr_Behavior_newInitialize(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  if COMMON (RECEIVER_IS_OOP (oop1))
-    {
-      if COMMON (!CLASS_IS_INDEXABLE (oop1))
-	{
-	  /* Note: you cannot pass &STACKTOP() because if the stack
-	     moves it ain't valid anymore by the time it is set!!! */
-	  OOP result;
-	  instantiate (oop1, &result);
-	  SET_STACKTOP (result);
-	  _gst_send_message_internal(_gst_initialize_symbol, 0, result, oop1);
-	  PRIM_SUCCEEDED_RELOAD_IP;
-	}
+  oop1 = STACKTOP();
+  if COMMON (RECEIVER_IS_OOP(oop1)) {
+    if COMMON (!CLASS_IS_INDEXABLE(oop1)) {
+      /* Note: you cannot pass &STACKTOP() because if the stack
+         moves it ain't valid anymore by the time it is set!!! */
+      OOP result;
+      instantiate(oop1, &result);
+      SET_STACKTOP(result);
+      _gst_send_message_internal(_gst_initialize_symbol, 0, result, oop1);
+      PRIM_SUCCEEDED_RELOAD_IP;
     }
+  }
   PRIM_FAILED;
 }
 
 /* Behavior basicNew: */
-static intptr_t
-VMpr_Behavior_basicNewColon (int id,
-                             volatile int numArgs)
-{
+static intptr_t VMpr_Behavior_basicNewColon(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
-  if COMMON (RECEIVER_IS_OOP (oop1) && IS_INT (oop2))
-    {
-      if COMMON (CLASS_IS_INDEXABLE (oop1))
-	{
-	  intptr_t arg2;
-	  arg2 = TO_INT (oop2);
-	  if (arg2 >= 0)
-	    {
-	      OOP result;
-	      instantiate_with (oop1, arg2, &result);
-	      SET_STACKTOP (result);
-	      PRIM_SUCCEEDED;
-	    }
-	}
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
+  if COMMON (RECEIVER_IS_OOP(oop1) && IS_INT(oop2)) {
+    if COMMON (CLASS_IS_INDEXABLE(oop1)) {
+      intptr_t arg2;
+      arg2 = TO_INT(oop2);
+      if (arg2 >= 0) {
+        OOP result;
+        instantiate_with(oop1, arg2, &result);
+        SET_STACKTOP(result);
+        PRIM_SUCCEEDED;
+      }
     }
+  }
 
-  UNPOP (1);
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* Behavior new:; */
-static intptr_t
-VMpr_Behavior_newColonInitialize (int id,
-                                  volatile int numArgs)
-{
+static intptr_t VMpr_Behavior_newColonInitialize(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
-  if COMMON (RECEIVER_IS_OOP (oop1) && IS_INT (oop2))
-    {
-      if COMMON (CLASS_IS_INDEXABLE (oop1))
-	{
-	  intptr_t arg2;
-	  arg2 = TO_INT (oop2);
-	  if (arg2 >= 0)
-	    {
-	      OOP result;
-	      instantiate_with (oop1, arg2, &result);
-	      SET_STACKTOP (result);
-	      _gst_send_message_internal(_gst_initialize_symbol, 0, result, oop1);
-	      PRIM_SUCCEEDED_RELOAD_IP;
-	    }
-	}
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
+  if COMMON (RECEIVER_IS_OOP(oop1) && IS_INT(oop2)) {
+    if COMMON (CLASS_IS_INDEXABLE(oop1)) {
+      intptr_t arg2;
+      arg2 = TO_INT(oop2);
+      if (arg2 >= 0) {
+        OOP result;
+        instantiate_with(oop1, arg2, &result);
+        SET_STACKTOP(result);
+        _gst_send_message_internal(_gst_initialize_symbol, 0, result, oop1);
+        PRIM_SUCCEEDED_RELOAD_IP;
+      }
     }
+  }
 
-  UNPOP (1);
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* Object become: */
-static intptr_t
-VMpr_Object_become (int id,
-                    volatile int numArgs)
-{
+static intptr_t VMpr_Object_become(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
-  if COMMON (!IS_OOP_READONLY (oop1)
-	     && !IS_OOP_READONLY (oop2))
-    {
-      _gst_swap_objects (oop1, oop2);
-      PRIM_SUCCEEDED;
-    }
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
+  if COMMON (!IS_OOP_READONLY(oop1) && !IS_OOP_READONLY(oop2)) {
+    _gst_swap_objects(oop1, oop2);
+    PRIM_SUCCEEDED;
+  }
 
-  UNPOP (1);
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* Object instVarAt: */
-static intptr_t
-VMpr_Object_instVarAt (int id,
-                       volatile int numArgs)
-{
+static intptr_t VMpr_Object_instVarAt(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
-  if COMMON (IS_INT (oop2))
-    {
-      intptr_t arg2;
-      arg2 = TO_INT (oop2);
-      if COMMON (CHECK_BOUNDS_OF (oop1, arg2))
-	{
-	  SET_STACKTOP (inst_var_at (oop1, arg2));
-	  PRIM_SUCCEEDED;
-	}
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
+  if COMMON (IS_INT(oop2)) {
+    intptr_t arg2;
+    arg2 = TO_INT(oop2);
+    if COMMON (CHECK_BOUNDS_OF(oop1, arg2)) {
+      SET_STACKTOP(inst_var_at(oop1, arg2));
+      PRIM_SUCCEEDED;
     }
-  UNPOP (1);
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* Object inst_var_at:put: */
-static intptr_t
-VMpr_Object_instVarAtPut (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_Object_instVarAtPut(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   OOP oop3;
   _gst_primitives_executed++;
 
-  oop3 = POP_OOP ();
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
-  if COMMON (IS_INT (oop2))
-    {
-      intptr_t arg2;
-      arg2 = TO_INT (oop2);
-      if COMMON (CHECK_BOUNDS_OF (oop1, arg2))
-	{
-	  inst_var_at_put (oop1, arg2, oop3);
-	  PRIM_SUCCEEDED;
-	}
+  oop3 = POP_OOP();
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
+  if COMMON (IS_INT(oop2)) {
+    intptr_t arg2;
+    arg2 = TO_INT(oop2);
+    if COMMON (CHECK_BOUNDS_OF(oop1, arg2)) {
+      inst_var_at_put(oop1, arg2, oop3);
+      PRIM_SUCCEEDED;
     }
-  UNPOP (2);
+  }
+  UNPOP(2);
   PRIM_FAILED;
 }
 
 /* Object asOop; Object hash; Symbol hash */
-static intptr_t
-VMpr_Object_hash (int id,
-                  volatile int numArgs)
-{
+static intptr_t VMpr_Object_hash(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if COMMON (IS_OOP (oop1))
-    {
-      PUSH_INT (OOP_INDEX (oop1));
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (1);
+  oop1 = POP_OOP();
+  if COMMON (IS_OOP(oop1)) {
+    PUSH_INT(OOP_INDEX(oop1));
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* SmallInteger asObject; SmallInteger asObjectNoFail */
-static intptr_t
-VMpr_SmallInteger_asObject (int id,
-                            volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_asObject(int id, volatile int numArgs) {
   OOP oop1;
   intptr_t arg1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  arg1 = TO_INT (oop1);
-  if COMMON (OOP_INDEX_VALID (arg1))
-    {
-      oop1 = OOP_AT (arg1);
-      if (!IS_OOP_VALID (oop1))
-	oop1 = _gst_nil_oop;
+  oop1 = STACKTOP();
+  arg1 = TO_INT(oop1);
+  if COMMON (OOP_INDEX_VALID(arg1)) {
+    oop1 = OOP_AT(arg1);
+    if (!IS_OOP_VALID(oop1))
+      oop1 = _gst_nil_oop;
 
-      SET_STACKTOP (oop1);
-      PRIM_SUCCEEDED;
-    }
+    SET_STACKTOP(oop1);
+    PRIM_SUCCEEDED;
+  }
 
   PRIM_FAILED;
 }
 
 /* SmallInteger nextValidOop */
-static intptr_t
-VMpr_SmallInteger_nextValidOop (int id,
-                                volatile int numArgs)
-{
+static intptr_t VMpr_SmallInteger_nextValidOop(int id, volatile int numArgs) {
   OOP oop1;
   intptr_t arg1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  arg1 = TO_INT (oop1);
-  while (OOP_INDEX_VALID (++arg1))
-    {
-      oop1 = OOP_AT (arg1);
-      if (IS_OOP_VALID (oop1))
-	{
-          SET_STACKTOP_INT (arg1);
-          PRIM_SUCCEEDED;
-	}
+  oop1 = STACKTOP();
+  arg1 = TO_INT(oop1);
+  while (OOP_INDEX_VALID(++arg1)) {
+    oop1 = OOP_AT(arg1);
+    if (IS_OOP_VALID(oop1)) {
+      SET_STACKTOP_INT(arg1);
+      PRIM_SUCCEEDED;
     }
+  }
 
   PRIM_FAILED;
 }
 
 /* Behavior someInstance */
-static intptr_t
-VMpr_Behavior_someInstance (int id,
-                            volatile int numArgs)
-{
+static intptr_t VMpr_Behavior_someInstance(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2, lastOOP;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  PREFETCH_START (_gst_mem.ot_base, PREF_READ | PREF_NTA);
+  oop1 = STACKTOP();
+  PREFETCH_START(_gst_mem.ot_base, PREF_READ | PREF_NTA);
   for (oop2 = _gst_mem.ot_base, lastOOP = &_gst_mem.ot[_gst_mem.ot_size];
-       oop2 < lastOOP; OOP_NEXT (oop2))
-    {
-      PREFETCH_LOOP (oop2, PREF_READ | PREF_NTA);
-      if UNCOMMON (IS_OOP_VALID (oop2) && oop1 == OOP_CLASS (oop2))
-	{
-	  SET_STACKTOP (oop2);
-	  PRIM_SUCCEEDED;
-	}
+       oop2 < lastOOP; OOP_NEXT(oop2)) {
+    PREFETCH_LOOP(oop2, PREF_READ | PREF_NTA);
+    if UNCOMMON (IS_OOP_VALID(oop2) && oop1 == OOP_CLASS(oop2)) {
+      SET_STACKTOP(oop2);
+      PRIM_SUCCEEDED;
     }
+  }
   PRIM_FAILED;
 }
 
 /* Object nextInstance */
-static intptr_t
-VMpr_Object_nextInstance (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_Object_nextInstance(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  if (OOP_CLASS (oop1) == _gst_char_class)
-    {
-      /* Characters are one after another - at the end there is
-         _gst_nil_oop */
-      oop1++;
-      if (_gst_char_class == OOP_CLASS (oop1))
-	{
-	  SET_STACKTOP (oop1);
-	  PRIM_SUCCEEDED;
-	}
+  oop1 = STACKTOP();
+  if (OOP_CLASS(oop1) == _gst_char_class) {
+    /* Characters are one after another - at the end there is
+       _gst_nil_oop */
+    oop1++;
+    if (_gst_char_class == OOP_CLASS(oop1)) {
+      SET_STACKTOP(oop1);
+      PRIM_SUCCEEDED;
     }
-  else if (IS_OOP (oop1) && oop1 >= _gst_mem.ot)
-    {
-      /* There is just one copy of all other builtin objects, so fail
-         for a builtin */
-      OOP class_oop = OOP_CLASS (oop1);
-      for (++oop1; oop1 <= _gst_mem.last_allocated_oop; oop1++)
-	{
-          PREFETCH_LOOP (oop1, PREF_READ | PREF_NTA);
-	  if (IS_OOP_VALID (oop1) && class_oop == OOP_CLASS (oop1))
-	    {
-	      SET_STACKTOP (oop1);
-	      PRIM_SUCCEEDED;
-	    }
-	}
+  } else if (IS_OOP(oop1) && oop1 >= _gst_mem.ot) {
+    /* There is just one copy of all other builtin objects, so fail
+       for a builtin */
+    OOP class_oop = OOP_CLASS(oop1);
+    for (++oop1; oop1 <= _gst_mem.last_allocated_oop; oop1++) {
+      PREFETCH_LOOP(oop1, PREF_READ | PREF_NTA);
+      if (IS_OOP_VALID(oop1) && class_oop == OOP_CLASS(oop1)) {
+        SET_STACKTOP(oop1);
+        PRIM_SUCCEEDED;
+      }
     }
+  }
   PRIM_FAILED;
 }
 
 /* Object becomeForward: */
-static intptr_t
-VMpr_Object_becomeForward (int id,
-                           volatile int numArgs)
-{
+static intptr_t VMpr_Object_becomeForward(int id, volatile int numArgs) {
   OOP oop1, ownerOOP;
   OOP oop2, lastOOP;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
 
-  if COMMON (IS_INT (oop1) || IS_OOP_READONLY (oop1))
-    {
-      UNPOP (1);
-      PRIM_FAILED;
-    }
+  if COMMON (IS_INT(oop1) || IS_OOP_READONLY(oop1)) {
+    UNPOP(1);
+    PRIM_FAILED;
+  }
 
   /* Search also on LIFO contexts.  */
-  empty_context_stack ();
-  PREFETCH_START (_gst_mem.ot_base, PREF_READ | PREF_NTA);
+  empty_context_stack();
+  PREFETCH_START(_gst_mem.ot_base, PREF_READ | PREF_NTA);
   for (ownerOOP = _gst_mem.ot_base, lastOOP = &_gst_mem.ot[_gst_mem.ot_size];
-       ownerOOP < lastOOP; OOP_NEXT (ownerOOP))
-    {
-      gst_object object;
-      OOP *scanPtr;
-      int n;
+       ownerOOP < lastOOP; OOP_NEXT(ownerOOP)) {
+    gst_object object;
+    OOP *scanPtr;
+    int n;
 
-      PREFETCH_LOOP (ownerOOP, PREF_READ | PREF_NTA);
-      if COMMON (!IS_OOP_VALID (ownerOOP))
-	continue;
+    PREFETCH_LOOP(ownerOOP, PREF_READ | PREF_NTA);
+    if COMMON (!IS_OOP_VALID(ownerOOP))
+      continue;
 
-      object = OOP_TO_OBJ (ownerOOP);
-      n = num_valid_oops (ownerOOP);
-      if UNCOMMON (OBJ_CLASS (object) == oop1)
-        OBJ_SET_CLASS (object, oop2);
-      for (scanPtr = object->data; n--; scanPtr++)
-	if UNCOMMON (*scanPtr == oop1)
-	  *scanPtr = oop2;
-    }
+    object = OOP_TO_OBJ(ownerOOP);
+    n = num_valid_oops(ownerOOP);
+    if UNCOMMON (OBJ_CLASS(object) == oop1)
+      OBJ_SET_CLASS(object, oop2);
+    for (scanPtr = object->data; n--; scanPtr++)
+      if UNCOMMON (*scanPtr == oop1)
+        *scanPtr = oop2;
+  }
 
   /* The above loop changed the reference to oop1 in the stacktop,
      so we have to set it back manually!  */
-  SET_STACKTOP (oop1);
+  SET_STACKTOP(oop1);
   PRIM_SUCCEEDED;
 }
 
 /* Object allOwners */
-static intptr_t
-VMpr_Object_allOwners (int id,
-                       volatile int numArgs)
-{
+static intptr_t VMpr_Object_allOwners(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2, lastOOP;
   OOP result;
   gst_object object;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
+  oop1 = STACKTOP();
 
-  _gst_reset_buffer ();
-  PREFETCH_START (_gst_mem.ot_base, PREF_READ | PREF_NTA);
+  _gst_reset_buffer();
+  PREFETCH_START(_gst_mem.ot_base, PREF_READ | PREF_NTA);
   for (oop2 = _gst_mem.ot_base, lastOOP = &_gst_mem.ot[_gst_mem.ot_size];
-       oop2 < lastOOP; oop2++)
-    {
-      PREFETCH_LOOP (oop2, PREF_READ | PREF_NTA);
-      if UNCOMMON (IS_OOP_VALID (oop2) && is_owner(oop2, oop1))
-	_gst_add_buf_pointer (oop2);
-    }
+       oop2 < lastOOP; oop2++) {
+    PREFETCH_LOOP(oop2, PREF_READ | PREF_NTA);
+    if UNCOMMON (IS_OOP_VALID(oop2) && is_owner(oop2, oop1))
+      _gst_add_buf_pointer(oop2);
+  }
 
-  object = new_instance_with (_gst_array_class,
-			      _gst_buffer_size() / sizeof (PTR),
-			      &result);
+  object = new_instance_with(_gst_array_class, _gst_buffer_size() / sizeof(PTR),
+                             &result);
 
-  _gst_copy_buffer (object->data);
-  SET_STACKTOP (result);
+  _gst_copy_buffer(object->data);
+  SET_STACKTOP(result);
   PRIM_SUCCEEDED;
 }
-
 
-static intptr_t
-VMpr_ContextPart_thisContext (int id,
-                              volatile int numArgs)
-{
+static intptr_t VMpr_ContextPart_thisContext(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  empty_context_stack ();
-  SET_STACKTOP (_gst_this_context_oop);
+  empty_context_stack();
+  SET_STACKTOP(_gst_this_context_oop);
   PRIM_SUCCEEDED;
 }
 
-static intptr_t
-VMpr_ContextPart_continue (int id,
-                           volatile int numArgs)
-{
+static intptr_t VMpr_ContextPart_continue(int id, volatile int numArgs) {
   OOP oop2;
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
-  if COMMON (RECEIVER_IS_A_KIND_OF (OOP_CLASS (oop1),
-				    _gst_context_part_class))
-    {
-      unwind_to (oop1);
-      SET_STACKTOP (oop2);
-      PRIM_SUCCEEDED_RELOAD_IP;
-    }
-  else
-    {
-      UNPOP (1);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
+  if COMMON (RECEIVER_IS_A_KIND_OF(OOP_CLASS(oop1), _gst_context_part_class)) {
+    unwind_to(oop1);
+    SET_STACKTOP(oop2);
+    PRIM_SUCCEEDED_RELOAD_IP;
+  } else {
+    UNPOP(1);
+    PRIM_FAILED;
+  }
 }
 
 /* Continuation resume:nextContinuation: */
-static intptr_t
-VMpr_Continuation_resume (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_Continuation_resume(int id, volatile int numArgs) {
   OOP oop1, oop2, oop3;
 
   _gst_primitives_executed++;
-  oop3 = POP_OOP ();
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
-  if COMMON (RECEIVER_IS_A_KIND_OF (OOP_CLASS (oop1), _gst_continuation_class))
-    {
-      gst_continuation cc = (gst_continuation) OOP_TO_OBJ (oop1);
-      if (COMMON (!IS_NIL (cc->stack)))
-	{
-	  resume_suspended_context (cc->stack);
-	  cc->stack = oop3;
-	  SET_STACKTOP (oop2);
-	  PRIM_SUCCEEDED_RELOAD_IP;
-	}
+  oop3 = POP_OOP();
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
+  if COMMON (RECEIVER_IS_A_KIND_OF(OOP_CLASS(oop1), _gst_continuation_class)) {
+    gst_continuation cc = (gst_continuation)OOP_TO_OBJ(oop1);
+    if (COMMON(!IS_NIL(cc->stack))) {
+      resume_suspended_context(cc->stack);
+      cc->stack = oop3;
+      SET_STACKTOP(oop2);
+      PRIM_SUCCEEDED_RELOAD_IP;
     }
+  }
 
-  UNPOP (2);
+  UNPOP(2);
   PRIM_FAILED;
 }
 
@@ -2835,12 +2377,9 @@ VMpr_Continuation_resume (int id,
    BlockClosure value:
    BlockClosure value:value:
    BlockClosure value:value:value: */
-static intptr_t
-VMpr_BlockClosure_value (int id,
-                         volatile int numArgs)
-{
+static intptr_t VMpr_BlockClosure_value(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  if UNCOMMON (send_block_value (numArgs, 0))
+  if UNCOMMON (send_block_value(numArgs, 0))
     PRIM_FAILED;
   else
     PRIM_SUCCEEDED_RELOAD_IP;
@@ -2849,12 +2388,9 @@ VMpr_BlockClosure_value (int id,
 /* BlockClosure cull:
    BlockClosure cull:cull:
    BlockClosure cull:cull:cull: */
-static intptr_t
-VMpr_BlockClosure_cull (int id,
-                        volatile int numArgs)
-{
+static intptr_t VMpr_BlockClosure_cull(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  if UNCOMMON (send_block_value (numArgs, numArgs))
+  if UNCOMMON (send_block_value(numArgs, numArgs))
     PRIM_FAILED;
   else
     PRIM_SUCCEEDED_RELOAD_IP;
@@ -2863,49 +2399,43 @@ VMpr_BlockClosure_cull (int id,
 /* We cannot cache the IP here, otherwise calls to #valueAndResumeOnUnwind
    don't actually make the context an unwind context.  If we make a provision
    for that in xlat.c, we can set the cache_new_ip attribute.  */
-static intptr_t
-VMpr_BlockClosure_valueAndResumeOnUnwind (int id,
-                                          volatile int numArgs)
-{
+static intptr_t VMpr_BlockClosure_valueAndResumeOnUnwind(int id,
+                                                         volatile int numArgs) {
   gst_object context;
 
   _gst_primitives_executed++;
 
-  context = OOP_TO_OBJ (_gst_this_context_oop);
-  OBJ_METHOD_CONTEXT_SET_FLAGS (context, (OOP) ((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ( context) | MCF_IS_UNWIND_CONTEXT));
-  if UNCOMMON (send_block_value (numArgs, 0))
+  context = OOP_TO_OBJ(_gst_this_context_oop);
+  OBJ_METHOD_CONTEXT_SET_FLAGS(
+      context, (OOP)((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) |
+                     MCF_IS_UNWIND_CONTEXT));
+  if UNCOMMON (send_block_value(numArgs, 0))
     PRIM_FAILED;
   else
     PRIM_SUCCEEDED_RELOAD_IP;
-
 }
 
 /* BlockClosure valueWithArguments: */
-static intptr_t
-VMpr_BlockClosure_valueWithArguments (int id,
-                                      volatile int numArgs)
-{
+static intptr_t VMpr_BlockClosure_valueWithArguments(int id,
+                                                     volatile int numArgs) {
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  if (IS_CLASS (oop2, _gst_array_class))
-    {
-      int i;
-      numArgs = NUM_INDEXABLE_FIELDS (oop2);
-      for (i = 1; i <= numArgs; i++)
-	PUSH_OOP (ARRAY_AT (oop2, i));
+  oop2 = POP_OOP();
+  if (IS_CLASS(oop2, _gst_array_class)) {
+    int i;
+    numArgs = NUM_INDEXABLE_FIELDS(oop2);
+    for (i = 1; i <= numArgs; i++)
+      PUSH_OOP(ARRAY_AT(oop2, i));
 
-      if UNCOMMON (send_block_value (numArgs, 0))
-	{
-	  POP_N_OOPS (numArgs);
-	  PUSH_OOP (oop2);
-	  PRIM_FAILED;
-	}
-      else
-	PRIM_SUCCEEDED_RELOAD_IP;
-    }
-  UNPOP (1);
+    if UNCOMMON (send_block_value(numArgs, 0)) {
+      POP_N_OOPS(numArgs);
+      PUSH_OOP(oop2);
+      PRIM_FAILED;
+    } else
+      PRIM_SUCCEEDED_RELOAD_IP;
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
@@ -2913,403 +2443,334 @@ VMpr_BlockClosure_valueWithArguments (int id,
    Object perform:with:
    Object perform:with:with:
    Object perform:with:with:with: */
-static intptr_t
-VMpr_Object_perform (int id,
-                     volatile int numArgs)
-{
+static intptr_t VMpr_Object_perform(int id, volatile int numArgs) {
   OOP oop1;
-  OOP *oopVec = alloca (numArgs * sizeof (OOP));
+  OOP *oopVec = alloca(numArgs * sizeof(OOP));
   int i;
   _gst_primitives_executed++;
 
   /* pop off the arguments (if any) */
   numArgs--;
   for (i = 0; i < numArgs; i++)
-    oopVec[i] = POP_OOP ();
+    oopVec[i] = POP_OOP();
 
-  oop1 = POP_OOP ();		/* the selector */
-  if COMMON (IS_CLASS (oop1, _gst_symbol_class)
-             && check_send_correctness (STACKTOP (), oop1, numArgs))
-    {
+  oop1 = POP_OOP(); /* the selector */
+  if COMMON (IS_CLASS(oop1, _gst_symbol_class) &&
+             check_send_correctness(STACKTOP(), oop1, numArgs)) {
 
+    /* push the args back onto the stack */
+    while (--i >= 0)
+      PUSH_OOP(oopVec[i]);
+
+    SEND_MESSAGE(oop1, numArgs);
+    PRIM_SUCCEEDED_RELOAD_IP;
+  }
+
+  if COMMON (is_a_kind_of(OOP_CLASS(oop1), _gst_compiled_method_class)) {
+    gst_compiled_method method;
+    method_header header;
+
+    method = (gst_compiled_method)OOP_TO_OBJ(oop1);
+    header = method->header;
+    if (header.numArgs == numArgs) {
       /* push the args back onto the stack */
       while (--i >= 0)
-	PUSH_OOP (oopVec[i]);
+        PUSH_OOP(oopVec[i]);
 
-      SEND_MESSAGE (oop1, numArgs);
+      _gst_send_method(oop1);
       PRIM_SUCCEEDED_RELOAD_IP;
     }
+  }
 
-  if COMMON (is_a_kind_of (OOP_CLASS (oop1), _gst_compiled_method_class))
-    {
-      gst_compiled_method method;
-      method_header header;
-
-      method = (gst_compiled_method) OOP_TO_OBJ (oop1);
-      header = method->header;
-      if (header.numArgs == numArgs)
-	{
-	  /* push the args back onto the stack */
-	  while (--i >= 0)
-	    PUSH_OOP (oopVec[i]);
-
-	  _gst_send_method (oop1);
-	  PRIM_SUCCEEDED_RELOAD_IP;
-	}
-    }
-
-  UNPOP (numArgs + 1);
+  UNPOP(numArgs + 1);
   PRIM_FAILED;
 }
 
 /* Object perform:withArguments: */
-static intptr_t
-VMpr_Object_performWithArguments (int id,
-                                  volatile int numArgs)
-{
+static intptr_t VMpr_Object_performWithArguments(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  numArgs = NUM_INDEXABLE_FIELDS (oop2);
-  if UNCOMMON (!IS_CLASS (oop2, _gst_array_class))
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  numArgs = NUM_INDEXABLE_FIELDS(oop2);
+  if UNCOMMON (!IS_CLASS(oop2, _gst_array_class))
     /* fall through to UNPOP and PRIM_FAILED */
     ;
 
-  else if COMMON (IS_CLASS (oop1, _gst_symbol_class)
-      && check_send_correctness (STACKTOP (), oop1, numArgs))
-    {
+  else if COMMON (IS_CLASS(oop1, _gst_symbol_class) &&
+                  check_send_correctness(STACKTOP(), oop1, numArgs)) {
 
+    int i;
+    for (i = 1; i <= numArgs; i++)
+      PUSH_OOP(ARRAY_AT(oop2, i));
+
+    SEND_MESSAGE(oop1, numArgs);
+    PRIM_SUCCEEDED_RELOAD_IP;
+  }
+
+  else if COMMON (is_a_kind_of(OOP_CLASS(oop1), _gst_compiled_method_class)) {
+    gst_compiled_method method;
+    method_header header;
+
+    method = (gst_compiled_method)OOP_TO_OBJ(oop1);
+    header = method->header;
+    if COMMON (header.numArgs == numArgs) {
       int i;
       for (i = 1; i <= numArgs; i++)
-	PUSH_OOP (ARRAY_AT (oop2, i));
+        PUSH_OOP(ARRAY_AT(oop2, i));
 
-      SEND_MESSAGE (oop1, numArgs);
+      _gst_send_method(oop1);
       PRIM_SUCCEEDED_RELOAD_IP;
     }
+  }
 
-  else if COMMON (is_a_kind_of (OOP_CLASS (oop1), _gst_compiled_method_class))
-    {
-      gst_compiled_method method;
-      method_header header;
-
-      method = (gst_compiled_method) OOP_TO_OBJ (oop1);
-      header = method->header;
-      if COMMON (header.numArgs == numArgs)
-	{
-	  int i;
-	  for (i = 1; i <= numArgs; i++)
-	    PUSH_OOP (ARRAY_AT (oop2, i));
-
-	  _gst_send_method (oop1);
-	  PRIM_SUCCEEDED_RELOAD_IP;
-	}
-    }
-
-  UNPOP (2);
+  UNPOP(2);
   PRIM_FAILED;
 }
-
+
 /* Semaphore notifyAll */
 
-static intptr_t
-VMpr_Semaphore_notifyAll (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_Semaphore_notifyAll(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  while (_gst_sync_signal (oop1, false))
+  oop1 = STACKTOP();
+  while (_gst_sync_signal(oop1, false))
     ;
 
   PRIM_SUCCEEDED;
 }
 
 /* Semaphore signal (id = 0) or Semaphore notify (id = 1) */
-static intptr_t
-VMpr_Semaphore_signalNotify (int id,
-                             volatile int numArgs)
-{
+static intptr_t VMpr_Semaphore_signalNotify(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  _gst_sync_signal (oop1, id == 0);
+  oop1 = STACKTOP();
+  _gst_sync_signal(oop1, id == 0);
   PRIM_SUCCEEDED;
 }
 
 /* Semaphore wait lock */
-static intptr_t
-VMpr_Semaphore_lock (int id,
-                     volatile int numArgs)
-{
+static intptr_t VMpr_Semaphore_lock(int id, volatile int numArgs) {
   OOP oop1;
   gst_semaphore sem;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  sem = (gst_semaphore) OOP_TO_OBJ (oop1);
-  SET_STACKTOP_BOOLEAN (TO_INT (sem->signals) > 0);
-  sem->signals = FROM_INT (0);
+  oop1 = STACKTOP();
+  sem = (gst_semaphore)OOP_TO_OBJ(oop1);
+  SET_STACKTOP_BOOLEAN(TO_INT(sem->signals) > 0);
+  sem->signals = FROM_INT(0);
   PRIM_SUCCEEDED;
 }
 
 /* Semaphore wait */
-static intptr_t
-VMpr_Semaphore_wait (int id,
-                     volatile int numArgs)
-{
+static intptr_t VMpr_Semaphore_wait(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  _gst_sync_wait (oop1);
+  oop1 = STACKTOP();
+  _gst_sync_wait(oop1);
   PRIM_SUCCEEDED;
 }
 
 /* Semaphore waitAfterSignalling: aSemaphore */
-static intptr_t
-VMpr_Semaphore_waitAfterSignalling (int id,
-                                    volatile int numArgs)
-{
+static intptr_t VMpr_Semaphore_waitAfterSignalling(int id,
+                                                   volatile int numArgs) {
   OOP oop1, oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
-  _gst_sync_signal (oop2, true);
-  _gst_sync_wait (oop1);
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
+  _gst_sync_signal(oop2, true);
+  _gst_sync_wait(oop1);
   PRIM_SUCCEEDED;
 }
 
 /* Process suspend */
-static intptr_t
-VMpr_Process_suspend (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_Process_suspend(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  suspend_process (oop1);
+  oop1 = STACKTOP();
+  suspend_process(oop1);
   PRIM_SUCCEEDED;
 }
 
 /* Process resume */
-static intptr_t
-VMpr_Process_resume (int id,
-                     volatile int numArgs)
-{
+static intptr_t VMpr_Process_resume(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  if (resume_process (oop1, false))
+  oop1 = STACKTOP();
+  if (resume_process(oop1, false))
     PRIM_SUCCEEDED;
   else
     PRIM_FAILED;
 }
 
 /* Process singleStepWaitingOn: */
-static intptr_t
-VMpr_Process_singleStepWaitingOn (int id,
-                                  volatile int numArgs)
-{
+static intptr_t VMpr_Process_singleStepWaitingOn(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
 
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
 
-  if (is_process_ready (oop1) || is_process_terminating (oop1))
-    {
-      UNPOP (2);
-      PRIM_FAILED;
-    }
+  if (is_process_ready(oop1) || is_process_terminating(oop1)) {
+    UNPOP(2);
+    PRIM_FAILED;
+  }
 
   /* Put the current process to sleep, switch execution to the
      new one, and set up the VM to signal the semaphore as soon
      as possible.  */
-  _gst_sync_wait (oop2);
-  resume_process (oop1, true);
+  _gst_sync_wait(oop2);
+  resume_process(oop1, true);
   single_step_semaphore = oop2;
   PRIM_SUCCEEDED;
 }
 
 /* Process yield */
-static intptr_t
-VMpr_Process_yield (int id,
-                    volatile int numArgs)
-{
+static intptr_t VMpr_Process_yield(int id, volatile int numArgs) {
   OOP oop1;
 
   _gst_primitives_executed++;
-  oop1 = STACKTOP ();
-  if (oop1 == get_active_process ())
-    {
-      SET_STACKTOP (_gst_nil_oop);	/* this is our return value */
-      active_process_yield ();
-    }
+  oop1 = STACKTOP();
+  if (oop1 == get_active_process()) {
+    SET_STACKTOP(_gst_nil_oop); /* this is our return value */
+    active_process_yield();
+  }
   PRIM_SUCCEEDED;
 }
 
 /* Processor waitForEvents */
-static intptr_t
-VMpr_Processor_dispatchEvents (int id,
-                               volatile int numArgs)
-{
+static intptr_t VMpr_Processor_dispatchEvents(int id, volatile int numArgs) {
   interp_jmp_buf jb;
   gst_processor_scheduler processor;
-  OOP oop1 = STACKTOP ();
+  OOP oop1 = STACKTOP();
   OOP semaphoreOOP;
   OOP processOOP;
   inc_ptr incPtr;
 
-  incPtr = INC_SAVE_POINTER ();
+  incPtr = INC_SAVE_POINTER();
   _gst_primitives_executed++;
-  processor = (gst_processor_scheduler) OOP_TO_OBJ (oop1);
-  if (TO_INT (processor->objSize)
-      > offsetof (struct gst_processor_scheduler, eventSemaphore) / sizeof(OOP))
-    {
-      processor = (gst_processor_scheduler) OOP_TO_OBJ (_gst_processor_oop);
-      semaphoreOOP = processor->eventSemaphore;
-      INC_ADD_OOP (semaphoreOOP);
-    }
-  else
+  processor = (gst_processor_scheduler)OOP_TO_OBJ(oop1);
+  if (TO_INT(processor->objSize) >
+      offsetof(struct gst_processor_scheduler, eventSemaphore) / sizeof(OOP)) {
+    processor = (gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop);
+    semaphoreOOP = processor->eventSemaphore;
+    INC_ADD_OOP(semaphoreOOP);
+  } else
     semaphoreOOP = _gst_nil_oop;
 
-  processOOP = get_active_process ();
-  INC_ADD_OOP (processOOP);
+  processOOP = get_active_process();
+  INC_ADD_OOP(processOOP);
 
-  push_jmp_buf (&jb, false, processOOP);
-  if (setjmp (jb.jmpBuf) == 0)
-    _gst_dispatch_events ();
+  push_jmp_buf(&jb, false, processOOP);
+  if (setjmp(jb.jmpBuf) == 0)
+    _gst_dispatch_events();
 
-  if (pop_jmp_buf ())
-    stop_execution ();
+  if (pop_jmp_buf())
+    stop_execution();
 
-  if (!IS_NIL (semaphoreOOP))
-    {
-      /* If there was a context switch in the meanwhile, be sure to
-         suspend the process that invoked us!  */
-      sync_wait_process (semaphoreOOP, processOOP);
-      processor = (gst_processor_scheduler) OOP_TO_OBJ (_gst_processor_oop);
-      processor->eventSemaphore = semaphoreOOP;
-    }
+  if (!IS_NIL(semaphoreOOP)) {
+    /* If there was a context switch in the meanwhile, be sure to
+       suspend the process that invoked us!  */
+    sync_wait_process(semaphoreOOP, processOOP);
+    processor = (gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop);
+    processor->eventSemaphore = semaphoreOOP;
+  }
 
-  INC_RESTORE_POINTER (incPtr);
+  INC_RESTORE_POINTER(incPtr);
   PRIM_SUCCEEDED;
 }
 
 /* Processor pause: waitForSignal */
-static intptr_t
-VMpr_Processor_pause (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_Processor_pause(int id, volatile int numArgs) {
   OOP oop1;
 
   _gst_primitives_executed++;
-  oop1 = POP_OOP ();
-  if (would_reschedule_process ())
-    _gst_idle (oop1 == _gst_true_oop);
+  oop1 = POP_OOP();
+  if (would_reschedule_process())
+    _gst_idle(oop1 == _gst_true_oop);
 
-  active_process_yield ();
+  active_process_yield();
   PRIM_SUCCEEDED;
 }
 
-
-
 /* Behavior flushCache */
-static intptr_t
-VMpr_Behavior_flushCache (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_Behavior_flushCache(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  _gst_invalidate_method_cache ();
+  _gst_invalidate_method_cache();
   PRIM_SUCCEEDED;
 }
 
 /* CompiledCode discardTranslation */
-static intptr_t
-VMpr_CompiledCode_discardTranslation (int id,
-                                      volatile int numArgs)
-{
+static intptr_t VMpr_CompiledCode_discardTranslation(int id,
+                                                     volatile int numArgs) {
   _gst_primitives_executed++;
 #ifdef ENABLE_JIT_TRANSLATION
-  _gst_discard_native_code (STACKTOP ());
+  _gst_discard_native_code(STACKTOP());
 #endif
   PRIM_SUCCEEDED;
 }
 
 /* Object changeClassTo: */
-static intptr_t
-VMpr_Object_changeClassTo (int id,
-                           volatile int numArgs)
-{
+static intptr_t VMpr_Object_changeClassTo(int id, volatile int numArgs) {
   OOP oop1, oop2;
   gst_object obj1, obj2;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  oop2 = STACKTOP ();
-  obj1 = OOP_TO_OBJ (oop1);
-  obj2 = OOP_TO_OBJ (oop2);
-  if (NUM_WORDS (obj1) > 0
-      && !IS_INT (obj1->data[0])
-      && (IS_NIL (obj1->data[0])
-	  || is_a_kind_of (OOP_CLASS (obj1->data[0]), _gst_behavior_class)))
-    {
-      OBJ_SET_CLASS (obj2, oop1);
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (1);			/* trying to do Bad Things */
+  oop1 = POP_OOP();
+  oop2 = STACKTOP();
+  obj1 = OOP_TO_OBJ(oop1);
+  obj2 = OOP_TO_OBJ(oop2);
+  if (NUM_WORDS(obj1) > 0 && !IS_INT(obj1->data[0]) &&
+      (IS_NIL(obj1->data[0]) ||
+       is_a_kind_of(OOP_CLASS(obj1->data[0]), _gst_behavior_class))) {
+    OBJ_SET_CLASS(obj2, oop1);
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(1); /* trying to do Bad Things */
   PRIM_FAILED;
 }
 
 /* Time class timezoneBias */
-static intptr_t
-VMpr_Time_timezoneBias (int id,
-                        volatile int numArgs)
-{
+static intptr_t VMpr_Time_timezoneBias(int id, volatile int numArgs) {
   OOP oop1;
   uint64_t t;
 
   _gst_primitives_executed++;
-  if (numArgs == 1)
-    {
-      if (!is_c_int_64 (STACKTOP ()))
-        PRIM_FAILED;
+  if (numArgs == 1) {
+    if (!is_c_int_64(STACKTOP()))
+      PRIM_FAILED;
 
-      oop1 = POP_OOP ();
-      /* 25202 = days between 1901 and 1970 */
-      t = to_c_int_64 (oop1) - (int64_t)86400 * 25202;
-      t = _gst_adjust_time_zone (t) - t;
-      SET_STACKTOP_INT (t);
-    }
-  else
-    SET_STACKTOP_INT (_gst_current_time_zone_bias ());
+    oop1 = POP_OOP();
+    /* 25202 = days between 1901 and 1970 */
+    t = to_c_int_64(oop1) - (int64_t)86400 * 25202;
+    t = _gst_adjust_time_zone(t) - t;
+    SET_STACKTOP_INT(t);
+  } else
+    SET_STACKTOP_INT(_gst_current_time_zone_bias());
 
   PRIM_SUCCEEDED;
 }
 
 /* Time class timezone */
-static intptr_t
-VMpr_Time_timezone (int id,
-                    volatile int numArgs)
-{
+static intptr_t VMpr_Time_timezone(int id, volatile int numArgs) {
   OOP oop1;
   char *result;
   _gst_primitives_executed++;
 
-  result = _gst_current_time_zone_name ();
-  oop1 = _gst_string_new (result);
-  SET_STACKTOP (oop1);
-  xfree (result);
+  result = _gst_current_time_zone_name();
+  oop1 = _gst_string_new(result);
+  SET_STACKTOP(oop1);
+  xfree(result);
   PRIM_SUCCEEDED;
 }
 
@@ -3319,142 +2780,119 @@ VMpr_Time_timezone (int id,
        book.  This primitive returns the
        seconds since/to Jan 1, 2000 00:00:00
        instead of Jan 1,1901.  */
-static intptr_t
-VMpr_Time_secondClock (int id,
-                       volatile int numArgs)
-{
+static intptr_t VMpr_Time_secondClock(int id, volatile int numArgs) {
   _gst_primitives_executed++;
   /* 10957 = days between 1970 and 2000 */
-  SET_STACKTOP_INT (_gst_get_time () - 86400 * 10957);
+  SET_STACKTOP_INT(_gst_get_time() - 86400 * 10957);
   PRIM_SUCCEEDED;
 }
 
 /* Time class nanosecondClock.  */
-static intptr_t
-VMpr_Time_nanosecondClock (int id,
-                           volatile int numArgs)
-{
+static intptr_t VMpr_Time_nanosecondClock(int id, volatile int numArgs) {
   OOP nsOOP;
   uint64_t ns;
   _gst_primitives_executed++;
-  ns = _gst_get_ns_time ();
-  nsOOP = from_c_int_64 (ns);
-  SET_STACKTOP (nsOOP);
+  ns = _gst_get_ns_time();
+  nsOOP = from_c_int_64(ns);
+  SET_STACKTOP(nsOOP);
   PRIM_SUCCEEDED;
 }
 
 /* Time class millisecondClock.  */
-static intptr_t
-VMpr_Time_millisecondClock (int id,
-                            volatile int numArgs)
-{
+static intptr_t VMpr_Time_millisecondClock(int id, volatile int numArgs) {
   OOP milliOOP;
   uint64_t milli;
   _gst_primitives_executed++;
-  milli = _gst_get_milli_time ();
-  milliOOP = from_c_int_64 (milli);
-  SET_STACKTOP (milliOOP);
+  milli = _gst_get_milli_time();
+  milliOOP = from_c_int_64(milli);
+  SET_STACKTOP(milliOOP);
   PRIM_SUCCEEDED;
 }
 
 /* Processor signal: semaphore atMilliseconds: deltaMilliseconds
    Processor signal: semaphore atNanosecondClockValue: absNanoseconds
  */
-static intptr_t
-VMpr_Processor_signalAt (int id,
-                         volatile int numArgs)
-{
+static intptr_t VMpr_Processor_signalAt(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if (is_c_int_64 (oop2))
-    {
-      int64_t arg2 = to_c_int_64 (oop2);
-      uint64_t ns = _gst_get_ns_time ();
-      if (id == 0)
-        arg2 = (arg2 * 1000000) + ns;
-      if (arg2 <= ns)
-	_gst_sync_signal (oop1, true);
-      else
-	_gst_async_timed_wait (oop1, arg2);
-      PRIM_SUCCEEDED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if (is_c_int_64(oop2)) {
+    int64_t arg2 = to_c_int_64(oop2);
+    uint64_t ns = _gst_get_ns_time();
+    if (id == 0)
+      arg2 = (arg2 * 1000000) + ns;
+    if (arg2 <= ns)
+      _gst_sync_signal(oop1, true);
+    else
+      _gst_async_timed_wait(oop1, arg2);
+    PRIM_SUCCEEDED;
+  }
 
-  UNPOP (2);
+  UNPOP(2);
   PRIM_FAILED;
 }
 
 /* Processor isTimeoutProgrammed */
-static intptr_t
-VMpr_Processor_isTimeoutProgrammed (int id,
-                                    volatile int numArgs)
-{
+static intptr_t VMpr_Processor_isTimeoutProgrammed(int id,
+                                                   volatile int numArgs) {
   _gst_primitives_executed++;
-  SET_STACKTOP_BOOLEAN (_gst_is_timeout_programmed ());
+  SET_STACKTOP_BOOLEAN(_gst_is_timeout_programmed());
   PRIM_SUCCEEDED;
 }
-
+
 /* String similarityTo: */
 
-static intptr_t
-VMpr_String_similarityTo (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_String_similarityTo(int id, volatile int numArgs) {
   int result, l1, l2;
   gst_uchar *s1, *s2;
   OOP oop1, oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
 
-  if (IS_INT(oop2)
-      || OOP_FIXED_FIELDS (oop2)
-      || (OOP_INSTANCE_SPEC (oop2) & ISP_INDEXEDVARS) != GST_ISP_CHARACTER)
+  if (IS_INT(oop2) || OOP_FIXED_FIELDS(oop2) ||
+      (OOP_INSTANCE_SPEC(oop2) & ISP_INDEXEDVARS) != GST_ISP_CHARACTER)
     PRIM_FAILED;
 
 #ifndef OPTIMIZE
-  if (IS_INT(oop1)
-      || OOP_FIXED_FIELDS (oop1)
-      || (OOP_INSTANCE_SPEC (oop1) & ISP_INDEXEDVARS) != GST_ISP_CHARACTER)
+  if (IS_INT(oop1) || OOP_FIXED_FIELDS(oop1) ||
+      (OOP_INSTANCE_SPEC(oop1) & ISP_INDEXEDVARS) != GST_ISP_CHARACTER)
     PRIM_FAILED;
 #endif
 
-  s1 = STRING_OOP_CHARS (oop1);
-  s2 = STRING_OOP_CHARS (oop2);
-  l1 = NUM_INDEXABLE_FIELDS (oop1);
-  l2 = NUM_INDEXABLE_FIELDS (oop2);
+  s1 = STRING_OOP_CHARS(oop1);
+  s2 = STRING_OOP_CHARS(oop2);
+  l1 = NUM_INDEXABLE_FIELDS(oop1);
+  l2 = NUM_INDEXABLE_FIELDS(oop2);
 
   /* Weights are: substitution, case change, insert, delete.  Invert
      the sign so that differences are reported as negative numbers.  */
-  result = -strnspell (s1, s2, l1, l2, 7, 3, 4, 4);
-  SET_STACKTOP_INT (result);
+  result = -strnspell(s1, s2, l1, l2, 7, 3, 4, 4);
+  SET_STACKTOP_INT(result);
   PRIM_SUCCEEDED;
 }
 
 /* String hash */
 
-static intptr_t
-VMpr_String_hash (int id,
-                  volatile int numArgs)
-{
+static intptr_t VMpr_String_hash(int id, volatile int numArgs) {
   uintptr_t hash;
   gst_uchar *base;
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
+  oop1 = STACKTOP();
 #ifndef OPTIMIZE
-  if (!CLASS_IS_SCALAR (OOP_CLASS (oop1)))
+  if (!CLASS_IS_SCALAR(OOP_CLASS(oop1)))
     PRIM_FAILED;
 #endif
 
-  base = STRING_OOP_CHARS (oop1);
-  hash = _gst_hash_string (base, NUM_INDEXABLE_FIELDS (oop1));
-  SET_STACKTOP_INT (hash);
+  base = STRING_OOP_CHARS(oop1);
+  hash = _gst_hash_string(base, NUM_INDEXABLE_FIELDS(oop1));
+  SET_STACKTOP_INT(hash);
   PRIM_SUCCEEDED;
 }
 
@@ -3462,44 +2900,39 @@ VMpr_String_hash (int id,
    ByteArray =
    String =
    Array = */
-static intptr_t
-VMpr_ArrayedCollection_equal (int id,
-                              volatile int numArgs)
-{
+static intptr_t VMpr_ArrayedCollection_equal(int id, volatile int numArgs) {
   OOP srcOOP, dstOOP;
   int dstLen, srcLen;
   gst_uchar *dstBase, *srcBase;
   _gst_primitives_executed++;
 
-  srcOOP = POP_OOP ();
-  dstOOP = STACKTOP ();
-  if COMMON (OOP_INT_CLASS (srcOOP) == OOP_INT_CLASS (dstOOP))
-    {
-      intptr_t spec = OOP_INSTANCE_SPEC (srcOOP);
-      if (spec & (~0 << ISP_NUMFIXEDFIELDS))
-	goto bad;
+  srcOOP = POP_OOP();
+  dstOOP = STACKTOP();
+  if COMMON (OOP_INT_CLASS(srcOOP) == OOP_INT_CLASS(dstOOP)) {
+    intptr_t spec = OOP_INSTANCE_SPEC(srcOOP);
+    if (spec & (~0 << ISP_NUMFIXEDFIELDS))
+      goto bad;
 
-      /* dstEnd is inclusive: (1 to: 1) has length 1 */
-      dstLen = NUM_INDEXABLE_FIELDS (dstOOP);
-      srcLen = NUM_INDEXABLE_FIELDS (srcOOP);
+    /* dstEnd is inclusive: (1 to: 1) has length 1 */
+    dstLen = NUM_INDEXABLE_FIELDS(dstOOP);
+    srcLen = NUM_INDEXABLE_FIELDS(srcOOP);
 
-      if (dstLen != srcLen)
-	SET_STACKTOP_BOOLEAN (false);
-      else if UNCOMMON (dstLen == 0)
-	SET_STACKTOP_BOOLEAN (true);
-      else
-	{
-	  /* do the comparison */
-	  dstBase = (gst_uchar *) OOP_TO_OBJ (dstOOP)->data;
-	  srcBase = (gst_uchar *) OOP_TO_OBJ (srcOOP)->data;
-	  dstLen <<= _gst_log2_sizes[spec & ISP_SHAPE];
-	  SET_STACKTOP_BOOLEAN (!memcmp (dstBase, srcBase, dstLen));
-	}
-      PRIM_SUCCEEDED;
+    if (dstLen != srcLen)
+      SET_STACKTOP_BOOLEAN(false);
+    else if UNCOMMON (dstLen == 0)
+      SET_STACKTOP_BOOLEAN(true);
+    else {
+      /* do the comparison */
+      dstBase = (gst_uchar *)OOP_TO_OBJ(dstOOP)->data;
+      srcBase = (gst_uchar *)OOP_TO_OBJ(srcOOP)->data;
+      dstLen <<= _gst_log2_sizes[spec & ISP_SHAPE];
+      SET_STACKTOP_BOOLEAN(!memcmp(dstBase, srcBase, dstLen));
     }
+    PRIM_SUCCEEDED;
+  }
 
- bad:
-  UNPOP (1);
+bad:
+  UNPOP(1);
   PRIM_FAILED;
 }
 
@@ -3507,48 +2940,45 @@ VMpr_ArrayedCollection_equal (int id,
    ByteArray indexOf:startingAt:ifAbsent:
    String indexOf:startingAt:
    String indexOf:startingAt:ifAbsent: */
-static intptr_t
-VMpr_ArrayedCollection_indexOfStartingAt (int id,
-                                          volatile int numArgs)
-{
+static intptr_t VMpr_ArrayedCollection_indexOfStartingAt(int id,
+                                                         volatile int numArgs) {
   OOP srcIndexOOP, srcOOP, targetOOP;
   int srcIndex, srcLen, target;
   gst_uchar *srcBase, *srcTarget;
   _gst_primitives_executed++;
 
-  POP_N_OOPS (numArgs - 2);
-  srcIndexOOP = POP_OOP ();
-  targetOOP = POP_OOP ();
-  srcOOP = STACKTOP ();
-  if COMMON ((IS_INT (targetOOP) || OOP_CLASS (targetOOP) == _gst_char_class)
-	     && IS_INT (srcIndexOOP) && !IS_INT (srcOOP))
-    {
-      intptr_t srcSpec = OOP_INSTANCE_SPEC (srcOOP);
-      if (srcSpec & (~0 << ISP_NUMFIXEDFIELDS))
-	goto bad;
+  POP_N_OOPS(numArgs - 2);
+  srcIndexOOP = POP_OOP();
+  targetOOP = POP_OOP();
+  srcOOP = STACKTOP();
+  if COMMON ((IS_INT(targetOOP) || OOP_CLASS(targetOOP) == _gst_char_class) &&
+             IS_INT(srcIndexOOP) && !IS_INT(srcOOP)) {
+    intptr_t srcSpec = OOP_INSTANCE_SPEC(srcOOP);
+    if (srcSpec & (~0 << ISP_NUMFIXEDFIELDS))
+      goto bad;
 
-      /* Check compatibility.  */
-      if (_gst_log2_sizes[srcSpec & ISP_SHAPE] != 0)
-	goto bad;
+    /* Check compatibility.  */
+    if (_gst_log2_sizes[srcSpec & ISP_SHAPE] != 0)
+      goto bad;
 
-      target = IS_INT (targetOOP) ? TO_INT (targetOOP) : CHAR_OOP_VALUE (targetOOP);
-      srcIndex = TO_INT (srcIndexOOP);
-      srcLen = NUM_INDEXABLE_FIELDS (srcOOP) - srcIndex + 1;
+    target = IS_INT(targetOOP) ? TO_INT(targetOOP) : CHAR_OOP_VALUE(targetOOP);
+    srcIndex = TO_INT(srcIndexOOP);
+    srcLen = NUM_INDEXABLE_FIELDS(srcOOP) - srcIndex + 1;
 
-      if UNCOMMON (srcLen < 0)
-	goto bad;
+    if UNCOMMON (srcLen < 0)
+      goto bad;
 
-      srcBase = (gst_uchar *) OOP_TO_OBJ (srcOOP)->data;
-      srcTarget = memchr (&srcBase[srcIndex - 1], target, srcLen);
-      if (!srcTarget)
-	goto bad;
+    srcBase = (gst_uchar *)OOP_TO_OBJ(srcOOP)->data;
+    srcTarget = memchr(&srcBase[srcIndex - 1], target, srcLen);
+    if (!srcTarget)
+      goto bad;
 
-      SET_STACKTOP_INT (srcTarget - srcBase + 1);
-      PRIM_SUCCEEDED;
-    }
+    SET_STACKTOP_INT(srcTarget - srcBase + 1);
+    PRIM_SUCCEEDED;
+  }
 
- bad:
-  UNPOP (numArgs);
+bad:
+  UNPOP(numArgs);
   PRIM_FAILED;
 }
 
@@ -3557,1194 +2987,974 @@ VMpr_ArrayedCollection_indexOfStartingAt (int id,
    String replaceFrom:to:withByteArray:startingAt:
    Array replaceFrom:to:with:startingAt:*/
 static intptr_t
-VMpr_ArrayedCollection_replaceFromToWithStartingAt (int id,
-                                                    volatile int numArgs)
-{
+VMpr_ArrayedCollection_replaceFromToWithStartingAt(int id,
+                                                   volatile int numArgs) {
   OOP srcIndexOOP, srcOOP, dstEndIndexOOP, dstStartIndexOOP, dstOOP;
   int dstEndIndex, dstStartIndex, srcIndex, dstLen, srcLen, dstRangeLen;
   gst_uchar *dstBase, *srcBase;
   _gst_primitives_executed++;
 
-  srcIndexOOP = POP_OOP ();
-  srcOOP = POP_OOP ();
-  dstEndIndexOOP = POP_OOP ();
-  dstStartIndexOOP = POP_OOP ();
-  dstOOP = STACKTOP ();
-  if COMMON (IS_INT (srcIndexOOP) && IS_INT (dstStartIndexOOP)
-             && IS_INT (dstEndIndexOOP) && !IS_INT (srcOOP))
-    {
-      uintptr_t srcSpec = OOP_INSTANCE_SPEC (srcOOP);
-      uintptr_t dstSpec = OOP_INSTANCE_SPEC (dstOOP);
-      int srcOffset = srcSpec >> ISP_NUMFIXEDFIELDS;
-      int dstOffset = dstSpec >> ISP_NUMFIXEDFIELDS;
-      int size;
+  srcIndexOOP = POP_OOP();
+  srcOOP = POP_OOP();
+  dstEndIndexOOP = POP_OOP();
+  dstStartIndexOOP = POP_OOP();
+  dstOOP = STACKTOP();
+  if COMMON (IS_INT(srcIndexOOP) && IS_INT(dstStartIndexOOP) &&
+             IS_INT(dstEndIndexOOP) && !IS_INT(srcOOP)) {
+    uintptr_t srcSpec = OOP_INSTANCE_SPEC(srcOOP);
+    uintptr_t dstSpec = OOP_INSTANCE_SPEC(dstOOP);
+    int srcOffset = srcSpec >> ISP_NUMFIXEDFIELDS;
+    int dstOffset = dstSpec >> ISP_NUMFIXEDFIELDS;
+    int size;
 
-      /* Assume the receiver knows what it is doing for collections that
-         are not simple arrays.  Typically the primitive will not be
-         exposed to the user in that case.  Instead, be strict when
-         dstOffset == 0.  */
-      if (srcOffset && !dstOffset)
-        goto bad;
+    /* Assume the receiver knows what it is doing for collections that
+       are not simple arrays.  Typically the primitive will not be
+       exposed to the user in that case.  Instead, be strict when
+       dstOffset == 0.  */
+    if (srcOffset && !dstOffset)
+      goto bad;
 
-      /* Check compatibility.  */
-      size = _gst_log2_sizes[srcSpec & ISP_SHAPE];
-      if (size != _gst_log2_sizes[dstSpec & ISP_SHAPE])
-	goto bad;
-      if (((srcSpec & ISP_INDEXEDVARS) == GST_ISP_POINTER)
-          != ((dstSpec & ISP_INDEXEDVARS) == GST_ISP_POINTER))
-	goto bad;
+    /* Check compatibility.  */
+    size = _gst_log2_sizes[srcSpec & ISP_SHAPE];
+    if (size != _gst_log2_sizes[dstSpec & ISP_SHAPE])
+      goto bad;
+    if (((srcSpec & ISP_INDEXEDVARS) == GST_ISP_POINTER) !=
+        ((dstSpec & ISP_INDEXEDVARS) == GST_ISP_POINTER))
+      goto bad;
 
-      /* dstEnd is inclusive: (1 to: 1) has length 1 */
-      dstEndIndex = TO_INT (dstEndIndexOOP);
-      dstStartIndex = TO_INT (dstStartIndexOOP);
-      srcIndex = TO_INT (srcIndexOOP);
-      dstOOP = STACKTOP ();
-      dstLen = NUM_INDEXABLE_FIELDS (dstOOP);
-      srcLen = NUM_INDEXABLE_FIELDS (srcOOP);
-      dstRangeLen = dstEndIndex - dstStartIndex + 1;
+    /* dstEnd is inclusive: (1 to: 1) has length 1 */
+    dstEndIndex = TO_INT(dstEndIndexOOP);
+    dstStartIndex = TO_INT(dstStartIndexOOP);
+    srcIndex = TO_INT(srcIndexOOP);
+    dstOOP = STACKTOP();
+    dstLen = NUM_INDEXABLE_FIELDS(dstOOP);
+    srcLen = NUM_INDEXABLE_FIELDS(srcOOP);
+    dstRangeLen = dstEndIndex - dstStartIndex + 1;
 
-      if UNCOMMON (dstRangeLen < 0
-		   || dstEndIndex > dstLen || dstStartIndex <= 0
-	           || srcIndex + dstRangeLen - 1 > srcLen
-		   || (srcIndex <= 0 && dstRangeLen > 0))
-	goto bad;
+    if UNCOMMON (dstRangeLen < 0 || dstEndIndex > dstLen ||
+                 dstStartIndex <= 0 || srcIndex + dstRangeLen - 1 > srcLen ||
+                 (srcIndex <= 0 && dstRangeLen > 0))
+      goto bad;
 
-      /* don't do it unless there's something to copy */
-      if COMMON (dstRangeLen > 0)
-	{
-	  /* do the copy */
-	  dstBase = (gst_uchar *) &(OOP_TO_OBJ (dstOOP)->data[dstOffset]);
-	  srcBase = (gst_uchar *) &(OOP_TO_OBJ (srcOOP)->data[srcOffset]);
-	  dstStartIndex = (dstStartIndex - 1) << size;
-	  srcIndex = (srcIndex - 1) << size;
-	  dstRangeLen <<= size;
-	  memmove (&dstBase[dstStartIndex], &srcBase[srcIndex], dstRangeLen);
-	}
-      PRIM_SUCCEEDED;
+    /* don't do it unless there's something to copy */
+    if COMMON (dstRangeLen > 0) {
+      /* do the copy */
+      dstBase = (gst_uchar *)&(OOP_TO_OBJ(dstOOP)->data[dstOffset]);
+      srcBase = (gst_uchar *)&(OOP_TO_OBJ(srcOOP)->data[srcOffset]);
+      dstStartIndex = (dstStartIndex - 1) << size;
+      srcIndex = (srcIndex - 1) << size;
+      dstRangeLen <<= size;
+      memmove(&dstBase[dstStartIndex], &srcBase[srcIndex], dstRangeLen);
     }
+    PRIM_SUCCEEDED;
+  }
 
- bad:
-  UNPOP (4);
+bad:
+  UNPOP(4);
   PRIM_FAILED;
 }
-
+
 /* Object == */
 
-static intptr_t
-VMpr_Object_identity (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_Object_identity(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  PUSH_BOOLEAN (oop1 == oop2);
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  PUSH_BOOLEAN(oop1 == oop2);
   PRIM_SUCCEEDED;
 }
 
 /* Object class */
-static intptr_t
-VMpr_Object_class (int id,
-                   volatile int numArgs)
-{
+static intptr_t VMpr_Object_class(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if (IS_INT (oop1))
-    PUSH_OOP (_gst_small_integer_class);
+  oop1 = POP_OOP();
+  if (IS_INT(oop1))
+    PUSH_OOP(_gst_small_integer_class);
   else
-    PUSH_OOP (OOP_CLASS (oop1));
+    PUSH_OOP(OOP_CLASS(oop1));
 
   PRIM_SUCCEEDED;
 }
-
 
 /* ------- GNU Smalltalk specific primitives begin here -------------------- */
 /* quit: status
    Always fail because if it succeeds we don't return */
-static intptr_t
-VMpr_ObjectMemory_quit (int id,
-                        volatile int numArgs)
-{
+static intptr_t VMpr_ObjectMemory_quit(int id, volatile int numArgs) {
   OOP oop1;
   intptr_t arg1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  if (IS_INT (oop1))
-    {
-      suspend_process (get_scheduled_process ());
-      fflush (stdout);
-      fflush (stderr);
-      _gst_invoke_hook (GST_ABOUT_TO_QUIT);
-      arg1 = TO_INT (oop1);
-      exit (arg1);
-    }
+  oop1 = STACKTOP();
+  if (IS_INT(oop1)) {
+    suspend_process(get_scheduled_process());
+    fflush(stdout);
+    fflush(stderr);
+    _gst_invoke_hook(GST_ABOUT_TO_QUIT);
+    arg1 = TO_INT(oop1);
+    exit(arg1);
+  }
   PRIM_FAILED;
 }
 
 /* abort */
-static intptr_t
-VMpr_ObjectMemory_abort (int id,
-                         volatile int numArgs)
-{
+static intptr_t VMpr_ObjectMemory_abort(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  abort ();
+  abort();
 }
 
-
 /* Dictionary at: */
-static intptr_t
-VMpr_Dictionary_at (int id,
-                    volatile int numArgs)
-{
+static intptr_t VMpr_Dictionary_at(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
 
-  SET_STACKTOP (dictionary_at (oop1, oop2));
+  SET_STACKTOP(dictionary_at(oop1, oop2));
   PRIM_SUCCEEDED;
 }
 
-/* This is not defined in terms of #error: in a .st file because some 
+/* This is not defined in terms of #error: in a .st file because some
    of the required functionality may not be present when it gets
    first invoked, say during the loading of the first kernel files.
    We'll redefine it later.  */
 
 /* Object doesNotUnderstand:
  * Object error: */
-static intptr_t
-VMpr_Object_bootstrapException (int id,
-                                volatile int numArgs)
-{
+static intptr_t VMpr_Object_bootstrapException(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
   if (id == -1)
-    printf ("%O did not understand selector %O\n\n",
-      	    oop1, MESSAGE_SELECTOR (oop2));
+    printf("%O did not understand selector %O\n\n", oop1,
+           MESSAGE_SELECTOR(oop2));
   else
-    printf ("%O error: %#O\n\n", oop1, oop2);
+    printf("%O error: %#O\n\n", oop1, oop2);
 
-  _gst_show_backtrace (stdout);
-  _gst_show_stack_contents ();
-  abort ();
+  _gst_show_backtrace(stdout);
+  _gst_show_stack_contents();
+  abort();
 }
 
-
 /* Character class value: */
 
-static intptr_t
-VMpr_Character_create (int id,
-                       volatile int numArgs)
-{
+static intptr_t VMpr_Character_create(int id, volatile int numArgs) {
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  if (IS_INT (oop2))
-    {
-      intptr_t arg2;
-      arg2 = TO_INT (oop2);
-      if (arg2 >= 0 && arg2 <= 255)
-	{
-	  SET_STACKTOP (CHAR_OOP_AT (arg2));
-	  PRIM_SUCCEEDED;
-	}
+  oop2 = POP_OOP();
+  if (IS_INT(oop2)) {
+    intptr_t arg2;
+    arg2 = TO_INT(oop2);
+    if (arg2 >= 0 && arg2 <= 255) {
+      SET_STACKTOP(CHAR_OOP_AT(arg2));
+      PRIM_SUCCEEDED;
     }
-  UNPOP (1);
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* UnicodeCharacter class value: */
 
-static intptr_t
-VMpr_UnicodeCharacter_create (int id,
-                              volatile int numArgs)
-{
+static intptr_t VMpr_UnicodeCharacter_create(int id, volatile int numArgs) {
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  if (IS_INT (oop2))
-    {
-      intptr_t arg2;
-      arg2 = TO_INT (oop2);
-      if (arg2 >= 0 && arg2 <= 0x10FFFF)
-	{
-	  SET_STACKTOP (char_new (arg2));
-	  PRIM_SUCCEEDED;
-	}
+  oop2 = POP_OOP();
+  if (IS_INT(oop2)) {
+    intptr_t arg2;
+    arg2 = TO_INT(oop2);
+    if (arg2 >= 0 && arg2 <= 0x10FFFF) {
+      SET_STACKTOP(char_new(arg2));
+      PRIM_SUCCEEDED;
     }
-  UNPOP (1);
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* Character = */
-static intptr_t
-VMpr_Character_equal (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_Character_equal(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  PUSH_BOOLEAN (IS_OOP (oop2) && is_a_kind_of (OOP_CLASS (oop2), _gst_char_class)
-		&& CHAR_OOP_VALUE (oop2) == CHAR_OOP_VALUE (oop1)
-		&& (CHAR_OOP_VALUE (oop1) <= 127
-		    || OOP_CLASS (oop2) == OOP_CLASS (oop1)));
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  PUSH_BOOLEAN(
+      IS_OOP(oop2) && is_a_kind_of(OOP_CLASS(oop2), _gst_char_class) &&
+      CHAR_OOP_VALUE(oop2) == CHAR_OOP_VALUE(oop1) &&
+      (CHAR_OOP_VALUE(oop1) <= 127 || OOP_CLASS(oop2) == OOP_CLASS(oop1)));
   PRIM_SUCCEEDED;
 }
 
 /* Symbol class intern: aString */
-static intptr_t
-VMpr_Symbol_intern (int id,
-                    volatile int numArgs)
-{
+static intptr_t VMpr_Symbol_intern(int id, volatile int numArgs) {
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = STACKTOP ();		/* keeps this guy referenced while
-				   being interned */
-  if (IS_CLASS (oop2, _gst_string_class))
-    {
-      OOP internedString;
-      internedString = _gst_intern_string_oop (oop2);
-      POP_N_OOPS (1);
+  oop2 = STACKTOP(); /* keeps this guy referenced while
+                        being interned */
+  if (IS_CLASS(oop2, _gst_string_class)) {
+    OOP internedString;
+    internedString = _gst_intern_string_oop(oop2);
+    POP_N_OOPS(1);
 
-      SET_STACKTOP (internedString);
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (1);
+    SET_STACKTOP(internedString);
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* Dictionary new */
-static intptr_t
-VMpr_Dictionary_new (int id,
-                     volatile int numArgs)
-{
+static intptr_t VMpr_Dictionary_new(int id, volatile int numArgs) {
   OOP oop1, dictionaryOOP;
   _gst_primitives_executed++;
   oop1 = STACKTOP();
-  dictionaryOOP = _gst_dictionary_new (32);
-  OBJ_SET_CLASS (OOP_TO_OBJ (dictionaryOOP),  oop1);
-  SET_STACKTOP (dictionaryOOP);
+  dictionaryOOP = _gst_dictionary_new(32);
+  OBJ_SET_CLASS(OOP_TO_OBJ(dictionaryOOP), oop1);
+  SET_STACKTOP(dictionaryOOP);
   PRIM_SUCCEEDED;
 }
-
 
 /* Memory addressOfOOP: oop */
-static intptr_t
-VMpr_Memory_addressOfOOP (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_Memory_addressOfOOP(int id, volatile int numArgs) {
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  POP_N_OOPS (1);
-  if (IS_OOP (oop2))
-    {
-      PUSH_OOP (FROM_C_ULONG ((uintptr_t) oop2));
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (2);
+  oop2 = POP_OOP();
+  POP_N_OOPS(1);
+  if (IS_OOP(oop2)) {
+    PUSH_OOP(FROM_C_ULONG((uintptr_t)oop2));
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(2);
   PRIM_FAILED;
 }
 
 /* Memory addressOf: oop */
-static intptr_t
-VMpr_Memory_addressOf (int id,
-                       volatile int numArgs)
-{
+static intptr_t VMpr_Memory_addressOf(int id, volatile int numArgs) {
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  POP_N_OOPS (1);
-  if (IS_OOP (oop2))
-    {
-      PUSH_OOP (FROM_C_ULONG ((uintptr_t) OOP_TO_OBJ (oop2)));
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (2);
+  oop2 = POP_OOP();
+  POP_N_OOPS(1);
+  if (IS_OOP(oop2)) {
+    PUSH_OOP(FROM_C_ULONG((uintptr_t)OOP_TO_OBJ(oop2)));
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(2);
   PRIM_FAILED;
 }
-
 
 /* SystemDictionary backtrace */
 
-static intptr_t
-VMpr_SystemDictionary_backtrace (int id,
-                                 volatile int numArgs)
-{
+static intptr_t VMpr_SystemDictionary_backtrace(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  _gst_show_backtrace (stdout);
+  _gst_show_backtrace(stdout);
   PRIM_SUCCEEDED;
 }
 
 /* SystemDictionary getTraceFlag: anIndex */
-static intptr_t
-VMpr_SystemDictionary_getTraceFlag (int id,
-                                    volatile int numArgs)
-{
+static intptr_t VMpr_SystemDictionary_getTraceFlag(int id,
+                                                   volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if (IS_INT (oop2))
-    {
-      intptr_t arg2;
-      int value;
-      arg2 = TO_INT (oop2);
-      value = _gst_get_var (arg2);
-      if (value != -1)
-	{
-	  oop1 = (value > 1 ? FROM_INT (oop2 ) :
-		  (value ? _gst_true_oop : _gst_false_oop));
-	  PUSH_OOP (oop1);
-	  PRIM_SUCCEEDED;
-	}
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if (IS_INT(oop2)) {
+    intptr_t arg2;
+    int value;
+    arg2 = TO_INT(oop2);
+    value = _gst_get_var(arg2);
+    if (value != -1) {
+      oop1 = (value > 1 ? FROM_INT(oop2)
+                        : (value ? _gst_true_oop : _gst_false_oop));
+      PUSH_OOP(oop1);
+      PRIM_SUCCEEDED;
     }
+  }
 
-  UNPOP (2);
+  UNPOP(2);
   PRIM_FAILED;
 }
 
 /* SystemDictionary setTraceFlag: anIndex to: aBoolean */
-static intptr_t
-VMpr_SystemDictionary_setTraceFlag (int id,
-                                    volatile int numArgs)
-{
+static intptr_t VMpr_SystemDictionary_setTraceFlag(int id,
+                                                   volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if (IS_INT (oop1))
-    {
-      intptr_t arg1 = TO_INT (oop1);
-      intptr_t old_value = _gst_set_var (arg1,
-					 IS_INT (oop2)
-					 ? TO_INT (oop2)
-					 : oop2 == _gst_true_oop);
-      if (old_value != -1)
-	{
-	  SET_EXCEPT_FLAG (true);
-	  PRIM_SUCCEEDED;
-	}
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if (IS_INT(oop1)) {
+    intptr_t arg1 = TO_INT(oop1);
+    intptr_t old_value =
+        _gst_set_var(arg1, IS_INT(oop2) ? TO_INT(oop2) : oop2 == _gst_true_oop);
+    if (old_value != -1) {
+      SET_EXCEPT_FLAG(true);
+      PRIM_SUCCEEDED;
     }
+  }
 
-  UNPOP (2);
+  UNPOP(2);
   PRIM_FAILED;
 }
-
 
 /* Memory type: aType at: anAddress */
-static intptr_t
-VMpr_Memory_at (int id,
-                volatile int numArgs)
-{
+static intptr_t VMpr_Memory_at(int id, volatile int numArgs) {
   OOP oop2;
   OOP oop3;
   _gst_primitives_executed++;
 
-  oop3 = POP_OOP ();
-  oop2 = POP_OOP ();
-  POP_N_OOPS (1);
-  if (IS_C_LONG (oop3) && IS_INT (oop2))
-    {
-      intptr_t arg1, arg2;
-      arg1 = TO_INT (oop2);
-      arg2 = TO_C_LONG (oop3);
-      switch (arg1)
-	{
-	case CDATA_CHAR:		/* char */
-	case CDATA_UCHAR:		/* unsigned char */
-	  PUSH_OOP (CHAR_OOP_AT (*(unsigned char *) arg2));
-	  PRIM_SUCCEEDED;
-	case CDATA_SHORT:		/* short */
-	  PUSH_INT (*(short *) arg2);
-	  PRIM_SUCCEEDED;
-	case CDATA_USHORT:		/* unsigned short */
-	  PUSH_INT (*(unsigned short *) arg2);
-	  PRIM_SUCCEEDED;
-	case CDATA_LONG:		/* long */
-	  PUSH_OOP (FROM_C_LONG (*(long *) arg2));
-	  PRIM_SUCCEEDED;
-	case CDATA_ULONG:		/* unsigned long */
-	  PUSH_OOP (FROM_C_ULONG (*(unsigned long *) arg2));
-	  PRIM_SUCCEEDED;
-       case CDATA_LONGLONG:            /* long long */
-         PUSH_OOP (from_c_int_64 (*(long long *) arg2));
-         PRIM_SUCCEEDED;
-       case CDATA_ULONGLONG:           /* unsigned long long */
-         PUSH_OOP (from_c_uint_64 (*(unsigned long long *) arg2));
-         PRIM_SUCCEEDED;
-	case CDATA_FLOAT:		/* float */
-	  PUSH_OOP (floate_new (*(float *) arg2));
-	  PRIM_SUCCEEDED;
-	case CDATA_DOUBLE:		/* double */
-	  PUSH_OOP (floatd_new (*(double *) arg2));
-	  PRIM_SUCCEEDED;
-	case CDATA_STRING:		/* string */
-	  if (*(char **) arg2)
-	    PUSH_OOP (_gst_string_new (*(char **) arg2));
-	  else
-	    PUSH_OOP (_gst_nil_oop);
+  oop3 = POP_OOP();
+  oop2 = POP_OOP();
+  POP_N_OOPS(1);
+  if (IS_C_LONG(oop3) && IS_INT(oop2)) {
+    intptr_t arg1, arg2;
+    arg1 = TO_INT(oop2);
+    arg2 = TO_C_LONG(oop3);
+    switch (arg1) {
+    case CDATA_CHAR:  /* char */
+    case CDATA_UCHAR: /* unsigned char */
+      PUSH_OOP(CHAR_OOP_AT(*(unsigned char *)arg2));
+      PRIM_SUCCEEDED;
+    case CDATA_SHORT: /* short */
+      PUSH_INT(*(short *)arg2);
+      PRIM_SUCCEEDED;
+    case CDATA_USHORT: /* unsigned short */
+      PUSH_INT(*(unsigned short *)arg2);
+      PRIM_SUCCEEDED;
+    case CDATA_LONG: /* long */
+      PUSH_OOP(FROM_C_LONG(*(long *)arg2));
+      PRIM_SUCCEEDED;
+    case CDATA_ULONG: /* unsigned long */
+      PUSH_OOP(FROM_C_ULONG(*(unsigned long *)arg2));
+      PRIM_SUCCEEDED;
+    case CDATA_LONGLONG: /* long long */
+      PUSH_OOP(from_c_int_64(*(long long *)arg2));
+      PRIM_SUCCEEDED;
+    case CDATA_ULONGLONG: /* unsigned long long */
+      PUSH_OOP(from_c_uint_64(*(unsigned long long *)arg2));
+      PRIM_SUCCEEDED;
+    case CDATA_FLOAT: /* float */
+      PUSH_OOP(floate_new(*(float *)arg2));
+      PRIM_SUCCEEDED;
+    case CDATA_DOUBLE: /* double */
+      PUSH_OOP(floatd_new(*(double *)arg2));
+      PRIM_SUCCEEDED;
+    case CDATA_STRING: /* string */
+      if (*(char **)arg2)
+        PUSH_OOP(_gst_string_new(*(char **)arg2));
+      else
+        PUSH_OOP(_gst_nil_oop);
 
-	  PRIM_SUCCEEDED;
-	case CDATA_OOP:		/* OOP */
-	  PUSH_OOP (*(OOP *) arg2);
-	  PRIM_SUCCEEDED;
-	case CDATA_INT:		/* int */
-	  PUSH_OOP (FROM_C_INT (*(int *) arg2));
-	  PRIM_SUCCEEDED;
-	case CDATA_UINT:		/* unsigned int */
-	  PUSH_OOP (FROM_C_UINT (*(unsigned int *) arg2));
-	  PRIM_SUCCEEDED;
-	case CDATA_LONG_DOUBLE:		/* long double */
-	  PUSH_OOP (floatq_new (*(long double *) arg2));
-	  PRIM_SUCCEEDED;
-	}
+      PRIM_SUCCEEDED;
+    case CDATA_OOP: /* OOP */
+      PUSH_OOP(*(OOP *)arg2);
+      PRIM_SUCCEEDED;
+    case CDATA_INT: /* int */
+      PUSH_OOP(FROM_C_INT(*(int *)arg2));
+      PRIM_SUCCEEDED;
+    case CDATA_UINT: /* unsigned int */
+      PUSH_OOP(FROM_C_UINT(*(unsigned int *)arg2));
+      PRIM_SUCCEEDED;
+    case CDATA_LONG_DOUBLE: /* long double */
+      PUSH_OOP(floatq_new(*(long double *)arg2));
+      PRIM_SUCCEEDED;
     }
+  }
 
-  UNPOP (3);
+  UNPOP(3);
   PRIM_FAILED;
 }
 
 /* Memory type: aType at: anAddress put: aValue */
-static intptr_t
-VMpr_Memory_atPut (int id,
-                   volatile int numArgs)
-{
+static intptr_t VMpr_Memory_atPut(int id, volatile int numArgs) {
   OOP oop4;
   OOP oop3;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop4 = POP_OOP ();
-  oop3 = POP_OOP ();
-  oop2 = POP_OOP ();
+  oop4 = POP_OOP();
+  oop3 = POP_OOP();
+  oop2 = POP_OOP();
   /* don't pop the receiver */
-  if (IS_C_LONG (oop3) && IS_INT (oop2))
-    {
-      intptr_t arg1, arg2;
-      arg1 = TO_INT (oop2);
-      arg2 = TO_C_LONG (oop3);
-      switch (arg1)
-	{
-	case CDATA_CHAR:		/* char */
-	case CDATA_UCHAR:		/* unsigned char */
-	  /* may want to use Character instead? */
-	  if (IS_CLASS (oop3, _gst_char_class)
-	      || (IS_CLASS (oop3, _gst_unicode_character_class)
-		  && CHAR_OOP_VALUE (oop3) <= 127))
-	    {
-	      *(char *) arg2 = CHAR_OOP_VALUE (oop4);
-	      PRIM_SUCCEEDED;
-	    }
-	  else if (IS_INT (oop4))
-	    {
-	      *(char *) arg2 = (char) TO_INT (oop4);
-	      PRIM_SUCCEEDED;
-	    }
-	  break;
-	case CDATA_SHORT:		/* short */
-	case CDATA_USHORT:		/* unsigned short */
-	  if (IS_INT (oop4))
-	    {
-	      *(short *) arg2 = (short) TO_INT (oop4);
-	      PRIM_SUCCEEDED;
-	    }
-	  break;
-	case CDATA_LONG:		/* long */
-	case CDATA_ULONG:		/* unsigned long */
-	  if (IS_C_LONG (oop4) || IS_C_ULONG (oop4))
-	    {
-	      *(long *) arg2 = TO_C_LONG (oop4);
-	      PRIM_SUCCEEDED;
-	    }
-	  break;
-       case CDATA_LONGLONG:            /* long long */
-       case CDATA_ULONGLONG:           /* unsigned long long */
-         if (IS_C_LONGLONG (oop4) || IS_C_ULONGLONG (oop4))
-           {
-             *(long long *) arg2 = to_c_int_64 (oop4);
-             PRIM_SUCCEEDED;
-           }
-         break;
-	case CDATA_FLOAT:		/* float */
-	  if (IS_CLASS (oop4, _gst_floatd_class))
-	    {
-	      *(float *) arg2 = (float) FLOATD_OOP_VALUE (oop4);
-	      PRIM_SUCCEEDED;
-	    }
-	  else if (IS_CLASS (oop4, _gst_floate_class))
-	    {
-	      *(float *) arg2 = FLOATE_OOP_VALUE (oop4);
-	      PRIM_SUCCEEDED;
-	    }
-	  else if (IS_CLASS (oop4, _gst_floatq_class))
-	    {
-	      *(float *) arg2 = (float) FLOATQ_OOP_VALUE (oop4);
-	      PRIM_SUCCEEDED;
-	    }
-	  break;
-	case CDATA_DOUBLE:		/* double */
-	  if (IS_CLASS (oop4, _gst_floatd_class))
-	    {
-	      *(double *) arg2 = FLOATD_OOP_VALUE (oop4);
-	      PRIM_SUCCEEDED;
-	    }
-	  else if (IS_CLASS (oop4, _gst_floate_class))
-	    {
-	      *(double *) arg2 = (double) FLOATE_OOP_VALUE (oop4);
-	      PRIM_SUCCEEDED;
-	    }
-	  else if (IS_CLASS (oop4, _gst_floatq_class))
-	    {
-	      *(double *) arg2 = (double) FLOATQ_OOP_VALUE (oop4);
-	      PRIM_SUCCEEDED;
-	    }
-	  break;
-	case CDATA_STRING:		/* string */
-	  if (IS_CLASS (oop4, _gst_string_class)
-	      || IS_CLASS (oop4, _gst_symbol_class))
-	    {
-	      /* Char* cast on the right side needed because
-	         _gst_to_cstring returns gst_uchar * */
-	      *(char **) arg2 = (char *) _gst_to_cstring (oop4);
-	      PRIM_SUCCEEDED;
-	    }
-	  break;
-	case CDATA_OOP:		/* OOP */
-	  *(OOP *) arg2 = oop4;
-	  PRIM_SUCCEEDED;
-	case CDATA_INT:		/* int */
-	case CDATA_UINT:		/* unsigned int */
-	  if (IS_C_INT (oop4) || is_c_uint_32 (oop4))
-	    {
-	      *(int *) arg2 = TO_C_INT (oop4);
-	      PRIM_SUCCEEDED;
-	    }
-	  break;
-	case CDATA_LONG_DOUBLE:		/* long double */
-	  if (IS_CLASS (oop4, _gst_floatd_class))
-	    {
-	      *(long double *) arg2 = (long double) FLOATD_OOP_VALUE (oop4);
-	      PRIM_SUCCEEDED;
-	    }
-	  else if (IS_CLASS (oop4, _gst_floate_class))
-	    {
-	      *(long double *) arg2 = (long double) FLOATE_OOP_VALUE (oop4);
-	      PRIM_SUCCEEDED;
-	    }
-	  else if (IS_CLASS (oop4, _gst_floatq_class))
-	    {
-	      *(long double *) arg2 = FLOATQ_OOP_VALUE (oop4);
-	      PRIM_SUCCEEDED;
-	    }
-	  break;
-	}
+  if (IS_C_LONG(oop3) && IS_INT(oop2)) {
+    intptr_t arg1, arg2;
+    arg1 = TO_INT(oop2);
+    arg2 = TO_C_LONG(oop3);
+    switch (arg1) {
+    case CDATA_CHAR:  /* char */
+    case CDATA_UCHAR: /* unsigned char */
+      /* may want to use Character instead? */
+      if (IS_CLASS(oop3, _gst_char_class) ||
+          (IS_CLASS(oop3, _gst_unicode_character_class) &&
+           CHAR_OOP_VALUE(oop3) <= 127)) {
+        *(char *)arg2 = CHAR_OOP_VALUE(oop4);
+        PRIM_SUCCEEDED;
+      } else if (IS_INT(oop4)) {
+        *(char *)arg2 = (char)TO_INT(oop4);
+        PRIM_SUCCEEDED;
+      }
+      break;
+    case CDATA_SHORT:  /* short */
+    case CDATA_USHORT: /* unsigned short */
+      if (IS_INT(oop4)) {
+        *(short *)arg2 = (short)TO_INT(oop4);
+        PRIM_SUCCEEDED;
+      }
+      break;
+    case CDATA_LONG:  /* long */
+    case CDATA_ULONG: /* unsigned long */
+      if (IS_C_LONG(oop4) || IS_C_ULONG(oop4)) {
+        *(long *)arg2 = TO_C_LONG(oop4);
+        PRIM_SUCCEEDED;
+      }
+      break;
+    case CDATA_LONGLONG:  /* long long */
+    case CDATA_ULONGLONG: /* unsigned long long */
+      if (IS_C_LONGLONG(oop4) || IS_C_ULONGLONG(oop4)) {
+        *(long long *)arg2 = to_c_int_64(oop4);
+        PRIM_SUCCEEDED;
+      }
+      break;
+    case CDATA_FLOAT: /* float */
+      if (IS_CLASS(oop4, _gst_floatd_class)) {
+        *(float *)arg2 = (float)FLOATD_OOP_VALUE(oop4);
+        PRIM_SUCCEEDED;
+      } else if (IS_CLASS(oop4, _gst_floate_class)) {
+        *(float *)arg2 = FLOATE_OOP_VALUE(oop4);
+        PRIM_SUCCEEDED;
+      } else if (IS_CLASS(oop4, _gst_floatq_class)) {
+        *(float *)arg2 = (float)FLOATQ_OOP_VALUE(oop4);
+        PRIM_SUCCEEDED;
+      }
+      break;
+    case CDATA_DOUBLE: /* double */
+      if (IS_CLASS(oop4, _gst_floatd_class)) {
+        *(double *)arg2 = FLOATD_OOP_VALUE(oop4);
+        PRIM_SUCCEEDED;
+      } else if (IS_CLASS(oop4, _gst_floate_class)) {
+        *(double *)arg2 = (double)FLOATE_OOP_VALUE(oop4);
+        PRIM_SUCCEEDED;
+      } else if (IS_CLASS(oop4, _gst_floatq_class)) {
+        *(double *)arg2 = (double)FLOATQ_OOP_VALUE(oop4);
+        PRIM_SUCCEEDED;
+      }
+      break;
+    case CDATA_STRING: /* string */
+      if (IS_CLASS(oop4, _gst_string_class) ||
+          IS_CLASS(oop4, _gst_symbol_class)) {
+        /* Char* cast on the right side needed because
+           _gst_to_cstring returns gst_uchar * */
+        *(char **)arg2 = (char *)_gst_to_cstring(oop4);
+        PRIM_SUCCEEDED;
+      }
+      break;
+    case CDATA_OOP: /* OOP */
+      *(OOP *)arg2 = oop4;
+      PRIM_SUCCEEDED;
+    case CDATA_INT:  /* int */
+    case CDATA_UINT: /* unsigned int */
+      if (IS_C_INT(oop4) || is_c_uint_32(oop4)) {
+        *(int *)arg2 = TO_C_INT(oop4);
+        PRIM_SUCCEEDED;
+      }
+      break;
+    case CDATA_LONG_DOUBLE: /* long double */
+      if (IS_CLASS(oop4, _gst_floatd_class)) {
+        *(long double *)arg2 = (long double)FLOATD_OOP_VALUE(oop4);
+        PRIM_SUCCEEDED;
+      } else if (IS_CLASS(oop4, _gst_floate_class)) {
+        *(long double *)arg2 = (long double)FLOATE_OOP_VALUE(oop4);
+        PRIM_SUCCEEDED;
+      } else if (IS_CLASS(oop4, _gst_floatq_class)) {
+        *(long double *)arg2 = FLOATQ_OOP_VALUE(oop4);
+        PRIM_SUCCEEDED;
+      }
+      break;
     }
+  }
 
-  UNPOP (3);
+  UNPOP(3);
   PRIM_FAILED;
 }
 
-
 /* methodsFor: category */
-static intptr_t
-VMpr_Behavior_methodsFor (int id,
-                          volatile int numArgs)
-{
-  OOP oop2 = POP_OOP ();
-  OOP oop1 = STACKTOP ();
+static intptr_t VMpr_Behavior_methodsFor(int id, volatile int numArgs) {
+  OOP oop2 = POP_OOP();
+  OOP oop1 = STACKTOP();
 
   _gst_primitives_executed++;
   if (!_gst_current_parser || _gst_current_parser->state != PARSE_DOIT)
     PRIM_FAILED;
 
-  _gst_reset_compilation_category ();
-  _gst_set_compilation_class (oop1);
-  _gst_set_compilation_category (oop2);
+  _gst_reset_compilation_category();
+  _gst_set_compilation_class(oop1);
+  _gst_set_compilation_category(oop2);
   _gst_current_parser->state = PARSE_METHOD_LIST;
   PRIM_SUCCEEDED;
 }
 
 /* methodsFor: category ifTrue: condition */
-static intptr_t
-VMpr_Behavior_methodsForIfTrue (int id,
-                                volatile int numArgs)
-{
-  OOP oop3 = POP_OOP ();
-  OOP oop2 = POP_OOP ();
-  OOP oop1 = STACKTOP ();
+static intptr_t VMpr_Behavior_methodsForIfTrue(int id, volatile int numArgs) {
+  OOP oop3 = POP_OOP();
+  OOP oop2 = POP_OOP();
+  OOP oop1 = STACKTOP();
 
   _gst_primitives_executed++;
   if (!_gst_current_parser || _gst_current_parser->state != PARSE_DOIT)
     PRIM_FAILED;
 
-  _gst_reset_compilation_category ();
-  _gst_set_compilation_class (oop1);
-  _gst_set_compilation_category (oop2);
+  _gst_reset_compilation_category();
+  _gst_set_compilation_class(oop1);
+  _gst_set_compilation_category(oop2);
   if (oop3 != _gst_true_oop)
     _gst_skip_compilation = true;
   _gst_current_parser->state = PARSE_METHOD_LIST;
   PRIM_SUCCEEDED;
 }
-
 
-static intptr_t
-VMpr_Processor_disableEnableInterrupts (int id,
-                                        volatile int numArgs)
-{
+static intptr_t VMpr_Processor_disableEnableInterrupts(int id,
+                                                       volatile int numArgs) {
   OOP processOOP;
   gst_process process;
   gst_processor_scheduler processor;
   int count;
 
   _gst_primitives_executed++;
-  processor = (gst_processor_scheduler) OOP_TO_OBJ (_gst_processor_oop);
+  processor = (gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop);
   processOOP = processor->activeProcess;
-  process = (gst_process) OOP_TO_OBJ (processOOP);
+  process = (gst_process)OOP_TO_OBJ(processOOP);
 
-  count = IS_NIL (process->interrupts) ? 0 : TO_INT (process->interrupts);
+  count = IS_NIL(process->interrupts) ? 0 : TO_INT(process->interrupts);
 
   if (id == 0 && count++ == 0)
     async_queue_enabled = false;
-  else if (id == -1 && --count == 0)
-    {
-      async_queue_enabled = true;
-      SET_EXCEPT_FLAG (true);
-    }
+  else if (id == -1 && --count == 0) {
+    async_queue_enabled = true;
+    SET_EXCEPT_FLAG(true);
+  }
 
-  process->interrupts = FROM_INT (count);
+  process->interrupts = FROM_INT(count);
 
   PRIM_SUCCEEDED;
 }
 
 /* ProcessorScheduler signal: aSemaphore onInterrupt: anInteger */
-static intptr_t
-VMpr_Processor_signalOnInterrupt (int id,
-                                  volatile int numArgs)
-{
+static intptr_t VMpr_Processor_signalOnInterrupt(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if (IS_INT (oop2))
-    {
-      intptr_t arg2;
-      arg2 = TO_INT (oop2);
-      _gst_async_interrupt_wait (oop1, arg2);
-      PRIM_SUCCEEDED;
-    }
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if (IS_INT(oop2)) {
+    intptr_t arg2;
+    arg2 = TO_INT(oop2);
+    _gst_async_interrupt_wait(oop1, arg2);
+    PRIM_SUCCEEDED;
+  }
 
-  UNPOP (2);
+  UNPOP(2);
   PRIM_FAILED;
 }
-
+
 /* ObjectMemory spaceGrowRate */
 
-static intptr_t
-VMpr_ObjectMemory_getSpaceGrowRate (int id,
-                                    volatile int numArgs)
-{
+static intptr_t VMpr_ObjectMemory_getSpaceGrowRate(int id,
+                                                   volatile int numArgs) {
   _gst_primitives_executed++;
-  SET_STACKTOP (floatd_new ((double) _gst_mem.space_grow_rate));
+  SET_STACKTOP(floatd_new((double)_gst_mem.space_grow_rate));
   PRIM_SUCCEEDED;
 }
 
 /* ObjectMemory spaceGrowRate: */
-static intptr_t
-VMpr_ObjectMemory_setSpaceGrowRate (int id,
-                                    volatile int numArgs)
-{
+static intptr_t VMpr_ObjectMemory_setSpaceGrowRate(int id,
+                                                   volatile int numArgs) {
   intptr_t arg1;
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if (IS_CLASS (oop1, _gst_floatd_class))
-    arg1 = (int) FLOATD_OOP_VALUE (oop1);
-  else if (IS_CLASS (oop1, _gst_floate_class))
-    arg1 = (int) FLOATE_OOP_VALUE (oop1);
-  else if (IS_CLASS (oop1, _gst_floatq_class))
-    arg1 = (int) FLOATQ_OOP_VALUE (oop1);
-  else if (IS_INT (oop1))
-    arg1 = TO_INT (oop1);
-  else
-    {
-      UNPOP (1);
-      PRIM_FAILED;
-    }
+  oop1 = POP_OOP();
+  if (IS_CLASS(oop1, _gst_floatd_class))
+    arg1 = (int)FLOATD_OOP_VALUE(oop1);
+  else if (IS_CLASS(oop1, _gst_floate_class))
+    arg1 = (int)FLOATE_OOP_VALUE(oop1);
+  else if (IS_CLASS(oop1, _gst_floatq_class))
+    arg1 = (int)FLOATQ_OOP_VALUE(oop1);
+  else if (IS_INT(oop1))
+    arg1 = TO_INT(oop1);
+  else {
+    UNPOP(1);
+    PRIM_FAILED;
+  }
 
-  if (arg1 > 0 && arg1 <= 500)
-    {
-      _gst_init_mem (0, 0, 0, 0, 0, arg1);
-      PRIM_SUCCEEDED;
-    }
+  if (arg1 > 0 && arg1 <= 500) {
+    _gst_init_mem(0, 0, 0, 0, 0, arg1);
+    PRIM_SUCCEEDED;
+  }
 
-  UNPOP (1);
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* ObjectMemory smoothingFactor */
-static intptr_t
-VMpr_ObjectMemory_getSmoothingFactor (int id,
-                                      volatile int numArgs)
-{
+static intptr_t VMpr_ObjectMemory_getSmoothingFactor(int id,
+                                                     volatile int numArgs) {
   _gst_primitives_executed++;
-  SET_STACKTOP (floatd_new ((double) _gst_mem.factor));
+  SET_STACKTOP(floatd_new((double)_gst_mem.factor));
   PRIM_SUCCEEDED;
 }
 
 /* ObjectMemory smoothingFactor: */
-static intptr_t
-VMpr_ObjectMemory_setSmoothingFactor (int id,
-                                      volatile int numArgs)
-{
+static intptr_t VMpr_ObjectMemory_setSmoothingFactor(int id,
+                                                     volatile int numArgs) {
   OOP oop1;
   intptr_t arg1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if (IS_CLASS (oop1, _gst_floatd_class))
-    arg1 = (int) FLOATD_OOP_VALUE (oop1);
-  else if (IS_CLASS (oop1, _gst_floate_class))
-    arg1 = (int) FLOATE_OOP_VALUE (oop1);
-  else if (IS_CLASS (oop1, _gst_floatq_class))
-    arg1 = (int) FLOATQ_OOP_VALUE (oop1);
-  else if (IS_INT (oop1))
-    arg1 = TO_INT (oop1);
-  else
-    {
-      UNPOP (1);
-      PRIM_FAILED;
-    }
-  if (arg1 >= 0 && arg1 <= 1)
-    {
-      _gst_mem.factor = arg1;
-      PRIM_SUCCEEDED;
-    }
+  oop1 = POP_OOP();
+  if (IS_CLASS(oop1, _gst_floatd_class))
+    arg1 = (int)FLOATD_OOP_VALUE(oop1);
+  else if (IS_CLASS(oop1, _gst_floate_class))
+    arg1 = (int)FLOATE_OOP_VALUE(oop1);
+  else if (IS_CLASS(oop1, _gst_floatq_class))
+    arg1 = (int)FLOATQ_OOP_VALUE(oop1);
+  else if (IS_INT(oop1))
+    arg1 = TO_INT(oop1);
+  else {
+    UNPOP(1);
+    PRIM_FAILED;
+  }
+  if (arg1 >= 0 && arg1 <= 1) {
+    _gst_mem.factor = arg1;
+    PRIM_SUCCEEDED;
+  }
 
-  UNPOP (1);
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* ObjectMemory growThresholdPercent */
 static intptr_t
-VMpr_ObjectMemory_getGrowThresholdPercent (int id,
-                                           volatile int numArgs)
-{
+VMpr_ObjectMemory_getGrowThresholdPercent(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  SET_STACKTOP (floatd_new ((double) _gst_mem.grow_threshold_percent));
+  SET_STACKTOP(floatd_new((double)_gst_mem.grow_threshold_percent));
   PRIM_SUCCEEDED;
 }
 
 /* ObjectMemory growThresholdPercent: */
 static intptr_t
-VMpr_ObjectMemory_setGrowThresholdPercent (int id,
-                                           volatile int numArgs)
-{
+VMpr_ObjectMemory_setGrowThresholdPercent(int id, volatile int numArgs) {
   OOP oop1;
   intptr_t arg1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if (IS_CLASS (oop1, _gst_floatd_class))
-    arg1 = (int) FLOATD_OOP_VALUE (oop1);
-  else if (IS_CLASS (oop1, _gst_floate_class))
-    arg1 = (int) FLOATE_OOP_VALUE (oop1);
-  else if (IS_CLASS (oop1, _gst_floatq_class))
-    arg1 = (int) FLOATQ_OOP_VALUE (oop1);
-  else if (IS_INT (oop1))
-    arg1 = TO_INT (oop1);
-  else
-    {
-      UNPOP (1);
-      PRIM_FAILED;
-    }
-  if (arg1 > 0 && arg1 < 100)
-    {
-      _gst_init_mem (0, 0, 0, 0, arg1, 0);
-      PRIM_SUCCEEDED;
-    }
+  oop1 = POP_OOP();
+  if (IS_CLASS(oop1, _gst_floatd_class))
+    arg1 = (int)FLOATD_OOP_VALUE(oop1);
+  else if (IS_CLASS(oop1, _gst_floate_class))
+    arg1 = (int)FLOATE_OOP_VALUE(oop1);
+  else if (IS_CLASS(oop1, _gst_floatq_class))
+    arg1 = (int)FLOATQ_OOP_VALUE(oop1);
+  else if (IS_INT(oop1))
+    arg1 = TO_INT(oop1);
+  else {
+    UNPOP(1);
+    PRIM_FAILED;
+  }
+  if (arg1 > 0 && arg1 < 100) {
+    _gst_init_mem(0, 0, 0, 0, arg1, 0);
+    PRIM_SUCCEEDED;
+  }
 
-  UNPOP (1);
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* ObjectMemory bigObjectThreshold */
-static intptr_t
-VMpr_ObjectMemory_getBigObjectThreshold (int id,
-                                         volatile int numArgs)
-{
+static intptr_t VMpr_ObjectMemory_getBigObjectThreshold(int id,
+                                                        volatile int numArgs) {
   _gst_primitives_executed++;
-  SET_STACKTOP_INT (_gst_mem.big_object_threshold);
+  SET_STACKTOP_INT(_gst_mem.big_object_threshold);
   PRIM_SUCCEEDED;
 }
 
 /* ObjectMemory bigObjectThreshold: */
-static intptr_t
-VMpr_ObjectMemory_setBigObjectThreshold (int id,
-                                         volatile int numArgs)
-{
+static intptr_t VMpr_ObjectMemory_setBigObjectThreshold(int id,
+                                                        volatile int numArgs) {
   OOP oop1;
   intptr_t arg1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if (IS_NIL (oop1))
+  oop1 = POP_OOP();
+  if (IS_NIL(oop1))
     arg1 = INT_MAX < MAX_ST_INT ? INT_MAX : MAX_ST_INT;
-  else if (IS_INT (oop1))
-    arg1 = TO_INT (oop1);
-  else
-    {
-      UNPOP (1);
-      PRIM_FAILED;
-    }
+  else if (IS_INT(oop1))
+    arg1 = TO_INT(oop1);
+  else {
+    UNPOP(1);
+    PRIM_FAILED;
+  }
 
-  if (arg1 >= 0)
-    {
-      _gst_init_mem (0, 0, 0, arg1, 0, 0);
-      PRIM_SUCCEEDED;
-    }
+  if (arg1 >= 0) {
+    _gst_init_mem(0, 0, 0, arg1, 0, 0);
+    PRIM_SUCCEEDED;
+  }
 
-  UNPOP (1);
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* ObjectMemory growTo: numBytes */
-static intptr_t
-VMpr_ObjectMemory_growTo (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_ObjectMemory_growTo(int id, volatile int numArgs) {
   OOP oop1;
   intptr_t arg1;
   _gst_primitives_executed++;
 
-  oop1 = POP_OOP ();
-  if (IS_INT (oop1))
-    {
-      arg1 = TO_INT (oop1);
-      _gst_grow_memory_to (arg1);
-      PRIM_SUCCEEDED;
-    }
+  oop1 = POP_OOP();
+  if (IS_INT(oop1)) {
+    arg1 = TO_INT(oop1);
+    _gst_grow_memory_to(arg1);
+    PRIM_SUCCEEDED;
+  }
 
-  UNPOP (1);
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* ObjectMemory update */
-static intptr_t
-VMpr_ObjectMemory_update (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_ObjectMemory_update(int id, volatile int numArgs) {
   _gst_primitives_executed++;
 
 #ifndef OPTIMIZE
-  if (OOP_CLASS (STACKTOP ()) != _gst_object_memory_class)
+  if (OOP_CLASS(STACKTOP()) != _gst_object_memory_class)
     PRIM_FAILED;
 #endif
 
-  _gst_update_object_memory_oop (STACKTOP ());
+  _gst_update_object_memory_oop(STACKTOP());
   PRIM_SUCCEEDED;
 }
-
+
 /* CObject class alloc: nbytes type: aType */
 
-static intptr_t
-VMpr_CObject_allocType (int id,
-                        volatile int numArgs)
-{
+static intptr_t VMpr_CObject_allocType(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   OOP oop3;
   _gst_primitives_executed++;
 
-  oop1 = STACK_AT (0);
-  oop2 = STACK_AT (1);
-  oop3 = STACK_AT (2);
-  if (IS_INT (oop2)
-      && (IS_NIL (oop1) || is_a_kind_of (OOP_CLASS (oop1), _gst_c_type_class))
-      && COMMON (RECEIVER_IS_A_KIND_OF (oop3, _gst_c_object_class)))
-    {
-      intptr_t arg2 = TO_INT (oop2);
-      PTR ptr = xmalloc (arg2);
-      OOP cObjectOOP = COBJECT_NEW (ptr, oop1, oop3);
+  oop1 = STACK_AT(0);
+  oop2 = STACK_AT(1);
+  oop3 = STACK_AT(2);
+  if (IS_INT(oop2) &&
+      (IS_NIL(oop1) || is_a_kind_of(OOP_CLASS(oop1), _gst_c_type_class)) &&
+      COMMON(RECEIVER_IS_A_KIND_OF(oop3, _gst_c_object_class))) {
+    intptr_t arg2 = TO_INT(oop2);
+    PTR ptr = xmalloc(arg2);
+    OOP cObjectOOP = COBJECT_NEW(ptr, oop1, oop3);
 
-      POP_N_OOPS (2);
-      SET_STACKTOP (cObjectOOP);
-      PRIM_SUCCEEDED;
-    }
+    POP_N_OOPS(2);
+    SET_STACKTOP(cObjectOOP);
+    PRIM_SUCCEEDED;
+  }
   PRIM_FAILED;
 }
-
+
 /* sin */
-static intptr_t
-VMpr_Float_sin (int id,
-                volatile int numArgs)
-{
+static intptr_t VMpr_Float_sin(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  if (IS_CLASS (oop1, _gst_floatd_class))
-    {
-      double farg1 = FLOATD_OOP_VALUE (oop1);
-      SET_STACKTOP (floatd_new (sin (farg1)));
-      PRIM_SUCCEEDED;
-    }
-  else if (IS_CLASS (oop1, _gst_floate_class))
-    {
-      double farg1 = (double) FLOATE_OOP_VALUE (oop1);
-      SET_STACKTOP (floate_new (sin (farg1)));
-      PRIM_SUCCEEDED;
-    }
-  else if (IS_CLASS (oop1, _gst_floatq_class))
-    {
-      long double farg1 = FLOATQ_OOP_VALUE (oop1);
-      SET_STACKTOP (floatq_new (sinl (farg1)));
-      PRIM_SUCCEEDED;
-    }
+  oop1 = STACKTOP();
+  if (IS_CLASS(oop1, _gst_floatd_class)) {
+    double farg1 = FLOATD_OOP_VALUE(oop1);
+    SET_STACKTOP(floatd_new(sin(farg1)));
+    PRIM_SUCCEEDED;
+  } else if (IS_CLASS(oop1, _gst_floate_class)) {
+    double farg1 = (double)FLOATE_OOP_VALUE(oop1);
+    SET_STACKTOP(floate_new(sin(farg1)));
+    PRIM_SUCCEEDED;
+  } else if (IS_CLASS(oop1, _gst_floatq_class)) {
+    long double farg1 = FLOATQ_OOP_VALUE(oop1);
+    SET_STACKTOP(floatq_new(sinl(farg1)));
+    PRIM_SUCCEEDED;
+  }
   PRIM_FAILED;
 }
 
 /* cos */
-static intptr_t
-VMpr_Float_cos (int id,
-                volatile int numArgs)
-{
+static intptr_t VMpr_Float_cos(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  if (IS_CLASS (oop1, _gst_floatd_class))
-    {
-      double farg1 = FLOATD_OOP_VALUE (oop1);
-      SET_STACKTOP (floatd_new (cos (farg1)));
-      PRIM_SUCCEEDED;
-    }
-  else if (IS_CLASS (oop1, _gst_floate_class))
-    {
-      double farg1 = (double) FLOATE_OOP_VALUE (oop1);
-      SET_STACKTOP (floate_new (cos (farg1)));
-      PRIM_SUCCEEDED;
-    }
-  else if (IS_CLASS (oop1, _gst_floatq_class))
-    {
-      long double farg1 = FLOATQ_OOP_VALUE (oop1);
-      SET_STACKTOP (floatq_new (cosl (farg1)));
-      PRIM_SUCCEEDED;
-    }
+  oop1 = STACKTOP();
+  if (IS_CLASS(oop1, _gst_floatd_class)) {
+    double farg1 = FLOATD_OOP_VALUE(oop1);
+    SET_STACKTOP(floatd_new(cos(farg1)));
+    PRIM_SUCCEEDED;
+  } else if (IS_CLASS(oop1, _gst_floate_class)) {
+    double farg1 = (double)FLOATE_OOP_VALUE(oop1);
+    SET_STACKTOP(floate_new(cos(farg1)));
+    PRIM_SUCCEEDED;
+  } else if (IS_CLASS(oop1, _gst_floatq_class)) {
+    long double farg1 = FLOATQ_OOP_VALUE(oop1);
+    SET_STACKTOP(floatq_new(cosl(farg1)));
+    PRIM_SUCCEEDED;
+  }
   PRIM_FAILED;
 }
 
 /* tan */
-static intptr_t
-VMpr_Float_tan (int id,
-                volatile int numArgs)
-{
+static intptr_t VMpr_Float_tan(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  if (IS_CLASS (oop1, _gst_floatd_class))
-    {
-      double farg1 = FLOATD_OOP_VALUE (oop1);
-      SET_STACKTOP (floatd_new (tan (farg1)));
-      PRIM_SUCCEEDED;
-    }
-  else if (IS_CLASS (oop1, _gst_floate_class))
-    {
-      double farg1 = (double) FLOATE_OOP_VALUE (oop1);
-      SET_STACKTOP (floate_new (tan (farg1)));
-      PRIM_SUCCEEDED;
-    }
-  else if (IS_CLASS (oop1, _gst_floatq_class))
-    {
-      long double farg1 = FLOATQ_OOP_VALUE (oop1);
-      SET_STACKTOP (floatq_new (tanl (farg1)));
-      PRIM_SUCCEEDED;
-    }
+  oop1 = STACKTOP();
+  if (IS_CLASS(oop1, _gst_floatd_class)) {
+    double farg1 = FLOATD_OOP_VALUE(oop1);
+    SET_STACKTOP(floatd_new(tan(farg1)));
+    PRIM_SUCCEEDED;
+  } else if (IS_CLASS(oop1, _gst_floate_class)) {
+    double farg1 = (double)FLOATE_OOP_VALUE(oop1);
+    SET_STACKTOP(floate_new(tan(farg1)));
+    PRIM_SUCCEEDED;
+  } else if (IS_CLASS(oop1, _gst_floatq_class)) {
+    long double farg1 = FLOATQ_OOP_VALUE(oop1);
+    SET_STACKTOP(floatq_new(tanl(farg1)));
+    PRIM_SUCCEEDED;
+  }
   PRIM_FAILED;
 }
 
 /* arcSin */
-static intptr_t
-VMpr_Float_arcSin (int id,
-                   volatile int numArgs)
-{
+static intptr_t VMpr_Float_arcSin(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  if (IS_CLASS (oop1, _gst_floatd_class))
-    {
-      double farg1 = FLOATD_OOP_VALUE (oop1);
-      SET_STACKTOP (floatd_new (asin (farg1)));
-      PRIM_SUCCEEDED;
-    }
-  else if (IS_CLASS (oop1, _gst_floate_class))
-    {
-      double farg1 = (double) FLOATE_OOP_VALUE (oop1);
-      SET_STACKTOP (floate_new (asin (farg1)));
-      PRIM_SUCCEEDED;
-    }
-  else if (IS_CLASS (oop1, _gst_floatq_class))
-    {
-      long double farg1 = FLOATQ_OOP_VALUE (oop1);
-      SET_STACKTOP (floatq_new (asinl (farg1)));
-      PRIM_SUCCEEDED;
-    }
+  oop1 = STACKTOP();
+  if (IS_CLASS(oop1, _gst_floatd_class)) {
+    double farg1 = FLOATD_OOP_VALUE(oop1);
+    SET_STACKTOP(floatd_new(asin(farg1)));
+    PRIM_SUCCEEDED;
+  } else if (IS_CLASS(oop1, _gst_floate_class)) {
+    double farg1 = (double)FLOATE_OOP_VALUE(oop1);
+    SET_STACKTOP(floate_new(asin(farg1)));
+    PRIM_SUCCEEDED;
+  } else if (IS_CLASS(oop1, _gst_floatq_class)) {
+    long double farg1 = FLOATQ_OOP_VALUE(oop1);
+    SET_STACKTOP(floatq_new(asinl(farg1)));
+    PRIM_SUCCEEDED;
+  }
   PRIM_FAILED;
 }
 
 /* arcCos */
-static intptr_t
-VMpr_Float_arcCos (int id,
-                   volatile int numArgs)
-{
+static intptr_t VMpr_Float_arcCos(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  if (IS_CLASS (oop1, _gst_floatd_class))
-    {
-      double farg1 = FLOATD_OOP_VALUE (oop1);
-      SET_STACKTOP (floatd_new (acos (farg1)));
-      PRIM_SUCCEEDED;
-    }
-  else if (IS_CLASS (oop1, _gst_floate_class))
-    {
-      double farg1 = (double) FLOATE_OOP_VALUE (oop1);
-      SET_STACKTOP (floate_new (acos (farg1)));
-      PRIM_SUCCEEDED;
-    }
-  else if (IS_CLASS (oop1, _gst_floatq_class))
-    {
-      long double farg1 = FLOATQ_OOP_VALUE (oop1);
-      SET_STACKTOP (floatq_new (acosl (farg1)));
-      PRIM_SUCCEEDED;
-    }
+  oop1 = STACKTOP();
+  if (IS_CLASS(oop1, _gst_floatd_class)) {
+    double farg1 = FLOATD_OOP_VALUE(oop1);
+    SET_STACKTOP(floatd_new(acos(farg1)));
+    PRIM_SUCCEEDED;
+  } else if (IS_CLASS(oop1, _gst_floate_class)) {
+    double farg1 = (double)FLOATE_OOP_VALUE(oop1);
+    SET_STACKTOP(floate_new(acos(farg1)));
+    PRIM_SUCCEEDED;
+  } else if (IS_CLASS(oop1, _gst_floatq_class)) {
+    long double farg1 = FLOATQ_OOP_VALUE(oop1);
+    SET_STACKTOP(floatq_new(acosl(farg1)));
+    PRIM_SUCCEEDED;
+  }
   PRIM_FAILED;
 }
 
 /* arcTan */
-static intptr_t
-VMpr_Float_arcTan (int id,
-                   volatile int numArgs)
-{
+static intptr_t VMpr_Float_arcTan(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  if (IS_CLASS (oop1, _gst_floatd_class))
-    {
-      double farg1 = FLOATD_OOP_VALUE (oop1);
-      SET_STACKTOP (floatd_new (atan (farg1)));
-      PRIM_SUCCEEDED;
-    }
-  else if (IS_CLASS (oop1, _gst_floate_class))
-    {
-      double farg1 = (double) FLOATE_OOP_VALUE (oop1);
-      SET_STACKTOP (floate_new (atan (farg1)));
-      PRIM_SUCCEEDED;
-    }
-  else if (IS_CLASS (oop1, _gst_floatq_class))
-    {
-      long double farg1 = FLOATQ_OOP_VALUE (oop1);
-      SET_STACKTOP (floatq_new (atanl (farg1)));
-      PRIM_SUCCEEDED;
-    }
+  oop1 = STACKTOP();
+  if (IS_CLASS(oop1, _gst_floatd_class)) {
+    double farg1 = FLOATD_OOP_VALUE(oop1);
+    SET_STACKTOP(floatd_new(atan(farg1)));
+    PRIM_SUCCEEDED;
+  } else if (IS_CLASS(oop1, _gst_floate_class)) {
+    double farg1 = (double)FLOATE_OOP_VALUE(oop1);
+    SET_STACKTOP(floate_new(atan(farg1)));
+    PRIM_SUCCEEDED;
+  } else if (IS_CLASS(oop1, _gst_floatq_class)) {
+    long double farg1 = FLOATQ_OOP_VALUE(oop1);
+    SET_STACKTOP(floatq_new(atanl(farg1)));
+    PRIM_SUCCEEDED;
+  }
   PRIM_FAILED;
 }
 
 /* exp */
-static intptr_t
-VMpr_Float_exp (int id,
-                volatile int numArgs)
-{
+static intptr_t VMpr_Float_exp(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  if (IS_CLASS (oop1, _gst_floatd_class))
-    {
-      double farg1 = FLOATD_OOP_VALUE (oop1);
-      SET_STACKTOP (floatd_new (exp (farg1)));
-      PRIM_SUCCEEDED;
-    }
-  else if (IS_CLASS (oop1, _gst_floate_class))
-    {
-      double farg1 = (double) FLOATE_OOP_VALUE (oop1);
-      SET_STACKTOP (floate_new (exp (farg1)));
-      PRIM_SUCCEEDED;
-    }
-  else if (IS_CLASS (oop1, _gst_floatq_class))
-    {
-      long double farg1 = FLOATQ_OOP_VALUE (oop1);
-      SET_STACKTOP (floatq_new (expl (farg1)));
-      PRIM_SUCCEEDED;
-    }
+  oop1 = STACKTOP();
+  if (IS_CLASS(oop1, _gst_floatd_class)) {
+    double farg1 = FLOATD_OOP_VALUE(oop1);
+    SET_STACKTOP(floatd_new(exp(farg1)));
+    PRIM_SUCCEEDED;
+  } else if (IS_CLASS(oop1, _gst_floate_class)) {
+    double farg1 = (double)FLOATE_OOP_VALUE(oop1);
+    SET_STACKTOP(floate_new(exp(farg1)));
+    PRIM_SUCCEEDED;
+  } else if (IS_CLASS(oop1, _gst_floatq_class)) {
+    long double farg1 = FLOATQ_OOP_VALUE(oop1);
+    SET_STACKTOP(floatq_new(expl(farg1)));
+    PRIM_SUCCEEDED;
+  }
   PRIM_FAILED;
 }
 
 /* ln */
-static intptr_t
-VMpr_Float_ln (int id,
-               volatile int numArgs)
-{
+static intptr_t VMpr_Float_ln(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  if (IS_CLASS (oop1, _gst_floatd_class))
-    {
-      double farg1 = FLOATD_OOP_VALUE (oop1);
-      SET_STACKTOP (floatd_new (log (farg1)));
-      PRIM_SUCCEEDED;
-    }
-  else if (IS_CLASS (oop1, _gst_floate_class))
-    {
-      double farg1 = (double) FLOATE_OOP_VALUE (oop1);
-      SET_STACKTOP (floate_new (log (farg1)));
-      PRIM_SUCCEEDED;
-    }
-  else if (IS_CLASS (oop1, _gst_floatq_class))
-    {
-      long double farg1 = FLOATQ_OOP_VALUE (oop1);
-      SET_STACKTOP (floatq_new (logl (farg1)));
-      PRIM_SUCCEEDED;
-    }
+  oop1 = STACKTOP();
+  if (IS_CLASS(oop1, _gst_floatd_class)) {
+    double farg1 = FLOATD_OOP_VALUE(oop1);
+    SET_STACKTOP(floatd_new(log(farg1)));
+    PRIM_SUCCEEDED;
+  } else if (IS_CLASS(oop1, _gst_floate_class)) {
+    double farg1 = (double)FLOATE_OOP_VALUE(oop1);
+    SET_STACKTOP(floate_new(log(farg1)));
+    PRIM_SUCCEEDED;
+  } else if (IS_CLASS(oop1, _gst_floatq_class)) {
+    long double farg1 = FLOATQ_OOP_VALUE(oop1);
+    SET_STACKTOP(floatq_new(logl(farg1)));
+    PRIM_SUCCEEDED;
+  }
   PRIM_FAILED;
 }
 
 /* raisedTo: aNumber -- receiver ** aNumber */
-static intptr_t
-VMpr_Float_pow (int id,
-                volatile int numArgs)
-{
+static intptr_t VMpr_Float_pow(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   double farg1, farg2;
@@ -4753,1086 +3963,892 @@ VMpr_Float_pow (int id,
 
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
-  if (IS_CLASS (oop1, _gst_floatd_class))
-    lfarg1 = farg1 = FLOATD_OOP_VALUE (oop1);
-  else if (IS_CLASS (oop1, _gst_floate_class))
-    lfarg1 = farg1 = FLOATE_OOP_VALUE (oop1);
-  else if (IS_CLASS (oop1, _gst_floatq_class))
-    {
-      long_double = true;
-      lfarg1 = farg1 = FLOATQ_OOP_VALUE (oop1);
-    }
-  else
-    {
-      UNPOP (1);
-      PRIM_FAILED;
-    }
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
+  if (IS_CLASS(oop1, _gst_floatd_class))
+    lfarg1 = farg1 = FLOATD_OOP_VALUE(oop1);
+  else if (IS_CLASS(oop1, _gst_floate_class))
+    lfarg1 = farg1 = FLOATE_OOP_VALUE(oop1);
+  else if (IS_CLASS(oop1, _gst_floatq_class)) {
+    long_double = true;
+    lfarg1 = farg1 = FLOATQ_OOP_VALUE(oop1);
+  } else {
+    UNPOP(1);
+    PRIM_FAILED;
+  }
 
-  if (IS_CLASS (oop2, _gst_floatd_class))
-    lfarg2 = farg2 = FLOATD_OOP_VALUE (oop2);
-  else if (IS_CLASS (oop2, _gst_floate_class))
-    lfarg2 = farg2 = FLOATE_OOP_VALUE (oop2);
-  else if (IS_CLASS (oop2, _gst_floatq_class))
-    {
-      long_double = true;
-      lfarg2 = farg2 = FLOATQ_OOP_VALUE (oop2);
-    }
-  else
-    {
-      UNPOP (1);
-      PRIM_FAILED;
-    }
+  if (IS_CLASS(oop2, _gst_floatd_class))
+    lfarg2 = farg2 = FLOATD_OOP_VALUE(oop2);
+  else if (IS_CLASS(oop2, _gst_floate_class))
+    lfarg2 = farg2 = FLOATE_OOP_VALUE(oop2);
+  else if (IS_CLASS(oop2, _gst_floatq_class)) {
+    long_double = true;
+    lfarg2 = farg2 = FLOATQ_OOP_VALUE(oop2);
+  } else {
+    UNPOP(1);
+    PRIM_FAILED;
+  }
 
-  if ((lfarg1 == 0.0 && lfarg2 < 0.0) || lfarg1 < 0.0)
-    {
-      UNPOP (1);
-      PRIM_FAILED;
-    }
+  if ((lfarg1 == 0.0 && lfarg2 < 0.0) || lfarg1 < 0.0) {
+    UNPOP(1);
+    PRIM_FAILED;
+  }
 
-  if (long_double)
-    {
-      if (IS_NAN (lfarg1) || IS_NAN (lfarg2))
-        /* The C99 standard mandates that pow(1, NaN) = 1.0 and pow
-           (NaN, 0.0) = 1.0, which is plain wrong.  We take the
-           liberty to make these results be NaN.  */
-        SET_STACKTOP (floatq_new (lfarg1 + lfarg2));
-      else
-        SET_STACKTOP (floatq_new (powl (lfarg1, lfarg2)));
-    }
+  if (long_double) {
+    if (IS_NAN(lfarg1) || IS_NAN(lfarg2))
+      /* The C99 standard mandates that pow(1, NaN) = 1.0 and pow
+         (NaN, 0.0) = 1.0, which is plain wrong.  We take the
+         liberty to make these results be NaN.  */
+      SET_STACKTOP(floatq_new(lfarg1 + lfarg2));
+    else
+      SET_STACKTOP(floatq_new(powl(lfarg1, lfarg2)));
+  }
 
-  else
-    {
-      if (IS_NAN (farg1) || IS_NAN (farg2))
-        /* The C99 standard mandates that pow(1, NaN) = 1.0 and pow
-           (NaN, 0.0) = 1.0, which is plain wrong.  We take the
-           liberty to make these results be NaN.  */
-        SET_STACKTOP (floatd_new (farg1 + farg2));
-      else
-        SET_STACKTOP (floatd_new (pow (farg1, farg2)));
-    }
+  else {
+    if (IS_NAN(farg1) || IS_NAN(farg2))
+      /* The C99 standard mandates that pow(1, NaN) = 1.0 and pow
+         (NaN, 0.0) = 1.0, which is plain wrong.  We take the
+         liberty to make these results be NaN.  */
+      SET_STACKTOP(floatd_new(farg1 + farg2));
+    else
+      SET_STACKTOP(floatd_new(pow(farg1, farg2)));
+  }
 
   PRIM_SUCCEEDED;
 }
 
 /* CObject free */
-static intptr_t
-VMpr_CObject_free (int id,
-                   volatile int numArgs)
-{
+static intptr_t VMpr_CObject_free(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  if COMMON (is_a_kind_of (OOP_CLASS (oop1), _gst_c_callback_descriptor_class))
-    {
-      _gst_free_closure (oop1);
-      SET_STACKTOP (_gst_nil_oop);
-      PRIM_SUCCEEDED;
-    }
+  oop1 = STACKTOP();
+  if COMMON (is_a_kind_of(OOP_CLASS(oop1), _gst_c_callback_descriptor_class)) {
+    _gst_free_closure(oop1);
+    SET_STACKTOP(_gst_nil_oop);
+    PRIM_SUCCEEDED;
+  }
 
-  else if COMMON (RECEIVER_IS_A_KIND_OF (OOP_CLASS (oop1), _gst_c_object_class))
-    {
-      _gst_free_cobject (oop1);	/* free allocated space */
-      SET_STACKTOP (_gst_nil_oop);
-      PRIM_SUCCEEDED;
-    }
+  else if COMMON (RECEIVER_IS_A_KIND_OF(OOP_CLASS(oop1), _gst_c_object_class)) {
+    _gst_free_cobject(oop1); /* free allocated space */
+    SET_STACKTOP(_gst_nil_oop);
+    PRIM_SUCCEEDED;
+  }
   PRIM_FAILED;
 }
 
 /* sqrt */
-static intptr_t
-VMpr_Float_sqrt (int id,
-                 volatile int numArgs)
-{
+static intptr_t VMpr_Float_sqrt(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  if (IS_CLASS (oop1, _gst_floatd_class))
-    {
-      double farg1 = FLOATD_OOP_VALUE (oop1);
-      SET_STACKTOP (floatd_new (sqrt (farg1)));
-      PRIM_SUCCEEDED;
-    }
-  else if (IS_CLASS (oop1, _gst_floate_class))
-    {
-      double farg1 = FLOATE_OOP_VALUE (oop1);
-      SET_STACKTOP (floate_new (sqrt (farg1)));
-      PRIM_SUCCEEDED;
-    }
-  else if (IS_CLASS (oop1, _gst_floatq_class))
-    {
-      long double farg1 = FLOATQ_OOP_VALUE (oop1);
-      SET_STACKTOP (floatq_new (sqrtl (farg1)));
-      PRIM_SUCCEEDED;
-    }
+  oop1 = STACKTOP();
+  if (IS_CLASS(oop1, _gst_floatd_class)) {
+    double farg1 = FLOATD_OOP_VALUE(oop1);
+    SET_STACKTOP(floatd_new(sqrt(farg1)));
+    PRIM_SUCCEEDED;
+  } else if (IS_CLASS(oop1, _gst_floate_class)) {
+    double farg1 = FLOATE_OOP_VALUE(oop1);
+    SET_STACKTOP(floate_new(sqrt(farg1)));
+    PRIM_SUCCEEDED;
+  } else if (IS_CLASS(oop1, _gst_floatq_class)) {
+    long double farg1 = FLOATQ_OOP_VALUE(oop1);
+    SET_STACKTOP(floatq_new(sqrtl(farg1)));
+    PRIM_SUCCEEDED;
+  }
   PRIM_FAILED;
 }
 
 /* ceiling, floor */
-static intptr_t
-VMpr_Float_ceil_floor (int id,
-                       volatile int numArgs)
-{
+static intptr_t VMpr_Float_ceil_floor(int id, volatile int numArgs) {
   OOP oop1;
   double farg1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  if (IS_CLASS (oop1, _gst_floatd_class))
-    farg1 = FLOATD_OOP_VALUE (oop1);
-  else if (IS_CLASS (oop1, _gst_floate_class))
-    farg1 = (double) FLOATE_OOP_VALUE (oop1);
-  else if (IS_CLASS (oop1, _gst_floatq_class))
-    farg1 = (double) FLOATQ_OOP_VALUE (oop1);
+  oop1 = STACKTOP();
+  if (IS_CLASS(oop1, _gst_floatd_class))
+    farg1 = FLOATD_OOP_VALUE(oop1);
+  else if (IS_CLASS(oop1, _gst_floate_class))
+    farg1 = (double)FLOATE_OOP_VALUE(oop1);
+  else if (IS_CLASS(oop1, _gst_floatq_class))
+    farg1 = (double)FLOATQ_OOP_VALUE(oop1);
   else
     PRIM_FAILED;
 
-  if COMMON ((farg1 > MIN_ST_INT) && farg1 < MAX_ST_INT)
-    {
-      switch (id)
-        {
-        case 0:
-          SET_STACKTOP_INT ((intptr_t) ceil (farg1));
-          PRIM_SUCCEEDED;
-        case -1:
-          SET_STACKTOP_INT ((intptr_t) floor (farg1));
-          PRIM_SUCCEEDED;
-        }
+  if COMMON ((farg1 > MIN_ST_INT) && farg1 < MAX_ST_INT) {
+    switch (id) {
+    case 0:
+      SET_STACKTOP_INT((intptr_t)ceil(farg1));
+      PRIM_SUCCEEDED;
+    case -1:
+      SET_STACKTOP_INT((intptr_t)floor(farg1));
+      PRIM_SUCCEEDED;
     }
+  }
 
   PRIM_FAILED;
 }
 
 /* Behavior basicNewInFixedSpace */
-static intptr_t
-VMpr_Behavior_basicNewFixed (int id,
-                             volatile int numArgs)
-{
+static intptr_t VMpr_Behavior_basicNewFixed(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  if (IS_OOP (oop1))
-    {
-      if (!CLASS_IS_INDEXABLE (oop1))
-	{
-	  OOP result;
-	  instantiate (oop1, &result);
-	  _gst_make_oop_fixed (result);
-	  SET_STACKTOP (result);
-	  PRIM_SUCCEEDED;
-	}
+  oop1 = STACKTOP();
+  if (IS_OOP(oop1)) {
+    if (!CLASS_IS_INDEXABLE(oop1)) {
+      OOP result;
+      instantiate(oop1, &result);
+      _gst_make_oop_fixed(result);
+      SET_STACKTOP(result);
+      PRIM_SUCCEEDED;
     }
+  }
   PRIM_FAILED;
 }
 
 /* Behavior basicNewInFixedSpace: */
-static intptr_t
-VMpr_Behavior_basicNewFixedColon (int id,
-                                  volatile int numArgs)
-{
+static intptr_t VMpr_Behavior_basicNewFixedColon(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
-  if (IS_OOP (oop1) && IS_INT (oop2))
-    {
-      if (CLASS_IS_INDEXABLE (oop1))
-	{
-	  intptr_t arg2;
-	  arg2 = TO_INT (oop2);
-	  if (arg2 >= 0)
-	    {
-	      OOP result;
-	      instantiate_with (oop1, arg2, &result);
-	      _gst_make_oop_fixed (result);
-	      SET_STACKTOP (result);
-	      PRIM_SUCCEEDED;
-	    }
-	}
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
+  if (IS_OOP(oop1) && IS_INT(oop2)) {
+    if (CLASS_IS_INDEXABLE(oop1)) {
+      intptr_t arg2;
+      arg2 = TO_INT(oop2);
+      if (arg2 >= 0) {
+        OOP result;
+        instantiate_with(oop1, arg2, &result);
+        _gst_make_oop_fixed(result);
+        SET_STACKTOP(result);
+        PRIM_SUCCEEDED;
+      }
     }
+  }
 
-  UNPOP (1);
+  UNPOP(1);
   PRIM_FAILED;
 }
 
-static intptr_t
-VMpr_Object_tenure (int id,
-                    volatile int numArgs)
-{
+static intptr_t VMpr_Object_tenure(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  if (IS_OOP (oop1))
-    {
-      _gst_tenure_oop (oop1);
-      PRIM_SUCCEEDED;
-    }
+  oop1 = STACKTOP();
+  if (IS_OOP(oop1)) {
+    _gst_tenure_oop(oop1);
+    PRIM_SUCCEEDED;
+  }
 
   PRIM_FAILED;
 }
 
-static intptr_t
-VMpr_Object_makeFixed (int id,
-                       volatile int numArgs)
-{
+static intptr_t VMpr_Object_makeFixed(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  if (IS_OOP (oop1))
-    {
-      _gst_make_oop_fixed (oop1);
-      PRIM_SUCCEEDED;
-    }
+  oop1 = STACKTOP();
+  if (IS_OOP(oop1)) {
+    _gst_make_oop_fixed(oop1);
+    PRIM_SUCCEEDED;
+  }
 
   PRIM_FAILED;
 }
 
-
 /* CObject at: byteoffset type: aType */
 
-static intptr_t
-VMpr_CObject_at (int id,
-                 volatile int numArgs)
-{
+static intptr_t VMpr_CObject_at(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   OOP oop3;
   _gst_primitives_executed++;
 
-  oop3 = POP_OOP ();
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
-  if (IS_INT (oop2)
-      && ((IS_INT (oop3) && id == -1)
-	  || is_a_kind_of (OOP_CLASS (oop3), _gst_c_type_class)))
-    {
-      char *addr;
-      intptr_t arg2;
-      arg2 = TO_INT (oop2);
-      if (IS_INT (oop3))
-	{			/* int type spec means a scalar type */
-	  intptr_t arg3 = TO_INT (oop3);
+  oop3 = POP_OOP();
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
+  if (IS_INT(oop2) && ((IS_INT(oop3) && id == -1) ||
+                       is_a_kind_of(OOP_CLASS(oop3), _gst_c_type_class))) {
+    char *addr;
+    intptr_t arg2;
+    arg2 = TO_INT(oop2);
+    if (IS_INT(oop3)) { /* int type spec means a scalar type */
+      intptr_t arg3 = TO_INT(oop3);
 
-	  if (!cobject_index_check (oop1, arg2, _gst_c_type_size (arg3)))
-	    goto fail;
+      if (!cobject_index_check(oop1, arg2, _gst_c_type_size(arg3)))
+        goto fail;
 
-	  addr = ((char *) cobject_value (oop1)) + arg2;
-	  switch (arg3)
-	    {
-	    case CDATA_CHAR:
-	    case CDATA_UCHAR:
-	      SET_STACKTOP (CHAR_OOP_AT (*(gst_uchar *) addr));
-	      PRIM_SUCCEEDED;
+      addr = ((char *)cobject_value(oop1)) + arg2;
+      switch (arg3) {
+      case CDATA_CHAR:
+      case CDATA_UCHAR:
+        SET_STACKTOP(CHAR_OOP_AT(*(gst_uchar *)addr));
+        PRIM_SUCCEEDED;
 
-	    case CDATA_SHORT:
-	      SET_STACKTOP_INT (*(short *) addr);
-	      PRIM_SUCCEEDED;
+      case CDATA_SHORT:
+        SET_STACKTOP_INT(*(short *)addr);
+        PRIM_SUCCEEDED;
 
-	    case CDATA_USHORT:
-	      SET_STACKTOP_INT (*(unsigned short *) addr);
-	      PRIM_SUCCEEDED;
+      case CDATA_USHORT:
+        SET_STACKTOP_INT(*(unsigned short *)addr);
+        PRIM_SUCCEEDED;
 
-           case CDATA_LONGLONG:
-             SET_STACKTOP (from_c_int_64 (*(long long *) addr));
-             PRIM_SUCCEEDED;
+      case CDATA_LONGLONG:
+        SET_STACKTOP(from_c_int_64(*(long long *)addr));
+        PRIM_SUCCEEDED;
 
-           case CDATA_ULONGLONG:
-             SET_STACKTOP (from_c_uint_64 (*(unsigned long long *) addr));
-             PRIM_SUCCEEDED;
+      case CDATA_ULONGLONG:
+        SET_STACKTOP(from_c_uint_64(*(unsigned long long *)addr));
+        PRIM_SUCCEEDED;
 
-	    case CDATA_LONG:
-	      SET_STACKTOP (FROM_C_LONG (*(long *) addr));
-	      PRIM_SUCCEEDED;
-	    case CDATA_ULONG:
-	      SET_STACKTOP (FROM_C_ULONG (*(unsigned long *) addr));
-	      PRIM_SUCCEEDED;
+      case CDATA_LONG:
+        SET_STACKTOP(FROM_C_LONG(*(long *)addr));
+        PRIM_SUCCEEDED;
+      case CDATA_ULONG:
+        SET_STACKTOP(FROM_C_ULONG(*(unsigned long *)addr));
+        PRIM_SUCCEEDED;
 
-	    case CDATA_FLOAT:
-	      SET_STACKTOP (floate_new (*(float *) addr));
-	      PRIM_SUCCEEDED;
+      case CDATA_FLOAT:
+        SET_STACKTOP(floate_new(*(float *)addr));
+        PRIM_SUCCEEDED;
 
-	    case CDATA_DOUBLE:
-	      SET_STACKTOP (floatd_new (*(double *) addr));
-	      PRIM_SUCCEEDED;
+      case CDATA_DOUBLE:
+        SET_STACKTOP(floatd_new(*(double *)addr));
+        PRIM_SUCCEEDED;
 
-	    case CDATA_STRING:
-	      {
-		char **strAddr;
-		strAddr = (char **) addr;
-		if (*strAddr)
-		  {
-		    SET_STACKTOP (_gst_string_new (*strAddr));
-		    PRIM_SUCCEEDED;
-		  }
-		else
-		  {
-		    SET_STACKTOP (_gst_nil_oop);
-		    PRIM_SUCCEEDED;
-		  }
-	      }
-	    case CDATA_OOP:
-	      SET_STACKTOP (*(OOP *) addr);
-	      PRIM_SUCCEEDED;
+      case CDATA_STRING: {
+        char **strAddr;
+        strAddr = (char **)addr;
+        if (*strAddr) {
+          SET_STACKTOP(_gst_string_new(*strAddr));
+          PRIM_SUCCEEDED;
+        } else {
+          SET_STACKTOP(_gst_nil_oop);
+          PRIM_SUCCEEDED;
+        }
+      }
+      case CDATA_OOP:
+        SET_STACKTOP(*(OOP *)addr);
+        PRIM_SUCCEEDED;
 
-	    case CDATA_INT:
-	      SET_STACKTOP (FROM_C_INT (*(int *) addr));
-	      PRIM_SUCCEEDED;
+      case CDATA_INT:
+        SET_STACKTOP(FROM_C_INT(*(int *)addr));
+        PRIM_SUCCEEDED;
 
-	    case CDATA_UINT:
-	      SET_STACKTOP (FROM_C_UINT (*(unsigned int *) addr));
-	      PRIM_SUCCEEDED;
+      case CDATA_UINT:
+        SET_STACKTOP(FROM_C_UINT(*(unsigned int *)addr));
+        PRIM_SUCCEEDED;
 
-	    case CDATA_LONG_DOUBLE:
-	      SET_STACKTOP (floatq_new (*(long double *) addr));
-	      PRIM_SUCCEEDED;
-	    }
-	}
-      else
-	{
-	  OOP baseOOP;
-	  uintptr_t ofs;
-	  inc_ptr incPtr;
+      case CDATA_LONG_DOUBLE:
+        SET_STACKTOP(floatq_new(*(long double *)addr));
+        PRIM_SUCCEEDED;
+      }
+    } else {
+      OOP baseOOP;
+      uintptr_t ofs;
+      inc_ptr incPtr;
 
-	  /* Non-integer oop3: use it as the type of the effective address. */
+      /* Non-integer oop3: use it as the type of the effective address. */
 
-	  if (id == 0)
-	    {
-	      if (!cobject_index_check (oop1, arg2, sizeof (uintptr_t)))
-		goto fail;
+      if (id == 0) {
+        if (!cobject_index_check(oop1, arg2, sizeof(uintptr_t)))
+          goto fail;
 
-	      ofs = *(uintptr_t *) (((char *)cobject_value (oop1)) + arg2);
-	      baseOOP = _gst_nil_oop;
-	      if (ofs == 0)
-		{
-		  SET_STACKTOP (_gst_nil_oop);
-		  PRIM_SUCCEEDED;
-		}
-	    }
-          else
-	    {
-	      /* No need to enforce bounds here (if we ever will, remember
-		 that a pointer that is one-past the end of the object is
-		 valid!).  */
-		 
-	      gst_cobject cObj = (gst_cobject) OOP_TO_OBJ (oop1);
-	      baseOOP = cObj->storage;
-	      ofs = COBJECT_OFFSET_OBJ (cObj) + arg2;
-	    }
+        ofs = *(uintptr_t *)(((char *)cobject_value(oop1)) + arg2);
+        baseOOP = _gst_nil_oop;
+        if (ofs == 0) {
+          SET_STACKTOP(_gst_nil_oop);
+          PRIM_SUCCEEDED;
+        }
+      } else {
+        /* No need to enforce bounds here (if we ever will, remember
+           that a pointer that is one-past the end of the object is
+           valid!).  */
 
-	  /* oop3 could get GC'ed out of existence before it gets used: it is
-	     not on the stack, and _gst_c_object_new_base could cause a GC */
-	  incPtr = INC_SAVE_POINTER ();
-	  INC_ADD_OOP (baseOOP);
-	  INC_ADD_OOP (oop3);
-	  SET_STACKTOP (_gst_c_object_new_base (baseOOP, ofs, oop3,
-					        _gst_c_object_class));
-	  INC_RESTORE_POINTER (incPtr);
-	  PRIM_SUCCEEDED;
-	}
+        gst_cobject cObj = (gst_cobject)OOP_TO_OBJ(oop1);
+        baseOOP = cObj->storage;
+        ofs = COBJECT_OFFSET_OBJ(cObj) + arg2;
+      }
+
+      /* oop3 could get GC'ed out of existence before it gets used: it is
+         not on the stack, and _gst_c_object_new_base could cause a GC */
+      incPtr = INC_SAVE_POINTER();
+      INC_ADD_OOP(baseOOP);
+      INC_ADD_OOP(oop3);
+      SET_STACKTOP(
+          _gst_c_object_new_base(baseOOP, ofs, oop3, _gst_c_object_class));
+      INC_RESTORE_POINTER(incPtr);
+      PRIM_SUCCEEDED;
     }
+  }
 
- fail:
-  UNPOP (2);
+fail:
+  UNPOP(2);
   PRIM_FAILED;
 }
 
 /* CObject at: byteOffset put: aValue type: aType */
-static intptr_t
-VMpr_CObject_atPut (int id,
-                    volatile int numArgs)
-{
+static intptr_t VMpr_CObject_atPut(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   OOP oop3;
   OOP oop4;
   _gst_primitives_executed++;
 
-  oop4 = POP_OOP ();
-  oop3 = POP_OOP ();
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
+  oop4 = POP_OOP();
+  oop3 = POP_OOP();
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
 
-  if (IS_INT (oop2) && IS_INT (oop4))
+  if (IS_INT(oop2) && IS_INT(oop4)) {
+    char *addr;
+    intptr_t arg2 = TO_INT(oop2);
+    intptr_t arg4 = TO_INT(oop4);
+    if (!cobject_index_check(oop1, arg2, _gst_c_type_size(arg4)))
+      goto fail;
+
+    addr = ((char *)cobject_value(oop1)) + arg2;
+    switch (arg4) {
+    case CDATA_CHAR:  /* char */
+    case CDATA_UCHAR: /* uchar */
+      if (IS_CLASS(oop3, _gst_char_class) ||
+          (IS_CLASS(oop3, _gst_unicode_character_class) &&
+           CHAR_OOP_VALUE(oop3) <= 127)) {
+        *addr = CHAR_OOP_VALUE(oop3);
+        PRIM_SUCCEEDED;
+      } else if (IS_INT(oop3)) {
+        *(char *)addr = (char)TO_INT(oop3);
+        PRIM_SUCCEEDED;
+      }
+      break;
+
+    case CDATA_SHORT:  /* short */
+    case CDATA_USHORT: /* ushort */
+      if (IS_INT(oop3)) {
+        *(short *)addr = (short)TO_INT(oop3);
+        PRIM_SUCCEEDED;
+      }
+      break;
+
+    case CDATA_LONG:  /* long */
+    case CDATA_ULONG: /* ulong */
+      if (IS_C_LONG(oop3) || IS_C_ULONG(oop3)) {
+        *(long *)addr = (long)TO_C_LONG(oop3);
+        PRIM_SUCCEEDED;
+      }
+      break;
+
+    case CDATA_LONGLONG:  /* long long */
+    case CDATA_ULONGLONG: /* unsigned long long */
+      if (IS_C_LONGLONG(oop3) || IS_C_ULONGLONG(oop3)) {
+        *(long long *)addr = (long long)to_c_int_64(oop3);
+        PRIM_SUCCEEDED;
+      }
+      break;
+
+    case CDATA_FLOAT: {
+      float *floatAddr;
+      floatAddr = (float *)addr;
+      if (IS_INT(oop3)) {
+        *floatAddr = (float)TO_INT(oop3);
+        PRIM_SUCCEEDED;
+      } else if (IS_CLASS(oop3, _gst_floatd_class)) {
+        *floatAddr = (float)FLOATD_OOP_VALUE(oop3);
+        PRIM_SUCCEEDED;
+      } else if (IS_CLASS(oop3, _gst_floate_class)) {
+        *floatAddr = (float)FLOATE_OOP_VALUE(oop3);
+        PRIM_SUCCEEDED;
+      } else if (IS_CLASS(oop3, _gst_floatq_class)) {
+        *floatAddr = (float)FLOATQ_OOP_VALUE(oop3);
+        PRIM_SUCCEEDED;
+      }
+    } break;
+
+    case CDATA_DOUBLE: /* double */
     {
-      char *addr;
-      intptr_t arg2 = TO_INT (oop2);
-      intptr_t arg4 = TO_INT (oop4);
-      if (!cobject_index_check (oop1, arg2, _gst_c_type_size (arg4)))
-	goto fail;
+      double *doubleAddr;
+      doubleAddr = (double *)addr;
+      if (IS_INT(oop3)) {
+        *doubleAddr = TO_INT(oop3);
+        PRIM_SUCCEEDED;
+      } else if (IS_CLASS(oop3, _gst_floatd_class)) {
+        *doubleAddr = FLOATD_OOP_VALUE(oop3);
+        PRIM_SUCCEEDED;
+      } else if (IS_CLASS(oop3, _gst_floate_class)) {
+        *doubleAddr = FLOATE_OOP_VALUE(oop3);
+        PRIM_SUCCEEDED;
+      } else if (IS_CLASS(oop3, _gst_floatq_class)) {
+        *doubleAddr = FLOATQ_OOP_VALUE(oop3);
+        PRIM_SUCCEEDED;
+      }
+    } break;
 
-      addr = ((char *) cobject_value (oop1)) + arg2;
-      switch (arg4)
-	{
-	case CDATA_CHAR:		/* char */
-	case CDATA_UCHAR:		/* uchar */
-	  if (IS_CLASS (oop3, _gst_char_class)
-	      || (IS_CLASS (oop3, _gst_unicode_character_class)
-		  && CHAR_OOP_VALUE (oop3) <= 127))
-	    {
-	      *addr = CHAR_OOP_VALUE (oop3);
-	      PRIM_SUCCEEDED;
-	    }
-	  else if (IS_INT (oop3))
-	    {
-	      *(char *) addr = (char) TO_INT (oop3);
-	      PRIM_SUCCEEDED;
-	    }
-	  break;
-
-	case CDATA_SHORT:		/* short */
-	case CDATA_USHORT:		/* ushort */
-	  if (IS_INT (oop3))
-	    {
-	      *(short *) addr = (short) TO_INT (oop3);
-	      PRIM_SUCCEEDED;
-	    }
-	  break;
-
-	case CDATA_LONG:		/* long */
-	case CDATA_ULONG:		/* ulong */
-          if (IS_C_LONG (oop3) || IS_C_ULONG (oop3))
-	    {
-	      *(long *) addr = (long) TO_C_LONG (oop3);
-	      PRIM_SUCCEEDED;
-	    }
-	  break;
-
-       case CDATA_LONGLONG:            /* long long */
-       case CDATA_ULONGLONG:           /* unsigned long long */
-         if (IS_C_LONGLONG (oop3) || IS_C_ULONGLONG (oop3))
-           {
-             *(long long *) addr = (long long) to_c_int_64 (oop3);
-             PRIM_SUCCEEDED;
-           }
-         break;
-
-	case CDATA_FLOAT:
-	  {
-	    float *floatAddr;
-	    floatAddr = (float *) addr;
-	    if (IS_INT (oop3))
-	      {
-		*floatAddr = (float) TO_INT (oop3);
-		PRIM_SUCCEEDED;
-	      }
-	    else if (IS_CLASS (oop3, _gst_floatd_class))
-	      {
-		*floatAddr = (float) FLOATD_OOP_VALUE (oop3);
-		PRIM_SUCCEEDED;
-	      }
-	    else if (IS_CLASS (oop3, _gst_floate_class))
-	      {
-		    *floatAddr = (float) FLOATE_OOP_VALUE (oop3);
-		    PRIM_SUCCEEDED;
-	      }
-	    else if (IS_CLASS (oop3, _gst_floatq_class))
-	      {
-	        *floatAddr = (float) FLOATQ_OOP_VALUE (oop3);
-	        PRIM_SUCCEEDED;
-	      }
-	  }
-	  break;
-
-	case CDATA_DOUBLE:		/* double */
-	  {
-	    double *doubleAddr;
-	    doubleAddr = (double *) addr;
-	    if (IS_INT (oop3))
-	      {
-	        *doubleAddr = TO_INT (oop3);
-	        PRIM_SUCCEEDED;
-	      }
-	    else if (IS_CLASS (oop3, _gst_floatd_class))
-	      {
-	        *doubleAddr = FLOATD_OOP_VALUE (oop3);
-	        PRIM_SUCCEEDED;
-	      }
-	    else if (IS_CLASS (oop3, _gst_floate_class))
-	      {
-	        *doubleAddr = FLOATE_OOP_VALUE (oop3);
-	        PRIM_SUCCEEDED;
-	      }
-	    else if (IS_CLASS (oop3, _gst_floatq_class))
-	      {
-	        *doubleAddr = FLOATQ_OOP_VALUE (oop3);
-	        PRIM_SUCCEEDED;
-	      }
-	  }
-	  break;
-
-	case CDATA_STRING:		/* string */
-	  {				/* note that this does not allow for
-					   replacemnt in place */
-	    /* to replace in place, use replaceFrom: */
-	    char **strAddr;
-	    strAddr = (char **) addr;
-	    if (oop3 == _gst_nil_oop)
-	      {
-	        *strAddr = (char *) 0;
-	        PRIM_SUCCEEDED;
-	      }
-	    else if (is_a_kind_of (OOP_CLASS (oop3), _gst_string_class))
-	      {
-		*strAddr = (char *) _gst_to_cstring (oop3);
-		PRIM_SUCCEEDED;
-	      }
-	    break;
-	  }
-
-	case CDATA_OOP:
-	  *(OOP *) addr = oop3;
-	  PRIM_SUCCEEDED;
-
-	case CDATA_INT:		/* int */
-	case CDATA_UINT:		/* uint */
-	  if (IS_C_INT (oop3))
-	    {
-	      *(int *) addr = (int) TO_C_INT (oop3);
-	      PRIM_SUCCEEDED;
-	    }
-	  break;
-
-	case CDATA_LONG_DOUBLE:	/* long double */
-	  {
-	    long double *longDoubleAddr;
-	    longDoubleAddr = (long double *) addr;
-	    if (IS_INT (oop3))
-	      {
-	        *longDoubleAddr = TO_INT (oop3);
-	        PRIM_SUCCEEDED;
-	      }
-	    else if (IS_CLASS (oop3, _gst_floatd_class))
-	      {
-	        *longDoubleAddr = FLOATD_OOP_VALUE (oop3);
-	        PRIM_SUCCEEDED;
-	      }
-	    else if (IS_CLASS (oop3, _gst_floate_class))
-	      {
-	        *longDoubleAddr = FLOATE_OOP_VALUE (oop3);
-	        PRIM_SUCCEEDED;
-	      }
-	    else if (IS_CLASS (oop3, _gst_floatq_class))
-	      {
-	        *longDoubleAddr = FLOATQ_OOP_VALUE (oop3);
-	        PRIM_SUCCEEDED;
-	      }
-	  }
-	  break;
-	}
+    case CDATA_STRING: /* string */
+    {                  /* note that this does not allow for
+                          replacemnt in place */
+      /* to replace in place, use replaceFrom: */
+      char **strAddr;
+      strAddr = (char **)addr;
+      if (oop3 == _gst_nil_oop) {
+        *strAddr = (char *)0;
+        PRIM_SUCCEEDED;
+      } else if (is_a_kind_of(OOP_CLASS(oop3), _gst_string_class)) {
+        *strAddr = (char *)_gst_to_cstring(oop3);
+        PRIM_SUCCEEDED;
+      }
+      break;
     }
 
- fail:
-  UNPOP (3);
+    case CDATA_OOP:
+      *(OOP *)addr = oop3;
+      PRIM_SUCCEEDED;
+
+    case CDATA_INT:  /* int */
+    case CDATA_UINT: /* uint */
+      if (IS_C_INT(oop3)) {
+        *(int *)addr = (int)TO_C_INT(oop3);
+        PRIM_SUCCEEDED;
+      }
+      break;
+
+    case CDATA_LONG_DOUBLE: /* long double */
+    {
+      long double *longDoubleAddr;
+      longDoubleAddr = (long double *)addr;
+      if (IS_INT(oop3)) {
+        *longDoubleAddr = TO_INT(oop3);
+        PRIM_SUCCEEDED;
+      } else if (IS_CLASS(oop3, _gst_floatd_class)) {
+        *longDoubleAddr = FLOATD_OOP_VALUE(oop3);
+        PRIM_SUCCEEDED;
+      } else if (IS_CLASS(oop3, _gst_floate_class)) {
+        *longDoubleAddr = FLOATE_OOP_VALUE(oop3);
+        PRIM_SUCCEEDED;
+      } else if (IS_CLASS(oop3, _gst_floatq_class)) {
+        *longDoubleAddr = FLOATQ_OOP_VALUE(oop3);
+        PRIM_SUCCEEDED;
+      }
+    } break;
+    }
+  }
+
+fail:
+  UNPOP(3);
   PRIM_FAILED;
 }
 
 /* CObject address */
-static intptr_t
-VMpr_CObject_address (int id,
-                      volatile int numArgs)
-{
+static intptr_t VMpr_CObject_address(int id, volatile int numArgs) {
   OOP oop1;
   gst_cobject cObj;
   uintptr_t ptr;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  cObj = (gst_cobject) OOP_TO_OBJ (oop1);
-  ptr = (uintptr_t) COBJECT_OFFSET_OBJ (cObj);
+  oop1 = STACKTOP();
+  cObj = (gst_cobject)OOP_TO_OBJ(oop1);
+  ptr = (uintptr_t)COBJECT_OFFSET_OBJ(cObj);
 
-  if (IS_NIL (cObj->storage))
-    SET_STACKTOP (FROM_C_ULONG (ptr));
+  if (IS_NIL(cObj->storage))
+    SET_STACKTOP(FROM_C_ULONG(ptr));
   else
-    SET_STACKTOP (FROM_C_LONG (ptr));
+    SET_STACKTOP(FROM_C_LONG(ptr));
 
   PRIM_SUCCEEDED;
 }
 
-
 /* CObject address: */
-static intptr_t
-VMpr_CObject_addressColon (int id,
-                           volatile int numArgs)
-{
+static intptr_t VMpr_CObject_addressColon(int id, volatile int numArgs) {
   OOP oop1, oop2;
   gst_cobject cObj;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
-  cObj = (gst_cobject) OOP_TO_OBJ (oop1);
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
+  cObj = (gst_cobject)OOP_TO_OBJ(oop1);
 
-  if (IS_NIL (cObj->storage) ? IS_C_ULONG (oop2) : IS_C_LONG (oop2))
-    {
-      SET_COBJECT_OFFSET_OBJ (cObj, TO_C_LONG (oop2));
-      PRIM_SUCCEEDED;
-    }
+  if (IS_NIL(cObj->storage) ? IS_C_ULONG(oop2) : IS_C_LONG(oop2)) {
+    SET_COBJECT_OFFSET_OBJ(cObj, TO_C_LONG(oop2));
+    PRIM_SUCCEEDED;
+  }
 
-  UNPOP (1);
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* CString replaceWith: aString */
-static intptr_t
-VMpr_CString_replaceWith (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_CString_replaceWith(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
 
-  /* assumes the receiver is already pointing at an area of memory that 
+  /* assumes the receiver is already pointing at an area of memory that
      is the correct size; does not (re)allocate receiver's string at
      all.  */
 
-  if (IS_CLASS (oop2, _gst_string_class)
-      || IS_CLASS (oop2, _gst_byte_array_class))
-    {
-      size_t srcLen;
-      gst_uchar *dstBase, *srcBase;
-      srcBase = STRING_OOP_CHARS (oop2);
-      srcLen = NUM_INDEXABLE_FIELDS (oop2);
+  if (IS_CLASS(oop2, _gst_string_class) ||
+      IS_CLASS(oop2, _gst_byte_array_class)) {
+    size_t srcLen;
+    gst_uchar *dstBase, *srcBase;
+    srcBase = STRING_OOP_CHARS(oop2);
+    srcLen = NUM_INDEXABLE_FIELDS(oop2);
 
-      dstBase = *(gst_uchar **) cobject_value (oop1);
-      memcpy (dstBase, srcBase, srcLen);
-      dstBase[srcLen] = '\0';	/* since it's a CString type, we NUL
-				   term it */
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (1);
+    dstBase = *(gst_uchar **)cobject_value(oop1);
+    memcpy(dstBase, srcBase, srcLen);
+    dstBase[srcLen] = '\0'; /* since it's a CString type, we NUL
+                               term it */
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* ByteArray class fromCdata: aCObject size: anInteger */
-static intptr_t
-VMpr_ByteArray_fromCData_size (int id,
-                               volatile int numArgs)
-{
+static intptr_t VMpr_ByteArray_fromCData_size(int id, volatile int numArgs) {
   OOP oop2;
   OOP oop3;
   _gst_primitives_executed++;
 
-  oop3 = POP_OOP ();
-  oop2 = POP_OOP ();
-  if (IS_INT (oop3))
-    {
-      intptr_t arg3 = TO_INT (oop3);
-      OOP byteArrayOOP =
-	_gst_byte_array_new (cobject_value (oop2), arg3);
-      SET_STACKTOP (byteArrayOOP);
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (2);
+  oop3 = POP_OOP();
+  oop2 = POP_OOP();
+  if (IS_INT(oop3)) {
+    intptr_t arg3 = TO_INT(oop3);
+    OOP byteArrayOOP = _gst_byte_array_new(cobject_value(oop2), arg3);
+    SET_STACKTOP(byteArrayOOP);
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(2);
   PRIM_FAILED;
 }
 
 /* String class fromCdata: aCObject size: anInteger */
-static intptr_t
-VMpr_String_fromCData_size (int id,
-                            volatile int numArgs)
-{
+static intptr_t VMpr_String_fromCData_size(int id, volatile int numArgs) {
   OOP oop2;
   OOP oop3;
   _gst_primitives_executed++;
 
-  oop3 = POP_OOP ();
-  oop2 = POP_OOP ();
-  if (IS_INT (oop3))
-    {
-      intptr_t arg3 = TO_INT (oop3);
-      OOP stringOOP =
-	_gst_counted_string_new (cobject_value (oop2), arg3);
-      SET_STACKTOP (stringOOP);
-      PRIM_SUCCEEDED;
-    }
-  UNPOP (2);
+  oop3 = POP_OOP();
+  oop2 = POP_OOP();
+  if (IS_INT(oop3)) {
+    intptr_t arg3 = TO_INT(oop3);
+    OOP stringOOP = _gst_counted_string_new(cobject_value(oop2), arg3);
+    SET_STACKTOP(stringOOP);
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(2);
   PRIM_FAILED;
 }
 
 /* String class fromCdata: aCObject */
-static intptr_t
-VMpr_String_fromCData (int id,
-                       volatile int numArgs)
-{
+static intptr_t VMpr_String_fromCData(int id, volatile int numArgs) {
   OOP oop2;
   OOP stringOOP;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  stringOOP = _gst_string_new (cobject_value (oop2));
-  SET_STACKTOP (stringOOP);
+  oop2 = POP_OOP();
+  stringOOP = _gst_string_new(cobject_value(oop2));
+  SET_STACKTOP(stringOOP);
   PRIM_SUCCEEDED;
 }
 
 /* String asCdata: aCType
  * ByteArray asCdata: aCType */
-static intptr_t
-VMpr_String_ByteArray_asCData (int id,
-                               volatile int numArgs)
-{
+static intptr_t VMpr_String_ByteArray_asCData(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = STACK_AT (0);
-  oop1 = STACK_AT (1);
-  if (is_a_kind_of (OOP_CLASS (oop2), _gst_c_type_class))
-    {
-      int size = NUM_INDEXABLE_FIELDS (oop1);
-      int alloc_size = (id == 0) ? size + 1 : size;
-      char *data = xmalloc (alloc_size);
-      OOP cObjectOOP = COBJECT_NEW (data, oop2, _gst_c_object_class);
-      memcpy (data, OOP_TO_OBJ (oop1)->data, size);
-      if (id == 0)
-	data[size] = 0;
-      POP_N_OOPS (1);
-      SET_STACKTOP (cObjectOOP);
-      PRIM_SUCCEEDED;
-    }
+  oop2 = STACK_AT(0);
+  oop1 = STACK_AT(1);
+  if (is_a_kind_of(OOP_CLASS(oop2), _gst_c_type_class)) {
+    int size = NUM_INDEXABLE_FIELDS(oop1);
+    int alloc_size = (id == 0) ? size + 1 : size;
+    char *data = xmalloc(alloc_size);
+    OOP cObjectOOP = COBJECT_NEW(data, oop2, _gst_c_object_class);
+    memcpy(data, OOP_TO_OBJ(oop1)->data, size);
+    if (id == 0)
+      data[size] = 0;
+    POP_N_OOPS(1);
+    SET_STACKTOP(cObjectOOP);
+    PRIM_SUCCEEDED;
+  }
   PRIM_FAILED;
 }
 
-
 /* SystemDictionary byteCodeCounter */
-static intptr_t
-VMpr_SystemDictionary_byteCodeCounter (int id,
-                                       volatile int numArgs)
-{
+static intptr_t VMpr_SystemDictionary_byteCodeCounter(int id,
+                                                      volatile int numArgs) {
   _gst_primitives_executed++;
-  SET_STACKTOP_INT (_gst_bytecode_counter);
+  SET_STACKTOP_INT(_gst_bytecode_counter);
   PRIM_SUCCEEDED;
 }
 
 /* SystemDictionary debug */
-static intptr_t
-VMpr_SystemDictionary_debug (int id,
-                             volatile int numArgs)
-{
+static intptr_t VMpr_SystemDictionary_debug(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  _gst_debug ();		/* used to allow gdb to stop based on
-				   Smalltalk execution paths.  */
+  _gst_debug(); /* used to allow gdb to stop based on
+                   Smalltalk execution paths.  */
   PRIM_SUCCEEDED;
 }
-
 
 /* Object isReadOnly */
-static intptr_t
-VMpr_Object_isReadOnly (int id,
-                        volatile int numArgs)
-{
+static intptr_t VMpr_Object_isReadOnly(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  SET_STACKTOP_BOOLEAN (IS_OOP_READONLY (oop1));
+  oop1 = STACKTOP();
+  SET_STACKTOP_BOOLEAN(IS_OOP_READONLY(oop1));
   PRIM_SUCCEEDED;
 }
 
 /* Object makeReadOnly: */
-static intptr_t
-VMpr_Object_makeReadOnly (int id,
-                          volatile int numArgs)
-{
+static intptr_t VMpr_Object_makeReadOnly(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = STACKTOP ();
-  if (IS_OOP (oop1))
-    {
-      if (oop2 == _gst_true_oop)
-        {
-          MAKE_OOP_READONLY (oop1, true);
-          PRIM_SUCCEEDED;
-        }
-      else if (oop2 == _gst_false_oop)
-        {
-          MAKE_OOP_READONLY (oop1, false);
-          PRIM_SUCCEEDED;
-        }
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
+  if (IS_OOP(oop1)) {
+    if (oop2 == _gst_true_oop) {
+      MAKE_OOP_READONLY(oop1, true);
+      PRIM_SUCCEEDED;
+    } else if (oop2 == _gst_false_oop) {
+      MAKE_OOP_READONLY(oop1, false);
+      PRIM_SUCCEEDED;
     }
+  }
 
-  UNPOP (1);
+  UNPOP(1);
   PRIM_FAILED;
 }
-
+
 /* Behavior primCompile: aString */
 
-static intptr_t
-VMpr_Behavior_primCompile (int id,
-                           volatile int numArgs)
-{
+static intptr_t VMpr_Behavior_primCompile(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   mst_Boolean interrupted;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if (IS_CLASS (oop2, _gst_string_class))
-    _gst_push_smalltalk_string (oop2);
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if (IS_CLASS(oop2, _gst_string_class))
+    _gst_push_smalltalk_string(oop2);
   else
-    _gst_push_stream_oop (oop2);
+    _gst_push_stream_oop(oop2);
 
   /* Pushes last compiled method onto stack.  */
-  interrupted = parse_method_from_stream_with_protection (
-    oop1,
-    _gst_string_new ("still unclassified"));
-  _gst_pop_stream (true);
+  interrupted = parse_method_from_stream_with_protection(
+      oop1, _gst_string_new("still unclassified"));
+  _gst_pop_stream(true);
 
   if (interrupted)
-    stop_execution ();
+    stop_execution();
 
   PRIM_SUCCEEDED;
 }
 
 /* Behavior primCompile: aString ifError: aBlock */
-static intptr_t
-VMpr_Behavior_primCompileIfError (int id,
-                                  volatile int numArgs)
-{
+static intptr_t VMpr_Behavior_primCompileIfError(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
   OOP oop3;
   _gst_primitives_executed++;
 
-  oop3 = POP_OOP ();
-  oop2 = POP_OOP ();
-  oop1 = POP_OOP ();
-  if (IS_CLASS (oop3, _gst_block_closure_class))
-    {
-      mst_Boolean oldReportErrors = _gst_report_errors;
-      mst_Boolean interrupted;
+  oop3 = POP_OOP();
+  oop2 = POP_OOP();
+  oop1 = POP_OOP();
+  if (IS_CLASS(oop3, _gst_block_closure_class)) {
+    mst_Boolean oldReportErrors = _gst_report_errors;
+    mst_Boolean interrupted;
 
-      if (oldReportErrors)
-	{
-	  /* only clear out these guys on first transition */
-	  _gst_first_error_str = _gst_first_error_file = NULL;
-	}
-      _gst_report_errors = false;
-      if (IS_CLASS (oop2, _gst_string_class))
-	_gst_push_smalltalk_string (oop2);
-      else
-	_gst_push_stream_oop (oop2);
-
-      /* Pushes last compiled method onto stack.  */
-      interrupted = parse_method_from_stream_with_protection (
-        oop1,
-        _gst_string_new ("still unclassified"));
-
-      _gst_pop_stream (true);
-      _gst_report_errors = oldReportErrors;
-
-      if (interrupted)
-        stop_execution ();
-
-      else if (_gst_first_error_str != NULL)
-	{
-	  SET_STACKTOP (oop3);	/* block context */
-	  if (_gst_first_error_file != NULL)
-	    {
-	      PUSH_OOP (_gst_string_new (_gst_first_error_file));
-	      xfree (_gst_first_error_file);
-	    }
-	  else
-	    PUSH_OOP (_gst_nil_oop);
-
-	  PUSH_INT (_gst_first_error_line);
-	  PUSH_OOP (_gst_string_new (_gst_first_error_str));
-	  xfree (_gst_first_error_str);
-	  _gst_first_error_str = _gst_first_error_file = NULL;
-	  _gst_report_errors = oldReportErrors;
-	  if (send_block_value (3, 3))
-	    PRIM_FAILED;
-	  else
-	    PRIM_SUCCEEDED_RELOAD_IP;
-	}
-
-      PRIM_SUCCEEDED;
+    if (oldReportErrors) {
+      /* only clear out these guys on first transition */
+      _gst_first_error_str = _gst_first_error_file = NULL;
     }
-  UNPOP (3);
+    _gst_report_errors = false;
+    if (IS_CLASS(oop2, _gst_string_class))
+      _gst_push_smalltalk_string(oop2);
+    else
+      _gst_push_stream_oop(oop2);
+
+    /* Pushes last compiled method onto stack.  */
+    interrupted = parse_method_from_stream_with_protection(
+        oop1, _gst_string_new("still unclassified"));
+
+    _gst_pop_stream(true);
+    _gst_report_errors = oldReportErrors;
+
+    if (interrupted)
+      stop_execution();
+
+    else if (_gst_first_error_str != NULL) {
+      SET_STACKTOP(oop3); /* block context */
+      if (_gst_first_error_file != NULL) {
+        PUSH_OOP(_gst_string_new(_gst_first_error_file));
+        xfree(_gst_first_error_file);
+      } else
+        PUSH_OOP(_gst_nil_oop);
+
+      PUSH_INT(_gst_first_error_line);
+      PUSH_OOP(_gst_string_new(_gst_first_error_str));
+      xfree(_gst_first_error_str);
+      _gst_first_error_str = _gst_first_error_file = NULL;
+      _gst_report_errors = oldReportErrors;
+      if (send_block_value(3, 3))
+        PRIM_FAILED;
+      else
+        PRIM_SUCCEEDED_RELOAD_IP;
+    }
+
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(3);
   PRIM_FAILED;
 }
-
+
 /* CCallbackDescriptor link */
-static intptr_t
-VMpr_CCallbackDescriptor_link (int id,
-                               volatile int numArgs)
-{
+static intptr_t VMpr_CCallbackDescriptor_link(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
-  _gst_make_closure (oop1);
+  oop1 = STACKTOP();
+  _gst_make_closure(oop1);
 
   /* Always fail so as to run the Smalltalk code that finishes the setup.  */
   PRIM_FAILED;
 }
 
 /* CFunctionDescriptor addressOf: funcNameString */
-static intptr_t
-VMpr_CFuncDescriptor_addressOf (int id,
-                                volatile int numArgs)
-{
+static intptr_t VMpr_CFuncDescriptor_addressOf(int id, volatile int numArgs) {
   OOP oop1;
   _gst_primitives_executed++;
 
-  oop1 = STACKTOP ();
+  oop1 = STACKTOP();
 
-  if (IS_CLASS (oop1, _gst_string_class))
-    {
-      char *funcName = (char *) _gst_to_cstring (oop1);
-      void *funcAddr = _gst_lookup_function (funcName);
-      xfree (funcName);
-      if (funcAddr)
-	{
-	  POP_N_OOPS (1);
-	  SET_STACKTOP (COBJECT_NEW (funcAddr, _gst_nil_oop, _gst_c_object_class));
-	  PRIM_SUCCEEDED;
-	}
+  if (IS_CLASS(oop1, _gst_string_class)) {
+    char *funcName = (char *)_gst_to_cstring(oop1);
+    void *funcAddr = _gst_lookup_function(funcName);
+    xfree(funcName);
+    if (funcAddr) {
+      POP_N_OOPS(1);
+      SET_STACKTOP(COBJECT_NEW(funcAddr, _gst_nil_oop, _gst_c_object_class));
+      PRIM_SUCCEEDED;
     }
+  }
 
   PRIM_FAILED;
 }
 
 /* Object snapshot: aString */
-static intptr_t
-VMpr_ObjectMemory_snapshot (int id,
-                            volatile int numArgs)
-{
+static intptr_t VMpr_ObjectMemory_snapshot(int id, volatile int numArgs) {
   char *fileName;
   OOP oop2;
   interp_jmp_buf jb;
   _gst_primitives_executed++;
 
-  oop2 = POP_OOP ();
-  if (IS_CLASS (oop2, _gst_string_class))
-    {
-      mst_Boolean success;
-      fileName = _gst_to_cstring (oop2);
-      errno = 0;
+  oop2 = POP_OOP();
+  if (IS_CLASS(oop2, _gst_string_class)) {
+    mst_Boolean success;
+    fileName = _gst_to_cstring(oop2);
+    errno = 0;
 
-      /* first overwrite the stack top with true. When we resume from
-	 the save, the stack will be in this state. See below. */
-      SET_STACKTOP (_gst_true_oop);
+    /* first overwrite the stack top with true. When we resume from
+       the save, the stack will be in this state. See below. */
+    SET_STACKTOP(_gst_true_oop);
 
-      push_jmp_buf (&jb, false, get_active_process ());
-      if (setjmp (jb.jmpBuf) == 0)
-        success = _gst_save_to_file (fileName);
-      else
-        {
-          success = false;
-          errno = EINTR;
-        }
-
-      xfree (fileName);
-      if (pop_jmp_buf ())
-        {
-          stop_execution ();
-          PRIM_SUCCEEDED;
-        }
-      else if (success)
-	{
-	  /* We're returning in the parent, not resuming from
-	     save. Overwite the stack top again, with false this time,
-	     to let the caller know which side of the fork we're on. */
-	  SET_STACKTOP (_gst_false_oop);
-	  PRIM_SUCCEEDED;
-        }
-      else
-        _gst_set_errno (errno);
+    push_jmp_buf(&jb, false, get_active_process());
+    if (setjmp(jb.jmpBuf) == 0)
+      success = _gst_save_to_file(fileName);
+    else {
+      success = false;
+      errno = EINTR;
     }
-  UNPOP (1);
+
+    xfree(fileName);
+    if (pop_jmp_buf()) {
+      stop_execution();
+      PRIM_SUCCEEDED;
+    } else if (success) {
+      /* We're returning in the parent, not resuming from
+         save. Overwite the stack top again, with false this time,
+         to let the caller know which side of the fork we're on. */
+      SET_STACKTOP(_gst_false_oop);
+      PRIM_SUCCEEDED;
+    } else
+      _gst_set_errno(errno);
+  }
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 /* Object basicPrint */
-static intptr_t
-VMpr_Object_basicPrint (int id,
-                        volatile int numArgs)
-{
+static intptr_t VMpr_Object_basicPrint(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  printf ("Object: %O", STACKTOP ());
-  fflush (stdout);
+  printf("Object: %O", STACKTOP());
+  fflush(stdout);
   PRIM_SUCCEEDED;
 }
 
 /* Object makeWeak */
-static intptr_t
-VMpr_Object_makeWeak (int id,
-                      volatile int numArgs)
-{
-  OOP oop1 = STACKTOP ();
+static intptr_t VMpr_Object_makeWeak(int id, volatile int numArgs) {
+  OOP oop1 = STACKTOP();
   _gst_primitives_executed++;
 
-  if (IS_INT (oop1))
+  if (IS_INT(oop1))
     PRIM_FAILED;
 
-  if (!IS_OOP_WEAK (oop1))
-    _gst_make_oop_weak (oop1);
+  if (!IS_OOP_WEAK(oop1))
+    _gst_make_oop_weak(oop1);
 
   PRIM_SUCCEEDED;
 }
-
+
 /* Stream fileInLine: lineNum fileName: aString at: charPosInt */
 
-static intptr_t
-VMpr_Stream_fileInLine (int id,
-                        volatile int numArgs)
-{
-  OOP oop4 = POP_OOP ();
-  OOP oop3 = POP_OOP ();
-  OOP oop2 = (numArgs == 4 ? POP_OOP () : oop3);
-  OOP oop1 = POP_OOP ();
-  OOP streamOOP = STACKTOP ();
-  
-  if (!RECEIVER_IS_OOP (streamOOP))
+static intptr_t VMpr_Stream_fileInLine(int id, volatile int numArgs) {
+  OOP oop4 = POP_OOP();
+  OOP oop3 = POP_OOP();
+  OOP oop2 = (numArgs == 4 ? POP_OOP() : oop3);
+  OOP oop1 = POP_OOP();
+  OOP streamOOP = STACKTOP();
+
+  if (!RECEIVER_IS_OOP(streamOOP))
     PRIM_FAILED;
 
-  if (IS_INT (oop1)
-      && (IS_NIL (oop3)
-	  || (IS_CLASS (oop3, _gst_string_class) && IS_INT (oop4))))
-    {
-      mst_Boolean interrupted;
-      intptr_t arg1 = TO_INT (oop1);
-      intptr_t arg4 = TO_INT (oop4);
+  if (IS_INT(oop1) &&
+      (IS_NIL(oop3) || (IS_CLASS(oop3, _gst_string_class) && IS_INT(oop4)))) {
+    mst_Boolean interrupted;
+    intptr_t arg1 = TO_INT(oop1);
+    intptr_t arg4 = TO_INT(oop4);
 
-      _gst_push_stream_oop (streamOOP);
-      _gst_set_stream_info (arg1, oop2, oop3, arg4);
-      interrupted = parse_stream_with_protection (NULL);
-      _gst_pop_stream (false);
-      if (interrupted)
-	stop_execution ();
+    _gst_push_stream_oop(streamOOP);
+    _gst_set_stream_info(arg1, oop2, oop3, arg4);
+    interrupted = parse_stream_with_protection(NULL);
+    _gst_pop_stream(false);
+    if (interrupted)
+      stop_execution();
 
-      PRIM_SUCCEEDED;
-    }
+    PRIM_SUCCEEDED;
+  }
 
   PRIM_FAILED;
 }
 
 /* FileDescriptor>>#fileOp..., variadic */
 
-static intptr_t
-VMpr_FileDescriptor_fileOp (int id,
-                            volatile int numArgs)
-{
+static intptr_t VMpr_FileDescriptor_fileOp(int id, volatile int numArgs) {
   char *fileName, *fileName2;
   gst_file_stream fileStream;
   int fd, rc;
   OOP oop1;
-  OOP *oopVec = alloca (numArgs * sizeof (OOP));
+  OOP *oopVec = alloca(numArgs * sizeof(OOP));
   int i;
   intptr_t arg1;
   OOP resultOOP;
@@ -5840,384 +4856,334 @@ VMpr_FileDescriptor_fileOp (int id,
   _gst_primitives_executed++;
 
   for (i = numArgs; --i >= 0;)
-    oopVec[i] = POP_OOP ();
+    oopVec[i] = POP_OOP();
 
-  resultOOP = oop1 = STACKTOP ();
-  UNPOP (numArgs);
+  resultOOP = oop1 = STACKTOP();
+  UNPOP(numArgs);
 
-  if (!IS_INT (oopVec[0]))
+  if (!IS_INT(oopVec[0]))
     goto fail;
 
-  arg1 = TO_INT (oopVec[0]);
+  arg1 = TO_INT(oopVec[0]);
   switch (arg1) {
   case PRIM_OPEN_FILE:
-  case PRIM_OPEN_PIPE:
-    {
-      int is_pipe = false;
-      char *fileMode = NULL;
-      int access = 0;
-      struct stat st;
+  case PRIM_OPEN_PIPE: {
+    int is_pipe = false;
+    char *fileMode = NULL;
+    int access = 0;
+    struct stat st;
 
-      /* open: fileName[1] mode: mode[2] or popen: command[1] dir:
-         direction[2] */
-      fileName = _gst_to_cstring (oopVec[1]);
-      if (!is_a_kind_of (OOP_CLASS (oopVec[1]), _gst_string_class))
-        fd = -1;
+    /* open: fileName[1] mode: mode[2] or popen: command[1] dir:
+       direction[2] */
+    fileName = _gst_to_cstring(oopVec[1]);
+    if (!is_a_kind_of(OOP_CLASS(oopVec[1]), _gst_string_class))
+      fd = -1;
 
-      else if (arg1 == PRIM_OPEN_FILE)
-        {
-	  fileMode = _gst_to_cstring (oopVec[2]);
-          fd = _gst_open_file ((char *) fileName, (char *) fileMode);
-	  memset (&st, 0, sizeof (st));
-          fstat (fd, &st);
-	  is_pipe =
-	    S_ISFIFO(st.st_mode) ? true :
-	    S_ISREG(st.st_mode) && st.st_size > 0 ? false : -1;
-	}
-
-      else
-        {
-	  fileMode = _gst_to_cstring (oopVec[2]);
-	  fd = _gst_open_pipe (fileName, fileMode);
-	  is_pipe = true;
-	}
-
-      if (fileMode)
-	{
-          access = strchr (fileMode, '+') ? O_RDWR :
-	           (fileMode[0] == 'r') ? O_RDONLY : O_WRONLY;
-	  
-          xfree (fileMode);
-	}
-
-      xfree (fileName);
-      if (fd < 0)
-	goto fail;
-
-      _gst_set_file_stream_file (oop1, fd, oopVec[1],
-			         is_pipe, access, false);
-
-      goto succeed;
+    else if (arg1 == PRIM_OPEN_FILE) {
+      fileMode = _gst_to_cstring(oopVec[2]);
+      fd = _gst_open_file((char *)fileName, (char *)fileMode);
+      memset(&st, 0, sizeof(st));
+      fstat(fd, &st);
+      is_pipe = S_ISFIFO(st.st_mode)
+                    ? true
+                    : S_ISREG(st.st_mode) && st.st_size > 0 ? false : -1;
     }
 
-  case PRIM_MK_TEMP:
-    fileName = _gst_to_cstring (oopVec[1]);
-    asprintf (&fileName2, "%sXXXXXX", fileName);
-    fd = mkstemp ((char *) fileName2);
+    else {
+      fileMode = _gst_to_cstring(oopVec[2]);
+      fd = _gst_open_pipe(fileName, fileMode);
+      is_pipe = true;
+    }
 
-    xfree (fileName);
+    if (fileMode) {
+      access = strchr(fileMode, '+')
+                   ? O_RDWR
+                   : (fileMode[0] == 'r') ? O_RDONLY : O_WRONLY;
+
+      xfree(fileMode);
+    }
+
+    xfree(fileName);
     if (fd < 0)
-      {
-        xfree (fileName2);
-	goto fail;
-      }
-    
-    _gst_set_file_stream_file (oop1, fd, _gst_string_new (fileName2),
-			       false, O_RDWR, false);
+      goto fail;
 
-    xfree (fileName2);
+    _gst_set_file_stream_file(oop1, fd, oopVec[1], is_pipe, access, false);
+
     goto succeed;
   }
 
-  fileStream = (gst_file_stream) OOP_TO_OBJ (oop1);
-  if (!IS_INT (fileStream->fd))
+  case PRIM_MK_TEMP:
+    fileName = _gst_to_cstring(oopVec[1]);
+    asprintf(&fileName2, "%sXXXXXX", fileName);
+    fd = mkstemp((char *)fileName2);
+
+    xfree(fileName);
+    if (fd < 0) {
+      xfree(fileName2);
+      goto fail;
+    }
+
+    _gst_set_file_stream_file(oop1, fd, _gst_string_new(fileName2), false,
+                              O_RDWR, false);
+
+    xfree(fileName2);
+    goto succeed;
+  }
+
+  fileStream = (gst_file_stream)OOP_TO_OBJ(oop1);
+  if (!IS_INT(fileStream->fd))
     goto fail;
 
-  fd = TO_INT (fileStream->fd);
-  switch (arg1)
-    {
-    case PRIM_CLOSE_FILE:	/* FileDescriptor close */
-      _gst_remove_fd_polling_handlers (fd);
-      rc = close (fd);
-      if (rc == 0)
-        fileStream->fd = _gst_nil_oop;
-      resultOOP = FROM_INT (rc);
+  fd = TO_INT(fileStream->fd);
+  switch (arg1) {
+  case PRIM_CLOSE_FILE: /* FileDescriptor close */
+    _gst_remove_fd_polling_handlers(fd);
+    rc = close(fd);
+    if (rc == 0)
+      fileStream->fd = _gst_nil_oop;
+    resultOOP = FROM_INT(rc);
+    goto succeed;
+
+  case PRIM_FSEEK_SET: /* FileDescriptor position: position */
+    if (IS_OFF_T(oopVec[1]) && lseek(fd, TO_OFF_T(oopVec[1]), SEEK_SET) < 0) {
+      errno = 0;
+      break;
+    } else
       goto succeed;
 
-    case PRIM_FSEEK_SET:		/* FileDescriptor position: position */
-      if (IS_OFF_T (oopVec[1]) &&
-	  lseek (fd, TO_OFF_T (oopVec[1]), SEEK_SET) < 0)
-	{
-	  errno = 0;
-	  break;
-	}
-      else
-        goto succeed;
-
-    case PRIM_FTELL:		/* FileDescriptor position */
-      {
-	off_t off = lseek(fd, 0, SEEK_CUR);
-        if (off < 0)
-	  {
-	    errno = 0;
-	    break;
-	  }
-
-	resultOOP = FROM_OFF_T (off);
-	goto succeed;
-      }
-
-    case PRIM_FEOF:
-      {				/* FileDescriptor atEnd */
-	off_t oldPos;
-	oldPos = lseek (fd, 0, SEEK_CUR);
-	if (oldPos >= 0 && lseek (fd, 0, SEEK_END) == oldPos)
-	  resultOOP = _gst_true_oop;
-	else
-	  {
-	    resultOOP = _gst_false_oop;
-	    if (oldPos >= 0)
-	      lseek (fd, oldPos, SEEK_SET);
-	  }
-	errno = 0;
-	goto succeed;
-      }
-
-    case PRIM_FSIZE:
-      {
-	struct stat statBuf;
-	if (fstat (fd, &statBuf) < 0)
-	  {
-	    errno = 0;
-	    break;
-	  }
-	resultOOP = FROM_INT (statBuf.st_size);
-	goto succeed;
-      }
-
-    case PRIM_PUT_CHARS:
-      if (!IS_INT(oopVec[1])
-          && (OOP_INSTANCE_SPEC (oopVec[1]) & ISP_INDEXEDVARS) != GST_ISP_FIXED
-          && _gst_log2_sizes[OOP_INSTANCE_SPEC (oopVec[1]) & ISP_SHAPE] == 0)
-	{
-	  char *data = STRING_OOP_CHARS (oopVec[1]);
-	  intptr_t from = TO_INT (oopVec[2]);
-	  intptr_t to = TO_INT (oopVec[3]);
-	  ssize_t result;
-	  if (to >= from - 1
-	      && from > 0 && to <= NUM_INDEXABLE_FIELDS (oopVec[1]))
-	    {
-	      result = _gst_write (fd, data + from - 1, to - from + 1);
-	      if (result != -1)
-		{
-		  resultOOP = FROM_C_ULONG ((size_t) result);
-		  goto succeed;
-		}
-	    }
-	}
+  case PRIM_FTELL: /* FileDescriptor position */
+  {
+    off_t off = lseek(fd, 0, SEEK_CUR);
+    if (off < 0) {
+      errno = 0;
       break;
+    }
 
-    case PRIM_GET_CHARS:		/* only works for strings */
-      if (!IS_INT(oopVec[1])
-          && (OOP_INSTANCE_SPEC (oopVec[1]) & ISP_INDEXEDVARS) != GST_ISP_FIXED
-          && _gst_log2_sizes[OOP_INSTANCE_SPEC (oopVec[1]) & ISP_SHAPE] == 0)
-	{
-	  char *data = STRING_OOP_CHARS (oopVec[1]);
-	  intptr_t from = TO_INT (oopVec[2]);
-	  intptr_t to = TO_INT (oopVec[3]);
-	  ssize_t result;
-	  if (to >= from - 1
-	      && from > 0 && to <= NUM_INDEXABLE_FIELDS (oopVec[1]))
-	    {
-	      /* Parameters to system calls are not guaranteed to
-		 generate a SIGSEGV and for this reason we must
-		 touch them manually.  */
-	      _gst_grey_oop_range (data + from - 1, to - from + 1);
-	      result = _gst_read (fd, data + from - 1, to - from + 1);
+    resultOOP = FROM_OFF_T(off);
+    goto succeed;
+  }
 
-	      if (result != -1)
-		{
-		  resultOOP = FROM_C_ULONG ((size_t) result);
-		  goto succeed;
-		}
-	    }
-	}
+  case PRIM_FEOF: { /* FileDescriptor atEnd */
+    off_t oldPos;
+    oldPos = lseek(fd, 0, SEEK_CUR);
+    if (oldPos >= 0 && lseek(fd, 0, SEEK_END) == oldPos)
+      resultOOP = _gst_true_oop;
+    else {
+      resultOOP = _gst_false_oop;
+      if (oldPos >= 0)
+        lseek(fd, oldPos, SEEK_SET);
+    }
+    errno = 0;
+    goto succeed;
+  }
+
+  case PRIM_FSIZE: {
+    struct stat statBuf;
+    if (fstat(fd, &statBuf) < 0) {
+      errno = 0;
       break;
+    }
+    resultOOP = FROM_INT(statBuf.st_size);
+    goto succeed;
+  }
 
-    case PRIM_GET_CHARS_AT:
-      if (!IS_INT(oopVec[1])
-          && (OOP_INSTANCE_SPEC (oopVec[1]) & ISP_INDEXEDVARS) != GST_ISP_FIXED
-          && _gst_log2_sizes[OOP_INSTANCE_SPEC (oopVec[1]) & ISP_SHAPE] == 0
-	  && IS_OFF_T (oopVec[4]))
-	{
-	  char *data = STRING_OOP_CHARS (oopVec[1]);
-	  intptr_t from = TO_INT (oopVec[2]);
-	  intptr_t to = TO_INT (oopVec[3]);
-	  off_t ofs = TO_OFF_T (oopVec[4]);
-	  ssize_t result;
+  case PRIM_PUT_CHARS:
+    if (!IS_INT(oopVec[1]) &&
+        (OOP_INSTANCE_SPEC(oopVec[1]) & ISP_INDEXEDVARS) != GST_ISP_FIXED &&
+        _gst_log2_sizes[OOP_INSTANCE_SPEC(oopVec[1]) & ISP_SHAPE] == 0) {
+      char *data = STRING_OOP_CHARS(oopVec[1]);
+      intptr_t from = TO_INT(oopVec[2]);
+      intptr_t to = TO_INT(oopVec[3]);
+      ssize_t result;
+      if (to >= from - 1 && from > 0 && to <= NUM_INDEXABLE_FIELDS(oopVec[1])) {
+        result = _gst_write(fd, data + from - 1, to - from + 1);
+        if (result != -1) {
+          resultOOP = FROM_C_ULONG((size_t)result);
+          goto succeed;
+        }
+      }
+    }
+    break;
 
-	  if (to >= from - 1
-	      && from > 0 && to <= NUM_INDEXABLE_FIELDS (oopVec[1]))
-	    {
-	      /* Parameters to system calls are not guaranteed to
-		 generate a SIGSEGV and for this reason we must
-		 touch them manually.  */
-	      _gst_grey_oop_range (data + from - 1, to - from + 1);
+  case PRIM_GET_CHARS: /* only works for strings */
+    if (!IS_INT(oopVec[1]) &&
+        (OOP_INSTANCE_SPEC(oopVec[1]) & ISP_INDEXEDVARS) != GST_ISP_FIXED &&
+        _gst_log2_sizes[OOP_INSTANCE_SPEC(oopVec[1]) & ISP_SHAPE] == 0) {
+      char *data = STRING_OOP_CHARS(oopVec[1]);
+      intptr_t from = TO_INT(oopVec[2]);
+      intptr_t to = TO_INT(oopVec[3]);
+      ssize_t result;
+      if (to >= from - 1 && from > 0 && to <= NUM_INDEXABLE_FIELDS(oopVec[1])) {
+        /* Parameters to system calls are not guaranteed to
+           generate a SIGSEGV and for this reason we must
+           touch them manually.  */
+        _gst_grey_oop_range(data + from - 1, to - from + 1);
+        result = _gst_read(fd, data + from - 1, to - from + 1);
+
+        if (result != -1) {
+          resultOOP = FROM_C_ULONG((size_t)result);
+          goto succeed;
+        }
+      }
+    }
+    break;
+
+  case PRIM_GET_CHARS_AT:
+    if (!IS_INT(oopVec[1]) &&
+        (OOP_INSTANCE_SPEC(oopVec[1]) & ISP_INDEXEDVARS) != GST_ISP_FIXED &&
+        _gst_log2_sizes[OOP_INSTANCE_SPEC(oopVec[1]) & ISP_SHAPE] == 0 &&
+        IS_OFF_T(oopVec[4])) {
+      char *data = STRING_OOP_CHARS(oopVec[1]);
+      intptr_t from = TO_INT(oopVec[2]);
+      intptr_t to = TO_INT(oopVec[3]);
+      off_t ofs = TO_OFF_T(oopVec[4]);
+      ssize_t result;
+
+      if (to >= from - 1 && from > 0 && to <= NUM_INDEXABLE_FIELDS(oopVec[1])) {
+        /* Parameters to system calls are not guaranteed to
+           generate a SIGSEGV and for this reason we must
+           touch them manually.  */
+        _gst_grey_oop_range(data + from - 1, to - from + 1);
 #if HAVE_PREAD
-	      result = pread (fd, data + from - 1, to - from + 1, ofs);
+        result = pread(fd, data + from - 1, to - from + 1, ofs);
 #else
-	      {
-		off_t save = lseek (fd, ofs, SEEK_SET);
-		if (save != -1)
-		  {
-		    result = _gst_read (fd, data + from - 1, to - from + 1);
-		    lseek (fd, save, SEEK_SET);
-		  }
-		else
-		  result = -1;
-	      }
+        {
+          off_t save = lseek(fd, ofs, SEEK_SET);
+          if (save != -1) {
+            result = _gst_read(fd, data + from - 1, to - from + 1);
+            lseek(fd, save, SEEK_SET);
+          } else
+            result = -1;
+        }
 #endif
 
-	      if (result != -1)
-		{
-		  resultOOP = FROM_C_ULONG ((size_t) result);
-		  goto succeed;
-		}
-	    }
-	}
-      break;
+        if (result != -1) {
+          resultOOP = FROM_C_ULONG((size_t)result);
+          goto succeed;
+        }
+      }
+    }
+    break;
 
-    case PRIM_PUT_CHARS_AT:
-      if (!IS_INT(oopVec[1])
-          && (OOP_INSTANCE_SPEC (oopVec[1]) & ISP_INDEXEDVARS) != GST_ISP_FIXED
-          && _gst_log2_sizes[OOP_INSTANCE_SPEC (oopVec[1]) & ISP_SHAPE] == 0
-	  && IS_OFF_T (oopVec[4]))
-	{
-	  char *data = STRING_OOP_CHARS (oopVec[1]);
-	  intptr_t from = TO_INT (oopVec[2]);
-	  intptr_t to = TO_INT (oopVec[3]);
-	  off_t ofs = TO_OFF_T (oopVec[4]);
-	  ssize_t result;
+  case PRIM_PUT_CHARS_AT:
+    if (!IS_INT(oopVec[1]) &&
+        (OOP_INSTANCE_SPEC(oopVec[1]) & ISP_INDEXEDVARS) != GST_ISP_FIXED &&
+        _gst_log2_sizes[OOP_INSTANCE_SPEC(oopVec[1]) & ISP_SHAPE] == 0 &&
+        IS_OFF_T(oopVec[4])) {
+      char *data = STRING_OOP_CHARS(oopVec[1]);
+      intptr_t from = TO_INT(oopVec[2]);
+      intptr_t to = TO_INT(oopVec[3]);
+      off_t ofs = TO_OFF_T(oopVec[4]);
+      ssize_t result;
 
-	  if (to >= from - 1
-	      && from > 0 && to <= NUM_INDEXABLE_FIELDS (oopVec[1]))
-	    {
-	      /* Parameters to system calls are not guaranteed to
-		 generate a SIGSEGV and for this reason we must
-		 touch them manually.  */
-	      _gst_grey_oop_range (data + from - 1, to - from + 1);
+      if (to >= from - 1 && from > 0 && to <= NUM_INDEXABLE_FIELDS(oopVec[1])) {
+        /* Parameters to system calls are not guaranteed to
+           generate a SIGSEGV and for this reason we must
+           touch them manually.  */
+        _gst_grey_oop_range(data + from - 1, to - from + 1);
 #if HAVE_PWRITE
-	      result = pwrite (fd, data + from - 1, to - from + 1, ofs);
+        result = pwrite(fd, data + from - 1, to - from + 1, ofs);
 #else
-	      {
-		off_t save = lseek (fd, ofs, SEEK_SET);
-		if (save != -1)
-		  {
-		    result = _gst_write (fd, data + from - 1, to - from + 1);
-		    lseek (fd, save, SEEK_SET);
-		  }
-		else
-		  result = -1;
-	      }
+        {
+          off_t save = lseek(fd, ofs, SEEK_SET);
+          if (save != -1) {
+            result = _gst_write(fd, data + from - 1, to - from + 1);
+            lseek(fd, save, SEEK_SET);
+          } else
+            result = -1;
+        }
 #endif
 
-	      if (result != -1)
-		{
-		  resultOOP = FROM_C_ULONG ((size_t) result);
-		  goto succeed;
-		}
-	    }
-	}
+        if (result != -1) {
+          resultOOP = FROM_C_ULONG((size_t)result);
+          goto succeed;
+        }
+      }
+    }
+    break;
+
+  case PRIM_FTRUNCATE: {
+    off_t pos;
+    pos = lseek(fd, 0, SEEK_CUR);
+    if (pos < 0)
       break;
 
-    case PRIM_FTRUNCATE:
-      {
-	off_t pos;
-	pos = lseek (fd, 0, SEEK_CUR);
-	if (pos < 0)
-	  break;
+    ftruncate(fd, pos);
+    goto succeed;
+  }
 
-	ftruncate (fd, pos);
-	goto succeed;
-      }
-
-    case PRIM_FSEEK_CUR:		/* FileDescriptor skip: */
-      if (IS_OFF_T (oopVec[1]) &&
-	  lseek (fd, TO_OFF_T (oopVec[1]), SEEK_CUR) < 0)
-	break;
-      else
-	goto succeed;
-
-    case PRIM_SYNC_POLL:
-      {
-	int result;
-
-	result = _gst_sync_file_polling (fd, TO_INT (oopVec[1]));
-	if (result >= 0)
-	  {
-	    resultOOP = FROM_INT (result);
-	    goto succeed;
-	  }
-      }
+  case PRIM_FSEEK_CUR: /* FileDescriptor skip: */
+    if (IS_OFF_T(oopVec[1]) && lseek(fd, TO_OFF_T(oopVec[1]), SEEK_CUR) < 0)
       break;
+    else
+      goto succeed;
 
-    case PRIM_ASYNC_POLL:
-      {
-	int result;
+  case PRIM_SYNC_POLL: {
+    int result;
 
-	result =
-	  _gst_async_file_polling (fd, TO_INT (oopVec[1]), oopVec[2]);
-	if (result >= 0)
-	  goto succeed;
-      }
-      break;
+    result = _gst_sync_file_polling(fd, TO_INT(oopVec[1]));
+    if (result >= 0) {
+      resultOOP = FROM_INT(result);
+      goto succeed;
+    }
+  } break;
 
-    case PRIM_IS_PIPE:
-      {
-	off_t result;
+  case PRIM_ASYNC_POLL: {
+    int result;
 
-	result = lseek (fd, 0, SEEK_END);
-	if (result != -1)
-	  {
-	    lseek (fd, result, SEEK_SET);
-	    resultOOP = _gst_false_oop;
-	    goto succeed;
-	  }
-	else if (errno == ESPIPE || errno == EINVAL)
-	  {
-	    resultOOP = _gst_true_oop;
-	    errno = 0;
-	    goto succeed;
-	  }
+    result = _gst_async_file_polling(fd, TO_INT(oopVec[1]), oopVec[2]);
+    if (result >= 0)
+      goto succeed;
+  } break;
 
-	goto fail;
-      }
+  case PRIM_IS_PIPE: {
+    off_t result;
 
-    case PRIM_SHUTDOWN_WRITE:
-      shutdown (FD_TO_SOCKET (fd), 1);
-#ifdef ENOTSOCK
-      if (errno == ENOTSOCK && isatty (fd))
-	{
-	  char buf[1];
-	  write (fd, buf, 0);
-	  errno = 0;
-	}
-#endif
+    result = lseek(fd, 0, SEEK_END);
+    if (result != -1) {
+      lseek(fd, result, SEEK_SET);
+      resultOOP = _gst_false_oop;
+      goto succeed;
+    } else if (errno == ESPIPE || errno == EINVAL) {
+      resultOOP = _gst_true_oop;
+      errno = 0;
       goto succeed;
     }
 
- fail:
+    goto fail;
+  }
+
+  case PRIM_SHUTDOWN_WRITE:
+    shutdown(FD_TO_SOCKET(fd), 1);
+#ifdef ENOTSOCK
+    if (errno == ENOTSOCK && isatty(fd)) {
+      char buf[1];
+      write(fd, buf, 0);
+      errno = 0;
+    }
+#endif
+    goto succeed;
+  }
+
+fail:
   if (errno)
-    _gst_set_errno (errno);
+    _gst_set_errno(errno);
 
   PRIM_FAILED;
 
- succeed:
-  POP_N_OOPS (numArgs);
-  SET_STACKTOP (resultOOP);
+succeed:
+  POP_N_OOPS(numArgs);
+  SET_STACKTOP(resultOOP);
   PRIM_SUCCEEDED;
 }
-
+
 /* FileDescriptor>>#socketOp..., socket version, variadic */
 
-static intptr_t
-VMpr_FileDescriptor_socketOp (int id,
-                              volatile int numArgs)
-{
+static intptr_t VMpr_FileDescriptor_socketOp(int id, volatile int numArgs) {
   gst_file_stream fileStream;
   int fd, rc;
   OOP oop1, resultOOP;
-  OOP *oopVec = alloca (numArgs * sizeof (OOP));
+  OOP *oopVec = alloca(numArgs * sizeof(OOP));
   int i;
   intptr_t arg1;
 
@@ -6225,131 +5191,113 @@ VMpr_FileDescriptor_socketOp (int id,
 
 #ifdef HAVE_SOCKETS
   for (i = numArgs; --i >= 0;)
-    oopVec[i] = POP_OOP ();
+    oopVec[i] = POP_OOP();
 
-  resultOOP = oop1 = STACKTOP ();
-  UNPOP (numArgs);
-  if (!IS_INT (oopVec[0]))
+  resultOOP = oop1 = STACKTOP();
+  UNPOP(numArgs);
+  if (!IS_INT(oopVec[0]))
     goto fail;
 
-  arg1 = TO_INT (oopVec[0]);
-  fileStream = (gst_file_stream) OOP_TO_OBJ (oop1);
-  if (IS_NIL (fileStream->fd))
+  arg1 = TO_INT(oopVec[0]);
+  fileStream = (gst_file_stream)OOP_TO_OBJ(oop1);
+  if (IS_NIL(fileStream->fd))
     goto fail;
 
-  fd = TO_INT (fileStream->fd);
-  switch (arg1)
-    {
+  fd = TO_INT(fileStream->fd);
+  switch (arg1) {
 
-    case PRIM_CLOSE_FILE:	/* FileDescriptor close */
-      {
-        _gst_remove_fd_polling_handlers (fd);
-        rc = close (fd);
-        if (rc == 0)
-          fileStream->fd = _gst_nil_oop;
-        resultOOP = FROM_INT (rc);
-        goto succeed;
+  case PRIM_CLOSE_FILE: /* FileDescriptor close */
+  {
+    _gst_remove_fd_polling_handlers(fd);
+    rc = close(fd);
+    if (rc == 0)
+      fileStream->fd = _gst_nil_oop;
+    resultOOP = FROM_INT(rc);
+    goto succeed;
+  }
+
+  case PRIM_PUT_CHARS:
+    if (!IS_INT(oopVec[1]) &&
+        (OOP_INSTANCE_SPEC(oopVec[1]) & ISP_INDEXEDVARS) != GST_ISP_FIXED &&
+        _gst_log2_sizes[OOP_INSTANCE_SPEC(oopVec[1]) & ISP_SHAPE] == 0) {
+      char *data = STRING_OOP_CHARS(oopVec[1]);
+      intptr_t from = TO_INT(oopVec[2]);
+      intptr_t to = TO_INT(oopVec[3]);
+      ssize_t result;
+      if (to >= from - 1 && from > 0 && to <= NUM_INDEXABLE_FIELDS(oopVec[1])) {
+        clear_socket_error();
+        result = _gst_send(fd, data + from - 1, to - from + 1, 0);
+        if (result != -1) {
+          resultOOP = FROM_C_ULONG((size_t)result);
+          goto succeed;
+        }
       }
-
-    case PRIM_PUT_CHARS:
-      if (!IS_INT(oopVec[1])
-          && (OOP_INSTANCE_SPEC (oopVec[1]) & ISP_INDEXEDVARS) != GST_ISP_FIXED
-          && _gst_log2_sizes[OOP_INSTANCE_SPEC (oopVec[1]) & ISP_SHAPE] == 0)
-	{
-	  char *data = STRING_OOP_CHARS (oopVec[1]);
-	  intptr_t from = TO_INT (oopVec[2]);
-	  intptr_t to = TO_INT (oopVec[3]);
-	  ssize_t result;
-	  if (to >= from - 1
-	      && from > 0 && to <= NUM_INDEXABLE_FIELDS (oopVec[1]))
-	    {
-	      clear_socket_error ();
-	      result = _gst_send (fd, data + from - 1, to - from + 1, 0);
-	      if (result != -1)
-		{
-		  resultOOP = FROM_C_ULONG ((size_t) result);
-		  goto succeed;
-		}
-	    }
-	}
-      break;
-
-    case PRIM_GET_CHARS:		/* only works for strings */
-      if (!IS_INT(oopVec[1])
-          && (OOP_INSTANCE_SPEC (oopVec[1]) & ISP_INDEXEDVARS) != GST_ISP_FIXED
-          && _gst_log2_sizes[OOP_INSTANCE_SPEC (oopVec[1]) & ISP_SHAPE] == 0)
-	{
-	  char *data = STRING_OOP_CHARS (oopVec[1]);
-	  intptr_t from = TO_INT (oopVec[2]);
-	  intptr_t to = TO_INT (oopVec[3]);
-	  ssize_t result;
-	  if (to >= from - 1
-	      && from > 0 && to <= NUM_INDEXABLE_FIELDS (oopVec[1]))
-	    {
-	      /* Parameters to system calls are not guaranteed to
-		 generate a SIGSEGV and for this reason we must
-		 touch them manually.  */
-	      _gst_grey_oop_range (data + from - 1, to - from + 1);
-	      clear_socket_error ();
-	      result = _gst_recv (fd, data + from - 1, to - from + 1, 0);
-	      if (result != -1)
-		{
-		  resultOOP = FROM_C_ULONG ((size_t) result);
-		  goto succeed;
-		}
-	    }
-	}
-      break;
-
-    case PRIM_SYNC_POLL:
-      {
-	int result;
-
-	result = _gst_sync_file_polling (fd, TO_INT (oopVec[1]));
-	if (result >= 0)
-	  {
-	    resultOOP = FROM_INT (result);
-	    goto succeed;
-	  }
-      }
-      break;
-
-    case PRIM_ASYNC_POLL:
-      {
-	int result;
-
-	result =
-	  _gst_async_file_polling (fd, TO_INT (oopVec[1]), oopVec[2]);
-	if (result >= 0)
-	  goto succeed;
-      }
-      break;
-
-    case PRIM_IS_PIPE:
-      resultOOP =_gst_true_oop;
-      goto succeed;
-      break;
     }
+    break;
+
+  case PRIM_GET_CHARS: /* only works for strings */
+    if (!IS_INT(oopVec[1]) &&
+        (OOP_INSTANCE_SPEC(oopVec[1]) & ISP_INDEXEDVARS) != GST_ISP_FIXED &&
+        _gst_log2_sizes[OOP_INSTANCE_SPEC(oopVec[1]) & ISP_SHAPE] == 0) {
+      char *data = STRING_OOP_CHARS(oopVec[1]);
+      intptr_t from = TO_INT(oopVec[2]);
+      intptr_t to = TO_INT(oopVec[3]);
+      ssize_t result;
+      if (to >= from - 1 && from > 0 && to <= NUM_INDEXABLE_FIELDS(oopVec[1])) {
+        /* Parameters to system calls are not guaranteed to
+           generate a SIGSEGV and for this reason we must
+           touch them manually.  */
+        _gst_grey_oop_range(data + from - 1, to - from + 1);
+        clear_socket_error();
+        result = _gst_recv(fd, data + from - 1, to - from + 1, 0);
+        if (result != -1) {
+          resultOOP = FROM_C_ULONG((size_t)result);
+          goto succeed;
+        }
+      }
+    }
+    break;
+
+  case PRIM_SYNC_POLL: {
+    int result;
+
+    result = _gst_sync_file_polling(fd, TO_INT(oopVec[1]));
+    if (result >= 0) {
+      resultOOP = FROM_INT(result);
+      goto succeed;
+    }
+  } break;
+
+  case PRIM_ASYNC_POLL: {
+    int result;
+
+    result = _gst_async_file_polling(fd, TO_INT(oopVec[1]), oopVec[2]);
+    if (result >= 0)
+      goto succeed;
+  } break;
+
+  case PRIM_IS_PIPE:
+    resultOOP = _gst_true_oop;
+    goto succeed;
+    break;
+  }
 
 #endif
 
- fail:
+fail:
   if (errno)
-    _gst_set_errno (errno);
+    _gst_set_errno(errno);
   PRIM_FAILED;
 
- succeed:
-  POP_N_OOPS (numArgs);
-  SET_STACKTOP (resultOOP);
+succeed:
+  POP_N_OOPS(numArgs);
+  SET_STACKTOP(resultOOP);
   PRIM_SUCCEEDED;
 }
-
+
 /* C callout primitives.  */
 
-static intptr_t
-VMpr_CFuncDescriptor_asyncCall (int id,
-                                volatile int numArgs)
-{
+static intptr_t VMpr_CFuncDescriptor_asyncCall(int id, volatile int numArgs) {
   OOP resultOOP;
   volatile gst_object context;
   OOP contextOOP, cFuncOOP, receiverOOP;
@@ -6357,48 +5305,40 @@ VMpr_CFuncDescriptor_asyncCall (int id,
 
   _gst_primitives_executed++;
 
-  if (numArgs == 1)
-    {
-      contextOOP = POP_OOP ();
-      context = OOP_TO_OBJ (contextOOP);
-      receiverOOP = OBJ_METHOD_CONTEXT_RECEIVER (context);
-    }
-  else
-    {
-      contextOOP = _gst_this_context_oop;
-      context = OOP_TO_OBJ (contextOOP);
-      receiverOOP = _gst_self;
-    }
+  if (numArgs == 1) {
+    contextOOP = POP_OOP();
+    context = OOP_TO_OBJ(contextOOP);
+    receiverOOP = OBJ_METHOD_CONTEXT_RECEIVER(context);
+  } else {
+    contextOOP = _gst_this_context_oop;
+    context = OOP_TO_OBJ(contextOOP);
+    receiverOOP = _gst_self;
+  }
 
-  cFuncOOP = STACKTOP ();
-  push_jmp_buf (&jb, false, _gst_nil_oop);
-  if (setjmp (jb.jmpBuf) == 0)
-    resultOOP = _gst_invoke_croutine (cFuncOOP, receiverOOP,
-				   OBJ_METHOD_CONTEXT_CONTEXT_STACK (context));
+  cFuncOOP = STACKTOP();
+  push_jmp_buf(&jb, false, _gst_nil_oop);
+  if (setjmp(jb.jmpBuf) == 0)
+    resultOOP = _gst_invoke_croutine(cFuncOOP, receiverOOP,
+                                     OBJ_METHOD_CONTEXT_CONTEXT_STACK(context));
   else
     resultOOP = NULL;
 
-  if (pop_jmp_buf ())
-    {
-      stop_execution ();
-      PRIM_SUCCEEDED;
-    }
+  if (pop_jmp_buf()) {
+    stop_execution();
+    PRIM_SUCCEEDED;
+  }
 
-  else if (resultOOP)
-    {
-      SET_EXCEPT_FLAG (true);
-      PRIM_SUCCEEDED;
-    }
+  else if (resultOOP) {
+    SET_EXCEPT_FLAG(true);
+    PRIM_SUCCEEDED;
+  }
 
   if (numArgs == 1)
-    UNPOP (1);
+    UNPOP(1);
   PRIM_FAILED;
 }
 
-static intptr_t
-VMpr_CFuncDescriptor_call (int id,
-                           volatile int numArgs)
-{
+static intptr_t VMpr_CFuncDescriptor_call(int id, volatile int numArgs) {
   volatile gst_object context;
   gst_object resultHolderObj;
   OOP receiverOOP, contextOOP, cFuncOOP, resultOOP;
@@ -6407,150 +5347,124 @@ VMpr_CFuncDescriptor_call (int id,
 
   _gst_primitives_executed++;
 
-  resultHolderOOP = POP_OOP ();
-  if (numArgs == 2)
-    {
-      contextOOP = POP_OOP ();
-      context = OOP_TO_OBJ (contextOOP);
-      receiverOOP = OBJ_METHOD_CONTEXT_RECEIVER (context);
-    }
-  else
-    {
-      contextOOP = _gst_this_context_oop;
-      context = OOP_TO_OBJ (contextOOP);
-      receiverOOP = _gst_self;
-    }
+  resultHolderOOP = POP_OOP();
+  if (numArgs == 2) {
+    contextOOP = POP_OOP();
+    context = OOP_TO_OBJ(contextOOP);
+    receiverOOP = OBJ_METHOD_CONTEXT_RECEIVER(context);
+  } else {
+    contextOOP = _gst_this_context_oop;
+    context = OOP_TO_OBJ(contextOOP);
+    receiverOOP = _gst_self;
+  }
 
-  cFuncOOP = POP_OOP ();
+  cFuncOOP = POP_OOP();
 
   /* Make the result reachable, and also push it before the
      active process can change.  */
-  PUSH_OOP (resultHolderOOP);
+  PUSH_OOP(resultHolderOOP);
 
-  push_jmp_buf (&jb, false, get_active_process ());
-  if (setjmp (jb.jmpBuf) == 0)
-    resultOOP = _gst_invoke_croutine (cFuncOOP, receiverOOP,
-				      OBJ_METHOD_CONTEXT_CONTEXT_STACK (context));
+  push_jmp_buf(&jb, false, get_active_process());
+  if (setjmp(jb.jmpBuf) == 0)
+    resultOOP = _gst_invoke_croutine(cFuncOOP, receiverOOP,
+                                     OBJ_METHOD_CONTEXT_CONTEXT_STACK(context));
   else
     resultOOP = NULL;
 
-  if (pop_jmp_buf ())
-    {
-      stop_execution ();
-      PRIM_SUCCEEDED;
-    }
+  if (pop_jmp_buf()) {
+    stop_execution();
+    PRIM_SUCCEEDED;
+  }
 
-  else if (resultOOP)
-    {
-      if (!IS_NIL (resultHolderOOP))
-	{
-          resultHolderObj = OOP_TO_OBJ (resultHolderOOP);
-          resultHolderObj->data[0] = resultOOP;
-	}
-      SET_EXCEPT_FLAG (true);
-      PRIM_SUCCEEDED;
+  else if (resultOOP) {
+    if (!IS_NIL(resultHolderOOP)) {
+      resultHolderObj = OOP_TO_OBJ(resultHolderOOP);
+      resultHolderObj->data[0] = resultOOP;
     }
-  
+    SET_EXCEPT_FLAG(true);
+    PRIM_SUCCEEDED;
+  }
+
   /* Undo changes to the stack made above */
-  POP_N_OOPS (1);
-  PUSH_OOP (cFuncOOP);
+  POP_N_OOPS(1);
+  PUSH_OOP(cFuncOOP);
   if (numArgs == 2)
-    PUSH_OOP (contextOOP);
-  PUSH_OOP (resultHolderOOP);
+    PUSH_OOP(contextOOP);
+  PUSH_OOP(resultHolderOOP);
   PRIM_FAILED;
 }
-
 
-static intptr_t
-VMpr_Object_makeEphemeron (int id,
-                           volatile int numArgs)
-{
+static intptr_t VMpr_Object_makeEphemeron(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  if (NUM_OOPS (OOP_TO_OBJ (STACKTOP ())) == 0)
+  if (NUM_OOPS(OOP_TO_OBJ(STACKTOP())) == 0)
     PRIM_FAILED;
 
-  MAKE_OOP_EPHEMERON (STACKTOP ());
+  MAKE_OOP_EPHEMERON(STACKTOP());
   PRIM_SUCCEEDED;
 }
 
 /* Namespace current: aNamespace */
-static intptr_t
-VMpr_Namespace_setCurrent (int id,
-                           volatile int numArgs)
-{
+static intptr_t VMpr_Namespace_setCurrent(int id, volatile int numArgs) {
   OOP oop1;
 
   _gst_primitives_executed++;
-  oop1 = STACKTOP ();
-  if (is_a_kind_of (OOP_CLASS (oop1), _gst_dictionary_class))
+  oop1 = STACKTOP();
+  if (is_a_kind_of(OOP_CLASS(oop1), _gst_dictionary_class))
     _gst_current_namespace = oop1;
-  else if (is_a_kind_of (OOP_CLASS (oop1), _gst_class_class))
-    _gst_current_namespace = _gst_class_variable_dictionary (oop1);
+  else if (is_a_kind_of(OOP_CLASS(oop1), _gst_class_class))
+    _gst_current_namespace = _gst_class_variable_dictionary(oop1);
 
   /* Always fail */
   PRIM_FAILED;
 }
 
-static intptr_t
-VMpr_ObjectMemory_gcPrimitives (int id,
-                                volatile int numArgs)
-{
+static intptr_t VMpr_ObjectMemory_gcPrimitives(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  switch (id)
-    {
-      case 0:
-	_gst_scavenge ();
-	break;
+  switch (id) {
+  case 0:
+    _gst_scavenge();
+    break;
 
-      case -1:
-	_gst_global_compact ();
-	break;
+  case -1:
+    _gst_global_compact();
+    break;
 
-      case -2:
-	_gst_global_gc (0);
-	break;
+  case -2:
+    _gst_global_gc(0);
+    break;
 
-      case -3:
-	SET_STACKTOP_BOOLEAN (_gst_incremental_gc_step ());
-	break;
+  case -3:
+    SET_STACKTOP_BOOLEAN(_gst_incremental_gc_step());
+    break;
 
-      case -4:
-	_gst_finish_incremental_gc ();
-	break;
-    }
+  case -4:
+    _gst_finish_incremental_gc();
+    break;
+  }
   PRIM_SUCCEEDED;
 }
 
 /* SystemDictionary profilerOn */
 
-static intptr_t
-VMpr_SystemDictionary_rawProfile (int id,
-                                  volatile int numArgs)
-{
-  OOP oop1 = POP_OOP ();
-  if (_gst_raw_profile)
-    {
-      _gst_record_profile (_gst_this_method, NULL, -1);
-      SET_STACKTOP (_gst_raw_profile);
-      _gst_unregister_oop (_gst_raw_profile);
-    }
-  else
-    SET_STACKTOP (_gst_nil_oop);
-  if (IS_NIL (oop1))
+static intptr_t VMpr_SystemDictionary_rawProfile(int id, volatile int numArgs) {
+  OOP oop1 = POP_OOP();
+  if (_gst_raw_profile) {
+    _gst_record_profile(_gst_this_method, NULL, -1);
+    SET_STACKTOP(_gst_raw_profile);
+    _gst_unregister_oop(_gst_raw_profile);
+  } else
+    SET_STACKTOP(_gst_nil_oop);
+  if (IS_NIL(oop1))
     _gst_raw_profile = NULL;
-  else
-    {
-      _gst_raw_profile = oop1;
-      _gst_register_oop (_gst_raw_profile);
-      _gst_saved_bytecode_counter = _gst_bytecode_counter;
-    }
+  else {
+    _gst_raw_profile = oop1;
+    _gst_register_oop(_gst_raw_profile);
+    _gst_saved_bytecode_counter = _gst_bytecode_counter;
+  }
   PRIM_SUCCEEDED;
 }
 
-static intptr_t
-VMpr_Random_next (int id,
-                  volatile int numArgs)
-{
+static intptr_t VMpr_Random_next(int id, volatile int numArgs) {
   OOP oop1, oop2;
   mst_Object obj;
   intptr_t spec;
@@ -6558,64 +5472,56 @@ VMpr_Random_next (int id,
 
   if (numArgs == 0)
     oop1 = _gst_nil_oop;
-  else
-    {
-      oop1 = POP_OOP ();
-      if (!IS_INT (oop1))
-        goto bad;
-    }
+  else {
+    oop1 = POP_OOP();
+    if (!IS_INT(oop1))
+      goto bad;
+  }
 
   /* Boring validity checks.  */
-  oop2 = STACKTOP ();
-  if (IS_INT (oop2))
+  oop2 = STACKTOP();
+  if (IS_INT(oop2))
     goto bad;
-  spec = OOP_INSTANCE_SPEC (oop2);
+  spec = OOP_INSTANCE_SPEC(oop2);
   if (spec & (~0 << ISP_NUMFIXEDFIELDS))
     goto bad;
-  if (OOP_SIZE_BYTES (oop2) < RANDOM_SIZE * sizeof (uint32_t))
+  if (OOP_SIZE_BYTES(oop2) < RANDOM_SIZE * sizeof(uint32_t))
     goto bad;
 
-  obj = OOP_TO_OBJ (oop2);
-  top = random_next ((uint32_t *) obj->data);
+  obj = OOP_TO_OBJ(oop2);
+  top = random_next((uint32_t *)obj->data);
   if (numArgs == 0)
-    SET_STACKTOP (floatd_new (top / (double)0xFFFFFFFF));
-  else
-    {
-      limit = TO_INT (oop1);
-      if (limit < 0 || limit > 0xFFFFFFFF)
-        goto bad;
+    SET_STACKTOP(floatd_new(top / (double)0xFFFFFFFF));
+  else {
+    limit = TO_INT(oop1);
+    if (limit < 0 || limit > 0xFFFFFFFF)
+      goto bad;
 
-      top = (uint32_t) ((limit * top) >> 32);
-      SET_STACKTOP_INT (top);
-    }
+    top = (uint32_t)((limit * top) >> 32);
+    SET_STACKTOP_INT(top);
+  }
   PRIM_SUCCEEDED;
 
- bad:
-  UNPOP (1);
+bad:
+  UNPOP(1);
   PRIM_FAILED;
 }
 
 #undef INT_BIN_OP
 #undef BOOL_BIN_OP
 
-static intptr_t
-VMpr_HOLE (int id,
-           volatile int numArgs)
-{
+static intptr_t VMpr_HOLE(int id, volatile int numArgs) {
   _gst_primitives_executed++;
-  _gst_errorf ("Unhandled primitive operation %d", id);
+  _gst_errorf("Unhandled primitive operation %d", id);
 
-  UNPOP (numArgs);
+  UNPOP(numArgs);
   PRIM_FAILED;
 }
 
-unsigned char
-_gst_primitives_md5[16] = { 225, 63, 18, 146, 66, 109, 248, 224,
-                            201, 185, 175, 54, 25, 109, 150, 224 };
+unsigned char _gst_primitives_md5[16] = {225, 63,  18,  146, 66, 109, 248, 224,
+                                         201, 185, 175, 54,  25, 109, 150, 224};
 
-void
-_gst_init_primitives()
-{
+void _gst_init_primitives() {
   int i;
   _gst_default_primitive_table[1].name = "VMpr_SmallInteger_plus";
   _gst_default_primitive_table[1].attributes = PRIM_SUCCEED | PRIM_FAIL;
@@ -6846,7 +5752,8 @@ _gst_init_primitives()
   _gst_default_primitive_table[57].id = 0;
   _gst_default_primitive_table[57].func = VMpr_FloatD_fractionPart;
   _gst_default_primitive_table[58].name = "VMpr_FloatD_exponent";
-  _gst_default_primitive_table[58].attributes = PRIM_CHECKS_RECEIVER | PRIM_RETURN_SMALL_SMALLINTEGER;
+  _gst_default_primitive_table[58].attributes =
+      PRIM_CHECKS_RECEIVER | PRIM_RETURN_SMALL_SMALLINTEGER;
   _gst_default_primitive_table[58].id = 0;
   _gst_default_primitive_table[58].func = VMpr_FloatD_exponent;
   _gst_default_primitive_table[59].name = "VMpr_FloatD_timesTwoPower";
@@ -6910,7 +5817,8 @@ _gst_init_primitives()
   _gst_default_primitive_table[73].id = 0;
   _gst_default_primitive_table[73].func = VMpr_FloatE_fractionPart;
   _gst_default_primitive_table[74].name = "VMpr_FloatE_exponent";
-  _gst_default_primitive_table[74].attributes = PRIM_CHECKS_RECEIVER | PRIM_RETURN_SMALL_SMALLINTEGER;
+  _gst_default_primitive_table[74].attributes =
+      PRIM_CHECKS_RECEIVER | PRIM_RETURN_SMALL_SMALLINTEGER;
   _gst_default_primitive_table[74].id = 0;
   _gst_default_primitive_table[74].func = VMpr_FloatE_exponent;
   _gst_default_primitive_table[75].name = "VMpr_FloatE_timesTwoPower";
@@ -6974,7 +5882,8 @@ _gst_init_primitives()
   _gst_default_primitive_table[89].id = 0;
   _gst_default_primitive_table[89].func = VMpr_FloatQ_fractionPart;
   _gst_default_primitive_table[90].name = "VMpr_FloatQ_exponent";
-  _gst_default_primitive_table[90].attributes = PRIM_CHECKS_RECEIVER | PRIM_RETURN_SMALL_SMALLINTEGER;
+  _gst_default_primitive_table[90].attributes =
+      PRIM_CHECKS_RECEIVER | PRIM_RETURN_SMALL_SMALLINTEGER;
   _gst_default_primitive_table[90].id = 0;
   _gst_default_primitive_table[90].func = VMpr_FloatQ_exponent;
   _gst_default_primitive_table[91].name = "VMpr_FloatQ_timesTwoPower";
@@ -6990,15 +5899,18 @@ _gst_init_primitives()
   _gst_default_primitive_table[93].id = 0;
   _gst_default_primitive_table[93].func = VMpr_FloatQ_asFloatE;
   _gst_default_primitive_table[94].name = "VMpr_Object_basicAt";
-  _gst_default_primitive_table[94].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_INLINED;
+  _gst_default_primitive_table[94].attributes =
+      PRIM_SUCCEED | PRIM_FAIL | PRIM_INLINED;
   _gst_default_primitive_table[94].id = 60;
   _gst_default_primitive_table[94].func = VMpr_Object_basicAt;
   _gst_default_primitive_table[95].name = "VMpr_Object_basicAtPut";
-  _gst_default_primitive_table[95].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_INLINED;
+  _gst_default_primitive_table[95].attributes =
+      PRIM_SUCCEED | PRIM_FAIL | PRIM_INLINED;
   _gst_default_primitive_table[95].id = 61;
   _gst_default_primitive_table[95].func = VMpr_Object_basicAtPut;
   _gst_default_primitive_table[96].name = "VMpr_Object_basicSize";
-  _gst_default_primitive_table[96].attributes = PRIM_SUCCEED | PRIM_RETURN_SMALL_SMALLINTEGER | PRIM_INLINED;
+  _gst_default_primitive_table[96].attributes =
+      PRIM_SUCCEED | PRIM_RETURN_SMALL_SMALLINTEGER | PRIM_INLINED;
   _gst_default_primitive_table[96].id = 62;
   _gst_default_primitive_table[96].func = VMpr_Object_basicSize;
   _gst_default_primitive_table[97].name = "VMpr_CharacterArray_valueAt";
@@ -7006,10 +5918,12 @@ _gst_init_primitives()
   _gst_default_primitive_table[97].id = 60;
   _gst_default_primitive_table[97].func = VMpr_CharacterArray_valueAt;
   _gst_default_primitive_table[98].name = "VMpr_CharacterArray_valueAtPut";
-  _gst_default_primitive_table[98].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_INLINED;
+  _gst_default_primitive_table[98].attributes =
+      PRIM_SUCCEED | PRIM_FAIL | PRIM_INLINED;
   _gst_default_primitive_table[98].id = 61;
   _gst_default_primitive_table[98].func = VMpr_CharacterArray_valueAtPut;
-  _gst_default_primitive_table[99].name = "VMpr_CompiledCode_verificationResult";
+  _gst_default_primitive_table[99].name =
+      "VMpr_CompiledCode_verificationResult";
   _gst_default_primitive_table[99].attributes = PRIM_SUCCEED;
   _gst_default_primitive_table[99].id = 0;
   _gst_default_primitive_table[99].func = VMpr_CompiledCode_verificationResult;
@@ -7026,19 +5940,23 @@ _gst_init_primitives()
   _gst_default_primitive_table[102].id = 0;
   _gst_default_primitive_table[102].func = VMpr_Object_shallowCopy;
   _gst_default_primitive_table[103].name = "VMpr_Behavior_basicNew";
-  _gst_default_primitive_table[103].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_INLINED;
+  _gst_default_primitive_table[103].attributes =
+      PRIM_SUCCEED | PRIM_FAIL | PRIM_INLINED;
   _gst_default_primitive_table[103].id = 70;
   _gst_default_primitive_table[103].func = VMpr_Behavior_basicNew;
   _gst_default_primitive_table[104].name = "VMpr_Behavior_newInitialize";
-  _gst_default_primitive_table[104].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_RELOAD_IP;
+  _gst_default_primitive_table[104].attributes =
+      PRIM_SUCCEED | PRIM_FAIL | PRIM_RELOAD_IP;
   _gst_default_primitive_table[104].id = 0;
   _gst_default_primitive_table[104].func = VMpr_Behavior_newInitialize;
   _gst_default_primitive_table[105].name = "VMpr_Behavior_basicNewColon";
-  _gst_default_primitive_table[105].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_INLINED;
+  _gst_default_primitive_table[105].attributes =
+      PRIM_SUCCEED | PRIM_FAIL | PRIM_INLINED;
   _gst_default_primitive_table[105].id = 71;
   _gst_default_primitive_table[105].func = VMpr_Behavior_basicNewColon;
   _gst_default_primitive_table[106].name = "VMpr_Behavior_newColonInitialize";
-  _gst_default_primitive_table[106].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_RELOAD_IP;
+  _gst_default_primitive_table[106].attributes =
+      PRIM_SUCCEED | PRIM_FAIL | PRIM_RELOAD_IP;
   _gst_default_primitive_table[106].id = 0;
   _gst_default_primitive_table[106].func = VMpr_Behavior_newColonInitialize;
   _gst_default_primitive_table[107].name = "VMpr_Object_become";
@@ -7046,11 +5964,13 @@ _gst_init_primitives()
   _gst_default_primitive_table[107].id = 0;
   _gst_default_primitive_table[107].func = VMpr_Object_become;
   _gst_default_primitive_table[108].name = "VMpr_Object_instVarAt";
-  _gst_default_primitive_table[108].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_INLINED;
+  _gst_default_primitive_table[108].attributes =
+      PRIM_SUCCEED | PRIM_FAIL | PRIM_INLINED;
   _gst_default_primitive_table[108].id = 73;
   _gst_default_primitive_table[108].func = VMpr_Object_instVarAt;
   _gst_default_primitive_table[109].name = "VMpr_Object_instVarAtPut";
-  _gst_default_primitive_table[109].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_INLINED;
+  _gst_default_primitive_table[109].attributes =
+      PRIM_SUCCEED | PRIM_FAIL | PRIM_INLINED;
   _gst_default_primitive_table[109].id = 74;
   _gst_default_primitive_table[109].func = VMpr_Object_instVarAtPut;
   _gst_default_primitive_table[110].name = "VMpr_Object_hash";
@@ -7086,7 +6006,8 @@ _gst_init_primitives()
   _gst_default_primitive_table[117].id = 0;
   _gst_default_primitive_table[117].func = VMpr_ContextPart_thisContext;
   _gst_default_primitive_table[118].name = "VMpr_ContextPart_continue";
-  _gst_default_primitive_table[118].attributes = PRIM_CHECKS_RECEIVER | PRIM_RELOAD_IP;
+  _gst_default_primitive_table[118].attributes =
+      PRIM_CHECKS_RECEIVER | PRIM_RELOAD_IP;
   _gst_default_primitive_table[118].id = 0;
   _gst_default_primitive_table[118].func = VMpr_ContextPart_continue;
   _gst_default_primitive_table[119].name = "VMpr_Continuation_resume";
@@ -7094,18 +6015,22 @@ _gst_init_primitives()
   _gst_default_primitive_table[119].id = 0;
   _gst_default_primitive_table[119].func = VMpr_Continuation_resume;
   _gst_default_primitive_table[120].name = "VMpr_BlockClosure_value";
-  _gst_default_primitive_table[120].attributes = PRIM_FAIL | PRIM_RELOAD_IP | PRIM_CACHE_NEW_IP;
+  _gst_default_primitive_table[120].attributes =
+      PRIM_FAIL | PRIM_RELOAD_IP | PRIM_CACHE_NEW_IP;
   _gst_default_primitive_table[120].id = 0;
   _gst_default_primitive_table[120].func = VMpr_BlockClosure_value;
   _gst_default_primitive_table[121].name = "VMpr_BlockClosure_cull";
   _gst_default_primitive_table[121].attributes = PRIM_FAIL | PRIM_RELOAD_IP;
   _gst_default_primitive_table[121].id = 0;
   _gst_default_primitive_table[121].func = VMpr_BlockClosure_cull;
-  _gst_default_primitive_table[122].name = "VMpr_BlockClosure_valueAndResumeOnUnwind";
+  _gst_default_primitive_table[122].name =
+      "VMpr_BlockClosure_valueAndResumeOnUnwind";
   _gst_default_primitive_table[122].attributes = PRIM_FAIL | PRIM_RELOAD_IP;
   _gst_default_primitive_table[122].id = 0;
-  _gst_default_primitive_table[122].func = VMpr_BlockClosure_valueAndResumeOnUnwind;
-  _gst_default_primitive_table[123].name = "VMpr_BlockClosure_valueWithArguments";
+  _gst_default_primitive_table[122].func =
+      VMpr_BlockClosure_valueAndResumeOnUnwind;
+  _gst_default_primitive_table[123].name =
+      "VMpr_BlockClosure_valueWithArguments";
   _gst_default_primitive_table[123].attributes = PRIM_FAIL | PRIM_RELOAD_IP;
   _gst_default_primitive_table[123].id = 0;
   _gst_default_primitive_table[123].func = VMpr_BlockClosure_valueWithArguments;
@@ -7118,35 +6043,43 @@ _gst_init_primitives()
   _gst_default_primitive_table[125].id = 0;
   _gst_default_primitive_table[125].func = VMpr_Object_performWithArguments;
   _gst_default_primitive_table[126].name = "VMpr_Semaphore_notifyAll";
-  _gst_default_primitive_table[126].attributes = PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[126].attributes =
+      PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
   _gst_default_primitive_table[126].id = 0;
   _gst_default_primitive_table[126].func = VMpr_Semaphore_notifyAll;
   _gst_default_primitive_table[127].name = "VMpr_Semaphore_signal";
-  _gst_default_primitive_table[127].attributes = PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[127].attributes =
+      PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
   _gst_default_primitive_table[127].id = 0;
   _gst_default_primitive_table[127].func = VMpr_Semaphore_signalNotify;
   _gst_default_primitive_table[128].name = "VMpr_Semaphore_notify";
-  _gst_default_primitive_table[128].attributes = PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[128].attributes =
+      PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
   _gst_default_primitive_table[128].id = -1;
   _gst_default_primitive_table[128].func = VMpr_Semaphore_signalNotify;
   _gst_default_primitive_table[129].name = "VMpr_Semaphore_lock";
-  _gst_default_primitive_table[129].attributes = PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[129].attributes =
+      PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
   _gst_default_primitive_table[129].id = 0;
   _gst_default_primitive_table[129].func = VMpr_Semaphore_lock;
   _gst_default_primitive_table[130].name = "VMpr_Semaphore_wait";
-  _gst_default_primitive_table[130].attributes = PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[130].attributes =
+      PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
   _gst_default_primitive_table[130].id = 0;
   _gst_default_primitive_table[130].func = VMpr_Semaphore_wait;
   _gst_default_primitive_table[131].name = "VMpr_Semaphore_waitAfterSignalling";
-  _gst_default_primitive_table[131].attributes = PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[131].attributes =
+      PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
   _gst_default_primitive_table[131].id = 0;
   _gst_default_primitive_table[131].func = VMpr_Semaphore_waitAfterSignalling;
   _gst_default_primitive_table[132].name = "VMpr_Process_suspend";
-  _gst_default_primitive_table[132].attributes = PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[132].attributes =
+      PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
   _gst_default_primitive_table[132].id = 0;
   _gst_default_primitive_table[132].func = VMpr_Process_suspend;
   _gst_default_primitive_table[133].name = "VMpr_Process_resume";
-  _gst_default_primitive_table[133].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[133].attributes =
+      PRIM_SUCCEED | PRIM_FAIL | PRIM_CHECK_INTERRUPT;
   _gst_default_primitive_table[133].id = 0;
   _gst_default_primitive_table[133].func = VMpr_Process_resume;
   _gst_default_primitive_table[134].name = "VMpr_Process_singleStepWaitingOn";
@@ -7154,22 +6087,26 @@ _gst_init_primitives()
   _gst_default_primitive_table[134].id = 0;
   _gst_default_primitive_table[134].func = VMpr_Process_singleStepWaitingOn;
   _gst_default_primitive_table[135].name = "VMpr_Process_yield";
-  _gst_default_primitive_table[135].attributes = PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[135].attributes =
+      PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
   _gst_default_primitive_table[135].id = 0;
   _gst_default_primitive_table[135].func = VMpr_Process_yield;
   _gst_default_primitive_table[136].name = "VMpr_Processor_dispatchEvents";
-  _gst_default_primitive_table[136].attributes = PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[136].attributes =
+      PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
   _gst_default_primitive_table[136].id = 0;
   _gst_default_primitive_table[136].func = VMpr_Processor_dispatchEvents;
   _gst_default_primitive_table[137].name = "VMpr_Processor_pause";
-  _gst_default_primitive_table[137].attributes = PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[137].attributes =
+      PRIM_SUCCEED | PRIM_CHECK_INTERRUPT;
   _gst_default_primitive_table[137].id = 0;
   _gst_default_primitive_table[137].func = VMpr_Processor_pause;
   _gst_default_primitive_table[138].name = "VMpr_Behavior_flushCache";
   _gst_default_primitive_table[138].attributes = PRIM_SUCCEED;
   _gst_default_primitive_table[138].id = 0;
   _gst_default_primitive_table[138].func = VMpr_Behavior_flushCache;
-  _gst_default_primitive_table[139].name = "VMpr_CompiledCode_discardTranslation";
+  _gst_default_primitive_table[139].name =
+      "VMpr_CompiledCode_discardTranslation";
   _gst_default_primitive_table[139].attributes = PRIM_SUCCEED;
   _gst_default_primitive_table[139].id = 0;
   _gst_default_primitive_table[139].func = VMpr_CompiledCode_discardTranslation;
@@ -7197,12 +6134,16 @@ _gst_init_primitives()
   _gst_default_primitive_table[145].attributes = PRIM_SUCCEED;
   _gst_default_primitive_table[145].id = 0;
   _gst_default_primitive_table[145].func = VMpr_Time_millisecondClock;
-  _gst_default_primitive_table[146].name = "VMpr_Processor_signalAtMilliseconds";
-  _gst_default_primitive_table[146].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[146].name =
+      "VMpr_Processor_signalAtMilliseconds";
+  _gst_default_primitive_table[146].attributes =
+      PRIM_SUCCEED | PRIM_FAIL | PRIM_CHECK_INTERRUPT;
   _gst_default_primitive_table[146].id = 0;
   _gst_default_primitive_table[146].func = VMpr_Processor_signalAt;
-  _gst_default_primitive_table[147].name = "VMpr_Processor_signalAtNanosecondClockValue";
-  _gst_default_primitive_table[147].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[147].name =
+      "VMpr_Processor_signalAtNanosecondClockValue";
+  _gst_default_primitive_table[147].attributes =
+      PRIM_SUCCEED | PRIM_FAIL | PRIM_CHECK_INTERRUPT;
   _gst_default_primitive_table[147].id = -1;
   _gst_default_primitive_table[147].func = VMpr_Processor_signalAt;
   _gst_default_primitive_table[148].name = "VMpr_Processor_isTimeoutProgrammed";
@@ -7221,14 +6162,18 @@ _gst_init_primitives()
   _gst_default_primitive_table[151].attributes = PRIM_SUCCEED | PRIM_FAIL;
   _gst_default_primitive_table[151].id = 0;
   _gst_default_primitive_table[151].func = VMpr_ArrayedCollection_equal;
-  _gst_default_primitive_table[152].name = "VMpr_ArrayedCollection_indexOfStartingAt";
+  _gst_default_primitive_table[152].name =
+      "VMpr_ArrayedCollection_indexOfStartingAt";
   _gst_default_primitive_table[152].attributes = PRIM_SUCCEED | PRIM_FAIL;
   _gst_default_primitive_table[152].id = 0;
-  _gst_default_primitive_table[152].func = VMpr_ArrayedCollection_indexOfStartingAt;
-  _gst_default_primitive_table[153].name = "VMpr_ArrayedCollection_replaceFromToWithStartingAt";
+  _gst_default_primitive_table[152].func =
+      VMpr_ArrayedCollection_indexOfStartingAt;
+  _gst_default_primitive_table[153].name =
+      "VMpr_ArrayedCollection_replaceFromToWithStartingAt";
   _gst_default_primitive_table[153].attributes = PRIM_SUCCEED | PRIM_FAIL;
   _gst_default_primitive_table[153].id = 0;
-  _gst_default_primitive_table[153].func = VMpr_ArrayedCollection_replaceFromToWithStartingAt;
+  _gst_default_primitive_table[153].func =
+      VMpr_ArrayedCollection_replaceFromToWithStartingAt;
   _gst_default_primitive_table[154].name = "VMpr_Object_identity";
   _gst_default_primitive_table[154].attributes = PRIM_SUCCEED | PRIM_INLINED;
   _gst_default_primitive_table[154].id = 110;
@@ -7316,13 +6261,16 @@ _gst_init_primitives()
   _gst_default_primitive_table[175].name = "VMpr_Processor_disableInterrupts";
   _gst_default_primitive_table[175].attributes = PRIM_SUCCEED;
   _gst_default_primitive_table[175].id = 0;
-  _gst_default_primitive_table[175].func = VMpr_Processor_disableEnableInterrupts;
+  _gst_default_primitive_table[175].func =
+      VMpr_Processor_disableEnableInterrupts;
   _gst_default_primitive_table[176].name = "VMpr_Processor_enableInterrupts";
   _gst_default_primitive_table[176].attributes = PRIM_SUCCEED;
   _gst_default_primitive_table[176].id = -1;
-  _gst_default_primitive_table[176].func = VMpr_Processor_disableEnableInterrupts;
+  _gst_default_primitive_table[176].func =
+      VMpr_Processor_disableEnableInterrupts;
   _gst_default_primitive_table[177].name = "VMpr_Processor_signalOnInterrupt";
-  _gst_default_primitive_table[177].attributes = PRIM_SUCCEED | PRIM_FAIL | PRIM_CHECK_INTERRUPT;
+  _gst_default_primitive_table[177].attributes =
+      PRIM_SUCCEED | PRIM_FAIL | PRIM_CHECK_INTERRUPT;
   _gst_default_primitive_table[177].id = 0;
   _gst_default_primitive_table[177].func = VMpr_Processor_signalOnInterrupt;
   _gst_default_primitive_table[178].name = "VMpr_ObjectMemory_getSpaceGrowRate";
@@ -7333,30 +6281,40 @@ _gst_init_primitives()
   _gst_default_primitive_table[179].attributes = PRIM_SUCCEED | PRIM_FAIL;
   _gst_default_primitive_table[179].id = 0;
   _gst_default_primitive_table[179].func = VMpr_ObjectMemory_setSpaceGrowRate;
-  _gst_default_primitive_table[180].name = "VMpr_ObjectMemory_getSmoothingFactor";
+  _gst_default_primitive_table[180].name =
+      "VMpr_ObjectMemory_getSmoothingFactor";
   _gst_default_primitive_table[180].attributes = PRIM_SUCCEED;
   _gst_default_primitive_table[180].id = 0;
   _gst_default_primitive_table[180].func = VMpr_ObjectMemory_getSmoothingFactor;
-  _gst_default_primitive_table[181].name = "VMpr_ObjectMemory_setSmoothingFactor";
+  _gst_default_primitive_table[181].name =
+      "VMpr_ObjectMemory_setSmoothingFactor";
   _gst_default_primitive_table[181].attributes = PRIM_SUCCEED | PRIM_FAIL;
   _gst_default_primitive_table[181].id = 0;
   _gst_default_primitive_table[181].func = VMpr_ObjectMemory_setSmoothingFactor;
-  _gst_default_primitive_table[182].name = "VMpr_ObjectMemory_getGrowThresholdPercent";
+  _gst_default_primitive_table[182].name =
+      "VMpr_ObjectMemory_getGrowThresholdPercent";
   _gst_default_primitive_table[182].attributes = PRIM_SUCCEED;
   _gst_default_primitive_table[182].id = 0;
-  _gst_default_primitive_table[182].func = VMpr_ObjectMemory_getGrowThresholdPercent;
-  _gst_default_primitive_table[183].name = "VMpr_ObjectMemory_setGrowThresholdPercent";
+  _gst_default_primitive_table[182].func =
+      VMpr_ObjectMemory_getGrowThresholdPercent;
+  _gst_default_primitive_table[183].name =
+      "VMpr_ObjectMemory_setGrowThresholdPercent";
   _gst_default_primitive_table[183].attributes = PRIM_SUCCEED | PRIM_FAIL;
   _gst_default_primitive_table[183].id = 0;
-  _gst_default_primitive_table[183].func = VMpr_ObjectMemory_setGrowThresholdPercent;
-  _gst_default_primitive_table[184].name = "VMpr_ObjectMemory_getBigObjectThreshold";
+  _gst_default_primitive_table[183].func =
+      VMpr_ObjectMemory_setGrowThresholdPercent;
+  _gst_default_primitive_table[184].name =
+      "VMpr_ObjectMemory_getBigObjectThreshold";
   _gst_default_primitive_table[184].attributes = PRIM_SUCCEED;
   _gst_default_primitive_table[184].id = 0;
-  _gst_default_primitive_table[184].func = VMpr_ObjectMemory_getBigObjectThreshold;
-  _gst_default_primitive_table[185].name = "VMpr_ObjectMemory_setBigObjectThreshold";
+  _gst_default_primitive_table[184].func =
+      VMpr_ObjectMemory_getBigObjectThreshold;
+  _gst_default_primitive_table[185].name =
+      "VMpr_ObjectMemory_setBigObjectThreshold";
   _gst_default_primitive_table[185].attributes = PRIM_SUCCEED | PRIM_FAIL;
   _gst_default_primitive_table[185].id = 0;
-  _gst_default_primitive_table[185].func = VMpr_ObjectMemory_setBigObjectThreshold;
+  _gst_default_primitive_table[185].func =
+      VMpr_ObjectMemory_setBigObjectThreshold;
   _gst_default_primitive_table[186].name = "VMpr_ObjectMemory_growTo";
   _gst_default_primitive_table[186].attributes = PRIM_SUCCEED | PRIM_FAIL;
   _gst_default_primitive_table[186].id = 0;
@@ -7481,10 +6439,12 @@ _gst_init_primitives()
   _gst_default_primitive_table[216].attributes = PRIM_CHECKS_RECEIVER;
   _gst_default_primitive_table[216].id = -1;
   _gst_default_primitive_table[216].func = VMpr_String_ByteArray_asCData;
-  _gst_default_primitive_table[217].name = "VMpr_SystemDictionary_byteCodeCounter";
+  _gst_default_primitive_table[217].name =
+      "VMpr_SystemDictionary_byteCodeCounter";
   _gst_default_primitive_table[217].attributes = PRIM_SUCCEED;
   _gst_default_primitive_table[217].id = 0;
-  _gst_default_primitive_table[217].func = VMpr_SystemDictionary_byteCodeCounter;
+  _gst_default_primitive_table[217].func =
+      VMpr_SystemDictionary_byteCodeCounter;
   _gst_default_primitive_table[218].name = "VMpr_SystemDictionary_debug";
   _gst_default_primitive_table[218].attributes = PRIM_SUCCEED;
   _gst_default_primitive_table[218].id = 0;
@@ -7502,7 +6462,8 @@ _gst_init_primitives()
   _gst_default_primitive_table[221].id = 0;
   _gst_default_primitive_table[221].func = VMpr_Behavior_primCompile;
   _gst_default_primitive_table[222].name = "VMpr_Behavior_primCompileIfError";
-  _gst_default_primitive_table[222].attributes = PRIM_FAIL | PRIM_SUCCEED | PRIM_RELOAD_IP;
+  _gst_default_primitive_table[222].attributes =
+      PRIM_FAIL | PRIM_SUCCEED | PRIM_RELOAD_IP;
   _gst_default_primitive_table[222].id = 0;
   _gst_default_primitive_table[222].func = VMpr_Behavior_primCompileIfError;
   _gst_default_primitive_table[223].name = "VMpr_CCallbackDescriptor_link";
@@ -7561,15 +6522,18 @@ _gst_init_primitives()
   _gst_default_primitive_table[236].attributes = PRIM_SUCCEED;
   _gst_default_primitive_table[236].id = -1;
   _gst_default_primitive_table[236].func = VMpr_ObjectMemory_gcPrimitives;
-  _gst_default_primitive_table[237].name = "VMpr_ObjectMemory_globalGarbageCollect";
+  _gst_default_primitive_table[237].name =
+      "VMpr_ObjectMemory_globalGarbageCollect";
   _gst_default_primitive_table[237].attributes = PRIM_SUCCEED;
   _gst_default_primitive_table[237].id = -2;
   _gst_default_primitive_table[237].func = VMpr_ObjectMemory_gcPrimitives;
-  _gst_default_primitive_table[238].name = "VMpr_ObjectMemory_incrementalGCStep";
+  _gst_default_primitive_table[238].name =
+      "VMpr_ObjectMemory_incrementalGCStep";
   _gst_default_primitive_table[238].attributes = PRIM_SUCCEED;
   _gst_default_primitive_table[238].id = -3;
   _gst_default_primitive_table[238].func = VMpr_ObjectMemory_gcPrimitives;
-  _gst_default_primitive_table[239].name = "VMpr_ObjectMemory_finishIncrementalGC";
+  _gst_default_primitive_table[239].name =
+      "VMpr_ObjectMemory_finishIncrementalGC";
   _gst_default_primitive_table[239].attributes = PRIM_SUCCEED;
   _gst_default_primitive_table[239].id = -4;
   _gst_default_primitive_table[239].func = VMpr_ObjectMemory_gcPrimitives;
@@ -7582,12 +6546,10 @@ _gst_init_primitives()
   _gst_default_primitive_table[241].id = 0;
   _gst_default_primitive_table[241].func = VMpr_Random_next;
 
-  for (i = 242; i < NUM_PRIMITIVES; i++)
-    {
-      _gst_default_primitive_table[i].name = NULL;
-      _gst_default_primitive_table[i].attributes = PRIM_FAIL;
-      _gst_default_primitive_table[i].id = i;
-      _gst_default_primitive_table[i].func = VMpr_HOLE;
-    }
+  for (i = 242; i < NUM_PRIMITIVES; i++) {
+    _gst_default_primitive_table[i].name = NULL;
+    _gst_default_primitive_table[i].attributes = PRIM_FAIL;
+    _gst_default_primitive_table[i].id = i;
+    _gst_default_primitive_table[i].func = VMpr_HOLE;
+  }
 }
-
