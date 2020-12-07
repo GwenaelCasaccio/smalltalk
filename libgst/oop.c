@@ -553,11 +553,8 @@ _gst_check_oop_table ()
       scanPtr = &OBJ_CLASS (object);
       if (OOP_GET_FLAGS (oop) & F_CONTEXT)
         {
-          gst_method_context ctx;
-          intptr_t methodSP;
-          ctx = (gst_method_context) object;
-          methodSP = TO_INT (ctx->spOffset);
-          n = ctx->contextStack + methodSP + 1 - object->data;
+          const intptr_t methodSP = TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET (object));
+          n = OBJ_METHOD_CONTEXT_CONTEXT_STACK (object) + methodSP + 1 - object->data;
         }
       else
         n = NUM_OOPS (object) + 1;
@@ -1906,11 +1903,8 @@ scanned_fields_in (gst_object object,
 
   if COMMON (flags & F_CONTEXT)
     {
-      gst_method_context ctx;
-      intptr_t methodSP;
-      ctx = (gst_method_context) object;
-      methodSP = TO_INT (ctx->spOffset);
-      return ctx->contextStack + methodSP + 1 - &OBJ_CLASS (ctx);
+      const intptr_t methodSP = TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET (object));
+      return OBJ_METHOD_CONTEXT_CONTEXT_STACK (object) + methodSP + 1 - &OBJ_CLASS (object);
     }
 
   /* Weak object, only mark the class.  */
@@ -2233,14 +2227,11 @@ _gst_mark_an_oop_internal (OOP oop)
     objClass = OBJ_CLASS (object);
     if UNCOMMON (OOP_GET_FLAGS (oop) & F_CONTEXT)
       {
-        gst_method_context ctx;
-        intptr_t methodSP;
-        ctx = (gst_method_context) object;
-        methodSP = TO_INT (ctx->spOffset);
+        const intptr_t methodSP = TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET (object));
         /* printf("setting up for loop on context %x, sp = %d\n", 
            ctx, methodSP); */
-        TAIL_MARK_OOPRANGE (&OBJ_CLASS (ctx),
-                            ctx->contextStack + methodSP + 1);
+        TAIL_MARK_OOPRANGE (&OBJ_CLASS (object),
+                            OBJ_METHOD_CONTEXT_CONTEXT_STACK (object) + methodSP + 1);
 
       }
     else if UNCOMMON (OOP_GET_FLAGS (oop) & (F_EPHEMERON | F_WEAK))

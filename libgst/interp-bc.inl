@@ -158,7 +158,7 @@
    activated.  */
 
 
-#define GET_CONTEXT_IP(ctx) 	TO_INT((ctx)->ipOffset)
+#define GET_CONTEXT_IP(ctx) 	TO_INT(OBJ_METHOD_CONTEXT_IP_OFFSET ((ctx)))
 
 #define SET_THIS_METHOD(method, ipOffset) do {				\
   OOP old_method_oop = _gst_this_method;                                \
@@ -182,7 +182,7 @@ _gst_send_message_internal (OOP sendSelector,
   int hashIndex;
   OOP methodOOP;
   method_cache_entry * methodData;
-  gst_method_context newContext;
+  gst_object newContext;
   method_header header;
 
   /* hash the selector and the class of the receiver together using
@@ -304,7 +304,7 @@ _gst_send_message_internal (OOP sendSelector,
   /* Prepare new state.  */
 
   newContext = activate_new_context (header.stack_depth, sendArgs);
-  newContext->flags = MCF_IS_METHOD_CONTEXT;
+  OBJ_METHOD_CONTEXT_SET_FLAGS (newContext, (OOP) MCF_IS_METHOD_CONTEXT);
   /* push args and temps, set sp and _gst_temporaries */
   prepare_context ((gst_context_part) newContext, sendArgs, header.numTemps);
   _gst_self = receiver;
@@ -319,7 +319,7 @@ _gst_send_method (OOP methodOOP)
   OOP receiver;
   method_header header;
   REGISTER (1, gst_compiled_method method);
-  REGISTER (2, gst_method_context newContext);
+  REGISTER (2, gst_object newContext);
 
   _gst_sample_counter++;
 
@@ -391,7 +391,7 @@ _gst_send_method (OOP methodOOP)
 
   /* prepare new state */
   newContext = activate_new_context (header.stack_depth, sendArgs);
-  newContext->flags = MCF_IS_METHOD_CONTEXT;
+  OBJ_METHOD_CONTEXT_SET_FLAGS ((gst_object) newContext, (OOP) MCF_IS_METHOD_CONTEXT);
   /* push args and temps, set sp and _gst_temporaries */
   prepare_context ((gst_context_part) newContext, sendArgs, header.numTemps);
   _gst_self = receiver;
