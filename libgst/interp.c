@@ -738,7 +738,7 @@ empty_context_stack (void)
   context->method = _gst_this_method;
   context->receiver = _gst_self;
   OBJ_METHOD_CONTEXT_SET_SP_OFFSET ((gst_object) context, FROM_INT (sp - context->contextStack));
-  context->ipOffset = FROM_INT (ip - method_base);
+  OBJ_METHOD_CONTEXT_SET_IP_OFFSET ((gst_object) context, FROM_INT (ip - method_base));
 
   /* Even if the JIT is active, the current context might have no
      attached native_ip -- in fact it has one only if we are being
@@ -830,7 +830,7 @@ activate_new_context (int size,
   thisContext->receiver = _gst_self;
   OBJ_METHOD_CONTEXT_SET_SP_OFFSET ((gst_object) thisContext,
     FROM_INT ((sp - thisContext->contextStack) - sendArgs));
-  thisContext->ipOffset = FROM_INT (ip - method_base);
+  OBJ_METHOD_CONTEXT_SET_IP_OFFSET ((gst_object) thisContext, FROM_INT (ip - method_base));
 
   _gst_this_context_oop = oop;
 
@@ -1340,11 +1340,6 @@ resume_suspended_context (OOP oop)
   thisContext = (gst_method_context) OOP_TO_OBJ (oop);
   sp = thisContext->contextStack + TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET ((gst_object) thisContext));
   SET_THIS_METHOD (thisContext->method, GET_CONTEXT_IP (thisContext));
-
-#if ENABLE_JIT_TRANSLATION
-  ip = TO_INT (thisContext->ipOffset);
-#endif
-
   _gst_temporaries = thisContext->contextStack;
   _gst_self = thisContext->receiver;
   free_lifo_context = lifo_contexts;
@@ -2237,7 +2232,7 @@ _gst_prepare_execution_environment (void)
 	 | MCF_IS_EXECUTION_ENVIRONMENT
 	 | MCF_IS_UNWIND_CONTEXT;
   dummyContext->receiver = _gst_nil_oop;
-  dummyContext->ipOffset = FROM_INT (0);
+  OBJ_METHOD_CONTEXT_SET_IP_OFFSET ((gst_object) dummyContext, FROM_INT (0));
   OBJ_METHOD_CONTEXT_SET_SP_OFFSET ((gst_object) dummyContext, FROM_INT (-1));
 
 #ifdef ENABLE_JIT_TRANSLATION
@@ -2460,7 +2455,7 @@ _gst_fixup_object_pointers (void)
       thisContext->method = _gst_this_method;
       thisContext->receiver = _gst_self;
       OBJ_METHOD_CONTEXT_SET_SP_OFFSET ((gst_object) thisContext, FROM_INT (sp - thisContext->contextStack));
-      thisContext->ipOffset = FROM_INT (ip - method_base);
+      OBJ_METHOD_CONTEXT_SET_IP_OFFSET ((gst_object) thisContext, FROM_INT (ip - method_base));
     }
 }
 
@@ -2616,7 +2611,7 @@ _gst_show_backtrace (FILE *fp)
 	continue;
 
       /* printf ("(OOP %p)", context->method); */
-      fprintf (fp, "(ip %d)", TO_INT (context->ipOffset));
+      fprintf (fp, "(ip %d)", TO_INT (OBJ_METHOD_CONTEXT_IP_OFFSET ((gst_object) context)));
       if ((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) context) & MCF_IS_METHOD_CONTEXT)
 	{
 	  OOP receiver, receiverClass;
