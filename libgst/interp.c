@@ -168,12 +168,7 @@ OOP _gst_raw_profile = NULL;
 /* A bytecode counter value used while profiling. */
 unsigned long _gst_saved_bytecode_counter = 0;
 
-#ifdef ENABLE_JIT_TRANSLATION
-#define method_base		0
-char *native_ip = NULL;
-#else /* plain bytecode interpreter */
 static ip_type method_base;
-#endif
 
 /* Global state
    The following variables constitute the interpreter's state:
@@ -550,12 +545,6 @@ static void stop_execution (void);
 
 /* Tell the interpreter that special actions are needed as soon as a
    sequence point is reached.  */
-#ifdef ENABLE_JIT_TRANSLATION
-mst_Boolean _gst_except_flag = false;
-#define SET_EXCEPT_FLAG(x) \
-  do { _gst_except_flag = (x); __sync_synchronize (); } while (0)
-
-#else
 static void * const *global_monitored_bytecodes;
 static void * const *global_normal_bytecodes;
 static void * const *dispatch_vec;
@@ -564,7 +553,6 @@ static void * const *dispatch_vec;
   dispatch_vec = (x) ? global_monitored_bytecodes : global_normal_bytecodes; \
   __sync_synchronize (); \
 } while (0)
-#endif
 
 /* Answer an hash value for a send of the SENDSELECTOR message, when
    the CompiledMethod is found in class METHODCLASS.  */
@@ -703,14 +691,12 @@ empty_context_stack (void)
           ? _gst_method_context_class
 	  : _gst_block_context_class);
 
-#ifndef ENABLE_JIT_TRANSLATION
 	/* This field is unused without the JIT compiler, but it must 
 	   be initialized when a context becomes a fully formed
 	   Smalltalk object.  We do that here.  Note that we need the 
 	   field so that the same image is usable with or without the 
 	   JIT compiler.  */
-	context->native_ip = DUMMY_NATIVE_IP;
-#endif
+	OBJ_METHOD_CONTEXT_SET_NATIVE_IP ((gst_object) context, DUMMY_NATIVE_IP);
 
 	/* The last context is not referenced anywhere, so we're done 
 	   with it.  */
@@ -735,9 +721,9 @@ empty_context_stack (void)
   /* When a context gets out of the context stack it must be a fully
      formed Smalltalk object.  These fields were left uninitialized in
      _gst_send_message_internal and send_block_value -- set them here.  */
-  context->method = _gst_this_method;
+  OBJ_METHOD_CONTEXT_SET_METHOD ((gst_object) context, _gst_this_method);
   OBJ_METHOD_CONTEXT_SET_RECEIVER ((gst_object) context, _gst_self);
-  OBJ_METHOD_CONTEXT_SET_SP_OFFSET ((gst_object) context, FROM_INT (sp - context->contextStack));
+  OBJ_METHOD_CONTEXT_SET_SP_OFFSET ((gst_object) context, FROM_INT (sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK ((gst_object) context)));
   OBJ_METHOD_CONTEXT_SET_IP_OFFSET ((gst_object) context, FROM_INT (ip - method_base));
 
   /* Even if the JIT is active, the current context might have no
@@ -746,8 +732,8 @@ empty_context_stack (void)
      one. We test for a valid native_ip first, though; this test must
      have no false positives, i.e. it won't ever overwrite a valid
      native_ip, and won't leave a bogus OOP for the native_ip.  */
-  if (!IS_INT (context->native_ip))
-    context->native_ip = DUMMY_NATIVE_IP;
+  if (!IS_INT (OBJ_METHOD_CONTEXT_NATIVE_IP ((gst_object) context)))
+    OBJ_METHOD_CONTEXT_SET_NATIVE_IP ((gst_object) context, DUMMY_NATIVE_IP);
 }
 
 void
@@ -826,10 +812,10 @@ activate_new_context (int size,
   /* leave sp pointing to receiver, which is replaced on return with
      value */
   thisContext = (gst_method_context) OOP_TO_OBJ (_gst_this_context_oop);
-  thisContext->method = _gst_this_method;
+  OBJ_METHOD_CONTEXT_SET_METHOD ((gst_object) thisContext, _gst_this_method);
   OBJ_METHOD_CONTEXT_SET_RECEIVER ((gst_object) thisContext, _gst_self);
   OBJ_METHOD_CONTEXT_SET_SP_OFFSET ((gst_object) thisContext,
-    FROM_INT ((sp - thisContext->contextStack) - sendArgs));
+    FROM_INT ((sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK ((gst_object) thisContext)) - sendArgs));
   OBJ_METHOD_CONTEXT_SET_IP_OFFSET ((gst_object) thisContext, FROM_INT (ip - method_base));
 
   _gst_this_context_oop = oop;
@@ -859,7 +845,7 @@ prepare_context (gst_context_part context,
 		 int temps)
 {
   REGISTER (1, OOP *stackBase);
-  _gst_temporaries = stackBase = context->contextStack;
+  _gst_temporaries = stackBase = OBJ_METHOD_CONTEXT_CONTEXT_STACK ((gst_object) context);
   if (args)
     {
       REGISTER (2, OOP * src);
@@ -1047,11 +1033,11 @@ unwind_context (void)
 				  MCF_IS_UNWIND_CONTEXT))));
 
   _gst_this_context_oop = newContextOOP;
-  _gst_temporaries = newContext->contextStack;
-  sp = newContext->contextStack + TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET ((gst_object) newContext));
+  _gst_temporaries = OBJ_METHOD_CONTEXT_CONTEXT_STACK ((gst_object) newContext);
+  sp = OBJ_METHOD_CONTEXT_CONTEXT_STACK ((gst_object) newContext) + TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET ((gst_object) newContext));
   _gst_self = OBJ_METHOD_CONTEXT_RECEIVER ((gst_object) newContext);
 
-  SET_THIS_METHOD (newContext->method, GET_CONTEXT_IP (newContext));
+  SET_THIS_METHOD (OBJ_METHOD_CONTEXT_METHOD ((gst_object) newContext), GET_CONTEXT_IP (newContext));
 }
 
 
@@ -1158,11 +1144,11 @@ unwind_to (OOP returnContextOOP)
                                   MCF_IS_UNWIND_CONTEXT))));
 
   _gst_this_context_oop = newContextOOP;
-  _gst_temporaries = newContext->contextStack;
-  sp = newContext->contextStack + TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET ((gst_object) newContext));
+  _gst_temporaries = OBJ_METHOD_CONTEXT_CONTEXT_STACK ((gst_object) newContext);
+  sp = OBJ_METHOD_CONTEXT_CONTEXT_STACK ((gst_object) newContext) + TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET ((gst_object) newContext));
   _gst_self = OBJ_METHOD_CONTEXT_RECEIVER ((gst_object) newContext);
 
-  SET_THIS_METHOD (newContext->method, GET_CONTEXT_IP (newContext));
+  SET_THIS_METHOD (OBJ_METHOD_CONTEXT_METHOD ((gst_object) newContext), GET_CONTEXT_IP (newContext));
   return (true);
 }
 
@@ -1332,9 +1318,9 @@ resume_suspended_context (OOP oop)
 
   _gst_this_context_oop = oop;
   thisContext = (gst_method_context) OOP_TO_OBJ (oop);
-  sp = thisContext->contextStack + TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET ((gst_object) thisContext));
-  SET_THIS_METHOD (thisContext->method, GET_CONTEXT_IP (thisContext));
-  _gst_temporaries = thisContext->contextStack;
+  sp = OBJ_METHOD_CONTEXT_CONTEXT_STACK ((gst_object) thisContext) + TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET ((gst_object) thisContext));
+  SET_THIS_METHOD (OBJ_METHOD_CONTEXT_METHOD ((gst_object) thisContext), GET_CONTEXT_IP (thisContext));
+  _gst_temporaries = OBJ_METHOD_CONTEXT_CONTEXT_STACK ((gst_object) thisContext);
   _gst_self = OBJ_METHOD_CONTEXT_RECEIVER ((gst_object) thisContext);
   free_lifo_context = lifo_contexts;
 }
@@ -1525,7 +1511,7 @@ _gst_sync_signal (OOP semaphoreOOP, mst_Boolean incr_if_empty)
   process = (gst_process) OOP_TO_OBJ (processOOP);
   suspendedContext = (gst_method_context) OOP_TO_OBJ (process->suspendedContext);
   spOffset = TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET ((gst_object) suspendedContext));
-  suspendedContext->contextStack[spOffset] = semaphoreOOP;
+  OBJ_METHOD_CONTEXT_CONTEXT_STACK_AT_PUT ((gst_object) suspendedContext, spOffset, semaphoreOOP);
   return true;
 }
 
@@ -2221,7 +2207,7 @@ _gst_prepare_execution_environment (void)
   dummyContext = alloc_stack_context (4);
   OBJ_SET_CLASS (dummyContext, _gst_method_context_class);
   OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT ((gst_object) dummyContext, _gst_nil_oop);
-  dummyContext->method = _gst_get_termination_method ();
+  OBJ_METHOD_CONTEXT_SET_METHOD ((gst_object) dummyContext, _gst_get_termination_method ());
   dummyContext->flags = MCF_IS_METHOD_CONTEXT
 	 | MCF_IS_EXECUTION_ENVIRONMENT
 	 | MCF_IS_UNWIND_CONTEXT;
@@ -2229,7 +2215,7 @@ _gst_prepare_execution_environment (void)
   OBJ_METHOD_CONTEXT_SET_IP_OFFSET ((gst_object) dummyContext, FROM_INT (0));
   OBJ_METHOD_CONTEXT_SET_SP_OFFSET ((gst_object) dummyContext, FROM_INT (-1));
 
-  dummyContext->native_ip = DUMMY_NATIVE_IP;	/* See empty_context_stack */
+  OBJ_METHOD_CONTEXT_SET_NATIVE_IP ((gst_object) dummyContext, DUMMY_NATIVE_IP);	/* See empty_context_stack */
 
   dummyContextOOP = alloc_oop (dummyContext,
 			       _gst_mem.active_flag | F_POOLED | F_CONTEXT);
@@ -2435,13 +2421,13 @@ _gst_fixup_object_pointers (void)
       fflush (stderr);
       printf
 	("\nF sp %x %d    ip %x %d	_gst_this_method %x  thisContext %x",
-	 sp, sp - thisContext->contextStack, ip, ip - method_base,
+	 sp, sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK ((gst_object) thisContext), ip, ip - method_base,
 	 _gst_this_method->object, thisContext);
       fflush (stdout);
 #endif
-      thisContext->method = _gst_this_method;
+      OBJ_METHOD_CONTEXT_SET_METHOD ((gst_object) thisContext, _gst_this_method);
       OBJ_METHOD_CONTEXT_SET_RECEIVER ((gst_object) thisContext, _gst_self);
-      OBJ_METHOD_CONTEXT_SET_SP_OFFSET ((gst_object) thisContext, FROM_INT (sp - thisContext->contextStack));
+      OBJ_METHOD_CONTEXT_SET_SP_OFFSET ((gst_object) thisContext, FROM_INT (sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK ((gst_object) thisContext)));
       OBJ_METHOD_CONTEXT_SET_IP_OFFSET ((gst_object) thisContext, FROM_INT (ip - method_base));
     }
 }
@@ -2461,11 +2447,11 @@ _gst_restore_object_pointers (void)
     {
       thisContext =
 	(gst_context_part) OOP_TO_OBJ (_gst_this_context_oop);
-      _gst_temporaries = thisContext->contextStack;
+      _gst_temporaries = OBJ_METHOD_CONTEXT_CONTEXT_STACK ((gst_object) thisContext);
 
 #ifndef OPTIMIZE		/* Mon Jul 3 01:21:06 1995 */
       /* these should not be necessary */
-      if (_gst_this_method != thisContext->method)
+      if (_gst_this_method != OBJ_METHOD_CONTEXT_METHOD ((gst_object) thisContext))
 	{
 	  printf ("$$$$$$$$$$$$$$$$$$$ GOT ONE!!!!\n");
 	  printf ("this method %O\n", _gst_this_method);
@@ -2482,13 +2468,13 @@ _gst_restore_object_pointers (void)
 #endif /* OPTIMIZE Mon Jul 3 01:21:06 1995 */
 
       SET_THIS_METHOD (_gst_this_method, GET_CONTEXT_IP (thisContext));
-      sp = TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET ((gst_object) thisContext)) + thisContext->contextStack;
+      sp = TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET ((gst_object) thisContext)) + OBJ_METHOD_CONTEXT_CONTEXT_STACK ((gst_object) thisContext);
 
 #ifdef DEBUG_FIXUP
       fflush (stderr);
       printf
 	("\nR sp %x %d    ip %x %d	_gst_this_method %x  thisContext %x\n",
-	 sp, sp - thisContext->contextStack, ip, ip - method_base,
+	 sp, sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK ((gst_object) thisContext), ip, ip - method_base,
 	 _gst_this_method->object, thisContext);
       fflush (stdout);
 #endif
@@ -2616,7 +2602,7 @@ _gst_show_backtrace (FILE *fp)
 	    fprintf (fp, "<unwind> ");
 
 	  /* a method context */
-	  method = (gst_compiled_method) OOP_TO_OBJ (context->method);
+	  method = (gst_compiled_method) OOP_TO_OBJ (OBJ_METHOD_CONTEXT_METHOD ((gst_object) context));
 	  methodInfo =
 	    (gst_method_info) OOP_TO_OBJ (method->descriptor);
 	  receiver = OBJ_METHOD_CONTEXT_RECEIVER ((gst_object) context);
@@ -2634,7 +2620,7 @@ _gst_show_backtrace (FILE *fp)
       else
 	{
 	  /* a block context */
-	  block = (gst_compiled_block) OOP_TO_OBJ (context->method);
+	  block = (gst_compiled_block) OOP_TO_OBJ (OBJ_METHOD_CONTEXT_METHOD ((gst_object) context));
 	  method = (gst_compiled_method) OOP_TO_OBJ (block->method);
 	  methodInfo =
 	    (gst_method_info) OOP_TO_OBJ (method->descriptor);
@@ -2656,7 +2642,7 @@ _gst_show_stack_contents (void)
     return;
 
   context = (gst_method_context) OOP_TO_OBJ (_gst_this_context_oop);
-  for (first = true, walk = context->contextStack;
+  for (first = true, walk = OBJ_METHOD_CONTEXT_CONTEXT_STACK ((gst_object) context);
        walk <= sp; first = false, walk++)
     {
       if (!first)
