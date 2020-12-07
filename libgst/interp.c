@@ -737,7 +737,7 @@ empty_context_stack (void)
      _gst_send_message_internal and send_block_value -- set them here.  */
   context->method = _gst_this_method;
   context->receiver = _gst_self;
-  context->spOffset = FROM_INT (sp - context->contextStack);
+  OBJ_METHOD_CONTEXT_SET_SP_OFFSET ((gst_object) context, FROM_INT (sp - context->contextStack));
   context->ipOffset = FROM_INT (ip - method_base);
 
   /* Even if the JIT is active, the current context might have no
@@ -828,8 +828,8 @@ activate_new_context (int size,
   thisContext = (gst_method_context) OOP_TO_OBJ (_gst_this_context_oop);
   thisContext->method = _gst_this_method;
   thisContext->receiver = _gst_self;
-  thisContext->spOffset =
-    FROM_INT ((sp - thisContext->contextStack) - sendArgs);
+  OBJ_METHOD_CONTEXT_SET_SP_OFFSET ((gst_object) thisContext,
+    FROM_INT ((sp - thisContext->contextStack) - sendArgs));
   thisContext->ipOffset = FROM_INT (ip - method_base);
 
   _gst_this_context_oop = oop;
@@ -1054,7 +1054,7 @@ unwind_context (void)
 
   _gst_this_context_oop = newContextOOP;
   _gst_temporaries = newContext->contextStack;
-  sp = newContext->contextStack + TO_INT (newContext->spOffset);
+  sp = newContext->contextStack + TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET ((gst_object) newContext));
   _gst_self = newContext->receiver;
 
   SET_THIS_METHOD (newContext->method, GET_CONTEXT_IP (newContext));
@@ -1165,7 +1165,7 @@ unwind_to (OOP returnContextOOP)
 
   _gst_this_context_oop = newContextOOP;
   _gst_temporaries = newContext->contextStack;
-  sp = newContext->contextStack + TO_INT (newContext->spOffset);
+  sp = newContext->contextStack + TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET ((gst_object) newContext));
   _gst_self = newContext->receiver;
 
   SET_THIS_METHOD (newContext->method, GET_CONTEXT_IP (newContext));
@@ -1338,7 +1338,7 @@ resume_suspended_context (OOP oop)
 
   _gst_this_context_oop = oop;
   thisContext = (gst_method_context) OOP_TO_OBJ (oop);
-  sp = thisContext->contextStack + TO_INT (thisContext->spOffset);
+  sp = thisContext->contextStack + TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET ((gst_object) thisContext));
   SET_THIS_METHOD (thisContext->method, GET_CONTEXT_IP (thisContext));
 
 #if ENABLE_JIT_TRANSLATION
@@ -1535,7 +1535,7 @@ _gst_sync_signal (OOP semaphoreOOP, mst_Boolean incr_if_empty)
      is only called from primitives.  */
   process = (gst_process) OOP_TO_OBJ (processOOP);
   suspendedContext = (gst_method_context) OOP_TO_OBJ (process->suspendedContext);
-  spOffset = TO_INT (suspendedContext->spOffset);
+  spOffset = TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET ((gst_object) suspendedContext));
   suspendedContext->contextStack[spOffset] = semaphoreOOP;
   return true;
 }
@@ -2238,7 +2238,7 @@ _gst_prepare_execution_environment (void)
 	 | MCF_IS_UNWIND_CONTEXT;
   dummyContext->receiver = _gst_nil_oop;
   dummyContext->ipOffset = FROM_INT (0);
-  dummyContext->spOffset = FROM_INT (-1);
+  OBJ_METHOD_CONTEXT_SET_SP_OFFSET ((gst_object) dummyContext, FROM_INT (-1));
 
 #ifdef ENABLE_JIT_TRANSLATION
   dummyContext->native_ip = GET_NATIVE_IP ((char *) _gst_return_from_native_code);
@@ -2459,7 +2459,7 @@ _gst_fixup_object_pointers (void)
 #endif
       thisContext->method = _gst_this_method;
       thisContext->receiver = _gst_self;
-      thisContext->spOffset = FROM_INT (sp - thisContext->contextStack);
+      OBJ_METHOD_CONTEXT_SET_SP_OFFSET ((gst_object) thisContext, FROM_INT (sp - thisContext->contextStack));
       thisContext->ipOffset = FROM_INT (ip - method_base);
     }
 }
@@ -2500,7 +2500,7 @@ _gst_restore_object_pointers (void)
 #endif /* OPTIMIZE Mon Jul 3 01:21:06 1995 */
 
       SET_THIS_METHOD (_gst_this_method, GET_CONTEXT_IP (thisContext));
-      sp = TO_INT (thisContext->spOffset) + thisContext->contextStack;
+      sp = TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET ((gst_object) thisContext)) + thisContext->contextStack;
 
 #ifdef DEBUG_FIXUP
       fflush (stderr);
