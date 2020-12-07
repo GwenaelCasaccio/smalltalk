@@ -158,7 +158,7 @@
    activated.  */
 
 
-#define GET_CONTEXT_IP(ctx) 	TO_INT((ctx)->ipOffset)
+#define GET_CONTEXT_IP(ctx) 	TO_INT(OBJ_METHOD_CONTEXT_IP_OFFSET ((ctx)))
 
 #define SET_THIS_METHOD(method, ipOffset) do {				\
   OOP old_method_oop = _gst_this_method;                                \
