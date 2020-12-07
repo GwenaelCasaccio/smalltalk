@@ -675,19 +675,19 @@ void
 empty_context_stack (void)
 {
   OOP contextOOP, last, oop;
-  gst_method_context context;
+  gst_object context;
 
   /* printf("[[[[ Gosh, not lifo anymore! (free = %p, base = %p)\n",
      free_lifo_context, lifo_contexts); */
   if COMMON (free_lifo_context != lifo_contexts)
     for (free_lifo_context = contextOOP = lifo_contexts,
          last = _gst_this_context_oop,
-         context = (gst_method_context) OOP_TO_OBJ (contextOOP);;)
+         context = OOP_TO_OBJ (contextOOP);;)
       {
 	oop = alloc_oop (context, OOP_GET_FLAGS (contextOOP) | _gst_mem.active_flag);
 
         /* Fill the object's uninitialized fields. */
-        OBJ_SET_CLASS (context, (intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) context) & MCF_IS_METHOD_CONTEXT
+        OBJ_SET_CLASS (context, (intptr_t) OBJ_METHOD_CONTEXT_FLAGS (context) & MCF_IS_METHOD_CONTEXT
           ? _gst_method_context_class
 	  : _gst_block_context_class);
 
@@ -696,7 +696,7 @@ empty_context_stack (void)
 	   Smalltalk object.  We do that here.  Note that we need the 
 	   field so that the same image is usable with or without the 
 	   JIT compiler.  */
-	OBJ_METHOD_CONTEXT_SET_NATIVE_IP ((gst_object) context, DUMMY_NATIVE_IP);
+	OBJ_METHOD_CONTEXT_SET_NATIVE_IP (context, DUMMY_NATIVE_IP);
 
 	/* The last context is not referenced anywhere, so we're done 
 	   with it.  */
@@ -707,24 +707,24 @@ empty_context_stack (void)
 	  }
 
 	/* Else we redirect its sender field to the main OOP table */
-	context = (gst_method_context) OOP_TO_OBJ (contextOOP);
-	OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT ((gst_object) context, oop);
+	context = OOP_TO_OBJ (contextOOP);
+	OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT (context, oop);
       }
   else
     {
       if (IS_NIL (_gst_this_context_oop))
 	return;
 
-      context = (gst_method_context) OOP_TO_OBJ (_gst_this_context_oop);
+      context = OOP_TO_OBJ (_gst_this_context_oop);
     }
 
   /* When a context gets out of the context stack it must be a fully
      formed Smalltalk object.  These fields were left uninitialized in
      _gst_send_message_internal and send_block_value -- set them here.  */
-  OBJ_METHOD_CONTEXT_SET_METHOD ((gst_object) context, _gst_this_method);
-  OBJ_METHOD_CONTEXT_SET_RECEIVER ((gst_object) context, _gst_self);
-  OBJ_METHOD_CONTEXT_SET_SP_OFFSET ((gst_object) context, FROM_INT (sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK ((gst_object) context)));
-  OBJ_METHOD_CONTEXT_SET_IP_OFFSET ((gst_object) context, FROM_INT (ip - method_base));
+  OBJ_METHOD_CONTEXT_SET_METHOD (context, _gst_this_method);
+  OBJ_METHOD_CONTEXT_SET_RECEIVER (context, _gst_self);
+  OBJ_METHOD_CONTEXT_SET_SP_OFFSET (context, FROM_INT (sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK (context)));
+  OBJ_METHOD_CONTEXT_SET_IP_OFFSET (context, FROM_INT (ip - method_base));
 
   /* Even if the JIT is active, the current context might have no
      attached native_ip -- in fact it has one only if we are being
@@ -732,8 +732,8 @@ empty_context_stack (void)
      one. We test for a valid native_ip first, though; this test must
      have no false positives, i.e. it won't ever overwrite a valid
      native_ip, and won't leave a bogus OOP for the native_ip.  */
-  if (!IS_INT (OBJ_METHOD_CONTEXT_NATIVE_IP ((gst_object) context)))
-    OBJ_METHOD_CONTEXT_SET_NATIVE_IP ((gst_object) context, DUMMY_NATIVE_IP);
+  if (!IS_INT (OBJ_METHOD_CONTEXT_NATIVE_IP (context)))
+    OBJ_METHOD_CONTEXT_SET_NATIVE_IP (context, DUMMY_NATIVE_IP);
 }
 
 void
@@ -1084,12 +1084,12 @@ mst_Boolean
 unwind_to (OOP returnContextOOP)
 {
   OOP oldContextOOP, newContextOOP;
-  gst_method_context oldContext, newContext;
+  gst_object oldContext, newContext;
 
   empty_context_stack ();
 
   newContextOOP = _gst_this_context_oop;
-  newContext = (gst_method_context) OOP_TO_OBJ (newContextOOP);
+  newContext = OOP_TO_OBJ (newContextOOP);
 
   while (newContextOOP != returnContextOOP)
     {
@@ -1098,10 +1098,10 @@ unwind_to (OOP returnContextOOP)
 
       /* Descend in the chain...  */
       newContextOOP = OBJ_METHOD_CONTEXT_PARENT_CONTEXT ((gst_object) oldContext);
-      newContext = (gst_method_context) OOP_TO_OBJ (newContextOOP);
+      newContext = OOP_TO_OBJ (newContextOOP);
 
       /* Check if we got to an unwinding context (#ensure:).  */
-      if UNCOMMON ((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) newContext) & MCF_IS_UNWIND_CONTEXT)
+      if UNCOMMON ((intptr_t) OBJ_METHOD_CONTEXT_FLAGS (newContext) & MCF_IS_UNWIND_CONTEXT)
         {
 	  mst_Boolean result;
 	  _gst_this_context_oop = oldContextOOP;
@@ -1122,7 +1122,7 @@ unwind_to (OOP returnContextOOP)
          return from them to an undefined place will lose; doing
          that for block contexts too, we skip a test and are also
          able to garbage collect more context objects.  */
-      OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT ((gst_object) oldContext, _gst_nil_oop);
+      OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT (oldContext, _gst_nil_oop);
     }
 
   /* Clear the bit so that we return here just once.
@@ -1138,15 +1138,15 @@ unwind_to (OOP returnContextOOP)
      HACK ALERT!!  This is actually valid only for method contexts
      but I carefully put the modified bits in the low bits so that
      they are already zero for block contexts.  */
-  OBJ_METHOD_CONTEXT_SET_FLAGS ((gst_object) newContext, (OOP) (((intptr_t)OBJ_METHOD_CONTEXT_FLAGS ((gst_object) newContext)) & (~(MCF_IS_DISABLED_CONTEXT |
+  OBJ_METHOD_CONTEXT_SET_FLAGS (newContext, (OOP) (((intptr_t)OBJ_METHOD_CONTEXT_FLAGS (newContext)) & (~(MCF_IS_DISABLED_CONTEXT |
                                   MCF_IS_UNWIND_CONTEXT))));
 
   _gst_this_context_oop = newContextOOP;
-  _gst_temporaries = OBJ_METHOD_CONTEXT_CONTEXT_STACK ((gst_object) newContext);
-  sp = OBJ_METHOD_CONTEXT_CONTEXT_STACK ((gst_object) newContext) + TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET ((gst_object) newContext));
-  _gst_self = OBJ_METHOD_CONTEXT_RECEIVER ((gst_object) newContext);
+  _gst_temporaries = OBJ_METHOD_CONTEXT_CONTEXT_STACK (newContext);
+  sp = OBJ_METHOD_CONTEXT_CONTEXT_STACK (newContext) + TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET (newContext));
+  _gst_self = OBJ_METHOD_CONTEXT_RECEIVER (newContext);
 
-  SET_THIS_METHOD (OBJ_METHOD_CONTEXT_METHOD ((gst_object) newContext), GET_CONTEXT_IP ((gst_object) newContext));
+  SET_THIS_METHOD (OBJ_METHOD_CONTEXT_METHOD (newContext), GET_CONTEXT_IP (newContext));
   return (true);
 }
 
@@ -1154,25 +1154,25 @@ mst_Boolean
 disable_non_unwind_contexts (OOP returnContextOOP)
 {
   OOP newContextOOP, *chain;
-  gst_method_context oldContext, newContext;
+  gst_object oldContext, newContext;
 
   newContextOOP = _gst_this_context_oop;
-  newContext = (gst_method_context) OOP_TO_OBJ (newContextOOP);
-  chain = &OBJ_METHOD_CONTEXT_PARENT_CONTEXT ((gst_object) newContext);
+  newContext = OOP_TO_OBJ (newContextOOP);
+  chain = &OBJ_METHOD_CONTEXT_PARENT_CONTEXT (newContext);
 
   for (;;)
     {
       oldContext = newContext;
 
       /* Descend in the chain...  */
-      newContextOOP = OBJ_METHOD_CONTEXT_PARENT_CONTEXT ((gst_object) oldContext);
-      newContext = (gst_method_context) OOP_TO_OBJ (newContextOOP);
+      newContextOOP = OBJ_METHOD_CONTEXT_PARENT_CONTEXT (oldContext);
+      newContext = OOP_TO_OBJ (newContextOOP);
 
-      if (!((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) oldContext) & MCF_IS_METHOD_CONTEXT)) {
+      if (!((intptr_t) OBJ_METHOD_CONTEXT_FLAGS (oldContext) & MCF_IS_METHOD_CONTEXT)) {
         /* This context cannot be deallocated in a LIFO way.  Setting
 	   its parent context field to nil makes us able to garbage
 	   collect more context objects.  */
-        OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT ((gst_object) oldContext, _gst_nil_oop);
+        OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT (oldContext, _gst_nil_oop);
       }
 
       if (IS_NIL (newContextOOP))
@@ -1184,33 +1184,33 @@ disable_non_unwind_contexts (OOP returnContextOOP)
       if (newContextOOP == returnContextOOP)
 	{
 	  *chain = newContextOOP;
-	  chain = &OBJ_METHOD_CONTEXT_PARENT_CONTEXT ((gst_object) newContext);
+	  chain = &OBJ_METHOD_CONTEXT_PARENT_CONTEXT (newContext);
 	  break;
 	}
 
-      if ((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) newContext) & MCF_IS_METHOD_CONTEXT)
+      if ((intptr_t) OBJ_METHOD_CONTEXT_FLAGS (newContext) & MCF_IS_METHOD_CONTEXT)
 	{
-	  OBJ_METHOD_CONTEXT_SET_FLAGS ((gst_object) newContext, (OOP) (((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) newContext) | MCF_IS_DISABLED_CONTEXT)));
+	  OBJ_METHOD_CONTEXT_SET_FLAGS (newContext, (OOP) (((intptr_t) OBJ_METHOD_CONTEXT_FLAGS (newContext) | MCF_IS_DISABLED_CONTEXT)));
 	  *chain = newContextOOP;
-	  chain = &OBJ_METHOD_CONTEXT_PARENT_CONTEXT ((gst_object) newContext);
+	  chain = &OBJ_METHOD_CONTEXT_PARENT_CONTEXT (newContext);
 	}
     }
 
   /* Skip any disabled methods.  */
-  while UNCOMMON ((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) newContext)
+  while UNCOMMON ((intptr_t) OBJ_METHOD_CONTEXT_FLAGS (newContext)
                   == (MCF_IS_METHOD_CONTEXT | MCF_IS_DISABLED_CONTEXT))
     {
       oldContext = newContext;
 
       /* Descend in the chain...  */
-      newContextOOP = OBJ_METHOD_CONTEXT_PARENT_CONTEXT ((gst_object) oldContext);
+      newContextOOP = OBJ_METHOD_CONTEXT_PARENT_CONTEXT (oldContext);
       if (IS_NIL(newContextOOP))
         {
             *chain = _gst_nil_oop;
             return false;
         }
 
-      newContext = (gst_method_context) OOP_TO_OBJ (newContextOOP);
+      newContext = OOP_TO_OBJ (newContextOOP);
 
       /* This context cannot be deallocated in a LIFO way.  We must
          keep it around so that the blocks it created can reference
@@ -1219,10 +1219,10 @@ disable_non_unwind_contexts (OOP returnContextOOP)
          return from them to an undefined place will lose; doing
          that for block contexts too, we skip a test and are also
          able to garbage collect more context objects.  */
-      OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT ((gst_object) oldContext, _gst_nil_oop);
+      OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT (oldContext, _gst_nil_oop);
     }
 
-  *chain = OBJ_METHOD_CONTEXT_PARENT_CONTEXT ((gst_object) newContext);
+  *chain = OBJ_METHOD_CONTEXT_PARENT_CONTEXT (newContext);
   return (true);
 }
 
@@ -1482,7 +1482,7 @@ _gst_sync_signal (OOP semaphoreOOP, mst_Boolean incr_if_empty)
 {
   gst_semaphore sem;
   gst_process process;
-  gst_method_context suspendedContext;
+  gst_object suspendedContext;
   OOP processOOP;
   int spOffset;
 
@@ -1507,9 +1507,9 @@ _gst_sync_signal (OOP semaphoreOOP, mst_Boolean incr_if_empty)
      wait was not interrupted.  This assumes that _gst_sync_wait
      is only called from primitives.  */
   process = (gst_process) OOP_TO_OBJ (processOOP);
-  suspendedContext = (gst_method_context) OOP_TO_OBJ (process->suspendedContext);
-  spOffset = TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET ((gst_object) suspendedContext));
-  OBJ_METHOD_CONTEXT_CONTEXT_STACK_AT_PUT ((gst_object) suspendedContext, spOffset, semaphoreOOP);
+  suspendedContext = OOP_TO_OBJ (process->suspendedContext);
+  spOffset = TO_INT (OBJ_METHOD_CONTEXT_SP_OFFSET (suspendedContext));
+  OBJ_METHOD_CONTEXT_CONTEXT_STACK_AT_PUT (suspendedContext, spOffset, semaphoreOOP);
   return true;
 }
 
