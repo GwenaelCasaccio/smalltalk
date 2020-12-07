@@ -709,8 +709,7 @@ fixup_object (OOP oop, gst_object dest, gst_object src, int numBytes)
       /* this is another quirk; this is not the best place to do
          it. We have to reset the nativeIPs so that we can find
          restarted processes and recompile their methods.  */
-      gst_method_context context = (gst_method_context) dest;
-      OBJ_METHOD_CONTEXT_SET_NATIVE_IP ((gst_object) context, DUMMY_NATIVE_IP);
+      OBJ_METHOD_CONTEXT_SET_NATIVE_IP (dest, DUMMY_NATIVE_IP);
     }
 
   else if (class_oop == _gst_callin_process_class)

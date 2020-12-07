@@ -2867,12 +2867,12 @@ static intptr_t
 VMpr_BlockClosure_valueAndResumeOnUnwind (int id,
                                           volatile int numArgs)
 {
-  gst_method_context context;
+  gst_object context;
 
   _gst_primitives_executed++;
 
-  context = (gst_method_context) OOP_TO_OBJ (_gst_this_context_oop);
-  OBJ_METHOD_CONTEXT_SET_FLAGS ((gst_object) context, (OOP) ((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) context) | MCF_IS_UNWIND_CONTEXT));
+  context = OOP_TO_OBJ (_gst_this_context_oop);
+  OBJ_METHOD_CONTEXT_SET_FLAGS (context, (OOP) ((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ( context) | MCF_IS_UNWIND_CONTEXT));
   if UNCOMMON (send_block_value (numArgs, 0))
     PRIM_FAILED;
   else
@@ -6351,7 +6351,7 @@ VMpr_CFuncDescriptor_asyncCall (int id,
                                 volatile int numArgs)
 {
   OOP resultOOP;
-  volatile gst_method_context context;
+  volatile gst_object context;
   OOP contextOOP, cFuncOOP, receiverOOP;
   interp_jmp_buf jb;
 
@@ -6360,13 +6360,13 @@ VMpr_CFuncDescriptor_asyncCall (int id,
   if (numArgs == 1)
     {
       contextOOP = POP_OOP ();
-      context = (gst_method_context) OOP_TO_OBJ (contextOOP);
-      receiverOOP = OBJ_METHOD_CONTEXT_RECEIVER ((gst_object) context);
+      context = OOP_TO_OBJ (contextOOP);
+      receiverOOP = OBJ_METHOD_CONTEXT_RECEIVER (context);
     }
   else
     {
       contextOOP = _gst_this_context_oop;
-      context = (gst_method_context) OOP_TO_OBJ (contextOOP);
+      context = OOP_TO_OBJ (contextOOP);
       receiverOOP = _gst_self;
     }
 
@@ -6374,7 +6374,7 @@ VMpr_CFuncDescriptor_asyncCall (int id,
   push_jmp_buf (&jb, false, _gst_nil_oop);
   if (setjmp (jb.jmpBuf) == 0)
     resultOOP = _gst_invoke_croutine (cFuncOOP, receiverOOP,
-				   OBJ_METHOD_CONTEXT_CONTEXT_STACK ((gst_object) context));
+				   OBJ_METHOD_CONTEXT_CONTEXT_STACK (context));
   else
     resultOOP = NULL;
 
@@ -6399,7 +6399,7 @@ static intptr_t
 VMpr_CFuncDescriptor_call (int id,
                            volatile int numArgs)
 {
-  volatile gst_method_context context;
+  volatile gst_object context;
   gst_object resultHolderObj;
   OOP receiverOOP, contextOOP, cFuncOOP, resultOOP;
   volatile OOP resultHolderOOP;
@@ -6411,13 +6411,13 @@ VMpr_CFuncDescriptor_call (int id,
   if (numArgs == 2)
     {
       contextOOP = POP_OOP ();
-      context = (gst_method_context) OOP_TO_OBJ (contextOOP);
-      receiverOOP = OBJ_METHOD_CONTEXT_RECEIVER ((gst_object) context);
+      context = OOP_TO_OBJ (contextOOP);
+      receiverOOP = OBJ_METHOD_CONTEXT_RECEIVER (context);
     }
   else
     {
       contextOOP = _gst_this_context_oop;
-      context = (gst_method_context) OOP_TO_OBJ (contextOOP);
+      context = OOP_TO_OBJ (contextOOP);
       receiverOOP = _gst_self;
     }
 
@@ -6430,7 +6430,7 @@ VMpr_CFuncDescriptor_call (int id,
   push_jmp_buf (&jb, false, get_active_process ());
   if (setjmp (jb.jmpBuf) == 0)
     resultOOP = _gst_invoke_croutine (cFuncOOP, receiverOOP,
-				      OBJ_METHOD_CONTEXT_CONTEXT_STACK ((gst_object) context));
+				      OBJ_METHOD_CONTEXT_CONTEXT_STACK (context));
   else
     resultOOP = NULL;
 
