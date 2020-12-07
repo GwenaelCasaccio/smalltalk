@@ -722,7 +722,7 @@ empty_context_stack (void)
 
 	/* Else we redirect its sender field to the main OOP table */
 	context = (gst_method_context) OOP_TO_OBJ (contextOOP);
-	context->parentContext = oop;
+	OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT ((gst_object) context, oop);
       }
   else
     {
@@ -820,7 +820,7 @@ activate_new_context (int size,
      size, newContext, oop); */
   OOP_SET_OBJECT (oop, newContext);
 
-  newContext->parentContext = _gst_this_context_oop;
+  OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT ((gst_object) newContext, _gst_this_context_oop);
 
   /* save old context information */
   /* leave sp pointing to receiver, which is replaced on return with
@@ -1016,7 +1016,7 @@ unwind_context (void)
       oldContext = newContext;
 
       /* Descend in the chain...  */
-      newContextOOP = oldContext->parentContext;
+      newContextOOP = OBJ_METHOD_CONTEXT_PARENT_CONTEXT ((gst_object) oldContext);
 
       if COMMON (free_lifo_context > lifo_contexts)
         dealloc_stack_context ((gst_context_part) oldContext);
@@ -1029,7 +1029,7 @@ unwind_context (void)
          that for block contexts too, we skip a test and are also
          able to garbage collect more context objects.  And doing
          that for _all_ method contexts is more icache-friendly.  */
-      oldContext->parentContext = _gst_nil_oop;
+      OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT ((gst_object) oldContext, _gst_nil_oop);
 
       newContext = (gst_method_context) OOP_TO_OBJ (newContextOOP);
     }
@@ -1083,7 +1083,7 @@ unwind_method (void)
   while UNCOMMON (!((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) newContext) & MCF_IS_METHOD_CONTEXT));
 
   /* test for block return in a dead method */
-  if UNCOMMON (IS_NIL (newContext->parentContext))
+  if UNCOMMON (IS_NIL (OBJ_METHOD_CONTEXT_PARENT_CONTEXT ((gst_object) newContext)))
     {
       /* We are to create a reference to thisContext, so empty the
          stack.  */
@@ -1098,7 +1098,7 @@ unwind_method (void)
       return (false);
     }
 
-  return unwind_to (newContext->parentContext);
+  return unwind_to (OBJ_METHOD_CONTEXT_PARENT_CONTEXT ((gst_object) newContext));
 }
 
 
@@ -1119,7 +1119,7 @@ unwind_to (OOP returnContextOOP)
       oldContext = newContext;
 
       /* Descend in the chain...  */
-      newContextOOP = oldContext->parentContext;
+      newContextOOP = OBJ_METHOD_CONTEXT_PARENT_CONTEXT ((gst_object) oldContext);
       newContext = (gst_method_context) OOP_TO_OBJ (newContextOOP);
 
       /* Check if we got to an unwinding context (#ensure:).  */
@@ -1144,7 +1144,7 @@ unwind_to (OOP returnContextOOP)
          return from them to an undefined place will lose; doing
          that for block contexts too, we skip a test and are also
          able to garbage collect more context objects.  */
-      oldContext->parentContext = _gst_nil_oop;
+      OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT ((gst_object) oldContext, _gst_nil_oop);
     }
 
   /* Clear the bit so that we return here just once.
@@ -1180,21 +1180,22 @@ disable_non_unwind_contexts (OOP returnContextOOP)
 
   newContextOOP = _gst_this_context_oop;
   newContext = (gst_method_context) OOP_TO_OBJ (newContextOOP);
-  chain = &newContext->parentContext;
+  chain = &OBJ_METHOD_CONTEXT_PARENT_CONTEXT ((gst_object) newContext);
 
   for (;;)
     {
       oldContext = newContext;
 
       /* Descend in the chain...  */
-      newContextOOP = oldContext->parentContext;
+      newContextOOP = OBJ_METHOD_CONTEXT_PARENT_CONTEXT ((gst_object) oldContext);
       newContext = (gst_method_context) OOP_TO_OBJ (newContextOOP);
 
-      if (!((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) oldContext) & MCF_IS_METHOD_CONTEXT))
+      if (!((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) oldContext) & MCF_IS_METHOD_CONTEXT)) {
         /* This context cannot be deallocated in a LIFO way.  Setting
 	   its parent context field to nil makes us able to garbage
 	   collect more context objects.  */
-        oldContext->parentContext = _gst_nil_oop;
+        OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT ((gst_object) oldContext, _gst_nil_oop);
+      }
 
       if (IS_NIL (newContextOOP))
 	{
@@ -1205,7 +1206,7 @@ disable_non_unwind_contexts (OOP returnContextOOP)
       if (newContextOOP == returnContextOOP)
 	{
 	  *chain = newContextOOP;
-	  chain = &newContext->parentContext;
+	  chain = &OBJ_METHOD_CONTEXT_PARENT_CONTEXT ((gst_object) newContext);
 	  break;
 	}
 
@@ -1213,7 +1214,7 @@ disable_non_unwind_contexts (OOP returnContextOOP)
 	{
 	  OBJ_METHOD_CONTEXT_SET_FLAGS ((gst_object) newContext, (OOP) (((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) newContext) | MCF_IS_DISABLED_CONTEXT)));
 	  *chain = newContextOOP;
-	  chain = &newContext->parentContext;
+	  chain = &OBJ_METHOD_CONTEXT_PARENT_CONTEXT ((gst_object) newContext);
 	}
     }
 
@@ -1224,7 +1225,7 @@ disable_non_unwind_contexts (OOP returnContextOOP)
       oldContext = newContext;
 
       /* Descend in the chain...  */
-      newContextOOP = oldContext->parentContext;
+      newContextOOP = OBJ_METHOD_CONTEXT_PARENT_CONTEXT ((gst_object) oldContext);
       if (IS_NIL(newContextOOP))
         {
             *chain = _gst_nil_oop;
@@ -1240,10 +1241,10 @@ disable_non_unwind_contexts (OOP returnContextOOP)
          return from them to an undefined place will lose; doing
          that for block contexts too, we skip a test and are also
          able to garbage collect more context objects.  */
-      oldContext->parentContext = _gst_nil_oop;
+      OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT ((gst_object) oldContext, _gst_nil_oop);
     }
 
-  *chain = newContext->parentContext;
+  *chain = OBJ_METHOD_CONTEXT_PARENT_CONTEXT ((gst_object) newContext);
   return (true);
 }
 
@@ -2230,7 +2231,7 @@ _gst_prepare_execution_environment (void)
   empty_context_stack ();
   dummyContext = alloc_stack_context (4);
   OBJ_SET_CLASS (dummyContext, _gst_method_context_class);
-  dummyContext->parentContext = _gst_nil_oop;
+  OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT ((gst_object) dummyContext, _gst_nil_oop);
   dummyContext->method = _gst_get_termination_method ();
   dummyContext->flags = MCF_IS_METHOD_CONTEXT
 	 | MCF_IS_EXECUTION_ENVIRONMENT
@@ -2607,7 +2608,7 @@ _gst_show_backtrace (FILE *fp)
 
   empty_context_stack ();
   for (contextOOP = _gst_this_context_oop; !IS_NIL (contextOOP);
-       contextOOP = context->parentContext)
+       contextOOP = OBJ_METHOD_CONTEXT_PARENT_CONTEXT ((gst_object) context))
     {
       context = (gst_method_context) OOP_TO_OBJ (contextOOP);
       if ((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) context) 
@@ -2622,7 +2623,7 @@ _gst_show_backtrace (FILE *fp)
 
           if ((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) context) & MCF_IS_EXECUTION_ENVIRONMENT)
 	    {
-	      if (IS_NIL(context->parentContext))
+	      if (IS_NIL(OBJ_METHOD_CONTEXT_PARENT_CONTEXT ((gst_object) context)))
 	        fprintf (fp, "<bottom>\n");
 	      else
 	        fprintf (fp, "<unwind point>\n");
