@@ -1044,7 +1044,7 @@ mst_Boolean
 unwind_method (void)
 {
   OOP oldContextOOP, newContextOOP;
-  gst_block_context newContext;
+  gst_object newBlockContext;
 
   /* We're executing in a block context and an explicit return is
      encountered.  This means that we are to return from the caller of
@@ -1052,16 +1052,16 @@ unwind_method (void)
      levels of message sending are between where we currently are and
      our parent method context.  */
 
-  newContext = (gst_block_context) OOP_TO_OBJ (_gst_this_context_oop);
+  newBlockContext = OOP_TO_OBJ (_gst_this_context_oop);
   do
     {
-      newContextOOP = newContext->outerContext;
-      newContext = (gst_block_context) OOP_TO_OBJ (newContextOOP);
+      newContextOOP = OBJ_BLOCK_CONTEXT_OUTER_CONTEXT (newBlockContext);
+      newBlockContext = OOP_TO_OBJ (newContextOOP);
     }
-  while UNCOMMON (!((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) newContext) & MCF_IS_METHOD_CONTEXT));
+  while UNCOMMON (!((intptr_t) OBJ_METHOD_CONTEXT_FLAGS (newBlockContext) & MCF_IS_METHOD_CONTEXT));
 
   /* test for block return in a dead method */
-  if UNCOMMON (IS_NIL (OBJ_METHOD_CONTEXT_PARENT_CONTEXT ((gst_object) newContext)))
+  if UNCOMMON (IS_NIL (OBJ_METHOD_CONTEXT_PARENT_CONTEXT (newBlockContext)))
     {
       /* We are to create a reference to thisContext, so empty the
          stack.  */
@@ -1076,7 +1076,7 @@ unwind_method (void)
       return (false);
     }
 
-  return unwind_to (OBJ_METHOD_CONTEXT_PARENT_CONTEXT ((gst_object) newContext));
+  return unwind_to (OBJ_METHOD_CONTEXT_PARENT_CONTEXT (newBlockContext));
 }
 
 
