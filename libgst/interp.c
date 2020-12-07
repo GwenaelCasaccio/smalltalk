@@ -572,16 +572,6 @@ static void * const *dispatch_vec;
     (( ((intptr_t)(sendSelector)) ^ ((intptr_t)(methodClass)) / (2 * sizeof (PTR))) \
       & (METHOD_CACHE_SIZE - 1))
 
-/* Answer whether CONTEXT is a MethodContext.  This happens whenever
-   we have some SmallInteger flags (and not the pointer to the outer
-   context) in the last instance variable.  */
-#define CONTEXT_FLAGS(context) \
-  ( ((gst_method_context)(context)) ->flags)
-
-/* Answer the sender of CONTEXTOOP.  */
-#define PARENT_CONTEXT(contextOOP) \
-  ( ((gst_method_context) OOP_TO_OBJ (contextOOP)) ->parentContext)
-
 /* Context management
  
    The contexts make up a linked list.  Their structure is:
@@ -709,7 +699,7 @@ empty_context_stack (void)
 	oop = alloc_oop (context, OOP_GET_FLAGS (contextOOP) | _gst_mem.active_flag);
 
         /* Fill the object's uninitialized fields. */
-        OBJ_SET_CLASS (context, CONTEXT_FLAGS (context) & MCF_IS_METHOD_CONTEXT
+        OBJ_SET_CLASS (context, (intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) context) & MCF_IS_METHOD_CONTEXT
           ? _gst_method_context_class
 	  : _gst_block_context_class);
 
@@ -1043,7 +1033,7 @@ unwind_context (void)
 
       newContext = (gst_method_context) OOP_TO_OBJ (newContextOOP);
     }
-  while UNCOMMON (CONTEXT_FLAGS (newContext) 
+  while UNCOMMON ((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) newContext) 
 		  == (MCF_IS_METHOD_CONTEXT | MCF_IS_DISABLED_CONTEXT));
 
   /* Clear the bit so that we return here just once.
@@ -1059,8 +1049,8 @@ unwind_context (void)
      HACK ALERT!!  This is actually valid only for method contexts
      but I carefully put the modified bits in the low bits so that
      they are already zero for block contexts.  */
-  CONTEXT_FLAGS (newContext) &= ~(MCF_IS_DISABLED_CONTEXT |
-				  MCF_IS_UNWIND_CONTEXT);
+  OBJ_METHOD_CONTEXT_SET_FLAGS ((gst_object)newContext, (OOP) ((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) newContext) & (~(MCF_IS_DISABLED_CONTEXT |
+				  MCF_IS_UNWIND_CONTEXT))));
 
   _gst_this_context_oop = newContextOOP;
   _gst_temporaries = newContext->contextStack;
@@ -1090,7 +1080,7 @@ unwind_method (void)
       newContextOOP = newContext->outerContext;
       newContext = (gst_block_context) OOP_TO_OBJ (newContextOOP);
     }
-  while UNCOMMON (!(CONTEXT_FLAGS (newContext) & MCF_IS_METHOD_CONTEXT));
+  while UNCOMMON (!((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) newContext) & MCF_IS_METHOD_CONTEXT));
 
   /* test for block return in a dead method */
   if UNCOMMON (IS_NIL (newContext->parentContext))
@@ -1133,7 +1123,7 @@ unwind_to (OOP returnContextOOP)
       newContext = (gst_method_context) OOP_TO_OBJ (newContextOOP);
 
       /* Check if we got to an unwinding context (#ensure:).  */
-      if UNCOMMON (CONTEXT_FLAGS (newContext) & MCF_IS_UNWIND_CONTEXT)
+      if UNCOMMON ((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) newContext) & MCF_IS_UNWIND_CONTEXT)
         {
 	  mst_Boolean result;
 	  _gst_this_context_oop = oldContextOOP;
@@ -1170,8 +1160,8 @@ unwind_to (OOP returnContextOOP)
      HACK ALERT!!  This is actually valid only for method contexts
      but I carefully put the modified bits in the low bits so that
      they are already zero for block contexts.  */
-  CONTEXT_FLAGS (newContext) &= ~(MCF_IS_DISABLED_CONTEXT |
-                                  MCF_IS_UNWIND_CONTEXT);
+  OBJ_METHOD_CONTEXT_SET_FLAGS ((gst_object) newContext, (OOP) (((intptr_t)OBJ_METHOD_CONTEXT_FLAGS ((gst_object) newContext)) & (~(MCF_IS_DISABLED_CONTEXT |
+                                  MCF_IS_UNWIND_CONTEXT))));
 
   _gst_this_context_oop = newContextOOP;
   _gst_temporaries = newContext->contextStack;
@@ -1200,7 +1190,7 @@ disable_non_unwind_contexts (OOP returnContextOOP)
       newContextOOP = oldContext->parentContext;
       newContext = (gst_method_context) OOP_TO_OBJ (newContextOOP);
 
-      if (!(CONTEXT_FLAGS (oldContext) & MCF_IS_METHOD_CONTEXT))
+      if (!((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) oldContext) & MCF_IS_METHOD_CONTEXT))
         /* This context cannot be deallocated in a LIFO way.  Setting
 	   its parent context field to nil makes us able to garbage
 	   collect more context objects.  */
@@ -1219,16 +1209,16 @@ disable_non_unwind_contexts (OOP returnContextOOP)
 	  break;
 	}
 
-      if (CONTEXT_FLAGS (newContext) & MCF_IS_METHOD_CONTEXT)
+      if ((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) newContext) & MCF_IS_METHOD_CONTEXT)
 	{
-	  CONTEXT_FLAGS (newContext) |= MCF_IS_DISABLED_CONTEXT;
+	  OBJ_METHOD_CONTEXT_SET_FLAGS ((gst_object) newContext, (OOP) (((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) newContext) | MCF_IS_DISABLED_CONTEXT)));
 	  *chain = newContextOOP;
 	  chain = &newContext->parentContext;
 	}
     }
 
   /* Skip any disabled methods.  */
-  while UNCOMMON (CONTEXT_FLAGS (newContext)
+  while UNCOMMON ((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) newContext)
                   == (MCF_IS_METHOD_CONTEXT | MCF_IS_DISABLED_CONTEXT))
     {
       oldContext = newContext;
@@ -2620,17 +2610,17 @@ _gst_show_backtrace (FILE *fp)
        contextOOP = context->parentContext)
     {
       context = (gst_method_context) OOP_TO_OBJ (contextOOP);
-      if (CONTEXT_FLAGS (context) 
+      if ((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) context) 
 	  == (MCF_IS_METHOD_CONTEXT | MCF_IS_DISABLED_CONTEXT))
 	continue;
 
       /* printf ("(OOP %p)", context->method); */
       fprintf (fp, "(ip %d)", TO_INT (context->ipOffset));
-      if (CONTEXT_FLAGS (context) & MCF_IS_METHOD_CONTEXT)
+      if ((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) context) & MCF_IS_METHOD_CONTEXT)
 	{
 	  OOP receiver, receiverClass;
 
-          if (CONTEXT_FLAGS (context) & MCF_IS_EXECUTION_ENVIRONMENT)
+          if ((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) context) & MCF_IS_EXECUTION_ENVIRONMENT)
 	    {
 	      if (IS_NIL(context->parentContext))
 	        fprintf (fp, "<bottom>\n");
@@ -2639,7 +2629,7 @@ _gst_show_backtrace (FILE *fp)
 	      continue;
 	    }
 
-          if (CONTEXT_FLAGS (context) & MCF_IS_UNWIND_CONTEXT)
+          if ((intptr_t) OBJ_METHOD_CONTEXT_FLAGS ((gst_object) context) & MCF_IS_UNWIND_CONTEXT)
 	    fprintf (fp, "<unwind> ");
 
 	  /* a method context */
