@@ -3074,7 +3074,7 @@ static intptr_t VMpr_Object_class(int id, volatile int numArgs) {
 
   oop1 = POP_OOP();
   if (IS_INT(oop1))
-    PUSH_OOP(_gst_small_integer_class);
+    PUSH_OOP(gst_small_integer_class);
   else
     PUSH_OOP(OOP_CLASS(oop1));
 

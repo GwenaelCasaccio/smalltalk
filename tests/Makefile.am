@@ -61,3 +61,11 @@ installcheck-local: atlocal atconfig $(TESTSUITE)
 $(TESTSUITE): $(srcdir)/testsuite.at $(srcdir)/package.m4 $(srcdir)/local.at
 	$(AUTOTEST) -I '$(srcdir)' -o $@.tmp $@.at
 	mv $@.tmp $@
+
+TESTS = from_int
+check_PROGRAMS = from_int
+from_int_SOURCES = vm/from_int.c
+from_int_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV)
+from_int_LDADD = $(top_builddir)/libgst/libgst.la $(LIBSNPRINTFV) $(top_builddir)/lib-src/library.la @ICON@
+from_int_DEPENDENCIES = $(top_builddir)/libgst/libgst.la $(top_builddir)/lib-src/library.la @ICON@
+from_int_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS)
