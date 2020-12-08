@@ -70,3 +70,6 @@ snprintfv/snprintfv/compat.stamp
 tests/gst.im
 tests/testsuite.dir/
 tests/testsuite.log
+tests/from_int
+tests/*.log
+tests/*.trs
