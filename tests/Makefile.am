@@ -24,9 +24,9 @@ xlat.st xlat.ok
 CLEANFILES = gst.im
 DISTCLEANFILES = atconfig
 
-.PHONY: regress
+.PHONY: regress gst.im
 
-regress:
+regress: gst.im
 	cd $(srcdir) || exit 1; \
 	for test in $(TESTS); do \
 	  result=`echo $$test | $(SED) 's/st$$/ok/'`; \
