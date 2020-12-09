@@ -189,9 +189,6 @@ static void scan_grey_objects();
    until no new object is found in it.  */
 static void scan_grey_pages();
 
-/* Greys a page worth of pointers starting at BASE.  */
-static void add_to_grey_list(OOP *base, size_t n);
-
 /* Greys the object OOP.  */
 static void add_grey_object(OOP oop);
 

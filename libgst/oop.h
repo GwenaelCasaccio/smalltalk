@@ -404,6 +404,9 @@ extern void _gst_update_object_memory_oop(OOP oop) ATTRIBUTE_HIDDEN;
 /* This variable represents information about the memory space.  _gst_mem
    holds the required information: basically the pointer to the base and
    top of the space, and the pointers into it for allocation and copying.  */
-extern struct memory_space _gst_mem ATTRIBUTE_HIDDEN;
+extern struct memory_space _gst_mem;
+
+/* Greys a page worth of pointers starting at BASE.  */
+extern void add_to_grey_list(OOP *base, size_t n);
 
 #endif /* GST_OOP_H */
