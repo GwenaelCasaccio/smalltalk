@@ -71,5 +71,6 @@ tests/gst.im
 tests/testsuite.dir/
 tests/testsuite.log
 tests/from_int
+tests/grey_list
 tests/*.log
 tests/*.trs
