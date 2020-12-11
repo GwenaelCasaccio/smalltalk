@@ -206,6 +206,10 @@ _gst_file_is_newer (const char *file1, const char *file2)
 mst_Boolean
 _gst_file_is_readable (const char *fileName)
 {
+  if (!fileName) {
+    return false;
+  }
+
   return (access (fileName, R_OK) == 0);
 }
 

@@ -260,6 +260,8 @@ void _gst_init_mem(size_t eden, size_t survivor, size_t old,
                    size_t big_object_threshold, int grow_threshold_percent,
                    int space_grow_rate) {
   if (!_gst_mem.old) {
+    _gst_mem.weak_areas = NULL;
+
 #ifndef NO_SIGSEGV_HANDLING
     sigsegv_install_handler(oldspace_sigsegv_handler);
 #endif
@@ -593,7 +595,13 @@ void _gst_make_oop_weak(OOP oop) {
 
   entry = (weak_area_tree *)xmalloc(sizeof(weak_area_tree));
   entry->oop = oop;
-  entry->rb.rb_parent = &node->rb;
+
+  if (node) {
+    entry->rb.rb_parent = &node->rb;
+  } else {
+    entry->rb.rb_parent = NULL;
+  }
+
   entry->rb.rb_left = entry->rb.rb_right = NULL;
   *p = &(entry->rb);
 
@@ -1467,6 +1475,10 @@ void _gst_tenure_all_survivors() {
 void check_weak_refs() {
   rb_node_t *node;
   rb_traverse_t t;
+
+  if (!_gst_mem.weak_areas) {
+    return;
+  }
 
   for (node = rb_first(&(_gst_mem.weak_areas->rb), &t); node;
        node = rb_next(&t)) {
