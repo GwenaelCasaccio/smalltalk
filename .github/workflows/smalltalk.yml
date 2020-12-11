@@ -22,8 +22,10 @@ jobs:
     - name: make
       run: make
     - name: make check
-      uses: actions/upload-artifact@v2
       run: make check
+    - name: make check
+      uses: actions/upload-artifact@v2
+      if: ${{ failure() }}
       with:
         name: tests
         path: tests
