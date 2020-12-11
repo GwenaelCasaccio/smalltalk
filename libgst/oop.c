@@ -1501,8 +1501,9 @@ void check_weak_refs() {
       }
     }
 
-    if (mourn)
+    if (mourn) {
       _gst_add_buf_pointer(area->oop);
+    }
   }
 }
 
