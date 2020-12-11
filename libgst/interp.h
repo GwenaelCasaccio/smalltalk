@@ -83,41 +83,7 @@ enum {
   PRIM_SHUTDOWN_WRITE /* shutdown */
 };
 
-/* These macros are used to quickly compute the number of words needed
-   for a context with a maximum allowable stack depth of DEPTH.  */
-#define FIXED_CTX_SIZE (sizeof(struct gst_method_context) / sizeof(PTR) - 1)
-#define CTX_SIZE(depth) (((depth) << DEPTH_SCALE) + FIXED_CTX_SIZE)
-
 #define DUMMY_NATIVE_IP FROM_INT(0)
-
-/* The structure of execution context objects.  */
-typedef struct gst_context_part {
-  OBJ_HEADER;
-  OOP parentContext;
-  OOP native_ip; /* used by JIT */
-  OOP ipOffset;  /* an integer byte index into method */
-  OOP spOffset;  /* an integer index into cur context
-                    stack */
-  OOP receiver;  /* the receiver OOP */
-  OOP method;    /* the method that we're executing */
-  OOP x;         /* depends on the subclass */
-  OOP contextStack[1];
-} * gst_context_part;
-
-typedef struct gst_method_context {
-  OBJ_HEADER;
-  OOP parentContext;
-  OOP native_ip;  /* used by JIT */
-  OOP ipOffset;   /* an integer byte index into method */
-  OOP spOffset;   /* an integer index into cur context
-                     stack */
-  OOP receiver;   /* the receiver OOP */
-  OOP method;     /* the method that we're executing */
-  intptr_t flags; /* must be an int to distinguish
-                     gst_compiled_block/gst_method_context
-                   */
-  OOP contextStack[1];
-} * gst_method_context;
 
 /* CompiledMethod cache (see descriptions in interp-bc.inl and
    interp-jit.inl) */
