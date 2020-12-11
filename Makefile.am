@@ -124,7 +124,7 @@ gst_tool_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS)
 EXTRA_PROGRAMS = winewrapper
 winewrapper_SOURCES = winewrapper.c
 
-GST_EXTRA_TOOLS = gst-reload gst-sunit gst-blox gst-package gst-convert \
+GST_EXTRA_TOOLS = gst-reload gst-sunit gst-package gst-convert \
 	gst-doc gst-remote gst-profile gst-browser
 
 uninstall-local::
