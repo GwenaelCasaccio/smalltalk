@@ -23,6 +23,8 @@ jobs:
       run: make
     - name: make check
       run: make check
+      path: |
+            tests
     - name: make distcheck
       run: make distcheck
     - name: Start SSH via Ngrok
