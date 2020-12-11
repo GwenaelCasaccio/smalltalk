@@ -2345,7 +2345,7 @@ void _gst_show_backtrace(FILE *fp) {
       methodInfo = (gst_method_info)OOP_TO_OBJ(method->descriptor);
       receiver = OBJ_METHOD_CONTEXT_RECEIVER(context);
       if (IS_INT(receiver))
-        receiverClass = _gst_small_integer_class;
+        receiverClass = gst_small_integer_class;
 
       else
         receiverClass = OOP_CLASS(receiver);

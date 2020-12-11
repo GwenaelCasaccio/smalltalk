@@ -151,7 +151,7 @@ OOP _gst_security_policy_class = NULL;
 OOP _gst_semaphore_class = NULL;
 OOP _gst_sequenceable_collection_class = NULL;
 OOP _gst_set_class = NULL;
-OOP _gst_small_integer_class = NULL;
+OOP gst_small_integer_class = NULL;
 OOP _gst_smalltalk_dictionary = NULL;
 OOP _gst_sorted_collection_class = NULL;
 OOP _gst_stream_class = NULL;
@@ -353,7 +353,7 @@ static const class_definition class_info[] = {
     {&_gst_integer_class, &_gst_number_class, GST_ISP_FIXED, true, 0, "Integer",
      NULL, NULL, "CSymbols"},
 
-    {&_gst_small_integer_class, &_gst_integer_class, GST_ISP_FIXED, true, 0,
+    {&gst_small_integer_class, &_gst_integer_class, GST_ISP_FIXED, true, 0,
      "SmallInteger", NULL, NULL, NULL},
 
     {&_gst_large_integer_class, &_gst_integer_class, /* these four

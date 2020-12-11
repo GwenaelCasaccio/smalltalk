@@ -840,8 +840,8 @@ _gst_object_is_kind_of (OOP candidate, OOP superclass)
 
   if (IS_INT (candidate))
     {
-      its_class = _gst_small_integer_class;
-      if (superclass == _gst_small_integer_class
+      its_class = gst_small_integer_class;
+      if (superclass == gst_small_integer_class
 	  || superclass == _gst_object_class)
 	return true;
     }
@@ -1159,7 +1159,7 @@ _gst_init_vmproxy (void)
   gst_interpreter_proxy.arrayClass = _gst_array_class;
   gst_interpreter_proxy.stringClass = _gst_string_class;
   gst_interpreter_proxy.characterClass = _gst_char_class;
-  gst_interpreter_proxy.smallIntegerClass = _gst_small_integer_class;
+  gst_interpreter_proxy.smallIntegerClass = gst_small_integer_class;
   gst_interpreter_proxy.floatDClass = _gst_floatd_class;
   gst_interpreter_proxy.floatEClass = _gst_floate_class;
   gst_interpreter_proxy.byteArrayClass = _gst_byte_array_class;

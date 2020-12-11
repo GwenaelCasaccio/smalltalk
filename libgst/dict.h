@@ -363,7 +363,7 @@ extern OOP _gst_security_policy_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_semaphore_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_sequenceable_collection_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_set_class ATTRIBUTE_HIDDEN;
-extern OOP _gst_small_integer_class ATTRIBUTE_HIDDEN;
+extern OOP gst_small_integer_class;
 extern OOP _gst_smalltalk_dictionary ATTRIBUTE_HIDDEN;
 extern OOP _gst_sorted_collection_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_stream_class ATTRIBUTE_HIDDEN;

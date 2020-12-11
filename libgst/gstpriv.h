@@ -459,7 +459,7 @@ extern OOP _gst_nil_oop
 /* Answer the CLASS that the object pointed to by OOP belongs to.  OOP
    can also be a SmallInteger. */
 #define OOP_INT_CLASS(oop) \
-  (IS_INT(oop) ? _gst_small_integer_class : OOP_CLASS(oop))
+  (IS_INT(oop) ? gst_small_integer_class : OOP_CLASS(oop))
 
 
 /* Answer whether OOP is nil.  */
