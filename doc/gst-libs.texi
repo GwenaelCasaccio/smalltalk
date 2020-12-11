@@ -89,10 +89,6 @@ together with the @gst{} programming language.
 * Cross-reference::        Cross-reference between selectors
 @end menu
 
-@node BLOX package
-@chapter Graphical users interfaces with BLOX
-@include blox.texi
-
 @node Complex package
 @chapter Complex number computations
 @include complex.texi
