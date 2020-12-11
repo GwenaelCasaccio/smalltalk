@@ -23,7 +23,9 @@ jobs:
       run: make
     - name: make check
       run: make check
-      path: |
+      with:
+        name: tests
+        path: |
             tests
     - name: make distcheck
       run: make distcheck
