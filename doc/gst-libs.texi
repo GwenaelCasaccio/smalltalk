@@ -75,7 +75,6 @@ together with the @gst{} programming language.
 @end ifnottex
 
 @menu
-* BLOX package::           The GUI library
 * Complex package::        Complex number computations
 * DBI package::            The database connectivity library
 * DebugTools package::     Controlling the execution of Smalltalk processes
@@ -88,10 +87,6 @@ together with the @gst{} programming language.
 * Method index::           Index to the method selectors in the class reference
 * Cross-reference::        Cross-reference between selectors
 @end menu
-
-@node BLOX package
-@chapter Graphical users interfaces with BLOX
-@include blox.texi
 
 @node Complex package
 @chapter Complex number computations

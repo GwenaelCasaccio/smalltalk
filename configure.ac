@@ -405,11 +405,6 @@ GST_PACKAGE_PREFIX([packages])
 GST_PACKAGE_DEPENDENCIES([gst-tool$(EXEEXT) gst.im $(WINEWRAPPERDEP)])
 
 GST_PACKAGE_ENABLE([Announcements], [announcements])
-GST_PACKAGE_ENABLE([BloxTK], [blox/tk],
-   [GST_HAVE_TCLTK],
-   [gst_cv_tcltk_libs],
-   [Makefile], [blox-tk.la])
-GST_PACKAGE_ENABLE([BLOXBrowser], [blox/browser])
 GST_PACKAGE_ENABLE([Complex], [complex])
 GST_PACKAGE_ENABLE([Continuations], [continuations])
 GST_PACKAGE_ENABLE([CParser], [cpp])
@@ -481,8 +476,8 @@ GST_PACKAGE_ENABLE([GObject-Introspection], [gir], [
 
 GST_PACKAGE_ENABLE([GTK], [gtk], [
   AC_ARG_ENABLE(gtk,
-  [  --enable-gtk={yes,no,blox}
-                          enable GTK+ bindings.  Blox/GTK is experimental.], ,
+  [  --enable-gtk={yes,no}
+                          enable GTK+ bindings], ,
   enable_gtk=yes)
 
   if test "$enable_gtk" != no && test "$gst_cv_glib" != no; then
@@ -495,14 +490,6 @@ GST_PACKAGE_ENABLE([GTK], [gtk], [
   fi],
   [enable_gtk gst_cv_cairo],
   [Makefile], [gst-gtk.la])
-GST_PACKAGE_ENABLE([BloxGTK], [blox/gtk],, [enable_gtk])
-GST_PACKAGE_ENABLE([Blox], [blox/tests],
-	    [enable_blox=no
-	     case x"$enable_gtk" in
-		 xno|xnot\ found) ;; *) enable_blox=yes ;; esac
-	     case x"$gst_cv_tcltk_libs" in
-		 xno|xnot\ found) ;; *) enable_blox=yes ;; esac], 
-	    [enable_blox], [package.xml])
 GST_PACKAGE_ENABLE([WebServer], [httpd])
 GST_PACKAGE_ENABLE([I18N], [i18n],
   [AC_CHECK_FUNCS_ONCE([nl_langinfo])
@@ -623,13 +610,6 @@ GST_PACKAGE_ENABLE([ZLib],
    GST_HAVE_LIB(z, inflate)],
   [ac_cv_header_zlib_h ac_cv_lib_z_inflate],
   [Makefile], [zlib.la])
-
-if test "$enable_gtk" = blox; then
-  BLOX_IMPLEMENTATION=BloxGTK
-else
-  BLOX_IMPLEMENTATION=BloxTK
-fi
-AC_SUBST(BLOX_IMPLEMENTATION)
 
 AC_ARG_ENABLE(dld,
 [  --disable-dld           disable loading of external modules at runtime], ,

@@ -15,7 +15,7 @@ HELP2MAN = $(top_srcdir)/build-aux/help2man -p gst
 
 info_TEXINFOS = gst.texi gst-base.texi gst-libs.texi
 gst_TEXINFOS = tutorial.texi vers-gst.texi
-gst_libs_TEXINFOS = blox.texi sockets.texi i18n.texi complex.texi debug.texi \
+gst_libs_TEXINFOS = sockets.texi i18n.texi complex.texi debug.texi \
 	dbi.texi zlib.texi using-xml.texi vers-libs.texi
 gst_base_TEXINFOS = classes.texi vers-base.texi
 TEXI2DVI=pool_size=750000 $(top_srcdir)/build-aux/texi2dvi --expand
@@ -87,15 +87,6 @@ install-data-local: install-man
 ####################################################
 
 PUBLISHED_CLASSES = Smalltalk.* SystemExceptions.* NetClients.* VFS.*
-
-$(srcdir)/blox.texi: $(top_srcdir)/packages/blox/tk/stamp-classes
-	files=`$(GST_PACKAGE) $(patsubst %, %/package.xml, $(^D)) \
-	  --load --list-files=BloxTK | \
-	  sed s,^,-f,`; \
-	IFS=`printf '\n\t'`; \
-	$(GST_DOC) -n BLOX -o $(srcdir)/blox.texi $$files BLOX.* || \
-	  rm -f $(srcdir)/blox.texi
-	test -f $(srcdir)/blox.texi && touch $(srcdir)/gst-libs.texi 
 
 $(srcdir)/sockets.texi: $(top_srcdir)/packages/sockets/stamp-classes
 	files=`$(GST_PACKAGE) $(patsubst %, %/package.xml, $(^D)) \

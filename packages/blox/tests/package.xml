@@ -1,6 +1,6 @@
 <package>
   <name>Blox</name>
-  <prereq>@BLOX_IMPLEMENTATION@</prereq>
+  <prereq>BloxTK</prereq>
   <namespace>BLOX</namespace>
 
   <file>test.st</file>
