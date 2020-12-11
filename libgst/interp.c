@@ -90,6 +90,26 @@
 #define PIPELINING
 #endif
 
+/* The structure of execution context objects.  */
+typedef struct gst_context_part {
+  OBJ_HEADER;
+  OOP parentContext;
+  OOP native_ip; /* used by JIT */
+  OOP ipOffset;  /* an integer byte index into method */
+  OOP spOffset;  /* an integer index into cur context
+                    stack */
+  OOP receiver;  /* the receiver OOP */
+  OOP method;    /* the method that we're executing */
+  OOP x;         /* depends on the subclass */
+  OOP contextStack[1];
+} * gst_context_part;
+
+/* These macros are used to quickly compute the number of words needed
+   for a context with a maximum allowable stack depth of DEPTH.  */
+#define FIXED_CTX_SIZE (sizeof(struct gst_context_part) / sizeof(PTR) - 1)
+#define CTX_SIZE(depth) (((depth) << DEPTH_SCALE) + FIXED_CTX_SIZE)
+
+
 /* Answer the quantum assigned to each Smalltalk process (in
    milliseconds) before it is preempted.  Setting this to zero
    disables preemption until gst_processor_scheduler>>#timeSlice: is
