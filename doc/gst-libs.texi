@@ -75,7 +75,6 @@ together with the @gst{} programming language.
 @end ifnottex
 
 @menu
-* BLOX package::           The GUI library
 * Complex package::        Complex number computations
 * DBI package::            The database connectivity library
 * DebugTools package::     Controlling the execution of Smalltalk processes
