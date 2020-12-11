@@ -1189,8 +1189,9 @@ void change_process_context(OOP newProcess) {
   switch_to_process = _gst_nil_oop;
 
   /* save old context information */
-  if (!IS_NIL(_gst_this_context_oop))
-    empty_context_stack();
+  if (!IS_NIL (_gst_this_context_oop)) {
+    empty_context_stack ();
+  }
 
   /* printf("Switching to process %#O at priority %#O\n",
     ((gst_process) OOP_TO_OBJ (newProcess))->name,

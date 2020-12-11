@@ -257,7 +257,7 @@ static mst_Boolean wrong_endianness;
    _gst_mem.ot_size).  This is used for optimizing the size of the
    saved image, and minimizing the load time when restoring the
    system.  */
-static int num_used_oops = 0;
+static size_t num_used_oops = 0;
 
 /* Delta from the object table address used in the saved image, and
    the one we allocate now.  */
@@ -354,7 +354,7 @@ make_oop_table_to_be_saved (struct save_file_header *header)
 {
   OOP oop;
   struct oop_s *myOOPTable;
-  int i;
+  size_t i;
 
   num_used_oops = 0;
 
@@ -476,6 +476,11 @@ _gst_load_from_file (const char *fileName)
   return (loaded);
 }
 
+heap_data *abort_nomemory (heap_data *h, size_t sz)
+{
+  abort();
+}
+
 mst_Boolean
 load_snapshot (int imageFd)
 {
@@ -492,8 +497,14 @@ load_snapshot (int imageFd)
 #endif /* SNAPSHOT_TRACE */
 
   _gst_init_mem (header.edenSpaceSize, header.survSpaceSize,
-		 header.oldSpaceSize, header.big_object_threshold,
+		 header.oldSpaceSize * 3, header.big_object_threshold,
 		 header.grow_threshold_percent, header.space_grow_rate);
+
+  nomemory_hook_t bck_old_hook = _gst_mem.old->nomemory;
+  nomemory_hook_t bck_fixed_hook = _gst_mem.fixed->nomemory;
+
+  _gst_mem.old->nomemory = abort_nomemory;
+  _gst_mem.fixed->nomemory = abort_nomemory;
 
   _gst_init_oop_table ((PTR) header.ot_base,
 		       MAX (header.oopTableSize * 2, INITIAL_OOP_TABLE_SIZE));
@@ -529,6 +540,10 @@ load_snapshot (int imageFd)
 #ifdef SNAPSHOT_TRACE
       _gst_dump_oop_table ();
 #endif /* SNAPSHOT_TRACE */
+
+      _gst_mem.old->nomemory = bck_old_hook;
+      _gst_mem.fixed->nomemory = bck_fixed_hook;
+
       return (true);
     }
 
@@ -591,7 +606,7 @@ char *
 load_normal_oops (int imageFd)
 {
   OOP oop;
-  int i;
+  size_t i;
 
   gst_object object = NULL;
   size_t size = 0;
