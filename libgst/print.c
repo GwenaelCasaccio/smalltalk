@@ -53,40 +53,40 @@
 
 
 #include "gstpriv.h"
-#include "snprintfv/mem.h"
+#include <printf.h>
 
 
-/* Print a Character OOP to a snprintfv stream, STREAM.  */
-static void print_char_to_stream (STREAM *stream,
+/* Print a Character OOP to a snprintfv stream, FILE.  */
+static int print_char_to_stream (FILE *stream,
 				  OOP oop);
 
-/* Print a String OOP to a snprintfv stream, STREAM.  */
-static void print_string_to_stream (STREAM *stream,
+/* Print a String OOP to a snprintfv stream, FILE.  */
+static int print_string_to_stream (FILE *stream,
 				    OOP string);
 
-/* Print an Association OOP's key to a snprintfv stream, STREAM.  */
-static void print_association_key_to_stream (STREAM *stream,
+/* Print an Association OOP's key to a snprintfv stream, FILE.  */
+static int print_association_key_to_stream (FILE *stream,
 					     OOP associationOOP);
 
-/* Print a Class OOP's name to a snprintfv stream, STREAM.  */
-static void print_class_name_to_stream (STREAM *stream,
+/* Print a Class OOP's name to a snprintfv stream, FILE.  */
+static int print_class_name_to_stream (FILE *stream,
 					OOP class_oop);
 
-/* Print a brief description of an OOP to a snprintfv stream, STREAM.  */
-static void print_oop_constructor_to_stream (STREAM *stream,
+/* Print a brief description of an OOP to a snprintfv stream, FILE.  */
+static int print_oop_constructor_to_stream (FILE *stream,
 					     OOP oop);
 
 /* The main routine to handle the %O modifier to printf.  %#O prints
    Strings and Symbols without the leading # or the enclosing single
    quotes, while %+O expects that an Association is passed and prints
    its key.  */
-static void printf_oop (STREAM *stream,
-		        struct printf_info *info,
+static int printf_oop (FILE *stream,
+		        const struct printf_info *info,
         		const void *const *args);
 
-static int printf_oop_arginfo (struct printf_info *info,
+static int printf_oop_arginfo (const struct printf_info *info,
 			       size_t n,
-                               int *argtypes);
+                               int *argtypes, int *size);
 
 
 
@@ -97,120 +97,121 @@ _gst_print_object (OOP oop)
   fflush (stdout);
 }
 
-void
-print_char_to_stream (STREAM *stream, OOP oop)
+int
+print_char_to_stream (FILE *stream, OOP oop)
 {
   int val = CHAR_OOP_VALUE (oop);
   if (OOP_CLASS (oop) == _gst_char_class && val > 127)
-    stream_printf (stream, "Character value: 16r%02X", val);
+    return fprintf (stream, "Character value: 16r%02X", val);
 
   else if (val >= 32 && val <= 126)
-    stream_printf (stream, "$%c", val);
+    return fprintf (stream, "$%c", val);
   else if (val < 32)
-    stream_printf (stream, "$<%d>", val);
+    return fprintf (stream, "$<%d>", val);
   else
-    stream_printf (stream, "$<16r%04X>", val);
+    return fprintf (stream, "$<16r%04X>", val);
 }
 
-void
-print_string_to_stream (STREAM *stream, OOP string)
+int
+print_string_to_stream (FILE *stream, OOP string)
 {
   int len;
 
   len = _gst_string_oop_len (string);
   if (!len)
-    return;
+    return 0;
 
-  stream_printf (stream, "%.*s", len, (char *) (OOP_TO_OBJ (string)->data));
+  return fprintf (stream, "%.*s", len, (char *) (OOP_TO_OBJ (string)->data));
 }
 
-void
-print_association_key_to_stream (STREAM *stream, OOP associationOOP)
+int
+print_association_key_to_stream (FILE *stream, OOP associationOOP)
 {
   gst_association association;
 
   if (!IS_OOP (associationOOP)
       || !is_a_kind_of (OOP_CLASS(associationOOP), _gst_lookup_key_class))
     {
-      stream_printf (stream, "<non-association %O in association context>",
+      return fprintf (stream, "<non-association %O in association context>",
                      associationOOP);
-      return;
     }
 
   association = (gst_association) OOP_TO_OBJ (associationOOP);
   if (OOP_CLASS (association->key) != _gst_symbol_class)
-    stream_printf (stream, "<unprintable key type>");
+    return fprintf (stream, "<unprintable key type>");
   else
-    stream_printf (stream, "%#O", association->key);
+    return fprintf (stream, "%#O", association->key);
 }
 
-void
-print_class_name_to_stream (STREAM *stream, OOP class_oop)
+int
+print_class_name_to_stream (FILE *stream, OOP class_oop)
 {
   gst_class class;
   class = (gst_class) OOP_TO_OBJ (class_oop);
   if (IS_A_CLASS (class_oop) && !IS_NIL (class->name))
-    print_string_to_stream (stream, class->name);
+    return print_string_to_stream (stream, class->name);
   else if (IS_A_CLASS (OOP_CLASS (class_oop)))
     {
-      stream_printf (stream, "<unnamed ");
-      print_class_name_to_stream (stream, OOP_CLASS (class_oop));
-      stream_printf (stream, ">");
+      int r;
+      r = fprintf (stream, "<unnamed ");
+      r += print_class_name_to_stream (stream, OOP_CLASS (class_oop));
+      r += fprintf (stream, ">");
+      return r;
     }
   else
-    stream_printf (stream, "<unnamed class>");
+    return fprintf (stream, "<unnamed class>");
 }
 
-void
-print_oop_constructor_to_stream (STREAM *stream, OOP oop)
+int
+print_oop_constructor_to_stream (FILE *stream, OOP oop)
 {
+  int r = 0;
   intptr_t instanceSpec;
   OOP class_oop;
 
   class_oop = OOP_CLASS (oop);
-  print_class_name_to_stream (stream, class_oop);
+  r += print_class_name_to_stream (stream, class_oop);
 
   instanceSpec = CLASS_INSTANCE_SPEC (class_oop);
   if (instanceSpec & ISP_ISINDEXABLE)
-    stream_printf (stream, " new: %zu ", NUM_INDEXABLE_FIELDS (oop));
+    r += fprintf (stream, " new: %zu ", NUM_INDEXABLE_FIELDS (oop));
 
   else
-    stream_printf (stream, " new ");
+    r += fprintf (stream, " new ");
 
   if (_gst_regression_testing)
-    stream_printf (stream, "\"<0>\"");
+    r += fprintf (stream, "\"<0>\"");
   else
-    stream_printf (stream, "\"<%p>\"", oop);
+    r+= fprintf (stream, "\"<%p>\"", oop);
+
+  return r;
 }
 
-void
-printf_oop (STREAM *stream,
-	    struct printf_info *info,
-            const void *const *args)
+int
+printf_oop (FILE *stream, const struct printf_info *info, const void *const *args)
 {
-  OOP oop = (OOP) (args[0]);
+  const OOP oop = *((const OOP *)args[0]);
 
   if (info->showsign)
     {
-      print_association_key_to_stream (stream, oop);
-      return;
+      return print_association_key_to_stream (stream, oop);
     }
 
   if (IS_INT (oop))
-    stream_printf (stream, "%td", TO_INT (oop));
+    return fprintf (stream, "%td", TO_INT (oop));
 
   else if (IS_NIL (oop))
-    stream_printf (stream, "nil");
+    return fprintf (stream, "nil");
 
   else if (oop == _gst_true_oop)
-    stream_printf (stream, "true");
+    return fprintf (stream, "true");
 
   else if (oop == _gst_false_oop)
-    stream_printf (stream, "false");
+    return fprintf (stream, "false");
 
   else if (OOP_CLASS (oop) == _gst_char_class
 	   || OOP_CLASS (oop) == _gst_unicode_character_class)
-    print_char_to_stream (stream, oop);
+    return print_char_to_stream (stream, oop);
 
   else if (OOP_CLASS (oop) == _gst_floatd_class)
     {
@@ -225,13 +226,13 @@ printf_oop (STREAM *stream,
 	    break;
 	  }
 
-      stream_puts (buf, stream);
+      return fputs (buf, stream);
     }
 
   else if (OOP_CLASS (oop) == _gst_floate_class)
     {
       double f = FLOATE_OOP_VALUE (oop);
-      stream_printf (stream, "%#.*g",
+      return fprintf (stream, "%#.*g",
 		     (_gst_regression_testing ? 6 : FLT_DIG), f);
     }
 
@@ -248,56 +249,62 @@ printf_oop (STREAM *stream,
 	    break;
 	  }
 
-      stream_puts (buf, stream);
+      return fputs (buf, stream);
     }
 
   else if (OOP_CLASS (oop) == _gst_symbol_class)
     {
+      int r = 0;
       if (!info->alt)
-	stream_printf (stream, "#");
-      print_string_to_stream (stream, oop);
+	      r += fprintf (stream, "#");
+      return r + print_string_to_stream (stream, oop);
     }
 
   else if (OOP_CLASS (oop) == _gst_string_class)
     {
+      int r = 0;
       /* ### have to quote embedded quote chars */
       if (!info->alt)
-        stream_printf (stream, "'");
-      print_string_to_stream (stream, oop);
+        r += fprintf (stream, "'");
+      r += print_string_to_stream (stream, oop);
       if (!info->alt)
-        stream_printf (stream, "'");
+        r += fprintf (stream, "'");
+      return r;
     }
 
   else if (IS_A_METACLASS (oop))
     {
+      int r = 0;
       OOP class_oop = _gst_find_an_instance (oop);
       if (IS_NIL (class_oop))
-        print_oop_constructor_to_stream (stream, oop);
+        r += print_oop_constructor_to_stream (stream, oop);
       else
 	{
-	  print_class_name_to_stream (stream, class_oop);
-	  stream_printf (stream, " class");
+	  r += print_class_name_to_stream (stream, class_oop);
+	  r += fprintf (stream, " class");
 	}
+      return r;
     }
 
   else if (IS_A_CLASS (oop))
-    print_class_name_to_stream (stream, oop);
+    return print_class_name_to_stream (stream, oop);
 
   else
-    print_oop_constructor_to_stream (stream, oop);
-
-  fflush (stdout);
+    return print_oop_constructor_to_stream (stream, oop);
 }
 
 int
-printf_oop_arginfo (struct printf_info *info,
+printf_oop_arginfo (const struct printf_info *info,
 		    size_t n,
-		    int *argtypes)
+		    int *argtypes, int *size)
 {
   /* We always take exactly one argument and this is a pointer to the
      structure.  */
   if (n > 0)
+  {
     argtypes[0] = PA_POINTER;
+    size[0] = sizeof (OOP);
+  }
   return 1;
 }
 
@@ -404,14 +411,6 @@ _gst_display_object (gst_object obj)
 
 void _gst_init_snprintfv ()
 {
-  spec_entry *spec;
-
-  snv_malloc = xmalloc;
-  snv_realloc = xrealloc;
-  snv_free = xfree;
-  spec = register_printf_function ('O', printf_generic,
-				   printf_oop_arginfo);
-
-  spec->user = printf_oop;
+  register_printf_specifier('O', printf_oop, printf_oop_arginfo);
 }
 

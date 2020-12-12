@@ -170,8 +170,6 @@ case $ac_configure_args in
   *--enable-subdir) ;;
   *) ac_configure_args="$ac_configure_args --enable-subdir" ;;
 esac
-AC_SNPRINTFV_CONVENIENCE
-AC_CONFIG_SUBDIRS(snprintfv)
 
 AC_ARG_ENABLE(generational-gc,
 [  --disable-generational-gc disable generational garbage collection], ,

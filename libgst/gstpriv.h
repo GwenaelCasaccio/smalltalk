@@ -587,10 +587,6 @@ extern OOP _gst_nil_oop
 #include "real.h"
 #include "sockets.h"
 
-/* Include this last, it has the bad habit of #defining printf
-   and this fools gcc's __attribute__ (format) */
-#include "snprintfv/printf.h"
-
 #undef obstack_init
 #define obstack_init(h)                                         \
   _obstack_begin ((h), 0, ALIGNOF_LONG_DOUBLE,                \

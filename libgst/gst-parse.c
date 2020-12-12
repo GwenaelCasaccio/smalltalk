@@ -49,10 +49,9 @@
  *
  ***********************************************************************/
 
-#include "gst.h"
 #include "gstpriv.h"
+#include "gst.h"
 #include "gst-parse.h"
-#include <stdio.h>
 #include <string.h>
 
 typedef enum expr_kinds {
@@ -91,8 +90,6 @@ static void expected (gst_parser *p,
   ATTRIBUTE_NORETURN;
 static void recover_error (gst_parser *p)
   ATTRIBUTE_NORETURN;
-static int filprintf (Filament *fil,
-		      const char *format, ...);
 
 /* Transform the ATTRIBUTE_KEYWORDS node (a TREE_ATTRIBUTE_LIST)
    into a Message object, and return it.  Compile the arguments
@@ -176,19 +173,6 @@ static tree_node parse_keyword_list (gst_parser *p,
 				     enum expr_kinds kind);
 
 
-
-static int 
-filprintf (Filament *fil, const char *format, ...)
-{
-  va_list ap;
-  STREAM *out = stream_new (fil, SNV_UNLIMITED, NULL, snv_filputc);
-  int result;
-  va_start (ap, format);
-  result = stream_vprintf (out, format, ap);
-  va_end (ap);
-  stream_delete (out);
-  return result;
-}
 
 /* Lexer interface. Intialize the parser before using it. */
 
@@ -492,17 +476,26 @@ expected (gst_parser *p, int token, ...)
   int named_tokens = 0;
   va_list ap;
   const char *sep = ", expected";
-  char *msg;
+  char *out = NULL, *out_tmp = NULL;
 
-  Filament *out_fil = filnew (NULL, 0);
-  filprintf (out_fil, "parse error");
+  if (-1 == asprintf (&out, "parse error")) {
+    abort ();
+  }
 
   va_start (ap, token);
   while (token != -1)
     {
       if (token < 256)
 	{
-	  filprintf (out_fil, "%s '%c'", sep, token);
+    out_tmp = out;
+    out = NULL;
+
+    
+	  if (-1 == asprintf (&out, "%s%s '%c'", out_tmp, sep, token)) {
+      abort ();
+    }
+
+    free (out_tmp);
 	  sep = " or";
 	}
       else
@@ -516,16 +509,19 @@ expected (gst_parser *p, int token, ...)
       && (subsume == -1							\
 	  || (named_tokens & (1 << (subsume - FIRST_TOKEN))) == 0))	\
     {									\
-      filprintf (out_fil, "%s %s", sep, str);				\
+    out_tmp = out; \
+    out = NULL; \
+      if (-1 == asprintf (&out, "%s%s %s", out_tmp, sep, str)) { abort (); }				\
+      free (out_tmp); \
+      out_tmp = NULL; \
       sep = " or";							\
     }
 
   TOKEN_DEFS
 #undef TOKEN_DEF
 
-    msg = fildelete (out_fil);
-  _gst_errorf ("%s", msg);
-  free (msg);
+  _gst_errorf ("%s", out);
+  free (out);
   recover_error (p);
 }
 
@@ -1262,9 +1258,9 @@ parse_namespace (gst_parser *p, tree_node list)
 static void
 parse_instance_variables (gst_parser *p, OOP classOOP, mst_Boolean extend)
 {
-  char *vars;
-  Filament *fil = filnew (NULL, 0);
-  
+  char *out = NULL;
+  char *out_tmp = NULL;
+
   if (extend)
     {
       gst_behavior class = (gst_behavior) OOP_TO_OBJ (classOOP);
@@ -1280,7 +1276,14 @@ parse_instance_variables (gst_parser *p, OOP classOOP, mst_Boolean extend)
       for (; n--; instVars++)
 	{
 	  char *s = _gst_to_cstring (*instVars);
-          filprintf (fil, "%s ", s);
+
+    if (out_tmp) {
+      if (-1 == asprintf (&out, "%s%s ", out_tmp, s)) {abort (); }
+      free (out_tmp);
+    } else {
+      if (-1 == asprintf (&out, "%s ", s)) { abort(); }
+    }
+    out_tmp = out;
 	  xfree (s);
 	}
     }
@@ -1289,13 +1292,20 @@ parse_instance_variables (gst_parser *p, OOP classOOP, mst_Boolean extend)
   while (!lex_skip_if (p, '|', true))
     {
       lex_must_be (p, IDENTIFIER);
-      filprintf (fil, "%s ", val (p, 0)->sval);
+      out_tmp = out;
+      if (out_tmp)
+      {
+        if (-1 == asprintf (&out, "%s%s ", out_tmp, val (p, 0)->sval)) {abort (); }
+      } else {
+        if (-1 == asprintf (&out, "%s ", val (p, 0)->sval)) {abort (); }
+      }
+      free (out_tmp);
+      out_tmp = NULL;
       lex (p);
     }
 
-  vars = fildelete (fil);
-  _gst_msg_sendf (NULL, "%v %o instanceVariableNames: %S", classOOP, vars);
-  free (vars);
+  _gst_msg_sendf (NULL, "%v %o instanceVariableNames: %S", classOOP, out);
+  free (out);
 }
 
 static void
