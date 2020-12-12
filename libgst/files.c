@@ -325,9 +325,9 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
     home = xstrdup(currentDirectory);
 
   asprintf_res = asprintf((char **)&_gst_user_file_base_path, "%s/%s", home,
-           LOCAL_BASE_DIR_NAME);
+                          LOCAL_BASE_DIR_NAME);
   if (-1 == asprintf_res) {
-    abort ();
+    abort();
   }
 
   /* Check that supplied paths are readable.  If they're not, fail unless
@@ -404,7 +404,7 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
       free(str);
       asprintf_res = asprintf(&str, "%s/kernel", _gst_image_file_path);
       if (-1 == asprintf_res) {
-        abort ();
+        abort();
       }
     }
 
@@ -419,7 +419,7 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
   _gst_kernel_file_path = _gst_get_full_file_name(kernel_dir);
   asprintf_res = asprintf(&str, "%s/%s", _gst_image_file_path, image_file);
   if (-1 == asprintf_res) {
-    abort ();
+    abort();
   }
   _gst_binary_image_name = str;
 
@@ -469,7 +469,7 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
       _gst_image_file_path = _gst_get_cur_dir_name();
       asprintf_res = asprintf(&str, "%s/gst.im", _gst_image_file_path);
       if (-1 == asprintf_res) {
-        abort ();
+        abort();
       }
       _gst_binary_image_name = str;
       loadBinary = (rebuild_image_flags == GST_MAYBE_REBUILD_IMAGE &&
@@ -573,16 +573,17 @@ char *_gst_find_file(const char *fileName, enum gst_file_dir dir) {
     return xstrdup(fileName);
 
   asprintf_res = asprintf(&fullFileName, "%s/%s%s", _gst_kernel_file_path,
-           dir == GST_DIR_KERNEL ? "" : "../", fileName);
+                          dir == GST_DIR_KERNEL ? "" : "../", fileName);
   if (-1 == asprintf_res) {
-    abort ();
+    abort();
   }
 
   if (!no_user_files && dir != GST_DIR_KERNEL_SYSTEM) {
-    asprintf_res = asprintf(&localFileName, "%s/%s%s", _gst_user_file_base_path,
-             dir == GST_DIR_BASE ? "" : LOCAL_KERNEL_DIR_NAME "/", fileName);
+    asprintf_res = asprintf(
+        &localFileName, "%s/%s%s", _gst_user_file_base_path,
+        dir == GST_DIR_BASE ? "" : LOCAL_KERNEL_DIR_NAME "/", fileName);
     if (-1 == asprintf_res) {
-      abort ();
+      abort();
     }
 
     if (_gst_file_is_newer(localFileName, fullFileName)) {
@@ -606,9 +607,10 @@ char *find_user_file(const char *fileName) {
   if (no_user_files)
     return NULL;
 
-  asprintf_res = asprintf(&fullFileName, "%s/%s", _gst_user_file_base_path, fileName);
+  asprintf_res =
+      asprintf(&fullFileName, "%s/%s", _gst_user_file_base_path, fileName);
   if (-1 == asprintf_res) {
-    abort ();
+    abort();
   }
 
   if (!_gst_file_is_readable(fullFileName)) {
