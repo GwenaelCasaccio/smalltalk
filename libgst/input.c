@@ -298,6 +298,7 @@ input_stream push_new_stream(stream_type type) {
   newStream->freeFileName = false;
   newStream->fileName = NULL;
   newStream->prompt = NULL;
+  newStream->st_oop.oop = _gst_nil_oop;
   newStream->fileOOP = _gst_nil_oop;
   newStream->prevStream = in_stream;
   in_stream = newStream;

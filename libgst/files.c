@@ -305,6 +305,7 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
   char *currentDirectory = _gst_get_cur_dir_name();
   const char *home = getenv("HOME");
   char *str;
+  int asprintf_res;
   mst_Boolean loadBinary, abortOnFailure;
   int rebuild_image_flags =
       flags & (GST_REBUILD_IMAGE | GST_MAYBE_REBUILD_IMAGE);
@@ -323,8 +324,11 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
   if (home == NULL)
     home = xstrdup(currentDirectory);
 
-  asprintf((char **)&_gst_user_file_base_path, "%s/%s", home,
-           LOCAL_BASE_DIR_NAME);
+  asprintf_res = asprintf((char **)&_gst_user_file_base_path, "%s/%s", home,
+                          LOCAL_BASE_DIR_NAME);
+  if (-1 == asprintf_res) {
+    abort();
+  }
 
   /* Check that supplied paths are readable.  If they're not, fail unless
      they told us in advance.  */
@@ -364,7 +368,10 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
       ) {
         char *dirname;
         int n = p > image_file ? p - image_file : 1;
-        asprintf(&dirname, "%.*s", n, image_file);
+        asprintf_res = asprintf(&dirname, "%.*s", n, image_file);
+        if (-1 == asprintf_res) {
+          abort();
+        }
         _gst_image_file_path = dirname;
 
         /* Remove path from image_file.  */
@@ -395,7 +402,10 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
     str = _gst_relocate_path(KERNEL_PATH);
     if (!_gst_file_is_readable(str)) {
       free(str);
-      asprintf(&str, "%s/kernel", _gst_image_file_path);
+      asprintf_res = asprintf(&str, "%s/kernel", _gst_image_file_path);
+      if (-1 == asprintf_res) {
+        abort();
+      }
     }
 
     kernel_dir = str;
@@ -407,7 +417,10 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
      what we've decided in the above marathon.  */
   _gst_image_file_path = _gst_get_full_file_name(_gst_image_file_path);
   _gst_kernel_file_path = _gst_get_full_file_name(kernel_dir);
-  asprintf(&str, "%s/%s", _gst_image_file_path, image_file);
+  asprintf_res = asprintf(&str, "%s/%s", _gst_image_file_path, image_file);
+  if (-1 == asprintf_res) {
+    abort();
+  }
   _gst_binary_image_name = str;
 
   _gst_smalltalk_passed_argc = smalltalk_argc;
@@ -454,7 +467,10 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
     if (!loadBinary && !_gst_file_is_writeable(_gst_image_file_path) &&
         (flags & GST_IGNORE_BAD_IMAGE_PATH)) {
       _gst_image_file_path = _gst_get_cur_dir_name();
-      asprintf(&str, "%s/gst.im", _gst_image_file_path);
+      asprintf_res = asprintf(&str, "%s/gst.im", _gst_image_file_path);
+      if (-1 == asprintf_res) {
+        abort();
+      }
       _gst_binary_image_name = str;
       loadBinary = (rebuild_image_flags == GST_MAYBE_REBUILD_IMAGE &&
                     ok_to_load_binary());
@@ -551,16 +567,24 @@ int load_standard_files(void) {
 
 char *_gst_find_file(const char *fileName, enum gst_file_dir dir) {
   char *fullFileName, *localFileName;
+  int asprintf_res;
 
   if (dir == GST_DIR_ABS)
     return xstrdup(fileName);
 
-  asprintf(&fullFileName, "%s/%s%s", _gst_kernel_file_path,
-           dir == GST_DIR_KERNEL ? "" : "../", fileName);
+  asprintf_res = asprintf(&fullFileName, "%s/%s%s", _gst_kernel_file_path,
+                          dir == GST_DIR_KERNEL ? "" : "../", fileName);
+  if (-1 == asprintf_res) {
+    abort();
+  }
 
   if (!no_user_files && dir != GST_DIR_KERNEL_SYSTEM) {
-    asprintf(&localFileName, "%s/%s%s", _gst_user_file_base_path,
-             dir == GST_DIR_BASE ? "" : LOCAL_KERNEL_DIR_NAME "/", fileName);
+    asprintf_res = asprintf(
+        &localFileName, "%s/%s%s", _gst_user_file_base_path,
+        dir == GST_DIR_BASE ? "" : LOCAL_KERNEL_DIR_NAME "/", fileName);
+    if (-1 == asprintf_res) {
+      abort();
+    }
 
     if (_gst_file_is_newer(localFileName, fullFileName)) {
       xfree(fullFileName);
@@ -578,10 +602,17 @@ char *_gst_find_file(const char *fileName, enum gst_file_dir dir) {
 
 char *find_user_file(const char *fileName) {
   char *fullFileName;
+  int asprintf_res;
+
   if (no_user_files)
     return NULL;
 
-  asprintf(&fullFileName, "%s/%s", _gst_user_file_base_path, fileName);
+  asprintf_res =
+      asprintf(&fullFileName, "%s/%s", _gst_user_file_base_path, fileName);
+  if (-1 == asprintf_res) {
+    abort();
+  }
+
   if (!_gst_file_is_readable(fullFileName)) {
     xfree(fullFileName);
     return NULL;

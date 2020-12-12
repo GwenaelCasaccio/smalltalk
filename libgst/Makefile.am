@@ -1,8 +1,6 @@
 LEX_OUTPUT_ROOT = lex.yy
 ## CFLAGS=-O0 -g
 AM_CFLAGS = $(LIBGST_CFLAGS)
-AM_LFLAGS = -Cfe -o$(LEX_OUTPUT_ROOT).c
-AM_YFLAGS = -vy
 AM_CPPFLAGS = $(RELOC_CPPFLAGS) \
   -I$(top_srcdir)/lib-src -I$(top_builddir)/lib-src \
   $(INCFFI) $(INCLIGHTNING) $(INCSNPRINTFV) $(INCSIGSEGV) $(INCLTDL)

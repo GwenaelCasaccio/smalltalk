@@ -5,7 +5,8 @@ dnl selectively enabling or disabling optimizations and warnings
 dnl
 
 AC_DEFUN([GST_PROG_CC], [
-AC_REQUIRE([AC_PROG_CC])
+AC_REQUIRE([AC_PROG_CC_STDC])
+AC_REQUIRE([AC_PROG_CC_C99])
 AC_REQUIRE([AC_PROG_CPP])
 AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])
 
