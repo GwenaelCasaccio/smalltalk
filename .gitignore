@@ -36,15 +36,6 @@ termnorm
 /gst.im
 /smalltalk-mode-init.el
 
-
-libgst/genbc
-libgst/genbc-decl.stamp
-libgst/genbc-impl.stamp
-libgst/genpr-parse.stamp
-libgst/genprims
-libgst/genvm
-libgst/genvm-parse.stamp
-
 packages/glib/libs.def
 packages/gtk/Enums.st
 packages/gtk/Funcs.st
