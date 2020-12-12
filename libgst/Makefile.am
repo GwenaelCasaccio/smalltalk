@@ -9,9 +9,6 @@ AM_CPPFLAGS = $(RELOC_CPPFLAGS) \
 
 include_HEADERS = gstpub.h gst.h
 lib_LTLIBRARIES = libgst.la
-EXTRA_PROGRAMS = genbc genvm
-CLEANFILES = genbc$(EXEEXT) genvm$(EXEEXT) \
-  genbc-decl.stamp genbc-impl.stamp genvm-parse.stamp
 
 # definitions for libgst.la
 
@@ -32,40 +29,7 @@ libgst_la_SOURCES = \
        print.c	   alloc.c	 re.c	        interp.c     \
        real.c	   sockets.c	 events.c
 
-# definitions for genbc
-
-genbc_SOURCES = \
-       genbc-decl.y genbc-impl.y genbc-scan.l genbc.c
-
-genbc_LDADD = @LIBSNPRINTFV@ $(top_builddir)/lib-src/library.la
-
-# definitions for genvm
-
-genvm_SOURCES = \
-       genvm-parse.y genvm-scan.l
-
-genvm_LDADD = @LIBSNPRINTFV@ $(top_builddir)/lib-src/library.la
-
-# manually give dependencies involving BUILT_SOURCES.  The input .l/.y files
-# change rarely, so do not bother changing the timestamp file only if the
-# output changed.
-
-genbc-decl.stamp: genbc-decl.c genbc-decl.y; echo stamp > $@
-genbc-impl.stamp: genbc-impl.c genbc-impl.y; echo stamp > $@
-genvm-parse.stamp: genvm-parse.c genvm-parse.y; echo stamp > $@
-
-genbc.o: genbc-decl.stamp genbc-impl.stamp
-genbc-scan.o: genbc-decl.stamp genbc-impl.stamp
-genbc-decl.o: genbc-decl.stamp genbc-impl.stamp
-genbc-impl.o: genbc-decl.stamp genbc-impl.stamp
-genvm-scan.o: genvm-parse.stamp
-
-BUILT_SOURCES = match.h builtins.inl vm.inl \
-	genbc-decl.c genbc-impl.c genbc-scan.c genbc-decl.h genbc-impl.h \
-	genvm-parse.c genvm-scan.c genvm-parse.h
-
-dist_noinst_DATA = valgrind.supp prims.inl byte.def vm.def builtins.gperf
-STAMP_FILES = match.stamp vm.stamp
+dist_noinst_DATA = valgrind.supp builtins.gperf
 
 noinst_HEADERS = \
 	gstpriv.h files.h lex.h str.h re.h \
@@ -76,8 +40,6 @@ noinst_HEADERS = \
 	dict.inl interp.inl interp-bc.inl \
 	sockets.h comp.inl input.h events.h \
 	print.h alloc.h gst-parse.h prims.inl \
-	genbc.h genbc-decl.h \
-	genbc-impl.h genvm-parse.h genvm.h \
 	superop1.inl superop2.inl \
 	sysdep/common/files.c sysdep/common/time.c sysdep/cygwin/files.c \
 	sysdep/cygwin/findexec.c sysdep/cygwin/mem.c sysdep/cygwin/signals.c \
@@ -88,44 +50,6 @@ noinst_HEADERS = \
 	sysdep/win32/time.c sysdep/win32/timer.c sysdep/posix/events.c \
 	sysdep/win32/events.c sysdep/cygwin/events.c \
 	$(BUILT_SOURCES)
-
-# rules for invoking genbc
-# Try to economize in the rebuilds, by avoiding unnecessary
-# changes to the timestamp of match.h
-
-$(srcdir)/match.h: $(srcdir)/match.stamp
-	@:
-
-$(srcdir)/match.stamp: byte.def byte.c opt.c
-	@$(MAKE) genbc$(EXEEXT)
-	@echo "./genbc$(EXEEXT) $(srcdir)/byte.def $(srcdir)/byte.c $(srcdir)/opt.c > match.h"; \
-	  ./genbc$(EXEEXT) $(srcdir)/byte.def $(srcdir)/byte.c $(srcdir)/opt.c > _match.h
-	@if cmp _match.h $(srcdir)/match.h > /dev/null 2>&1; then \
-	  echo match.h is unchanged; \
-	  rm _match.h; \
-	else \
-	  mv _match.h $(srcdir)/match.h; \
-	fi
-	@echo timestamp > $(srcdir)/match.stamp
-
-# rules for invoking genvm
-# Try to economize in the rebuilds, by avoiding unnecessary
-# changes to the timestamp of vm.inl
-
-$(srcdir)/vm.inl: $(srcdir)/vm.stamp
-	@:
-
-$(srcdir)/vm.stamp: vm.def
-	@$(MAKE) genvm$(EXEEXT)
-	@echo "./genvm$(EXEEXT) < $(srcdir)/vm.def | awk '{ /^#/ && gsub(/__oline__/,NR+1); print }' > vm.inl"; \
-	  ./genvm$(EXEEXT) < $(srcdir)/vm.def | awk '{ /^#/ && gsub(/__oline__/,NR+1); print }' > _vm.inl
-	@if cmp _vm.inl $(srcdir)/vm.inl > /dev/null 2>&1; then \
-	  echo vm.inl is unchanged; \
-	  rm _vm.inl; \
-	else \
-	  mv _vm.inl $(srcdir)/vm.inl; \
-	fi
-	@echo timestamp > $(srcdir)/vm.stamp
 
 # rules for invoking gperf
 # not fully idiot-proof but only to be run by maintainers

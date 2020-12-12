@@ -101,8 +101,6 @@ AM_CONDITIONAL(WITH_EMACS, test "$EMACS" != no)
 AM_CONDITIONAL(WITH_EMACS_COMINT, test "$ac_cv_emacs_comint" != no)
 
 dnl We only want the GNU implementations
-AM_MISSING_PROG(LEX, flex, $missing_dir)
-AM_MISSING_PROG(YACC, bison, $missing_dir)
 AM_MISSING_PROG(GPERF, gperf, $missing_dir)
 AM_MISSING_PROG(AUTOM4TE, autom4te, $missing_dir)
 
