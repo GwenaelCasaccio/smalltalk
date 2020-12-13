@@ -1428,12 +1428,6 @@ void add_grey_object(OOP oop) {
   if (!numFields)
     return;
 
-  /* For ephemeron, skip the first field and the class.  */
-  /* if (OOP_GET_FLAGS(oop) & F_EPHEMERON) {
-    numFields -= &(obj->data[1]) - base;
-    base = &(obj->data[1]);
-  } */
-
   entry = (grey_area_node *)xmalloc(sizeof(grey_area_node));
   entry->base = base;
   entry->n = numFields;
