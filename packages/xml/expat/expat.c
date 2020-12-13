@@ -182,7 +182,7 @@ make_attribute (const char **attr)
 
   attributeOOP = vmProxy->objectAlloc (attributeClass, 0);
   obj = OOP_TO_OBJ (attributeOOP);
-  n = vmProxy->OOPToInt (obj->objSize) - 2 - OBJ_HEADER_SIZE_WORDS;
+  n = vmProxy->OOPToInt (OBJ_SIZE (obj)) - 2 - OBJ_HEADER_SIZE_WORDS;
   obj->data[n] = nameOOP;
   obj->data[n + 1] = valueOOP;
   return attributeOOP;

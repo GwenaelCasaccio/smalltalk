@@ -1523,7 +1523,7 @@ OOP _gst_identity_dictionary_at_put(OOP identityDictionaryOOP, OOP keyOOP,
      likely resolve some collisions and make things faster).  */
 
   identDict = (gst_identity_dictionary)identityDictionary;
-  if UNCOMMON (TO_INT(identDict->tally) >= TO_INT(identDict->objSize) * 3 / 8)
+  if UNCOMMON (TO_INT(identDict->tally) >= TO_INT(OBJ_SIZE (identDict)) * 3 / 8)
     identityDictionary = grow_identity_dictionary(identityDictionaryOOP);
 
   index = identity_dictionary_find_key_or_nil(identityDictionaryOOP, keyOOP);
@@ -1612,7 +1612,7 @@ OOP _gst_dictionary_add(OOP dictionaryOOP, OOP associationOOP) {
   association = (gst_association)OOP_TO_OBJ(associationOOP);
   dictionary = OOP_TO_OBJ(dictionaryOOP);
   dict = (gst_dictionary)dictionary;
-  if UNCOMMON (TO_INT(dict->tally) >= TO_INT(dict->objSize) * 3 / 4) {
+  if UNCOMMON (TO_INT(dict->tally) >= TO_INT(OBJ_SIZE (dict)) * 3 / 4) {
     dictionary = grow_dictionary(dictionaryOOP);
     dict = (gst_dictionary)dictionary;
   }
@@ -1644,7 +1644,7 @@ OOP _gst_object_copy(OOP oop) {
 
   new = instantiate_with(OOP_CLASS(oop), numFields, &newOOP);
   old = OOP_TO_OBJ(oop);
-  memcpy(new, old, SIZE_TO_BYTES(TO_INT(old->objSize)));
+  memcpy(new, old, SIZE_TO_BYTES(TO_INT(OBJ_SIZE (old))));
 
   OOP_SET_FLAGS(newOOP,
                 OOP_GET_FLAGS(newOOP) | (OOP_GET_FLAGS(oop) & F_CONTEXT));
@@ -1923,7 +1923,7 @@ int _gst_identity_dictionary_at_inc(OOP identityDictionaryOOP, OOP keyOOP,
      likely resolve some collisions and make things faster).  */
 
   identDict = (gst_identity_dictionary)identityDictionary;
-  if UNCOMMON (TO_INT(identDict->tally) >= TO_INT(identDict->objSize) * 3 / 8)
+  if UNCOMMON (TO_INT(identDict->tally) >= TO_INT(OBJ_SIZE (identDict)) * 3 / 8)
     identityDictionary = grow_identity_dictionary(identityDictionaryOOP);
   index = identity_dictionary_find_key_or_nil(identityDictionaryOOP, keyOOP);
 

@@ -378,7 +378,7 @@ make_oop_table_to_be_saved (struct save_file_header *header)
       if (IS_OOP_VALID_GC (oop))
 	{
           myOOPTable[i].flags = (OOP_GET_FLAGS (oop) & ~F_RUNTIME) | F_OLD;
-	  myOOPTable[i].object = (gst_object) TO_INT (OOP_TO_OBJ (oop)->objSize);
+	  myOOPTable[i].object = (gst_object) TO_INT (OBJ_SIZE (OOP_TO_OBJ (oop)));
 	}
       else
 	{
@@ -418,7 +418,7 @@ save_object (int imageFd,
   if (IS_OOP_FREE (oop))
     abort ();
 
-  numBytes = sizeof (OOP) * TO_INT (object->objSize);
+  numBytes = sizeof (OOP) * TO_INT (OBJ_SIZE (object));
   if (numBytes < 262144)
     {
       saveObject = alloca (numBytes);
@@ -668,7 +668,7 @@ load_normal_oops (int imageFd)
 	  /* Would be nice, but causes us to touch every page and lose most
 	     of the startup-time benefits of copy-on-write.  So we only
 	     do it in the slow case, anyway.  */
-	  if (object->objSize != FROM_INT ((size_t) OOP_TO_OBJ (oop)))
+	  if (OBJ_SIZE (object) != FROM_INT ((size_t) OOP_TO_OBJ (oop)))
 	    abort ();
         }
 

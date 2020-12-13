@@ -1462,7 +1462,7 @@ void _gst_mpz_from_oop(gst_mpz *mpz, OOP srcOOP) {
   }
 
   ba = (gst_byte_array)OOP_TO_OBJ(srcOOP);
-  n = TO_INT(ba->objSize) - OBJ_HEADER_SIZE_WORDS;
+  n = TO_INT(OBJ_SIZE (ba)) - OBJ_HEADER_SIZE_WORDS;
   srcClass = OOP_CLASS(srcOOP);
   src = (mp_limb_t *)ba->bytes;
 

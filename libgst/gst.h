@@ -118,7 +118,7 @@ typedef enum {
    Note how structural inheritance is achieved without adding extra levels of 
    nested structures.  */
 #define OBJ_HEADER \
-  OOP		objSize; \
+  OOP		objSize;   \
   OOP		objClass
 
 

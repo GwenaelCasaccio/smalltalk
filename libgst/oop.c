@@ -413,8 +413,8 @@ void _gst_init_oop_table(PTR address, size_t size) {
 
   OOP_SET_FLAGS(_gst_nil_oop, F_READONLY | F_OLD | F_REACHABLE);
   OOP_SET_OBJECT(_gst_nil_oop, (gst_object)&_gst_nil_object);
-  _gst_nil_object.objSize =
-      FROM_INT(ROUNDED_WORDS(sizeof(struct gst_undefined_object)));
+  OBJ_SET_SIZE (&_gst_nil_object,
+      FROM_INT(ROUNDED_WORDS(sizeof(struct gst_undefined_object))));
 
   OOP_SET_FLAGS(_gst_true_oop, F_READONLY | F_OLD | F_REACHABLE);
   OOP_SET_OBJECT(_gst_true_oop, (gst_object)&_gst_boolean_objects[0]);
@@ -422,17 +422,17 @@ void _gst_init_oop_table(PTR address, size_t size) {
   OOP_SET_FLAGS(_gst_false_oop, F_READONLY | F_OLD | F_REACHABLE);
   OOP_SET_OBJECT(_gst_false_oop, (gst_object)&_gst_boolean_objects[1]);
 
-  _gst_boolean_objects[0].objSize =
-      FROM_INT(ROUNDED_WORDS(sizeof(struct gst_boolean)));
-  _gst_boolean_objects[1].objSize =
-      FROM_INT(ROUNDED_WORDS(sizeof(struct gst_boolean)));
+  OBJ_SET_SIZE (&_gst_boolean_objects[0],
+      FROM_INT(ROUNDED_WORDS(sizeof(struct gst_boolean))));
+  OBJ_SET_SIZE (&_gst_boolean_objects[1],
+      FROM_INT(ROUNDED_WORDS(sizeof(struct gst_boolean))));
 
   _gst_boolean_objects[0].booleanValue = _gst_true_oop;
   _gst_boolean_objects[1].booleanValue = _gst_false_oop;
 
   for (i = 0; i < NUM_CHAR_OBJECTS; i++) {
-    _gst_char_object_table[i].objSize =
-        FROM_INT(ROUNDED_WORDS(sizeof(struct gst_character)));
+    OBJ_SET_SIZE (&_gst_char_object_table[i],
+        FROM_INT(ROUNDED_WORDS(sizeof(struct gst_character))));
     _gst_char_object_table[i].charVal = FROM_INT(i);
     OOP_SET_OBJECT(&_gst_mem.ot[i + CHAR_OBJECT_BASE],
                    (gst_object)&_gst_char_object_table[i]);
@@ -654,7 +654,7 @@ void _gst_make_oop_fixed(OOP oop) {
     return;
 
   if ((OOP_GET_FLAGS(oop) & F_LOADED) == 0) {
-    size = SIZE_TO_BYTES(TO_INT(OOP_TO_OBJ(oop)->objSize));
+    size = SIZE_TO_BYTES(TO_INT(OBJ_SIZE (OOP_TO_OBJ(oop))));
     newObj = (gst_object)_gst_mem_alloc(_gst_mem.fixed, size);
     if (!newObj)
       abort();
@@ -678,7 +678,7 @@ void _gst_tenure_oop(OOP oop) {
     return;
 
   if (!(OOP_GET_FLAGS(oop) & F_FIXED)) {
-    int size = SIZE_TO_BYTES(TO_INT(OOP_TO_OBJ(oop)->objSize));
+    int size = SIZE_TO_BYTES(TO_INT(OBJ_SIZE (OOP_TO_OBJ(oop))));
     newObj = (gst_object)_gst_mem_alloc(_gst_mem.old, size);
     if (!newObj)
       abort();
@@ -714,7 +714,7 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
   p_instance = (gst_object)_gst_mem.eden.allocPtr;
   _gst_mem.eden.allocPtr = newAllocPtr;
   *p_oop = alloc_oop(p_instance, _gst_mem.active_flag);
-  p_instance->objSize = FROM_INT(BYTES_TO_SIZE(size));
+  OBJ_SET_SIZE (p_instance, FROM_INT(BYTES_TO_SIZE(size)));
 
   return p_instance;
 }
@@ -744,7 +744,7 @@ gst_object alloc_fixed_obj(size_t size, OOP *p_oop) {
 
 ok:
   *p_oop = alloc_oop(p_instance, F_OLD);
-  p_instance->objSize = FROM_INT(BYTES_TO_SIZE(size));
+  OBJ_SET_SIZE (p_instance, FROM_INT(BYTES_TO_SIZE(size)));
   return p_instance;
 }
 
@@ -766,7 +766,7 @@ gst_object _gst_alloc_words(size_t size) {
 
   p_instance = (gst_object)_gst_mem.eden.allocPtr;
   _gst_mem.eden.allocPtr = newAllocPtr;
-  p_instance->objSize = FROM_INT(size);
+  OBJ_SET_SIZE (p_instance, FROM_INT(size));
   return p_instance;
 }
 
@@ -920,7 +920,7 @@ void compact(size_t new_heap_limit) {
     PREFETCH_LOOP(oop, PREF_READ | PREF_NTA);
     if ((OOP_GET_FLAGS(oop) & (F_OLD | F_FIXED | F_LOADED)) == F_OLD) {
       gst_object new;
-      size_t size = SIZE_TO_BYTES(TO_INT(OOP_TO_OBJ(oop)->objSize));
+      size_t size = SIZE_TO_BYTES(TO_INT(OBJ_SIZE (OOP_TO_OBJ(oop))));
       new = _gst_mem_alloc(new_heap, size);
       memcpy(new, OOP_TO_OBJ(oop), size);
       _gst_mem_free(_gst_mem.old, OOP_TO_OBJ(oop));
@@ -1261,13 +1261,13 @@ void _gst_sweep_oop(OOP oop) {
   if UNCOMMON (OOP_GET_FLAGS(oop) & F_FIXED) {
     _gst_mem.numOldOOPs--;
     stats.reclaimedOldSpaceBytesSinceLastGlobalGC +=
-        SIZE_TO_BYTES(TO_INT(OOP_TO_OBJ(oop)->objSize));
+        SIZE_TO_BYTES(TO_INT(OBJ_SIZE (OOP_TO_OBJ(oop))));
     if ((OOP_GET_FLAGS(oop) & F_LOADED) == 0)
       _gst_mem_free(_gst_mem.fixed, OOP_TO_OBJ(oop));
   } else if UNCOMMON (OOP_GET_FLAGS(oop) & F_OLD) {
     _gst_mem.numOldOOPs--;
     stats.reclaimedOldSpaceBytesSinceLastGlobalGC +=
-        SIZE_TO_BYTES(TO_INT(OOP_TO_OBJ(oop)->objSize));
+        SIZE_TO_BYTES(TO_INT(OBJ_SIZE (OOP_TO_OBJ(oop))));
     if ((OOP_GET_FLAGS(oop) & F_LOADED) == 0)
       _gst_mem_free(_gst_mem.old, OOP_TO_OBJ(oop));
   }
@@ -1405,7 +1405,7 @@ void tenure_one_object() {
     _gst_tenure_oop(oop);
 
   queue_get(&_gst_mem.tenuring_queue, 1);
-  queue_get(_gst_mem.active_half, TO_INT(OOP_TO_OBJ(oop)->objSize));
+  queue_get(_gst_mem.active_half, TO_INT(OBJ_SIZE (OOP_TO_OBJ(oop))));
 }
 
 void _gst_grey_oop_range(PTR from, size_t size) {
@@ -1768,12 +1768,12 @@ void _gst_copy_an_oop(OOP oop) {
 #endif
 
 #if defined(GC_DEBUGGING)
-    if UNCOMMON (!IS_INT(obj->objSize)) {
+    if UNCOMMON (!IS_INT(OBJ_SIZE (obj))) {
       printf("Size not an integer in OOP %p (%p)\n", oop, obj);
       abort();
     }
 
-    if UNCOMMON (TO_INT(obj->objSize) < 2) {
+    if UNCOMMON (TO_INT(OBJ_SIZE (obj)) < 2) {
       printf("Invalid size for OOP %p (%p)\n", oop, obj);
       abort();
     }
@@ -1794,7 +1794,7 @@ void _gst_copy_an_oop(OOP oop) {
 
     queue_put(&_gst_mem.tenuring_queue, &oop, 1);
     OOP_SET_OBJECT(oop, obj = (gst_object)queue_put(_gst_mem.active_half, pData,
-                                                    TO_INT(obj->objSize)));
+                                                    TO_INT(OBJ_SIZE (obj))));
 
     OOP_SET_FLAGS(oop, OOP_GET_FLAGS(oop) & ~(F_SPACES | F_POOLED));
     OOP_SET_FLAGS(oop, OOP_GET_FLAGS(oop) | _gst_mem.active_flag);

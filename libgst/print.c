@@ -353,7 +353,7 @@ void _gst_display_oop(OOP oop) {
 
     if (IS_OOP_ADDR(OBJ_CLASS(OOP_TO_OBJ(oop))))
       printf("   %O (%O)\n", OBJ_CLASS(OOP_TO_OBJ(oop)),
-             OOP_TO_OBJ(oop)->objSize);
+             OBJ_SIZE (OOP_TO_OBJ(oop)));
     else
       printf("   (invalid class)\n");
   }
@@ -372,7 +372,7 @@ void _gst_display_object(gst_object obj) {
                                  : IS_SURVIVOR_ADDR(obj, 1) ? "Odd" : "Old");
 
   if (IS_OOP_ADDR(OBJ_CLASS(obj)))
-    printf(", size %O (%zu OOPs), class %O\n", obj->objSize, NUM_OOPS(obj),
+    printf(", size %O (%zu OOPs), class %O\n", OBJ_SIZE (obj), NUM_OOPS(obj),
            OBJ_CLASS(obj));
   else
     printf(", contains invalid data\n");
