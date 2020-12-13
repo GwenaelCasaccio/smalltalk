@@ -1423,7 +1423,7 @@ void add_grey_object(OOP oop) {
   grey_area_node *entry;
   gst_object obj = OOP_TO_OBJ(oop);
   size_t numFields = scanned_fields_in(obj, OOP_GET_FLAGS(oop));
-  OOP *base = &(OBJ_CLASS(obj));
+  OOP *base = (OOP *) obj;
 
   if (!numFields)
     return;
@@ -1687,18 +1687,16 @@ void scan_grey_objects() {
 
 int scanned_fields_in(gst_object object, int flags) {
   if COMMON (!(flags & (F_WEAK | F_CONTEXT))) {
-    int size = NUM_OOPS(object);
-    return object->data + size - &OBJ_CLASS(object);
+    return NUM_OOPS(object) + OBJ_HEADER_SIZE_WORDS;
   }
 
   if COMMON (flags & F_CONTEXT) {
     const intptr_t methodSP = TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(object));
     return OBJ_METHOD_CONTEXT_CONTEXT_STACK(object) + methodSP + 1 -
-           &OBJ_CLASS(object);
+           (OOP *)object;
   }
 
-  /* Weak object, only mark the class.  */
-  return 1;
+  return OBJ_HEADER_SIZE_WORDS;
 }
 
 void cheney_scan(void) {
@@ -1737,9 +1735,9 @@ void cheney_scan(void) {
     _gst_mem.scan.at = (OOP *)OOP_TO_OBJ(oop);
     numFields = scanned_fields_in(OOP_TO_OBJ(oop), OOP_GET_FLAGS(oop));
 
-    /* The +1 below is to skip the size field.  */
-    for (i = 0; i < numFields; i++)
-      MAYBE_COPY_OOP(_gst_mem.scan.at[i + 1]);
+    for (i = 0; i < numFields; i++) {
+      MAYBE_COPY_OOP(_gst_mem.scan.at[i]);
+    }
   }
 
 #if defined(GC_DEBUG_OUTPUT)
@@ -1803,7 +1801,7 @@ void _gst_copy_an_oop(OOP oop) {
        near the object.  This improves the locality of reference.
        We do not copy the class (that's the reason for the -1
        here).  */
-    n = scanned_fields_in(obj, OOP_GET_FLAGS(oop)) - 1;
+    n = scanned_fields_in(obj, OOP_GET_FLAGS(oop)) - OBJ_HEADER_SIZE_WORDS;
     if (OOP_GET_FLAGS(oop) & F_EPHEMERON) {
       /* For ephemerons, do the work later.  */
       add_grey_object(oop);
