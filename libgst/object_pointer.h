@@ -4,6 +4,13 @@
 #define OBJ_ARRAY_AT(obj, n) (((OOP *)((gst_object)obj)->data)[(n)-1])
 #define OBJ_STRING_AT(obj, n) (((char *)((gst_object)obj)->data)[(n)-1])
 
+#define OBJ_SIZE(obj) ((obj)->objSize)
+
+#define OBJ_SET_SIZE(obj, valueOOP)                                            \
+  do {                                                                         \
+    (obj)->objSize = (valueOOP);                                               \
+  } while (0)
+
 #define OBJ_CLASS(obj) ((obj)->objClass)
 
 #define OBJ_SET_CLASS(obj, valueOOP)                                           \

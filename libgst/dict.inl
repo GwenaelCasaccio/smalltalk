@@ -310,12 +310,12 @@ static inline uint64_t to_c_uint_64(OOP oop);
 /* Answer the offset component of the a CObject, COBJ (*not* an OOP,
    but an object pointer).  */
 #define COBJECT_OFFSET_OBJ(cObj)                                               \
-  (((uintptr_t *)cObj)[TO_INT(cObj->objSize) - 1])
+  (((uintptr_t *)cObj)[TO_INT(OBJ_SIZE ((cObj))) - 1])
 
 /* Sets to VALUE the offset component of the CObject, COBJ (*not* an
    OOP, but an object pointer).  */
 #define SET_COBJECT_OFFSET_OBJ(cObj, value)                                    \
-  (((uintptr_t *)cObj)[TO_INT(cObj->objSize) - 1] = (uintptr_t)(value))
+  (((uintptr_t *)cObj)[TO_INT(OBJ_SIZE ((cObj))) - 1] = (uintptr_t)(value))
 
 /* Answer the superclass of the Behavior, CLASS_OOP.  */
 #define SUPERCLASS(class_oop) (((gst_class)OOP_TO_OBJ(class_oop))->superclass)
@@ -424,7 +424,7 @@ static inline uint64_t to_c_uint_64(OOP oop);
 
 /* Answer the size in bytes of the object data for OOP.  */
 #define OBJECT_SIZE_BYTES(obj)                                                 \
-  (SIZE_TO_BYTES(TO_INT(obj->objSize)) - sizeof(gst_object_header))
+  (SIZE_TO_BYTES(TO_INT(OBJ_SIZE ((obj)))) - sizeof(gst_object_header))
 
 /* Answer the size in bytes of the object data for OOP.  */
 #define OOP_SIZE_BYTES(oop) OBJECT_SIZE_BYTES(OOP_TO_OBJ(oop))
@@ -433,7 +433,7 @@ static inline uint64_t to_c_uint_64(OOP oop);
    variables, both fixed and indexed), in OOP.  Use instead of
    NUM_OOPS if you know OOP is not a byte object.  */
 #define NUM_WORDS(obj)                                                         \
-  ((size_t)(TO_INT((obj)->objSize) - OBJ_HEADER_SIZE_WORDS))
+  ((size_t)(TO_INT(OBJ_SIZE ((obj))) - OBJ_HEADER_SIZE_WORDS))
 
 /* Return the number of pointer instance variables (both fixed and
    indexed), in the object OBJ.  */

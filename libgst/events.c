@@ -261,7 +261,7 @@ poll_events (OOP blockingOOP)
       /* Polling told us they have events ready.  If available, signal the
          event semaphore and switch to STATE_DISPATCHING.  */
       processor = (gst_processor_scheduler) OOP_TO_OBJ (_gst_processor_oop);
-      if (TO_INT (processor->objSize)
+      if (TO_INT (OBJ_SIZE (processor))
           > offsetof (struct gst_processor_scheduler, eventSemaphore) / sizeof(OOP))
         {
           event_loop_lock ();

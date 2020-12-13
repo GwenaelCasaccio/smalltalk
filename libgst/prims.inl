@@ -2660,7 +2660,7 @@ static intptr_t VMpr_Processor_dispatchEvents(int id, volatile int numArgs) {
   incPtr = INC_SAVE_POINTER();
   _gst_primitives_executed++;
   processor = (gst_processor_scheduler)OOP_TO_OBJ(oop1);
-  if (TO_INT(processor->objSize) >
+  if (TO_INT(OBJ_SIZE (processor)) >
       offsetof(struct gst_processor_scheduler, eventSemaphore) / sizeof(OOP)) {
     processor = (gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop);
     semaphoreOOP = processor->eventSemaphore;

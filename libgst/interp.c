@@ -761,7 +761,7 @@ gst_object alloc_stack_context(int size) {
     newContext = (gst_object)cur_chunk_begin;
     cur_chunk_begin += size;
     if COMMON (cur_chunk_begin < cur_chunk_end) {
-      newContext->objSize = FROM_INT(size);
+      OBJ_SET_SIZE (newContext, FROM_INT(size));
       return (newContext);
     }
 
