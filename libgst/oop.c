@@ -1429,10 +1429,10 @@ void add_grey_object(OOP oop) {
     return;
 
   /* For ephemeron, skip the first field and the class.  */
-  if (OOP_GET_FLAGS(oop) & F_EPHEMERON) {
+  /* if (OOP_GET_FLAGS(oop) & F_EPHEMERON) {
     numFields -= &(obj->data[1]) - base;
     base = &(obj->data[1]);
-  }
+  } */
 
   entry = (grey_area_node *)xmalloc(sizeof(grey_area_node));
   entry->base = base;
@@ -1651,26 +1651,24 @@ void scan_grey_objects() {
     oop = node->oop;
     obj = OOP_TO_OBJ(oop);
 
-    if (OOP_GET_FLAGS(oop) & F_EPHEMERON)
-      /* Objects might have moved, so update node->base.  */
-      node->base = (OOP *)&obj->data[1];
-
-#if defined(GC_DEBUG_OUTPUT)
-    printf("Scanning grey range %p...%p (%p)\n", node->base,
-           node->base + node->n, oop);
-#endif
-
-    _gst_copy_oop_range(node->base, node->base + node->n);
-
     if (OOP_GET_FLAGS(oop) & F_EPHEMERON) {
       OOP key = obj->data[0];
+      _gst_copy_oop_range((OOP *)obj, ((OOP *) obj) + OBJ_HEADER_SIZE_WORDS);
+      _gst_copy_oop_range(&obj->data[1], obj->data + (node->n - OBJ_HEADER_SIZE_WORDS - 1));
 
       /* Copy the key, mourn the object if it was not reachable.  */
       if (!IS_OOP_COPIED(key)) {
         _gst_copy_an_oop(key);
         _gst_add_buf_pointer(oop);
       }
+    } else {
+      _gst_copy_oop_range(node->base, node->base + node->n);
     }
+
+#if defined(GC_DEBUG_OUTPUT)
+    printf("Scanning grey range %p...%p (%p)\n", node->base,
+           node->base + node->n, oop);
+#endif
 
     _gst_mem.grey_areas.head = next = node->next;
     xfree(node);
