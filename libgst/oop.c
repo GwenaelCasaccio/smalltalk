@@ -102,7 +102,7 @@ static gst_object _gst_char_object_table[NUM_CHAR_OBJECTS];
 
 /* This is "nil" object in the system.  That is, the single instance
    of the UndefinedObject class, which is called "nil".  */
-static struct gst_undefined_object _gst_nil_object;
+static gst_object _gst_nil_object;
 
 /* These represent the two boolean objects in the system, true and
    false.  This is the object storage for those two objects.
@@ -413,10 +413,12 @@ void _gst_init_oop_table(PTR address, size_t size) {
 }
 
 void _gst_init_basic_objects() {
-  OOP_SET_FLAGS(_gst_nil_oop, F_READONLY | F_OLD | F_REACHABLE);
-  OOP_SET_OBJECT(_gst_nil_oop, (gst_object)&_gst_nil_object);
-  OBJ_SET_SIZE (&_gst_nil_object,
-      FROM_INT(ROUNDED_WORDS(sizeof(struct gst_undefined_object))));
+  {
+    OOP oop;
+
+    oop = &_gst_mem.ot_base[256];
+    _gst_nil_object = alloc_fixed_obj(OBJ_HEADER_SIZE_WORDS * SIZEOF_OOP, &oop, false);
+  }
 
   OOP_SET_FLAGS(_gst_true_oop, F_READONLY | F_OLD | F_REACHABLE);
   OOP_SET_OBJECT(_gst_true_oop, (gst_object)&_gst_boolean_objects[0]);
@@ -534,7 +536,7 @@ void _gst_init_builtin_objects_classes(void) {
 
   _gst_init_basic_objects();
 
-  OBJ_SET_CLASS(&_gst_nil_object, _gst_undefined_object_class);
+  OBJ_SET_CLASS(_gst_nil_object, _gst_undefined_object_class);
   OBJ_SET_CLASS(&_gst_boolean_objects[0], _gst_true_class);
   OBJ_SET_CLASS(&_gst_boolean_objects[1], _gst_false_class);
 
