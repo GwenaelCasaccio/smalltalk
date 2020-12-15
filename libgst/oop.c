@@ -1645,10 +1645,15 @@ void scan_grey_objects() {
     oop = node->oop;
     obj = OOP_TO_OBJ(oop);
 
+#if defined(GC_DEBUG_OUTPUT)
+    printf("Scanning grey range %p...%p (%p)\n", node->base,
+           node->base + node->n, oop);
+#endif
+
     if (OOP_GET_FLAGS(oop) & F_EPHEMERON) {
       OOP key = obj->data[0];
       _gst_copy_oop_range((OOP *)obj, ((OOP *) obj) + OBJ_HEADER_SIZE_WORDS);
-      _gst_copy_oop_range(&obj->data[1], obj->data + (node->n - OBJ_HEADER_SIZE_WORDS - 1));
+      _gst_copy_oop_range(&obj->data[1], ((OOP *) obj) + node->n);
 
       /* Copy the key, mourn the object if it was not reachable.  */
       if (!IS_OOP_COPIED(key)) {
@@ -1658,11 +1663,6 @@ void scan_grey_objects() {
     } else {
       _gst_copy_oop_range(node->base, node->base + node->n);
     }
-
-#if defined(GC_DEBUG_OUTPUT)
-    printf("Scanning grey range %p...%p (%p)\n", node->base,
-           node->base + node->n, oop);
-#endif
 
     _gst_mem.grey_areas.head = next = node->next;
     xfree(node);
