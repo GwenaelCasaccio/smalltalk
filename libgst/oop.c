@@ -108,7 +108,7 @@ static gst_object _gst_nil_object;
    false.  This is the object storage for those two objects.
    false == &_gst_boolean_objects[0],
    true == &_gst_boolean_objects[1] */
-static struct gst_boolean _gst_boolean_objects[2];
+static gst_object _gst_boolean_objects[2];
 
 /* This variable represents information about the memory space.
    _gst_mem holds the required information: basically the
@@ -420,19 +420,21 @@ void _gst_init_basic_objects() {
     _gst_nil_object = alloc_fixed_obj(OBJ_HEADER_SIZE_WORDS * SIZEOF_OOP, &oop, false);
   }
 
-  OOP_SET_FLAGS(_gst_true_oop, F_READONLY | F_OLD | F_REACHABLE);
-  OOP_SET_OBJECT(_gst_true_oop, (gst_object)&_gst_boolean_objects[0]);
+  {
+    OOP oop;
 
-  OOP_SET_FLAGS(_gst_false_oop, F_READONLY | F_OLD | F_REACHABLE);
-  OOP_SET_OBJECT(_gst_false_oop, (gst_object)&_gst_boolean_objects[1]);
+    oop = &_gst_mem.ot_base[257];
+    _gst_boolean_objects[0] = alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &oop, false);
+    _gst_boolean_objects[0]->data[0] = oop;
+  }
 
-  OBJ_SET_SIZE (&_gst_boolean_objects[0],
-      FROM_INT(ROUNDED_WORDS(sizeof(struct gst_boolean))));
-  OBJ_SET_SIZE (&_gst_boolean_objects[1],
-      FROM_INT(ROUNDED_WORDS(sizeof(struct gst_boolean))));
+  {
+    OOP oop;
 
-  _gst_boolean_objects[0].booleanValue = _gst_true_oop;
-  _gst_boolean_objects[1].booleanValue = _gst_false_oop;
+    oop = &_gst_mem.ot_base[258];
+    _gst_boolean_objects[1] = alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &oop, false);
+    _gst_boolean_objects[1]->data[0] = oop;
+  }
 
   for (unsigned int i = 0; i < NUM_CHAR_OBJECTS; i++) {
     OOP oop;
@@ -537,8 +539,8 @@ void _gst_init_builtin_objects_classes(void) {
   _gst_init_basic_objects();
 
   OBJ_SET_CLASS(_gst_nil_object, _gst_undefined_object_class);
-  OBJ_SET_CLASS(&_gst_boolean_objects[0], _gst_true_class);
-  OBJ_SET_CLASS(&_gst_boolean_objects[1], _gst_false_class);
+  OBJ_SET_CLASS(_gst_boolean_objects[0], _gst_true_class);
+  OBJ_SET_CLASS(_gst_boolean_objects[1], _gst_false_class);
 
   for (unsigned int i = 0; i < NUM_CHAR_OBJECTS; i++) {
     OBJ_SET_CLASS(_gst_char_object_table[i], _gst_char_class);

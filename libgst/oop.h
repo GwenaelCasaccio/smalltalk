@@ -104,11 +104,6 @@
    sizeof (long).  */
 #define ROUNDED_BYTES(x) (((x) + sizeof(long) - 1) & ~(sizeof(long) - 1))
 
-struct gst_boolean {
-  OBJ_HEADER;
-  OOP booleanValue;
-};
-
 typedef struct gst_object_memory {
   OBJ_HEADER;
   OOP bytesPerOOP, bytesPerOTE, edenSize, survSpaceSize, oldSpaceSize,
