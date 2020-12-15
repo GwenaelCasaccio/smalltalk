@@ -104,20 +104,6 @@
    sizeof (long).  */
 #define ROUNDED_BYTES(x) (((x) + sizeof(long) - 1) & ~(sizeof(long) - 1))
 
-struct gst_character {
-  OBJ_HEADER;
-  OOP charVal;
-};
-
-struct gst_undefined_object {
-  OBJ_HEADER;
-};
-
-struct gst_boolean {
-  OBJ_HEADER;
-  OOP booleanValue;
-};
-
 typedef struct gst_object_memory {
   OBJ_HEADER;
   OOP bytesPerOOP, bytesPerOTE, edenSize, survSpaceSize, oldSpaceSize,
@@ -320,6 +306,8 @@ extern void _gst_init_mem(size_t eden, size_t survivor, size_t old,
    but we're called before classses are defined, so things that have
    definite classes must wait until the classes are defined.  */
 extern void _gst_init_oop_table(PTR address, size_t size) ATTRIBUTE_HIDDEN;
+
+extern void _gst_init_basic_objects();
 
 /* Dump the entire contents of the OOP table.  Mainly for debugging
    purposes.  */

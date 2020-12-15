@@ -98,17 +98,17 @@ static heap oop_heap;
    system.  Since all character objects are unique, we pre-allocate
    space for 256 of them, and treat them as special built-ins when
    doing garbage collection.  */
-static struct gst_character _gst_char_object_table[NUM_CHAR_OBJECTS];
+static gst_object _gst_char_object_table[NUM_CHAR_OBJECTS];
 
 /* This is "nil" object in the system.  That is, the single instance
    of the UndefinedObject class, which is called "nil".  */
-static struct gst_undefined_object _gst_nil_object;
+static gst_object _gst_nil_object;
 
 /* These represent the two boolean objects in the system, true and
    false.  This is the object storage for those two objects.
    false == &_gst_boolean_objects[0],
    true == &_gst_boolean_objects[1] */
-static struct gst_boolean _gst_boolean_objects[2];
+static gst_object _gst_boolean_objects[2];
 
 /* This variable represents information about the memory space.
    _gst_mem holds the required information: basically the
@@ -165,7 +165,7 @@ static void compact(size_t new_heap_limit);
 /* Allocate and return space for a fixedspace object of SIZE bytes.
    The pointer to the object data is returned, the OOP is
    stored in P_OOP.  */
-static gst_object alloc_fixed_obj(size_t size, OOP *p_oop);
+static gst_object alloc_fixed_obj(size_t size, OOP *p_oop, mst_Boolean alloc_oop_entry);
 
 /* Gather statistics.  */
 static void update_stats(unsigned long *last, double *between,
@@ -410,34 +410,38 @@ void _gst_init_oop_table(PTR address, size_t size) {
     nomemory(true);
 
   alloc_oop_table(size);
+}
 
-  OOP_SET_FLAGS(_gst_nil_oop, F_READONLY | F_OLD | F_REACHABLE);
-  OOP_SET_OBJECT(_gst_nil_oop, (gst_object)&_gst_nil_object);
-  OBJ_SET_SIZE (&_gst_nil_object,
-      FROM_INT(ROUNDED_WORDS(sizeof(struct gst_undefined_object))));
+void _gst_init_basic_objects() {
+  {
+    OOP oop;
 
-  OOP_SET_FLAGS(_gst_true_oop, F_READONLY | F_OLD | F_REACHABLE);
-  OOP_SET_OBJECT(_gst_true_oop, (gst_object)&_gst_boolean_objects[0]);
+    oop = &_gst_mem.ot_base[256];
+    _gst_nil_object = alloc_fixed_obj(OBJ_HEADER_SIZE_WORDS * SIZEOF_OOP, &oop, false);
+  }
 
-  OOP_SET_FLAGS(_gst_false_oop, F_READONLY | F_OLD | F_REACHABLE);
-  OOP_SET_OBJECT(_gst_false_oop, (gst_object)&_gst_boolean_objects[1]);
+  {
+    OOP oop;
 
-  OBJ_SET_SIZE (&_gst_boolean_objects[0],
-      FROM_INT(ROUNDED_WORDS(sizeof(struct gst_boolean))));
-  OBJ_SET_SIZE (&_gst_boolean_objects[1],
-      FROM_INT(ROUNDED_WORDS(sizeof(struct gst_boolean))));
+    oop = &_gst_mem.ot_base[257];
+    _gst_boolean_objects[0] = alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &oop, false);
+    _gst_boolean_objects[0]->data[0] = oop;
+  }
 
-  _gst_boolean_objects[0].booleanValue = _gst_true_oop;
-  _gst_boolean_objects[1].booleanValue = _gst_false_oop;
+  {
+    OOP oop;
 
-  for (i = 0; i < NUM_CHAR_OBJECTS; i++) {
-    OBJ_SET_SIZE (&_gst_char_object_table[i],
-        FROM_INT(ROUNDED_WORDS(sizeof(struct gst_character))));
-    _gst_char_object_table[i].charVal = FROM_INT(i);
-    OOP_SET_OBJECT(&_gst_mem.ot[i + CHAR_OBJECT_BASE],
-                   (gst_object)&_gst_char_object_table[i]);
-    OOP_SET_FLAGS(&_gst_mem.ot[i + CHAR_OBJECT_BASE],
-                  F_READONLY | F_OLD | F_REACHABLE);
+    oop = &_gst_mem.ot_base[258];
+    _gst_boolean_objects[1] = alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &oop, false);
+    _gst_boolean_objects[1]->data[0] = oop;
+  }
+
+  for (unsigned int i = 0; i < NUM_CHAR_OBJECTS; i++) {
+    OOP oop;
+
+    oop = &_gst_mem.ot_base[i];
+    _gst_char_object_table[i] = alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &oop, false);
+    _gst_char_object_table[i]->data[0] = FROM_INT(i);
   }
 }
 
@@ -531,14 +535,16 @@ void _gst_check_oop_table() {
 }
 
 void _gst_init_builtin_objects_classes(void) {
-  int i;
 
-  OBJ_SET_CLASS(&_gst_nil_object, _gst_undefined_object_class);
-  OBJ_SET_CLASS(&_gst_boolean_objects[0], _gst_true_class);
-  OBJ_SET_CLASS(&_gst_boolean_objects[1], _gst_false_class);
+  _gst_init_basic_objects();
 
-  for (i = 0; i < NUM_CHAR_OBJECTS; i++)
-    OBJ_SET_CLASS(&_gst_char_object_table[i], _gst_char_class);
+  OBJ_SET_CLASS(_gst_nil_object, _gst_undefined_object_class);
+  OBJ_SET_CLASS(_gst_boolean_objects[0], _gst_true_class);
+  OBJ_SET_CLASS(_gst_boolean_objects[1], _gst_false_class);
+
+  for (unsigned int i = 0; i < NUM_CHAR_OBJECTS; i++) {
+    OBJ_SET_CLASS(_gst_char_object_table[i], _gst_char_class);
+  }
 }
 
 OOP _gst_find_an_instance(OOP class_oop) {
@@ -704,7 +710,7 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
   newAllocPtr = _gst_mem.eden.allocPtr + BYTES_TO_SIZE(size);
 
   if UNCOMMON (size >= _gst_mem.big_object_threshold)
-    return alloc_fixed_obj(size, p_oop);
+    return alloc_fixed_obj(size, p_oop, true);
 
   if UNCOMMON (newAllocPtr >= _gst_mem.eden.maxPtr) {
     _gst_scavenge();
@@ -719,23 +725,23 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
   return p_instance;
 }
 
-gst_object alloc_fixed_obj(size_t size, OOP *p_oop) {
+gst_object alloc_fixed_obj(size_t size, OOP *p_oop, mst_Boolean alloc_oop_entry) {
   gst_object p_instance;
 
   size = ROUNDED_BYTES(size);
 
   /* If the object is big enough, we put it directly in oldspace.  */
-  p_instance = (gst_object)_gst_mem_alloc(_gst_mem.old, size);
+  p_instance = (gst_object)_gst_mem_alloc(_gst_mem.fixed, size);
   if COMMON (p_instance)
     goto ok;
 
   _gst_global_gc(size);
-  p_instance = (gst_object)_gst_mem_alloc(_gst_mem.old, size);
+  p_instance = (gst_object)_gst_mem_alloc(_gst_mem.fixed, size);
   if COMMON (p_instance)
     goto ok;
 
   compact(0);
-  p_instance = (gst_object)_gst_mem_alloc(_gst_mem.old, size);
+  p_instance = (gst_object)_gst_mem_alloc(_gst_mem.fixed, size);
   if UNCOMMON (!p_instance) {
     /* !!! do something more reasonable in the future */
     _gst_errorf("Cannot recover, exiting...");
@@ -743,7 +749,12 @@ gst_object alloc_fixed_obj(size_t size, OOP *p_oop) {
   }
 
 ok:
-  *p_oop = alloc_oop(p_instance, F_OLD);
+  if (alloc_oop_entry) {
+    *p_oop = alloc_oop(p_instance, F_OLD | F_FIXED);
+  } else {
+    OOP_SET_FLAGS(*p_oop, F_OLD | F_FIXED);
+    OOP_SET_OBJECT(*p_oop, p_instance);
+  }
   OBJ_SET_SIZE (p_instance, FROM_INT(BYTES_TO_SIZE(size)));
   return p_instance;
 }
