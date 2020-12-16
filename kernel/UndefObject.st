@@ -39,6 +39,8 @@ Object subclass: UndefinedObject [
 instance, which is the object "nil".'>
     <import: Smalltalk>
 
+    Nil := nil.
+
     UndefinedObject class >> allSharedPoolDictionariesDo: aBlock [
         "Answer the shared pools visible from methods in the metaclass,
          in the correct search order."

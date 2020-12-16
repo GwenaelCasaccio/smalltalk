@@ -2217,8 +2217,8 @@ static intptr_t VMpr_Behavior_someInstance(int id, volatile int numArgs) {
   _gst_primitives_executed++;
 
   oop1 = STACKTOP();
-  PREFETCH_START(_gst_mem.ot_base, PREF_READ | PREF_NTA);
-  for (oop2 = _gst_mem.ot_base, lastOOP = &_gst_mem.ot[_gst_mem.ot_size];
+  PREFETCH_START(_gst_mem.ot, PREF_READ | PREF_NTA);
+  for (oop2 = _gst_mem.ot, lastOOP = &_gst_mem.ot[_gst_mem.ot_size];
        oop2 < lastOOP; OOP_NEXT(oop2)) {
     PREFETCH_LOOP(oop2, PREF_READ | PREF_NTA);
     if UNCOMMON (IS_OOP_VALID(oop2) && oop1 == OOP_CLASS(oop2)) {
@@ -2274,8 +2274,8 @@ static intptr_t VMpr_Object_becomeForward(int id, volatile int numArgs) {
 
   /* Search also on LIFO contexts.  */
   empty_context_stack();
-  PREFETCH_START(_gst_mem.ot_base, PREF_READ | PREF_NTA);
-  for (ownerOOP = _gst_mem.ot_base, lastOOP = &_gst_mem.ot[_gst_mem.ot_size];
+  PREFETCH_START(_gst_mem.ot, PREF_READ | PREF_NTA);
+  for (ownerOOP = _gst_mem.ot, lastOOP = &_gst_mem.ot[_gst_mem.ot_size];
        ownerOOP < lastOOP; OOP_NEXT(ownerOOP)) {
     gst_object object;
     OOP *scanPtr;
@@ -2311,8 +2311,8 @@ static intptr_t VMpr_Object_allOwners(int id, volatile int numArgs) {
   oop1 = STACKTOP();
 
   _gst_reset_buffer();
-  PREFETCH_START(_gst_mem.ot_base, PREF_READ | PREF_NTA);
-  for (oop2 = _gst_mem.ot_base, lastOOP = &_gst_mem.ot[_gst_mem.ot_size];
+  PREFETCH_START(_gst_mem.ot, PREF_READ | PREF_NTA);
+  for (oop2 = _gst_mem.ot, lastOOP = &_gst_mem.ot[_gst_mem.ot_size];
        oop2 < lastOOP; oop2++) {
     PREFETCH_LOOP(oop2, PREF_READ | PREF_NTA);
     if UNCOMMON (IS_OOP_VALID(oop2) && is_owner(oop2, oop1))

@@ -1139,6 +1139,9 @@ void create_class(const class_definition *ci) {
 mst_Boolean _gst_init_dictionary_on_image_load(mst_Boolean prim_table_matches) {
   const class_definition *ci;
 
+  _gst_nil_oop = &_gst_mem.ot[256];
+  _gst_true_oop = &_gst_mem.ot[257];
+  _gst_false_oop = &_gst_mem.ot[258];
   _gst_smalltalk_dictionary = OOP_AT(SMALLTALK_OOP_INDEX);
   _gst_processor_oop = OOP_AT(PROCESSOR_OOP_INDEX);
   _gst_symbol_table = OOP_AT(SYM_TABLE_OOP_INDEX);
@@ -1162,9 +1165,7 @@ mst_Boolean _gst_init_dictionary_on_image_load(mst_Boolean prim_table_matches) {
       dictionary_at(_gst_class_variable_dictionary(_gst_namespace_class),
                     _gst_intern_string("Current"));
 
-  _gst_init_builtin_objects_classes();
-
-  /* Important: this is called *after* _gst_init_symbols
+ /* Important: this is called *after* _gst_init_symbols
      fills in _gst_vm_primitives_symbol! */
   if (prim_table_matches)
     memcpy(_gst_primitive_table, _gst_default_primitive_table,

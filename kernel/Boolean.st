@@ -41,6 +41,14 @@ execution and loops, and conditional testing, such as conditional and and
 conditional or.  I should say that I appear to provide those operations; 
 my subclasses True and False actually provide those operations.'>
 
+  True := nil.
+  False := nil.
+
+  Boolean class >> initialize [
+
+    True := true.
+    False := False.
+  ]
     Boolean class >> isIdentity [
 	"Answer whether x = y implies x == y for instances of the receiver"
 
@@ -147,3 +155,6 @@ my subclasses True and False actually provide those operations.'>
     ]
 ]
 
+Eval [
+  Boolean initialize
+]

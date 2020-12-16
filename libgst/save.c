@@ -449,7 +449,7 @@ save_file_version (int imageFd, struct save_file_header *headerp)
   headerp->big_object_threshold = _gst_mem.big_object_threshold;
   headerp->grow_threshold_percent = _gst_mem.grow_threshold_percent;
   headerp->space_grow_rate = _gst_mem.space_grow_rate;
-  headerp->ot_base = (intptr_t) _gst_mem.ot_base;
+  headerp->ot_base = (intptr_t) _gst_mem.ot;
   memcpy (&headerp->prim_table_md5, _gst_primitives_md5, sizeof (_gst_primitives_md5));
 
   buffer_write (imageFd, headerp, sizeof (save_file_header));
@@ -509,7 +509,7 @@ load_snapshot (int imageFd)
   _gst_init_oop_table ((PTR) header.ot_base,
 		       MAX (header.oopTableSize * 2, INITIAL_OOP_TABLE_SIZE));
 
-  ot_delta = (intptr_t) (_gst_mem.ot_base) - header.ot_base;
+  ot_delta = (intptr_t) (_gst_mem.ot) - header.ot_base;
   num_used_oops = header.oopTableSize;
   _gst_mem.num_free_oops = header.num_free_oops;
 
