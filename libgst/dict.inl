@@ -284,7 +284,7 @@ static inline uint64_t to_c_uint_64(OOP oop);
 #define IS_SYMBOL(oop) (!IS_NIL(oop) && (OOP_CLASS(oop) == _gst_symbol_class))
 
 /* Return the Character object for ASCII value C.  */
-#define CHAR_OOP_AT(c) (&_gst_mem.ot[(int)(c) + CHAR_OBJECT_BASE])
+#define CHAR_OOP_AT(c) (&_gst_mem.ot[(int)(c)])
 
 /* Answer the code point of the character OOP, charOOP.  */
 #define CHAR_OOP_VALUE(charOOP)                                                \

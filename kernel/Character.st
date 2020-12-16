@@ -46,6 +46,7 @@ more care is needed: Character refers to bytes that are used as part of
 encoding of a character, while UnicodeCharacter refers to the character
 itself.'>
 
+    AsciiTable := nil.
     Table := nil.
     UpperTable := nil.
     LowerTable := nil.
@@ -66,12 +67,14 @@ itself.'>
 	 indices 513-768 map to uppercase chars."
 
 	<category: 'initializing lookup tables'>
+  AsciiTable := Array new: 256.
 	Table := ByteArray new: 768.
 	UpperTable := ByteArray new: 256.
 	LowerTable := ByteArray new: 256.
 	1 to: 256
 	    do: 
-		[:value | 
+		[:value |
+    AsciiTable at: value put: (Character value: value - 1).
 		UpperTable at: value put: value - 1.
 		LowerTable at: value put: value - 1.
 		(value between: 49 and: 58) ifTrue: [Table at: value put: 48].

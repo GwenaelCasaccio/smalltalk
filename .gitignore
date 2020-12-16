@@ -65,3 +65,4 @@ tests/from_int
 tests/grey_list
 tests/*.log
 tests/*.trs
+gst.im.SandstoneDb/

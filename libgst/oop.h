@@ -64,16 +64,10 @@
 #define NO_SIGSEGV_HANDLING
 #endif
 
-#define NUM_CHAR_OBJECTS 256
-#define NUM_BUILTIN_OBJECTS 3
-#define FIRST_OOP_INDEX (-NUM_CHAR_OBJECTS - NUM_BUILTIN_OBJECTS)
-#define CHAR_OBJECT_BASE FIRST_OOP_INDEX
-#define BUILTIN_OBJECT_BASE (-NUM_BUILTIN_OBJECTS)
-
 /* The number of OOPs in the system.  This is exclusive of Character,
    True, False, and UndefinedObject (nil) oops, which are
    built-ins.  */
-#define INITIAL_OOP_TABLE_SIZE (1024 * 128 + BUILTIN_OBJECT_BASE)
+#define INITIAL_OOP_TABLE_SIZE (1024 * 128 + 1024)
 
 #if SIZEOF_OOP == 4
 #define MAX_OOP_TABLE_SIZE (1 << 23)
@@ -88,12 +82,14 @@
    empty_context_stack!!! */
 #define LOW_WATER_OOP_THRESHOLD (1024 * 2)
 
-#define SMALLTALK_OOP_INDEX 0
-#define PROCESSOR_OOP_INDEX 1
-#define SYM_TABLE_OOP_INDEX 2
-#define NIL_OOP_INDEX (BUILTIN_OBJECT_BASE + 0)
-#define TRUE_OOP_INDEX (BUILTIN_OBJECT_BASE + 1)
-#define FALSE_OOP_INDEX (BUILTIN_OBJECT_BASE + 2)
+#define FIRST_OOP_INDEX 0
+#define NUM_CHAR_OBJECTS 256
+#define NIL_OOP_INDEX (NUM_CHAR_OBJECTS + 0)
+#define TRUE_OOP_INDEX (NUM_CHAR_OBJECTS + 1)
+#define FALSE_OOP_INDEX (NUM_CHAR_OBJECTS + 2)
+#define SMALLTALK_OOP_INDEX (NUM_CHAR_OBJECTS + 3)
+#define PROCESSOR_OOP_INDEX (NUM_CHAR_OBJECTS + 4)
+#define SYM_TABLE_OOP_INDEX (NUM_CHAR_OBJECTS + 5)
 
 /* Given a number of bytes "x", return the number of 32 bit words
    needed to represent that object, rounded up to the nearest 32 bit
@@ -180,7 +176,7 @@ struct memory_space {
      Some of the bits indicate the difference between the allocated length
      (stored in the object itself), and the real length, because variable
      byte objects may not be an even multiple of sizeof(PTR).  */
-  struct oop_s *ot, *ot_base;
+  struct oop_s *ot;
 
   /* The number of OOPs in the free list and in the full OOP
      table.  num_free_oops is only correct after a GC!  */

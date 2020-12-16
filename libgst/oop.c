@@ -413,51 +413,35 @@ void _gst_init_oop_table(PTR address, size_t size) {
 }
 
 void _gst_init_basic_objects() {
-  {
-    OOP oop;
-
-    oop = &_gst_mem.ot_base[256];
-    _gst_nil_object = alloc_fixed_obj(OBJ_HEADER_SIZE_WORDS * SIZEOF_OOP, &oop, false);
-  }
-
-  {
-    OOP oop;
-
-    oop = &_gst_mem.ot_base[257];
-    _gst_boolean_objects[0] = alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &oop, false);
-    _gst_boolean_objects[0]->data[0] = oop;
-  }
-
-  {
-    OOP oop;
-
-    oop = &_gst_mem.ot_base[258];
-    _gst_boolean_objects[1] = alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &oop, false);
-    _gst_boolean_objects[1]->data[0] = oop;
-  }
-
   for (unsigned int i = 0; i < NUM_CHAR_OBJECTS; i++) {
     OOP oop;
 
-    oop = &_gst_mem.ot_base[i];
-    _gst_char_object_table[i] = alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &oop, false);
+    _gst_char_object_table[i] = alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &oop, true);
     _gst_char_object_table[i]->data[0] = FROM_INT(i);
+
+    _gst_register_oop(oop);
   }
+
+  _gst_nil_object = alloc_fixed_obj(OBJ_HEADER_SIZE_WORDS * SIZEOF_OOP, &_gst_nil_oop, true);
+  _gst_register_oop(_gst_nil_oop);
+
+  _gst_boolean_objects[0] = alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &_gst_true_oop, true);
+   _gst_boolean_objects[0]->data[0] = _gst_true_oop;
+  _gst_register_oop(_gst_true_oop);
+
+  _gst_boolean_objects[1] = alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &_gst_false_oop, true);
+  _gst_boolean_objects[1]->data[0] = _gst_false_oop;
+  _gst_register_oop(_gst_false_oop);
 }
 
 void alloc_oop_table(size_t size) {
   size_t bytes;
 
   _gst_mem.ot_size = size;
-  bytes = (size - FIRST_OOP_INDEX) * sizeof(struct oop_s);
-  _gst_mem.ot_base = (struct oop_s *)_gst_heap_sbrk(oop_heap, bytes);
-  if (!_gst_mem.ot_base)
+  bytes = size * sizeof(struct oop_s);
+  _gst_mem.ot = (struct oop_s *)_gst_heap_sbrk(oop_heap, bytes);
+  if (!_gst_mem.ot)
     nomemory(true);
-
-  _gst_mem.ot = &_gst_mem.ot_base[-FIRST_OOP_INDEX];
-  _gst_nil_oop = &_gst_mem.ot[NIL_OOP_INDEX];
-  _gst_true_oop = &_gst_mem.ot[TRUE_OOP_INDEX];
-  _gst_false_oop = &_gst_mem.ot[FALSE_OOP_INDEX];
 
   _gst_mem.num_free_oops = size;
   _gst_mem.last_allocated_oop = _gst_mem.last_swept_oop = _gst_mem.ot - 1;
@@ -498,7 +482,7 @@ void _gst_dump_oop_table() {
 void _gst_dump_owners(OOP oop) {
   OOP oop2, lastOOP;
 
-  for (oop2 = _gst_mem.ot_base, lastOOP = &_gst_mem.ot[_gst_mem.ot_size];
+  for (oop2 = _gst_mem.ot, lastOOP = &_gst_mem.ot[_gst_mem.ot_size];
        oop2 < lastOOP; OOP_NEXT(oop2))
     if UNCOMMON (IS_OOP_VALID(oop2) && is_owner(oop2, oop))
       _gst_display_oop(oop2);
@@ -507,7 +491,7 @@ void _gst_dump_owners(OOP oop) {
 void _gst_check_oop_table() {
   OOP oop, lastOOP;
 
-  for (oop = _gst_mem.ot_base, lastOOP = &_gst_mem.ot[_gst_mem.ot_size];
+  for (oop = _gst_mem.ot, lastOOP = &_gst_mem.ot[_gst_mem.ot_size];
        oop < lastOOP; OOP_NEXT(oop)) {
     gst_object object;
     OOP *scanPtr;
@@ -536,15 +520,18 @@ void _gst_check_oop_table() {
 
 void _gst_init_builtin_objects_classes(void) {
 
-  _gst_init_basic_objects();
+  _gst_nil_oop = &_gst_mem.ot[256];
+  _gst_true_oop = &_gst_mem.ot[257];
+  _gst_false_oop = &_gst_mem.ot[258];
 
-  OBJ_SET_CLASS(_gst_nil_object, _gst_undefined_object_class);
-  OBJ_SET_CLASS(_gst_boolean_objects[0], _gst_true_class);
-  OBJ_SET_CLASS(_gst_boolean_objects[1], _gst_false_class);
+  OBJ_SET_CLASS(OOP_TO_OBJ(_gst_nil_oop), _gst_undefined_object_class);
+  OBJ_SET_CLASS(OOP_TO_OBJ(_gst_true_oop), _gst_true_class);
+  OBJ_SET_CLASS(OOP_TO_OBJ(_gst_false_oop), _gst_false_class);
 
   for (unsigned int i = 0; i < NUM_CHAR_OBJECTS; i++) {
-    OBJ_SET_CLASS(_gst_char_object_table[i], _gst_char_class);
+    OBJ_SET_CLASS(OOP_TO_OBJ(&_gst_mem.ot[i]), _gst_char_class);
   }
+
 }
 
 OOP _gst_find_an_instance(OOP class_oop) {
