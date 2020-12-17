@@ -1585,15 +1585,15 @@ OOP _gst_dictionary_new(int size) {
 }
 
 OOP _gst_binding_dictionary_new(int size, OOP environmentOOP) {
-  gst_binding_dictionary dictionary;
+  gst_object dictionary;
   OOP dictionaryOOP;
 
   size = new_num_fields(size);
-  dictionary = (gst_binding_dictionary)instantiate_with(
+  dictionary = instantiate_with(
       _gst_binding_dictionary_class, size, &dictionaryOOP);
 
-  dictionary->tally = FROM_INT(0);
-  dictionary->environment = environmentOOP;
+  OBJ_BINDING_DICTIONARY_SET_TALLY(dictionary, FROM_INT(0));
+  OBJ_BINDING_DICTIONARY_SET_ENVIRONMENT(dictionary, environmentOOP);
 
   return (dictionaryOOP);
 }

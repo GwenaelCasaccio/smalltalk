@@ -105,5 +105,13 @@
 #define OBJ_DICTIONARY_GET_TALLY(obj) ((obj))->data[0]
 #define OBJ_DICTIONARY_SET_TALLY(obj, valueOOP) do { ((obj))->data[0] = (valueOOP); } while(0)
 
+#define OBJ_BINDING_DICTIONARY_GET_TALLY(obj) ((obj))->data[0]
+#define OBJ_BINDING_DICTIONARY_SET_TALLY(obj, valueOOP) do { ((obj))->data[0] = (valueOOP); } while(0)
+
+#define OBJ_BINDING_DICTIONARY_GET_ENVIRONMENT(obj) ((obj))->data[1]
+#define OBJ_BINDING_DICTIONARY_SET_ENVIRONMENT(obj, valueOOP) do { ((obj))->data[1] = (valueOOP); } while(0)
+
+#define OBJ_BINDING_DICTIONARY_AT_ASSOC(obj, index) ((obj))->data[2 + (index)]
+#define OBJ_BINDING_DICTIONARY_AT_PUT_ASSOC(obj, index, valueOOP) do { ((obj))->data[2 + (index)] = (valueOOP); } while(0)
 
 #endif /* GST_OBJECT_POINTER_H */
