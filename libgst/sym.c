@@ -585,10 +585,10 @@ static struct pointer_set_t *make_with_all_superspaces_set(OOP poolOOP) {
     poolOOP = _gst_class_variable_dictionary(poolOOP);
 
   while (is_a_kind_of(OOP_CLASS(poolOOP), _gst_abstract_namespace_class)) {
-    gst_namespace pool;
+    gst_object pool;
     pointer_set_insert(pset, poolOOP);
-    pool = (gst_namespace)OOP_TO_OBJ(poolOOP);
-    poolOOP = pool->superspace;
+    pool = OOP_TO_OBJ(poolOOP);
+    poolOOP = OBJ_NAMESPACE_GET_SUPER_SPACE(pool);
   }
 
   /* Add the last if not nil.  */
@@ -612,7 +612,7 @@ static pool_list *add_namespace(OOP poolOOP, struct pointer_set_t *except,
     poolOOP = _gst_class_variable_dictionary(poolOOP);
 
   for (;;) {
-    gst_namespace pool;
+    gst_object pool;
     OOP importsOOP;
     if (!is_a_kind_of(OOP_CLASS(poolOOP), _gst_dictionary_class))
       return p_end;
@@ -624,8 +624,8 @@ static pool_list *add_namespace(OOP poolOOP, struct pointer_set_t *except,
     if (!is_a_kind_of(OOP_CLASS(poolOOP), _gst_abstract_namespace_class))
       return p_end;
 
-    pool = (gst_namespace)OOP_TO_OBJ(poolOOP);
-    importsOOP = pool->sharedPools;
+    pool = OOP_TO_OBJ(poolOOP);
+    importsOOP = OBJ_NAMESPACE_GET_SHARED_POOLS(pool);
     if (NUM_OOPS(OOP_TO_OBJ(importsOOP))) {
       struct pointer_set_t *pset;
       pset = make_with_all_superspaces_set(poolOOP);
@@ -633,7 +633,7 @@ static pool_list *add_namespace(OOP poolOOP, struct pointer_set_t *except,
       pointer_set_destroy(pset);
     }
 
-    poolOOP = pool->superspace;
+    poolOOP = OBJ_NAMESPACE_GET_SUPER_SPACE(pool);
   }
 }
 
@@ -676,9 +676,9 @@ static void visit_pool(OOP poolOOP, struct pointer_set_t *grey,
      hierarchy in reverse order (see Class>>#allSharedPoolDictionariesDo:). */
   pointer_set_insert(grey, poolOOP);
   if (is_a_kind_of(OOP_CLASS(poolOOP), _gst_abstract_namespace_class)) {
-    gst_namespace pool = (gst_namespace)OOP_TO_OBJ(poolOOP);
-    if (!IS_NIL(pool->superspace))
-      visit_pool(pool->superspace, grey, white, p_head, p_tail);
+    gst_object pool = OOP_TO_OBJ(poolOOP);
+    if (!IS_NIL(OBJ_NAMESPACE_GET_SUPER_SPACE(pool)))
+      visit_pool(OBJ_NAMESPACE_GET_SUPER_SPACE(pool), grey, white, p_head, p_tail);
   }
   pointer_set_insert(white, poolOOP);
 
