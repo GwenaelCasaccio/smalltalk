@@ -80,19 +80,6 @@ typedef struct gst_file_stream {
   OOP writeEnd;
 } * gst_file_stream;
 
-typedef struct gst_namespace {
-  OBJ_HEADER;
-  OOP tally; /* really, an int */
-  OOP superspace;
-  OOP name;
-  OOP subspaces;
-  OOP sharedPools;
-  OOP assoc[1];
-
-  /* Other, indexable fields that are the associations for this
-     dictionary.  */
-} * gst_namespace;
-
 typedef struct gst_identity_dictionary {
   OBJ_HEADER;
   OOP tally; /* really, an int */

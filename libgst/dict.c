@@ -666,7 +666,7 @@ signed char _gst_log2_sizes[32] = {0,
                                    -1};
 
 void init_proto_oops() {
-  gst_namespace smalltalkDictionary;
+  gst_object smalltalkDictionary;
   gst_object symbolTable, processorScheduler;
   int numWords;
 
@@ -688,16 +688,16 @@ void init_proto_oops() {
   numWords = OBJ_HEADER_SIZE_WORDS + INITIAL_SMALLTALK_SIZE + 5;
 
   /* ... now the Smalltalk dictionary ...  */
-  smalltalkDictionary = (gst_namespace)_gst_alloc_words(numWords);
+  smalltalkDictionary = _gst_alloc_words(numWords);
   OOP_SET_OBJECT(_gst_smalltalk_dictionary, smalltalkDictionary);
 
   OBJ_SET_CLASS(smalltalkDictionary, _gst_system_dictionary_class);
-  smalltalkDictionary->tally = FROM_INT(0);
-  smalltalkDictionary->name = _gst_smalltalk_namespace_symbol;
-  smalltalkDictionary->superspace = _gst_nil_oop;
-  smalltalkDictionary->subspaces = _gst_nil_oop;
-  smalltalkDictionary->sharedPools = _gst_nil_oop;
-  nil_fill(smalltalkDictionary->assoc, INITIAL_SMALLTALK_SIZE);
+  OBJ_NAMESPACE_SET_TALLY(smalltalkDictionary, FROM_INT(0));
+  OBJ_NAMESPACE_SET_NAME(smalltalkDictionary, _gst_smalltalk_namespace_symbol);
+  OBJ_NAMESPACE_SET_SUPER_SPACE(smalltalkDictionary, _gst_nil_oop);
+  OBJ_NAMESPACE_SET_SUBSPACES(smalltalkDictionary, _gst_nil_oop);
+  OBJ_NAMESPACE_SET_SHARED_POOLS(smalltalkDictionary, _gst_nil_oop);
+  nil_fill(OBJ_NAMESPACE_ASSOC(smalltalkDictionary), INITIAL_SMALLTALK_SIZE);
 
   /* ... and finally Processor */
   numWords = sizeof(struct gst_processor_scheduler) / sizeof(PTR);
@@ -1285,7 +1285,7 @@ OOP _gst_shared_pool_dictionary(OOP class_oop) {
 
 OOP _gst_namespace_association_at(OOP poolOOP, OOP symbol) {
   OOP assocOOP;
-  gst_namespace pool;
+  gst_object pool;
 
   if (is_a_kind_of(OOP_CLASS(poolOOP), _gst_class_class))
     poolOOP = _gst_class_variable_dictionary(poolOOP);
@@ -1302,8 +1302,8 @@ OOP _gst_namespace_association_at(OOP poolOOP, OOP symbol) {
     if (!is_a_kind_of(OOP_CLASS(poolOOP), _gst_abstract_namespace_class))
       return (_gst_nil_oop);
 
-    pool = (gst_namespace)OOP_TO_OBJ(poolOOP);
-    poolOOP = pool->superspace;
+    pool = OOP_TO_OBJ(poolOOP);
+    poolOOP = OBJ_NAMESPACE_GET_SUPER_SPACE (pool);
   }
 }
 
@@ -1554,19 +1554,19 @@ OOP _gst_identity_dictionary_at(OOP identityDictionaryOOP, OOP keyOOP) {
 }
 
 OOP namespace_new(int size, const char *name, OOP superspaceOOP) {
-  gst_namespace ns;
+  gst_object ns;
   OOP namespaceOOP, classOOP;
 
   size = new_num_fields(size);
   classOOP =
       IS_NIL(superspaceOOP) ? _gst_root_namespace_class : _gst_namespace_class;
 
-  ns = (gst_namespace)instantiate_with(classOOP, size, &namespaceOOP);
+  ns = instantiate_with(classOOP, size, &namespaceOOP);
 
-  ns->tally = FROM_INT(0);
-  ns->superspace = superspaceOOP;
-  ns->subspaces = _gst_nil_oop;
-  ns->name = _gst_intern_string(name);
+  OBJ_NAMESPACE_SET_TALLY(ns, FROM_INT(0));
+  OBJ_NAMESPACE_SET_SUPER_SPACE(ns, superspaceOOP);
+  OBJ_NAMESPACE_SET_SUBSPACES(ns, _gst_nil_oop);
+  OBJ_NAMESPACE_SET_NAME(ns, _gst_intern_string(name));
 
   return (namespaceOOP);
 }
