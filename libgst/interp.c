@@ -109,7 +109,6 @@ typedef struct gst_context_part {
 #define FIXED_CTX_SIZE (sizeof(struct gst_context_part) / sizeof(PTR) - 1)
 #define CTX_SIZE(depth) (((depth) << DEPTH_SCALE) + FIXED_CTX_SIZE)
 
-
 /* Answer the quantum assigned to each Smalltalk process (in
    milliseconds) before it is preempted.  Setting this to zero
    disables preemption until gst_processor_scheduler>>#timeSlice: is
@@ -761,7 +760,7 @@ gst_object alloc_stack_context(int size) {
     newContext = (gst_object)cur_chunk_begin;
     cur_chunk_begin += size;
     if COMMON (cur_chunk_begin < cur_chunk_end) {
-      OBJ_SET_SIZE (newContext, FROM_INT(size));
+      OBJ_SET_SIZE(newContext, FROM_INT(size));
       return (newContext);
     }
 
@@ -1209,8 +1208,8 @@ void change_process_context(OOP newProcess) {
   switch_to_process = _gst_nil_oop;
 
   /* save old context information */
-  if (!IS_NIL (_gst_this_context_oop)) {
-    empty_context_stack ();
+  if (!IS_NIL(_gst_this_context_oop)) {
+    empty_context_stack();
   }
 
   /* printf("Switching to process %#O at priority %#O\n",
@@ -1281,7 +1280,7 @@ OOP get_scheduled_process(void) {
 }
 
 static void remove_process_from_list(OOP processOOP) {
-  gst_semaphore sem;
+  gst_object sem;
   gst_process process, lastProcess;
   OOP lastProcessOOP;
 
@@ -1291,15 +1290,15 @@ static void remove_process_from_list(OOP processOOP) {
   process = (gst_process)OOP_TO_OBJ(processOOP);
   if (!IS_NIL(process->myList)) {
     /* Disconnect the process from its list.  */
-    sem = (gst_semaphore)OOP_TO_OBJ(process->myList);
-    if (sem->firstLink == processOOP) {
-      sem->firstLink = process->nextLink;
-      if (sem->lastLink == processOOP)
+    sem = OOP_TO_OBJ(process->myList);
+    if (OBJ_SEMAPHORE_GET_FIRST_LINK(sem) == processOOP) {
+      OBJ_SEMAPHORE_SET_FIRST_LINK(sem, process->nextLink);
+      if (OBJ_SEMAPHORE_GET_LAST_LINK(sem) == processOOP)
         /* It was the only process in the list */
-        sem->lastLink = _gst_nil_oop;
+        OBJ_SEMAPHORE_SET_LAST_LINK(sem, _gst_nil_oop);
     } else {
       /* Find the new prev node */
-      lastProcessOOP = sem->firstLink;
+      lastProcessOOP = OBJ_SEMAPHORE_GET_FIRST_LINK(sem);
       lastProcess = (gst_process)OOP_TO_OBJ(lastProcessOOP);
       while (lastProcess->nextLink != processOOP) {
         lastProcessOOP = lastProcess->nextLink;
@@ -1307,8 +1306,8 @@ static void remove_process_from_list(OOP processOOP) {
       }
 
       lastProcess->nextLink = process->nextLink;
-      if (sem->lastLink == processOOP)
-        sem->lastLink = lastProcessOOP;
+      if (OBJ_SEMAPHORE_GET_LAST_LINK(sem) == processOOP)
+        OBJ_SEMAPHORE_SET_LAST_LINK(sem, lastProcessOOP);
     }
 
     process->myList = _gst_nil_oop;
@@ -1318,19 +1317,19 @@ static void remove_process_from_list(OOP processOOP) {
 }
 
 void add_first_link(OOP semaphoreOOP, OOP processOOP) {
-  gst_semaphore sem;
+  gst_object sem;
   gst_process process;
 
   process = (gst_process)OOP_TO_OBJ(processOOP);
   remove_process_from_list(processOOP);
 
-  sem = (gst_semaphore)OOP_TO_OBJ(semaphoreOOP);
+  sem = OOP_TO_OBJ(semaphoreOOP);
   process->myList = semaphoreOOP;
-  process->nextLink = sem->firstLink;
+  process->nextLink = OBJ_SEMAPHORE_GET_FIRST_LINK(sem);
 
-  sem->firstLink = processOOP;
-  if (IS_NIL(sem->lastLink))
-    sem->lastLink = processOOP;
+  OBJ_SEMAPHORE_SET_FIRST_LINK(sem, processOOP);
+  if (IS_NIL(OBJ_SEMAPHORE_GET_LAST_LINK(sem)))
+    OBJ_SEMAPHORE_SET_LAST_LINK(sem, processOOP);
 }
 
 void suspend_process(OOP processOOP) {
@@ -1348,32 +1347,33 @@ void _gst_terminate_process(OOP processOOP) {
 }
 
 void add_last_link(OOP semaphoreOOP, OOP processOOP) {
-  gst_semaphore sem;
+  gst_object sem;
   gst_process process, lastProcess;
   OOP lastProcessOOP;
 
   process = (gst_process)OOP_TO_OBJ(processOOP);
   remove_process_from_list(processOOP);
 
-  sem = (gst_semaphore)OOP_TO_OBJ(semaphoreOOP);
+  sem = OOP_TO_OBJ(semaphoreOOP);
   process->myList = semaphoreOOP;
   process->nextLink = _gst_nil_oop;
 
-  if (IS_NIL(sem->lastLink))
-    sem->firstLink = sem->lastLink = processOOP;
-  else {
-    lastProcessOOP = sem->lastLink;
+  if (IS_NIL(OBJ_SEMAPHORE_GET_LAST_LINK(sem))) {
+    OBJ_SEMAPHORE_SET_FIRST_LINK(sem, processOOP);
+    OBJ_SEMAPHORE_SET_LAST_LINK(sem, processOOP);
+  } else {
+    lastProcessOOP = OBJ_SEMAPHORE_GET_LAST_LINK(sem);
     lastProcess = (gst_process)OOP_TO_OBJ(lastProcessOOP);
     lastProcess->nextLink = processOOP;
-    sem->lastLink = processOOP;
+    OBJ_SEMAPHORE_SET_LAST_LINK(sem, processOOP);
   }
 }
 
 mst_Boolean is_empty(OOP processListOOP) {
-  gst_semaphore processList;
+  gst_object processList;
 
-  processList = (gst_semaphore)OOP_TO_OBJ(processListOOP);
-  return (IS_NIL(processList->firstLink));
+  processList = OOP_TO_OBJ(processListOOP);
+  return (IS_NIL(OBJ_SEMAPHORE_GET_FIRST_LINK(processList)));
 }
 
 /* TODO: this was taken from VMpr_Processor_yield.  Try to use
@@ -1390,18 +1390,19 @@ void active_process_yield(void) {
 }
 
 mst_Boolean _gst_sync_signal(OOP semaphoreOOP, mst_Boolean incr_if_empty) {
-  gst_semaphore sem;
+  gst_object sem;
   gst_process process;
   gst_object suspendedContext;
   OOP processOOP;
   int spOffset;
 
-  sem = (gst_semaphore)OOP_TO_OBJ(semaphoreOOP);
+  sem = OOP_TO_OBJ(semaphoreOOP);
   do {
     /* printf ("signal %O %O\n", semaphoreOOP, sem->firstLink); */
     if (is_empty(semaphoreOOP)) {
       if (incr_if_empty)
-        sem->signals = INCR_INT(sem->signals);
+        OBJ_SEMAPHORE_SET_SIGNALS(sem,
+                                  INCR_INT(OBJ_SEMAPHORE_GET_SIGNALS(sem)));
       return false;
     }
 
@@ -1527,17 +1528,17 @@ void _gst_async_signal_and_unregister(OOP semaphoreOOP) {
 }
 
 void sync_wait_process(OOP semaphoreOOP, OOP processOOP) {
-  gst_semaphore sem;
+  gst_object sem;
   mst_Boolean isActive;
 
-  sem = (gst_semaphore)OOP_TO_OBJ(semaphoreOOP);
+  sem = OOP_TO_OBJ(semaphoreOOP);
   if (IS_NIL(processOOP)) {
     processOOP = get_active_process();
     isActive = true;
   } else
     isActive = (processOOP == get_active_process());
 
-  if (TO_INT(sem->signals) <= 0) {
+  if (TO_INT(OBJ_SEMAPHORE_GET_SIGNALS(sem)) <= 0) {
     /* Have to suspend.  Prepare return value for #wait and move
        this process to the end of the list.
 
@@ -1551,7 +1552,7 @@ void sync_wait_process(OOP semaphoreOOP, OOP processOOP) {
       activate_process(_gst_prepare_execution_environment());
     }
   } else
-    sem->signals = DECR_INT(sem->signals);
+    OBJ_SEMAPHORE_SET_SIGNALS(sem, DECR_INT(OBJ_SEMAPHORE_GET_SIGNALS(sem)));
 
   /* printf ("wait %O %O\n", semaphoreOOP, sem->firstLink); */
 }
@@ -1561,18 +1562,18 @@ void _gst_sync_wait(OOP semaphoreOOP) {
 }
 
 OOP remove_first_link(OOP semaphoreOOP) {
-  gst_semaphore sem;
+  gst_object sem;
   gst_process process;
   OOP processOOP;
 
-  sem = (gst_semaphore)OOP_TO_OBJ(semaphoreOOP);
-  processOOP = sem->firstLink;
+  sem = OOP_TO_OBJ(semaphoreOOP);
+  processOOP = OBJ_SEMAPHORE_GET_FIRST_LINK(sem);
   process = (gst_process)OOP_TO_OBJ(processOOP);
 
-  sem = (gst_semaphore)OOP_TO_OBJ(semaphoreOOP);
-  sem->firstLink = process->nextLink;
-  if (IS_NIL(sem->firstLink))
-    sem->lastLink = _gst_nil_oop;
+  sem = OOP_TO_OBJ(semaphoreOOP);
+  OBJ_SEMAPHORE_SET_FIRST_LINK(sem, process->nextLink);
+  if (IS_NIL(OBJ_SEMAPHORE_GET_FIRST_LINK(sem)))
+    OBJ_SEMAPHORE_SET_LAST_LINK(sem, _gst_nil_oop);
 
   /* Unlink the process from any list it was in! */
   process->myList = _gst_nil_oop;
@@ -1710,7 +1711,7 @@ mst_Boolean would_reschedule_process() {
   int priority, activePriority;
   OOP processOOP;
   gst_process process;
-  gst_semaphore processList;
+  gst_object processList;
 
   if (!IS_NIL(switch_to_process))
     return false;
@@ -1725,20 +1726,21 @@ mst_Boolean would_reschedule_process() {
     processListOOP = ARRAY_AT(processLists, priority);
   } while (is_empty(processListOOP) && --priority >= activePriority);
 
-  processList = (gst_semaphore)OOP_TO_OBJ(processListOOP);
+  processList = OOP_TO_OBJ(processListOOP);
   return (priority < activePriority ||
           (priority == activePriority
            /* If the same priority, check if the list has the
               current process as the sole element.  */
-           && processList->firstLink == processList->lastLink &&
-           processList->firstLink == processOOP));
+           && OBJ_SEMAPHORE_GET_FIRST_LINK(processList) ==
+                  OBJ_SEMAPHORE_GET_LAST_LINK(processList) &&
+           OBJ_SEMAPHORE_GET_FIRST_LINK(processList) == processOOP));
 }
 
 OOP highest_priority_process(void) {
   OOP processLists, processListOOP;
   int priority;
   OOP processOOP;
-  gst_semaphore processList;
+  gst_object processList;
 
   processLists = GET_PROCESS_LISTS();
   priority = NUM_OOPS(OOP_TO_OBJ(processLists));
@@ -1752,8 +1754,9 @@ OOP highest_priority_process(void) {
 
         /* If there's only one element in the list, discard this
            priority.  */
-        processList = (gst_semaphore)OOP_TO_OBJ(processListOOP);
-        if (processList->firstLink == processList->lastLink)
+        processList = OOP_TO_OBJ(processListOOP);
+        if (OBJ_SEMAPHORE_GET_FIRST_LINK(processList) ==
+            OBJ_SEMAPHORE_GET_LAST_LINK(processList))
           continue;
 
         processOOP = remove_first_link(processListOOP);
@@ -1786,24 +1789,26 @@ OOP next_scheduled_process(void) {
 void _gst_check_process_state(void) {
   OOP processLists, processListOOP, processOOP;
   int priority, n;
-  gst_semaphore processList;
+  gst_object processList;
   gst_process process;
 
   processLists = GET_PROCESS_LISTS();
   priority = NUM_OOPS(OOP_TO_OBJ(processLists));
   for (n = 0; priority > 0; --priority) {
     processListOOP = ARRAY_AT(processLists, priority);
-    processList = (gst_semaphore)OOP_TO_OBJ(processListOOP);
+    processList = OOP_TO_OBJ(processListOOP);
 
-    if (IS_NIL(processList->firstLink) && IS_NIL(processList->lastLink))
+    if (IS_NIL(OBJ_SEMAPHORE_GET_FIRST_LINK(processList)) &&
+        IS_NIL(OBJ_SEMAPHORE_GET_LAST_LINK(processList)))
       continue;
 
     /* Sanity check the first and last link in the process list.  */
-    if (IS_NIL(processList->firstLink) || IS_NIL(processList->lastLink))
+    if (IS_NIL(OBJ_SEMAPHORE_GET_FIRST_LINK(processList)) ||
+        IS_NIL(OBJ_SEMAPHORE_GET_LAST_LINK(processList)))
       abort();
 
-    for (processOOP = processList->firstLink; !IS_NIL(processOOP);
-         processOOP = process->nextLink, n++) {
+    for (processOOP = OBJ_SEMAPHORE_GET_FIRST_LINK(processList);
+         !IS_NIL(processOOP); processOOP = process->nextLink, n++) {
       process = (gst_process)OOP_TO_OBJ(processOOP);
       if (process->myList != processListOOP)
         abort();
@@ -1816,7 +1821,8 @@ void _gst_check_process_state(void) {
 #endif
 
       /* Sanity check the last link in the process list.  */
-      if (IS_NIL(process->nextLink) && processOOP != processList->lastLink)
+      if (IS_NIL(process->nextLink) &&
+          processOOP != OBJ_SEMAPHORE_GET_LAST_LINK(processList))
         abort();
 
       /* Check (rather brutally) for loops in the process lists.  */
@@ -1830,7 +1836,7 @@ void _gst_check_process_state(void) {
 void _gst_print_process_state(void) {
   OOP processLists, processListOOP, processOOP;
   int priority;
-  gst_semaphore processList;
+  gst_object processList;
   gst_process process;
 
   processLists = GET_PROCESS_LISTS();
@@ -1847,16 +1853,17 @@ void _gst_print_process_state(void) {
 
   for (; priority > 0; priority--) {
     processListOOP = ARRAY_AT(processLists, priority);
-    processList = (gst_semaphore)OOP_TO_OBJ(processListOOP);
+    processList = OOP_TO_OBJ(processListOOP);
 
-    if (IS_NIL(processList->firstLink))
+    if (IS_NIL(OBJ_SEMAPHORE_GET_FIRST_LINK(processList)))
       continue;
 
-    printf("  Priority %d: First %p last %p ", priority, processList->firstLink,
-           processList->lastLink);
+    printf("  Priority %d: First %p last %p ", priority,
+           OBJ_SEMAPHORE_GET_FIRST_LINK(processList),
+           OBJ_SEMAPHORE_GET_LAST_LINK(processList));
 
-    for (processOOP = processList->firstLink; !IS_NIL(processOOP);
-         processOOP = process->nextLink) {
+    for (processOOP = OBJ_SEMAPHORE_GET_FIRST_LINK(processList);
+         !IS_NIL(processOOP); processOOP = process->nextLink) {
       process = (gst_process)OOP_TO_OBJ(processOOP);
       printf("\n    <Proc %p prio: %td context %p> ", processOOP,
              TO_INT(process->priority), process->suspendedContext);
@@ -1867,11 +1874,11 @@ void _gst_print_process_state(void) {
 }
 
 OOP semaphore_new(int signals) {
-  gst_semaphore sem;
+  gst_object sem;
   OOP semaphoreOOP;
 
-  sem = (gst_semaphore)instantiate(_gst_semaphore_class, &semaphoreOOP);
-  sem->signals = FROM_INT(signals);
+  sem = instantiate(_gst_semaphore_class, &semaphoreOOP);
+  OBJ_SEMAPHORE_SET_SIGNALS(sem, FROM_INT(signals));
 
   return (semaphoreOOP);
 }

@@ -75,4 +75,31 @@
     (obj)->data[6] = (valueOOP);                                               \
   } while (0)
 
+#define OBJ_CONTINUATION_GET_STACK(obj) ((obj)->data[0])
+
+#define OBJ_CONTINUATION_SET_STACK(obj, valueOOP)                              \
+  do {                                                                         \
+    (obj)->data[0] = (valueOOP);                                               \
+  } while (0)
+
+#define OBJ_SEMAPHORE_GET_FIRST_LINK(obj) ((obj))->data[0]
+#define OBJ_SEMAPHORE_SET_FIRST_LINK(obj, valueOOP)                            \
+  do {                                                                         \
+    ((obj))->data[0] = (valueOOP);                                             \
+  } while (0)
+
+#define OBJ_SEMAPHORE_GET_LAST_LINK(obj) ((obj))->data[1]
+#define OBJ_SEMAPHORE_SET_LAST_LINK(obj, valueOOP)                             \
+  do {                                                                         \
+    ((obj))->data[1] = (valueOOP);                                             \
+  } while (0)
+
+#define OBJ_SEMAPHORE_GET_SIGNALS(obj) ((obj))->data[2]
+#define OBJ_SEMAPHORE_SET_SIGNALS(obj, valueOOP)                               \
+  do {                                                                         \
+    ((obj))->data[2] = (valueOOP);                                             \
+  } while (0)
+
+#define OBJ_SEMAPHORE_GET_NAME(obj) ((obj))->data[3]
+
 #endif /* GST_OBJECT_POINTER_H */
