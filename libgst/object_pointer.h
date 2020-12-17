@@ -102,4 +102,8 @@
 
 #define OBJ_SEMAPHORE_GET_NAME(obj) ((obj))->data[3]
 
+#define OBJ_DICTIONARY_GET_TALLY(obj) ((obj))->data[0]
+#define OBJ_DICTIONARY_SET_TALLY(obj, valueOOP) do { ((obj))->data[0] = (valueOOP); } while(0)
+
+
 #endif /* GST_OBJECT_POINTER_H */

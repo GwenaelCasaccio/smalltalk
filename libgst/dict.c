@@ -1572,14 +1572,14 @@ OOP namespace_new(int size, const char *name, OOP superspaceOOP) {
 }
 
 OOP _gst_dictionary_new(int size) {
-  gst_dictionary dictionary;
+  gst_object dictionary;
   OOP dictionaryOOP;
 
   size = new_num_fields(size);
-  dictionary = (gst_dictionary)instantiate_with(_gst_dictionary_class, size,
+  dictionary = instantiate_with(_gst_dictionary_class, size,
                                                 &dictionaryOOP);
 
-  dictionary->tally = FROM_INT(0);
+  OBJ_DICTIONARY_SET_TALLY(dictionary, FROM_INT(0));
 
   return (dictionaryOOP);
 }
@@ -1602,7 +1602,7 @@ OOP _gst_dictionary_add(OOP dictionaryOOP, OOP associationOOP) {
   intptr_t index;
   gst_association association;
   gst_object dictionary;
-  gst_dictionary dict;
+  gst_object dict;
   OOP value;
   inc_ptr incPtr; /* I'm not sure clients are protecting
                      association OOP */
@@ -1612,16 +1612,16 @@ OOP _gst_dictionary_add(OOP dictionaryOOP, OOP associationOOP) {
 
   association = (gst_association)OOP_TO_OBJ(associationOOP);
   dictionary = OOP_TO_OBJ(dictionaryOOP);
-  dict = (gst_dictionary)dictionary;
-  if UNCOMMON (TO_INT(dict->tally) >= TO_INT(OBJ_SIZE (dict)) * 3 / 4) {
+  dict = dictionary;
+  if UNCOMMON (TO_INT(OBJ_DICTIONARY_GET_TALLY(dict)) >= TO_INT(OBJ_SIZE (dict)) * 3 / 4) {
     dictionary = grow_dictionary(dictionaryOOP);
-    dict = (gst_dictionary)dictionary;
+    dict = dictionary;
   }
 
   index = find_key_or_nil(dictionaryOOP, association->key);
   index += OOP_FIXED_FIELDS(dictionaryOOP);
   if COMMON (IS_NIL(dictionary->data[index])) {
-    dict->tally = INCR_INT(dict->tally);
+    OBJ_DICTIONARY_SET_TALLY (dict, INCR_INT(OBJ_DICTIONARY_GET_TALLY(dict)));
     dictionary->data[index] = associationOOP;
   } else {
     value = ASSOCIATION_VALUE(associationOOP);

@@ -80,14 +80,6 @@ typedef struct gst_file_stream {
   OOP writeEnd;
 } * gst_file_stream;
 
-typedef struct gst_dictionary {
-  OBJ_HEADER;
-  OOP tally; /* really, an int */
-
-  /* Other, indexable fields that are the associations for this
-     dictionary.  */
-} * gst_dictionary;
-
 typedef struct gst_binding_dictionary {
   OBJ_HEADER;
   OOP tally; /* really, an int */
