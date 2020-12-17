@@ -103,34 +103,64 @@
 #define OBJ_SEMAPHORE_GET_NAME(obj) ((obj))->data[3]
 
 #define OBJ_DICTIONARY_GET_TALLY(obj) ((obj))->data[0]
-#define OBJ_DICTIONARY_SET_TALLY(obj, valueOOP) do { ((obj))->data[0] = (valueOOP); } while(0)
+#define OBJ_DICTIONARY_SET_TALLY(obj, valueOOP)                                \
+  do {                                                                         \
+    ((obj))->data[0] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_BINDING_DICTIONARY_GET_TALLY(obj) ((obj))->data[0]
-#define OBJ_BINDING_DICTIONARY_SET_TALLY(obj, valueOOP) do { ((obj))->data[0] = (valueOOP); } while(0)
+#define OBJ_BINDING_DICTIONARY_SET_TALLY(obj, valueOOP)                        \
+  do {                                                                         \
+    ((obj))->data[0] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_BINDING_DICTIONARY_GET_ENVIRONMENT(obj) ((obj))->data[1]
-#define OBJ_BINDING_DICTIONARY_SET_ENVIRONMENT(obj, valueOOP) do { ((obj))->data[1] = (valueOOP); } while(0)
+#define OBJ_BINDING_DICTIONARY_SET_ENVIRONMENT(obj, valueOOP)                  \
+  do {                                                                         \
+    ((obj))->data[1] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_BINDING_DICTIONARY_AT_ASSOC(obj, index) ((obj))->data[2 + (index)]
-#define OBJ_BINDING_DICTIONARY_AT_PUT_ASSOC(obj, index, valueOOP) do { ((obj))->data[2 + (index)] = (valueOOP); } while(0)
+#define OBJ_BINDING_DICTIONARY_AT_PUT_ASSOC(obj, index, valueOOP)              \
+  do {                                                                         \
+    ((obj))->data[2 + (index)] = (valueOOP);                                   \
+  } while (0)
 
 #define OBJ_NAMESPACE_GET_TALLY(obj) ((obj))->data[0]
-#define OBJ_NAMESPACE_SET_TALLY(obj, valueOOP) do { ((obj))->data[0] = (valueOOP); } while (0)
+#define OBJ_NAMESPACE_SET_TALLY(obj, valueOOP)                                 \
+  do {                                                                         \
+    ((obj))->data[0] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_NAMESPACE_GET_SUPER_SPACE(obj) ((obj))->data[1]
-#define OBJ_NAMESPACE_SET_SUPER_SPACE(obj, valueOOP) do { ((obj))->data[1] = (valueOOP); } while (0)
+#define OBJ_NAMESPACE_SET_SUPER_SPACE(obj, valueOOP)                           \
+  do {                                                                         \
+    ((obj))->data[1] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_NAMESPACE_GET_NAME(obj) ((obj))->data[2]
-#define OBJ_NAMESPACE_SET_NAME(obj, valueOOP) do { ((obj))->data[2] = (valueOOP); } while (0)
+#define OBJ_NAMESPACE_SET_NAME(obj, valueOOP)                                  \
+  do {                                                                         \
+    ((obj))->data[2] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_NAMESPACE_GET_SUBSPACES(obj) ((obj))->data[3]
-#define OBJ_NAMESPACE_SET_SUBSPACES(obj, valueOOP) do { ((obj))->data[3] = (valueOOP); } while (0)
+#define OBJ_NAMESPACE_SET_SUBSPACES(obj, valueOOP)                             \
+  do {                                                                         \
+    ((obj))->data[3] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_NAMESPACE_GET_SHARED_POOLS(obj) ((obj))->data[4]
-#define OBJ_NAMESPACE_SET_SHARED_POOLS(obj, valueOOP) do { ((obj))->data[4] = (valueOOP); } while (0)
+#define OBJ_NAMESPACE_SET_SHARED_POOLS(obj, valueOOP)                          \
+  do {                                                                         \
+    ((obj))->data[4] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_NAMESPACE_ASSOC(obj) &((obj))->data[5]
 #define OBJ_NAMESPACE_AT_ASSOC(obj, index) ((obj))->data[5 + (index)]
-#define OBJ_NAMESPACE_AT_PUT_ASSOC(obj, index, valueOOP) do { ((obj))->data[5 + (index)] = (valueOOP); } while(0)
+#define OBJ_NAMESPACE_AT_PUT_ASSOC(obj, index, valueOOP)                       \
+  do {                                                                         \
+    ((obj))->data[5 + (index)] = (valueOOP);                                   \
+  } while (0)
 
 #endif /* GST_OBJECT_POINTER_H */
