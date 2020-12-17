@@ -138,20 +138,6 @@ typedef struct gst_block_context {
   OOP contextStack[1];
 } * gst_block_context;
 
-typedef struct gst_continuation {
-  OBJ_HEADER;
-  OOP stack;
-} * gst_continuation;
-
-/* The structure of various objects related to the process system.  */
-typedef struct gst_semaphore {
-  OBJ_HEADER;
-  OOP firstLink;
-  OOP lastLink;
-  OOP signals;
-  OOP name;
-} * gst_semaphore;
-
 #define PROCESS_HEADER                                                         \
   OBJ_HEADER;                                                                  \
   OOP nextLink;                                                                \

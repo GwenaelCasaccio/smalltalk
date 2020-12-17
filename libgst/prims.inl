@@ -2360,10 +2360,10 @@ static intptr_t VMpr_Continuation_resume(int id, volatile int numArgs) {
   oop2 = POP_OOP();
   oop1 = STACKTOP();
   if COMMON (RECEIVER_IS_A_KIND_OF(OOP_CLASS(oop1), _gst_continuation_class)) {
-    gst_continuation cc = (gst_continuation)OOP_TO_OBJ(oop1);
-    if (COMMON(!IS_NIL(cc->stack))) {
-      resume_suspended_context(cc->stack);
-      cc->stack = oop3;
+    gst_object cc = OOP_TO_OBJ(oop1);
+    if (COMMON(!IS_NIL(OBJ_CONTINUATION_GET_STACK(cc)))) {
+      resume_suspended_context(OBJ_CONTINUATION_GET_STACK(cc));
+      OBJ_CONTINUATION_SET_STACK(cc, oop3);
       SET_STACKTOP(oop2);
       PRIM_SUCCEEDED_RELOAD_IP;
     }
@@ -2556,13 +2556,13 @@ static intptr_t VMpr_Semaphore_signalNotify(int id, volatile int numArgs) {
 /* Semaphore wait lock */
 static intptr_t VMpr_Semaphore_lock(int id, volatile int numArgs) {
   OOP oop1;
-  gst_semaphore sem;
+  gst_object sem;
   _gst_primitives_executed++;
 
   oop1 = STACKTOP();
-  sem = (gst_semaphore)OOP_TO_OBJ(oop1);
-  SET_STACKTOP_BOOLEAN(TO_INT(sem->signals) > 0);
-  sem->signals = FROM_INT(0);
+  sem = OOP_TO_OBJ(oop1);
+  SET_STACKTOP_BOOLEAN(TO_INT(OBJ_SEMAPHORE_GET_SIGNALS(sem)) > 0);
+  OBJ_SEMAPHORE_SET_SIGNALS(sem, FROM_INT(0));
   PRIM_SUCCEEDED;
 }
 
@@ -2660,7 +2660,7 @@ static intptr_t VMpr_Processor_dispatchEvents(int id, volatile int numArgs) {
   incPtr = INC_SAVE_POINTER();
   _gst_primitives_executed++;
   processor = (gst_processor_scheduler)OOP_TO_OBJ(oop1);
-  if (TO_INT(OBJ_SIZE (processor)) >
+  if (TO_INT(OBJ_SIZE(processor)) >
       offsetof(struct gst_processor_scheduler, eventSemaphore) / sizeof(OOP)) {
     processor = (gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop);
     semaphoreOOP = processor->eventSemaphore;
