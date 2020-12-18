@@ -1936,17 +1936,17 @@ bc33:
 #define tos _extra1
 #line 687 "vm.def"
         OOP contextOOP;
-        gst_block_context context;
+        gst_object context;
       
-        context = (gst_block_context) OOP_TO_OBJ (_gst_this_context_oop);
+        context = OOP_TO_OBJ (_gst_this_context_oop);
         do
           {
-            contextOOP = context->outerContext;
-            context = (gst_block_context) OOP_TO_OBJ (contextOOP);
+            contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
+            context = OOP_TO_OBJ (contextOOP);
           }
         while (--scopes);
       
-        tos = context->contextStack[n];
+        tos = OBJ_BLOCK_CONTEXT_AT_STACK(context, n);
       
 #line 1952 "vm.inl"
 #undef tos
@@ -2079,17 +2079,17 @@ bc37:
 #define tos _stack0
 #line 726 "vm.def"
         OOP contextOOP;
-        gst_block_context context;
+        gst_object context;
       
-        context = (gst_block_context) OOP_TO_OBJ (_gst_this_context_oop);
+        context = OOP_TO_OBJ (_gst_this_context_oop);
         do
           {
-            contextOOP = context->outerContext;
-            context = (gst_block_context) OOP_TO_OBJ (contextOOP);
+            contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
+            context = OOP_TO_OBJ (contextOOP);
           }
         while (--scopes);
       
-        context->contextStack[n] = tos;
+        OBJ_BLOCK_CONTEXT_AT_PUT_STACK(context, n, tos);
       
 #line 2095 "vm.inl"
 #undef tos
@@ -3466,17 +3466,17 @@ bc77:
 #define tos _extra1
 #line 687 "vm.def"
         OOP contextOOP;
-        gst_block_context context;
+        gst_object context;
       
-        context = (gst_block_context) OOP_TO_OBJ (_gst_this_context_oop);
+        context = OOP_TO_OBJ (_gst_this_context_oop);
         do
           {
-            contextOOP = context->outerContext;
-            context = (gst_block_context) OOP_TO_OBJ (contextOOP);
+            contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
+            context = OOP_TO_OBJ (contextOOP);
           }
         while (--scopes);
       
-        tos = context->contextStack[n];
+        tos = OBJ_BLOCK_CONTEXT_AT_STACK(context, n);
       
 #line 3482 "vm.inl"
 #undef tos
@@ -5745,17 +5745,17 @@ bc121:
 #define tos _stack0
 #line 726 "vm.def"
         OOP contextOOP;
-        gst_block_context context;
+        gst_object context;
       
-        context = (gst_block_context) OOP_TO_OBJ (_gst_this_context_oop);
+        context = OOP_TO_OBJ (_gst_this_context_oop);
         do
           {
-            contextOOP = context->outerContext;
-            context = (gst_block_context) OOP_TO_OBJ (contextOOP);
+            contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
+            context = OOP_TO_OBJ (contextOOP);
           }
         while (--scopes);
       
-        context->contextStack[n] = tos;
+        OBJ_BLOCK_CONTEXT_AT_PUT_STACK(context, n, tos);
       
 #line 5761 "vm.inl"
 #undef tos
@@ -6681,17 +6681,17 @@ bc139:
 #define tos _extra1
 #line 687 "vm.def"
         OOP contextOOP;
-        gst_block_context context;
+        gst_object context;
       
-        context = (gst_block_context) OOP_TO_OBJ (_gst_this_context_oop);
+        context = OOP_TO_OBJ (_gst_this_context_oop);
         do
           {
-            contextOOP = context->outerContext;
-            context = (gst_block_context) OOP_TO_OBJ (contextOOP);
+            contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
+            context = OOP_TO_OBJ (contextOOP);
           }
         while (--scopes);
       
-        tos = context->contextStack[n];
+        tos = OBJ_BLOCK_CONTEXT_AT_STACK(context, n);
       
 #line 6697 "vm.inl"
 #undef tos
@@ -7430,17 +7430,17 @@ bc152:
 #define tos _extra1
 #line 687 "vm.def"
         OOP contextOOP;
-        gst_block_context context;
+        gst_object context;
       
-        context = (gst_block_context) OOP_TO_OBJ (_gst_this_context_oop);
+        context = OOP_TO_OBJ (_gst_this_context_oop);
         do
           {
-            contextOOP = context->outerContext;
-            context = (gst_block_context) OOP_TO_OBJ (contextOOP);
+            contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
+            context = OOP_TO_OBJ (contextOOP);
           }
         while (--scopes);
       
-        tos = context->contextStack[n];
+        tos = OBJ_BLOCK_CONTEXT_AT_STACK(context, n);
       
 #line 7446 "vm.inl"
 #undef tos
@@ -9007,17 +9007,17 @@ bc181:
 #define tos _extra1
 #line 687 "vm.def"
         OOP contextOOP;
-        gst_block_context context;
+        gst_object context;
       
-        context = (gst_block_context) OOP_TO_OBJ (_gst_this_context_oop);
+        context = OOP_TO_OBJ (_gst_this_context_oop);
         do
           {
-            contextOOP = context->outerContext;
-            context = (gst_block_context) OOP_TO_OBJ (contextOOP);
+            contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
+            context = OOP_TO_OBJ (contextOOP);
           }
         while (--scopes);
       
-        tos = context->contextStack[n];
+        tos = OBJ_BLOCK_CONTEXT_AT_STACK(context, n);
       
 #line 9023 "vm.inl"
 #undef tos
@@ -9701,17 +9701,17 @@ bc194:
 #define tos _extra1
 #line 687 "vm.def"
         OOP contextOOP;
-        gst_block_context context;
+        gst_object context;
       
-        context = (gst_block_context) OOP_TO_OBJ (_gst_this_context_oop);
+        context = OOP_TO_OBJ (_gst_this_context_oop);
         do
           {
-            contextOOP = context->outerContext;
-            context = (gst_block_context) OOP_TO_OBJ (contextOOP);
+            contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
+            context = OOP_TO_OBJ (contextOOP);
           }
         while (--scopes);
       
-        tos = context->contextStack[n];
+        tos = OBJ_BLOCK_CONTEXT_AT_STACK(context, n);
       
 #line 9717 "vm.inl"
 #undef tos
@@ -9822,17 +9822,17 @@ bc196:
 #define tos _extra1
 #line 687 "vm.def"
         OOP contextOOP;
-        gst_block_context context;
+        gst_object context;
       
-        context = (gst_block_context) OOP_TO_OBJ (_gst_this_context_oop);
+        context = OOP_TO_OBJ (_gst_this_context_oop);
         do
           {
-            contextOOP = context->outerContext;
-            context = (gst_block_context) OOP_TO_OBJ (contextOOP);
+            contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
+            context = OOP_TO_OBJ (contextOOP);
           }
         while (--scopes);
       
-        tos = context->contextStack[n];
+        tos = OBJ_BLOCK_CONTEXT_AT_STACK(context, n);
       
 #line 9838 "vm.inl"
 #undef tos
@@ -10836,17 +10836,17 @@ bc214:
 #define tos _stack0
 #line 726 "vm.def"
         OOP contextOOP;
-        gst_block_context context;
+        gst_object context;
       
-        context = (gst_block_context) OOP_TO_OBJ (_gst_this_context_oop);
+        context = OOP_TO_OBJ (_gst_this_context_oop);
         do
           {
-            contextOOP = context->outerContext;
-            context = (gst_block_context) OOP_TO_OBJ (contextOOP);
+            contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
+            context = OOP_TO_OBJ (contextOOP);
           }
         while (--scopes);
       
-        context->contextStack[n] = tos;
+        OBJ_BLOCK_CONTEXT_AT_PUT_STACK(context, n, tos);
       
 #line 10852 "vm.inl"
 #undef tos
@@ -13227,17 +13227,17 @@ bc255:
 #define tos _extra1
 #line 687 "vm.def"
         OOP contextOOP;
-        gst_block_context context;
+        gst_object context;
       
-        context = (gst_block_context) OOP_TO_OBJ (_gst_this_context_oop);
+        context = OOP_TO_OBJ (_gst_this_context_oop);
         do
           {
-            contextOOP = context->outerContext;
-            context = (gst_block_context) OOP_TO_OBJ (contextOOP);
+            contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
+            context = OOP_TO_OBJ (contextOOP);
           }
         while (--scopes);
       
-        tos = context->contextStack[n];
+        tos = OBJ_BLOCK_CONTEXT_AT_STACK(context, n);
       
 #line 13243 "vm.inl"
 #undef tos

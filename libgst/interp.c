@@ -1009,7 +1009,7 @@ mst_Boolean unwind_method(void) {
 
   newBlockContext = OOP_TO_OBJ(_gst_this_context_oop);
   do {
-    newContextOOP = OBJ_BLOCK_CONTEXT_OUTER_CONTEXT(newBlockContext);
+    newContextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(newBlockContext);
     newBlockContext = OOP_TO_OBJ(newContextOOP);
   } while UNCOMMON(!((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(newBlockContext) &
                      MCF_IS_METHOD_CONTEXT));

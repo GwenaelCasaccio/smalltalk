@@ -68,12 +68,52 @@
     (obj)->data[7 + (idx)] = (valueOOP);                                       \
   } while (0)
 
-#define OBJ_BLOCK_CONTEXT_OUTER_CONTEXT(obj) ((obj)->data[6])
+/* BLOCK CONTEXT */
 
-#define OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(obj)                               \
+#define OBJ_BLOCK_CONTEXT_PARENT_CONTEXT(obj) ((obj)->data[0])
+#define OBJ_BLOCK_CONTEXT_SET_PARENT_CONTEXT(obj, valueOOP)                   \
+  do {                                                                         \
+    (obj)->data[0] = (valueOOP);                                               \
+  } while (0)
+
+#define OBJ_BLOCK_CONTEXT_NATIVE_IP(obj) ((obj)->data[1])
+#define OBJ_BLOCK_CONTEXT_SET_NATIVE_IP(obj, valueOOP)                        \
+  do {                                                                         \
+    (obj)->data[1] = (valueOOP);                                               \
+  } while (0)
+
+#define OBJ_BLOCK_CONTEXT_IP_OFFSET(obj) ((obj)->data[2])
+#define OBJ_BLOCK_CONTEXT_SET_IP_OFFSET(obj, valueOOP)                        \
+  do {                                                                         \
+    (obj)->data[2] = (valueOOP);                                               \
+  } while (0)
+
+#define OBJ_BLOCK_CONTEXT_SP_OFFSET(obj) ((obj)->data[3])
+#define OBJ_BLOK_CONTEXT_SET_SP_OFFSET(obj, valueOOP)                        \
+  do {                                                                         \
+    (obj)->data[3] = (valueOOP);                                               \
+  } while (0)
+
+#define OBJ_BLOCK_CONTEXT_RECEIVER(obj) ((obj)->data[4])
+#define OBJ_BLOCK_CONTEXT_SET_RECEIVER(obj, valueOOP)                         \
+  do {                                                                         \
+    (obj)->data[4] = (valueOOP);                                               \
+  } while (0)
+
+#define OBJ_BLOCK_CONTEXT_METHOD(obj) ((obj)->data[5])
+#define OBJ_BLOCK_CONTEXT_SET_METHOD(obj, valueOOP)                           \
+  do {                                                                         \
+    (obj)->data[5] = (valueOOP);                                               \
+  } while (0)
+
+#define OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(obj) ((obj)->data[6])
+#define OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(obj, valueOOP)                               \
   do {                                                                         \
     (obj)->data[6] = (valueOOP);                                               \
   } while (0)
+
+#define OBJ_BLOCK_CONTEXT_AT_STACK(obj, index) ((obj)->data[7 + (index)])
+#define OBJ_BLOCK_CONTEXT_AT_PUT_STACK(obj, index, valueOOP) do { (obj)->data[7 + (index)] = (valueOOP); } while(0)
 
 #define OBJ_CONTINUATION_GET_STACK(obj) ((obj)->data[0])
 

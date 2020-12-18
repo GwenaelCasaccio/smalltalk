@@ -405,7 +405,7 @@ send_block_value (int numArgs, int cull_up_to)
 {
   OOP closureOOP;
   block_header header;
-  REGISTER (1, gst_block_context blockContext);
+  REGISTER (1, gst_object blockContext);
   REGISTER (2, gst_block_closure closure);
 
   closureOOP = STACK_AT (numArgs);
@@ -424,10 +424,9 @@ send_block_value (int numArgs, int cull_up_to)
 
   /* prepare the new state, loading data from the closure */
   /* gc might happen - so reload everything.  */
-  blockContext =
-    (gst_block_context) activate_new_context (header.depth, numArgs);
+  blockContext = activate_new_context (header.depth, numArgs);
   closure = (gst_block_closure) OOP_TO_OBJ (closureOOP);
-  blockContext->outerContext = closure->outerContext;
+  OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(blockContext, closure->outerContext);
   /* push args and temps */
   prepare_context ((gst_context_part) blockContext, numArgs, header.numTemps);
   _gst_self = closure->receiver;
