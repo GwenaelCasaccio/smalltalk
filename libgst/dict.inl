@@ -756,15 +756,15 @@ OOP association_new(OOP key, OOP value) {
 }
 
 OOP variable_binding_new(OOP key, OOP value, OOP environment) {
-  gst_variable_binding binding;
+  gst_object binding;
   OOP bindingOOP;
 
-  binding = (gst_variable_binding)new_instance(_gst_variable_binding_class,
+  binding = new_instance(_gst_variable_binding_class,
                                                &bindingOOP);
 
-  binding->key = key;
-  binding->value = value;
-  binding->environment = environment;
+  OBJ_VARIABLE_BINDING_SET_KEY(binding, key);
+  OBJ_VARIABLE_BINDING_SET_VALUE(binding, value);
+  OBJ_VARIABLE_BINDING_SET_ENVIRONMENT(binding, environment);
 
   return (bindingOOP);
 }
