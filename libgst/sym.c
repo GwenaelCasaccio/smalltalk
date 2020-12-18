@@ -815,7 +815,7 @@ tree_node _gst_find_variable_binding(tree_node list) {
   assocOOP = find_class_variable(symbol);
 
   for (elt = list; assocOOP != _gst_nil_oop && (elt = elt->v_list.next);) {
-    root = ASSOCIATION_VALUE(assocOOP);
+    root = OBJ_ASSOCIATION_GET_VALUE(OOP_TO_OBJ(assocOOP));
     symbol = _gst_intern_string(elt->v_list.name);
     assocOOP = _gst_namespace_association_at(root, symbol);
   }

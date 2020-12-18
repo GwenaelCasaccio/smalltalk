@@ -206,4 +206,12 @@
     ((obj))->data[5 + (index)] = (valueOOP);                                   \
   } while (0)
 
+/* ASSOCIATION */
+
+#define OBJ_ASSOCIATION_GET_KEY(obj) ((obj))->data[0]
+#define OBJ_ASSOCIATION_SET_KEY(obj, valueOOP) do { ((obj))->data[0] = (valueOOP); } while(0)
+
+#define OBJ_ASSOCIATION_GET_VALUE(obj) ((obj))->data[1]
+#define OBJ_ASSOCIATION_SET_VALUE(obj, valueOOP) do { ((obj))->data[1] = (valueOOP); } while(0)
+
 #endif /* GST_OBJECT_POINTER_H */

@@ -377,15 +377,6 @@ static inline uint64_t to_c_uint_64(OOP oop);
 #define METACLASS_INSTANCE(metaclassOOP)                                       \
   (((gst_metaclass)OOP_TO_OBJ(metaclassOOP))->instanceClass)
 
-/* Answer the value stored in the Association, ASSOCIATIONOOP.  */
-#define ASSOCIATION_VALUE(associationOOP)                                      \
-  (((gst_association)OOP_TO_OBJ(associationOOP))->value)
-
-/* Change the value stored in the Association, ASSOCIATIONOOP, to
-   VALUEOOP.  */
-#define SET_ASSOCIATION_VALUE(associationOOP, valueOOP)                        \
-  (((gst_association)OOP_TO_OBJ(associationOOP))->value = valueOOP)
-
 /* Return  the namespace in which references to globals
    from methods of CLASS_OOP are resolved.  */
 #define CLASS_ENVIRONMENT(class_oop)                                           \
@@ -710,7 +701,7 @@ OOP dictionary_association_at(OOP dictionaryOOP, OOP keyOOP) {
   gst_object dictionary;
   size_t index, count, numFields, numFixedFields;
   OOP associationOOP;
-  gst_association association;
+  gst_object association;
 
   if UNCOMMON (IS_NIL(dictionaryOOP))
     return (_gst_nil_oop);
@@ -727,9 +718,9 @@ OOP dictionary_association_at(OOP dictionaryOOP, OOP keyOOP) {
     if COMMON (IS_NIL(associationOOP))
       return (_gst_nil_oop);
 
-    association = (gst_association)OOP_TO_OBJ(associationOOP);
+    association = OOP_TO_OBJ(associationOOP);
 
-    if COMMON (association->key == keyOOP)
+    if COMMON (OBJ_ASSOCIATION_GET_KEY(association) == keyOOP)
       return (associationOOP);
 
     /* linear reprobe -- it is simple and guaranteed */
@@ -748,18 +739,18 @@ OOP dictionary_at(OOP dictionaryOOP, OOP keyOOP) {
   if UNCOMMON (IS_NIL(assocOOP))
     return (_gst_nil_oop);
   else
-    return (ASSOCIATION_VALUE(assocOOP));
+    return (OBJ_ASSOCIATION_GET_VALUE(OOP_TO_OBJ(assocOOP)));
 }
 
 OOP association_new(OOP key, OOP value) {
-  gst_association association;
+  gst_object association;
   OOP associationOOP;
 
   association =
-      (gst_association)new_instance(_gst_association_class, &associationOOP);
+      new_instance(_gst_association_class, &associationOOP);
 
-  association->key = key;
-  association->value = value;
+  OBJ_ASSOCIATION_SET_KEY(association, key);
+  OBJ_ASSOCIATION_SET_VALUE(association, value);
 
   return (associationOOP);
 }
