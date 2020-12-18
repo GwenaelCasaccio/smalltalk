@@ -124,20 +124,6 @@ typedef struct method_cache_entry {
    time of the call-in, and is the parent of the called-in method).  */
 #define MCF_IS_EXECUTION_ENVIRONMENT 8
 
-typedef struct gst_block_context {
-  OBJ_HEADER;
-  OOP parentContext;
-  OOP native_ip;    /* used by JIT */
-  OOP ipOffset;     /* an integer byte index into method */
-  OOP spOffset;     /* an integer index into cur context
-                       stack */
-  OOP receiver;     /* the receiver OOP */
-  OOP method;       /* the method that we're executing */
-  OOP outerContext; /* the parent gst_block_context or
-                       gst_method_context */
-  OOP contextStack[1];
-} * gst_block_context;
-
 #define PROCESS_HEADER                                                         \
   OBJ_HEADER;                                                                  \
   OOP nextLink;                                                                \
