@@ -1235,8 +1235,8 @@ typedef struct partially_constructed_array {
 
 #define LIT_VARIABLE_CLASS(n) \
   /* Special case classes because of super and {...} */ \
-  (IS_A_CLASS (ASSOCIATION_VALUE (literals[(n)])) \
-   ? OOP_CLASS (ASSOCIATION_VALUE (literals[(n)])) \
+  (IS_A_CLASS (OBJ_ASSOCIATION_GET_VALUE (OOP_TO_OBJ(literals[(n)]))) \
+   ? OOP_CLASS (OBJ_ASSOCIATION_GET_VALUE (OOP_TO_OBJ(literals[(n)]))) \
    : FROM_INT (VARYING))
 
 #define LITERAL_CLASS(n) \

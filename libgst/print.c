@@ -108,7 +108,7 @@ int print_string_to_stream(FILE *stream, OOP string) {
 }
 
 int print_association_key_to_stream(FILE *stream, OOP associationOOP) {
-  gst_association association;
+  gst_object association;
 
   if (!IS_OOP(associationOOP) ||
       !is_a_kind_of(OOP_CLASS(associationOOP), _gst_lookup_key_class)) {
@@ -116,11 +116,11 @@ int print_association_key_to_stream(FILE *stream, OOP associationOOP) {
                    associationOOP);
   }
 
-  association = (gst_association)OOP_TO_OBJ(associationOOP);
-  if (OOP_CLASS(association->key) != _gst_symbol_class)
+  association = OOP_TO_OBJ(associationOOP);
+  if (OOP_CLASS(OBJ_ASSOCIATION_GET_KEY(association)) != _gst_symbol_class)
     return fprintf(stream, "<unprintable key type>");
   else
-    return fprintf(stream, "%#O", association->key);
+    return fprintf(stream, "%#O", OBJ_ASSOCIATION_GET_KEY(association));
 }
 
 int print_class_name_to_stream(FILE *stream, OOP class_oop) {

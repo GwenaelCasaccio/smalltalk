@@ -157,19 +157,6 @@ typedef struct gst_deferred_variable_binding {
   OOP path;
 } * gst_deferred_variable_binding;
 
-typedef struct gst_association {
-  OBJ_HEADER;
-  OOP key;
-  OOP value;
-} * gst_association;
-
-typedef struct gst_variable_binding {
-  OBJ_HEADER;
-  OOP key;
-  OOP value;
-  OOP environment;
-} * gst_variable_binding;
-
 typedef struct gst_floatd {
   OBJ_HEADER;
   double value;

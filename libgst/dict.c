@@ -1312,7 +1312,7 @@ OOP _gst_namespace_at(OOP poolOOP, OOP symbol) {
   if (IS_NIL(assocOOP))
     return assocOOP;
   else
-    return ASSOCIATION_VALUE(assocOOP);
+    return OBJ_ASSOCIATION_GET_VALUE(OOP_TO_OBJ(assocOOP));
 }
 
 size_t new_num_fields(size_t oldNumFields) {
@@ -1337,7 +1337,7 @@ static int find_key_or_nil(OOP dictionaryOOP, OOP keyOOP) {
   intptr_t index;
   gst_object dictionary;
   OOP associationOOP;
-  gst_association association;
+  gst_object association;
 
   dictionary = (gst_object)OOP_TO_OBJ(dictionaryOOP);
   numFixedFields = OOP_FIXED_FIELDS(dictionaryOOP);
@@ -1351,9 +1351,9 @@ static int find_key_or_nil(OOP dictionaryOOP, OOP keyOOP) {
     if COMMON (IS_NIL(associationOOP))
       return (index);
 
-    association = (gst_association)OOP_TO_OBJ(associationOOP);
+    association = OOP_TO_OBJ(associationOOP);
 
-    if (association->key == keyOOP)
+    if (OBJ_ASSOCIATION_GET_KEY(association) == keyOOP)
       return (index);
 
     /* linear reprobe -- it is simple and guaranteed */
@@ -1369,7 +1369,7 @@ gst_object grow_dictionary(OOP oldDictionaryOOP) {
   gst_object oldDictionary, dictionary;
   size_t oldNumFields, numFields, i, index, numFixedFields;
   OOP associationOOP;
-  gst_association association;
+  gst_object association;
   OOP dictionaryOOP;
 
   oldDictionary = OOP_TO_OBJ(oldDictionaryOOP);
@@ -1390,8 +1390,8 @@ gst_object grow_dictionary(OOP oldDictionaryOOP) {
   for (i = 0; i < oldNumFields; i++) {
     associationOOP = oldDictionary->data[numFixedFields + i];
     if COMMON (!IS_NIL(associationOOP)) {
-      association = (gst_association)OOP_TO_OBJ(associationOOP);
-      index = find_key_or_nil(dictionaryOOP, association->key);
+      association = OOP_TO_OBJ(associationOOP);
+      index = find_key_or_nil(dictionaryOOP, OBJ_ASSOCIATION_GET_KEY(association));
       dictionary->data[numFixedFields + index] = associationOOP;
     }
   }
@@ -1600,7 +1600,7 @@ OOP _gst_binding_dictionary_new(int size, OOP environmentOOP) {
 
 OOP _gst_dictionary_add(OOP dictionaryOOP, OOP associationOOP) {
   intptr_t index;
-  gst_association association;
+  gst_object association;
   gst_object dictionary;
   gst_object dict;
   OOP value;
@@ -1610,7 +1610,7 @@ OOP _gst_dictionary_add(OOP dictionaryOOP, OOP associationOOP) {
   incPtr = INC_SAVE_POINTER();
   INC_ADD_OOP(associationOOP);
 
-  association = (gst_association)OOP_TO_OBJ(associationOOP);
+  association = OOP_TO_OBJ(associationOOP);
   dictionary = OOP_TO_OBJ(dictionaryOOP);
   dict = dictionary;
   if UNCOMMON (TO_INT(OBJ_DICTIONARY_GET_TALLY(dict)) >= TO_INT(OBJ_SIZE (dict)) * 3 / 4) {
@@ -1618,15 +1618,15 @@ OOP _gst_dictionary_add(OOP dictionaryOOP, OOP associationOOP) {
     dict = dictionary;
   }
 
-  index = find_key_or_nil(dictionaryOOP, association->key);
+  index = find_key_or_nil(dictionaryOOP, OBJ_ASSOCIATION_GET_KEY(association));
   index += OOP_FIXED_FIELDS(dictionaryOOP);
   if COMMON (IS_NIL(dictionary->data[index])) {
     OBJ_DICTIONARY_SET_TALLY (dict, INCR_INT(OBJ_DICTIONARY_GET_TALLY(dict)));
     dictionary->data[index] = associationOOP;
   } else {
-    value = ASSOCIATION_VALUE(associationOOP);
+    value = OBJ_ASSOCIATION_GET_VALUE(OOP_TO_OBJ(associationOOP));
     associationOOP = dictionary->data[index];
-    SET_ASSOCIATION_VALUE(associationOOP, value);
+    OBJ_ASSOCIATION_SET_VALUE(OOP_TO_OBJ(associationOOP), value);
   }
 
   INC_RESTORE_POINTER(incPtr);
@@ -1810,7 +1810,7 @@ OOP _gst_c_object_new_base(OOP baseOOP, uintptr_t cObjOfs, OOP typeOOP,
 
   if (!IS_NIL(typeOOP)) {
     cType = (gst_ctype)OOP_TO_OBJ(typeOOP);
-    classOOP = ASSOCIATION_VALUE(cType->cObjectType);
+    classOOP = OBJ_ASSOCIATION_GET_VALUE(OOP_TO_OBJ(cType->cObjectType));
   } else
     classOOP = defaultClassOOP;
 

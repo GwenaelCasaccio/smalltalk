@@ -2294,7 +2294,7 @@ bc34 : {
       IMPORT_REGS();
       FETCH;
     } else
-      tos = ASSOCIATION_VALUE(tos);
+      tos = OBJ_ASSOCIATION_GET_VALUE(OOP_TO_OBJ(tos));
 
 #line 1996 "vm.inl"
 #undef PREPARE_STACK
@@ -2415,9 +2415,9 @@ bc38 : {
       SEND_MESSAGE(_gst_builtin_selectors[VALUE_COLON_SPECIAL].symbol, 1);
       IMPORT_REGS();
       FETCH;
-    } else
-      SET_ASSOCIATION_VALUE(var, value);
-
+    } else {
+      OBJ_ASSOCIATION_SET_VALUE(OOP_TO_OBJ(var), value);
+    }
 #line 2140 "vm.inl"
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
@@ -3771,7 +3771,7 @@ bc82 : {
       IMPORT_REGS();
       FETCH;
     } else
-      tos = ASSOCIATION_VALUE(tos);
+      tos = OBJ_ASSOCIATION_GET_VALUE(OOP_TO_OBJ(tos));
 
 #line 3730 "vm.inl"
 #undef PREPARE_STACK
@@ -6064,7 +6064,7 @@ bc132 : {
       IMPORT_REGS();
       FETCH;
     } else
-      tos = ASSOCIATION_VALUE(tos);
+      tos = OBJ_ASSOCIATION_GET_VALUE(OOP_TO_OBJ(tos));
 
 #line 6360 "vm.inl"
 #undef PREPARE_STACK
@@ -6204,7 +6204,7 @@ bc135 : {
       IMPORT_REGS();
       FETCH;
     } else
-      tos = ASSOCIATION_VALUE(tos);
+      tos = OBJ_ASSOCIATION_GET_VALUE(OOP_TO_OBJ(tos));
 
 #line 6520 "vm.inl"
 #undef PREPARE_STACK
@@ -8186,7 +8186,7 @@ bc177 : {
       IMPORT_REGS();
       FETCH;
     } else
-      tos = ASSOCIATION_VALUE(tos);
+      tos = OBJ_ASSOCIATION_GET_VALUE(OOP_TO_OBJ(tos));
 
 #line 8793 "vm.inl"
 #undef PREPARE_STACK
@@ -10346,7 +10346,7 @@ bc220 : {
       IMPORT_REGS();
       FETCH;
     } else
-      tos = ASSOCIATION_VALUE(tos);
+      tos = OBJ_ASSOCIATION_GET_VALUE(OOP_TO_OBJ(tos));
 
 #line 11225 "vm.inl"
 #undef PREPARE_STACK
@@ -10761,7 +10761,7 @@ bc229 : {
       IMPORT_REGS();
       FETCH;
     } else
-      tos = ASSOCIATION_VALUE(tos);
+      tos = OBJ_ASSOCIATION_GET_VALUE(OOP_TO_OBJ(tos));
 
 #line 11704 "vm.inl"
 #undef PREPARE_STACK
@@ -11438,7 +11438,7 @@ bc242 : {
       IMPORT_REGS();
       FETCH;
     } else
-      tos = ASSOCIATION_VALUE(tos);
+      tos = OBJ_ASSOCIATION_GET_VALUE(OOP_TO_OBJ(tos));
 
 #line 12477 "vm.inl"
 #undef PREPARE_STACK
