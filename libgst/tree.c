@@ -676,10 +676,10 @@ static void print_const_node(tree_node node, int level) {
 static void print_attribute_list_node(tree_node node, int level) {
   tree_node value = node->v_list.value;
   OOP messageOOP = value->v_const.val.oopVal;
-  gst_message message = (gst_message)OOP_TO_OBJ(messageOOP);
-  OOP selectorOOP = message->selector;
+  gst_object message = OOP_TO_OBJ(messageOOP);
+  OOP selectorOOP = OBJ_MESSAGE_GET_SELECTOR(message);
   gst_string selector = (gst_string)OOP_TO_OBJ(selectorOOP);
-  OOP argumentsOOP = message->args;
+  OOP argumentsOOP = OBJ_MESSAGE_GET_ARGS(message);
   gst_object arguments = OOP_TO_OBJ(argumentsOOP);
 
   const char *sel = selector->chars;

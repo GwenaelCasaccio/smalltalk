@@ -296,11 +296,11 @@ static inline uint64_t to_c_uint_64(OOP oop);
 
 /* Answer the selector extracted by the Message, MESSAGEOOP.  */
 #define MESSAGE_SELECTOR(messageOOP)                                           \
-  (((gst_message)OOP_TO_OBJ(messageOOP))->selector)
+  (OBJ_MESSAGE_GET_SELECTOR((OOP_TO_OBJ(messageOOP))))
 
 /* Answer the array of arguments extracted by the Message,
    MESSAGEOOP.  */
-#define MESSAGE_ARGS(messageOOP) (((gst_message)OOP_TO_OBJ(messageOOP))->args)
+#define MESSAGE_ARGS(messageOOP) (OBJ_MESSAGE_GET_ARGS((OOP_TO_OBJ(messageOOP))))
 
 /* Answer a new CObject pointing to COBJPTR.  */
 #define COBJECT_NEW(cObjPtr, typeOOP, defaultClassOOP)                         \

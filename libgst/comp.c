@@ -2499,9 +2499,9 @@ install_method (OOP methodOOP, OOP classOOP)
     {
       char *result;
       OOP attributeOOP = descriptor->attributes[i];
-      gst_message attribute = (gst_message) OOP_TO_OBJ (attributeOOP);
+      gst_object attribute = OOP_TO_OBJ (attributeOOP);
       OOP handlerBlockOOP = _gst_find_pragma_handler (classOOP,
-						      attribute->selector);
+						      OBJ_MESSAGE_GET_SELECTOR(attribute));
 
       if (!IS_NIL (handlerBlockOOP))
 	{
@@ -2578,9 +2578,9 @@ _gst_make_new_method (int numArgs,
   for (i = 0; i < n; i++)
     {
       OOP messageOOP = OOP_TO_OBJ (attributesOOP)->data[i];
-      gst_message message = (gst_message) OOP_TO_OBJ (messageOOP);
-      OOP selectorOOP = message->selector;
-      OOP argumentsOOP = message->args;
+      gst_object message = OOP_TO_OBJ (messageOOP);
+      OOP selectorOOP = OBJ_MESSAGE_GET_SELECTOR(message);
+      OOP argumentsOOP = OBJ_MESSAGE_GET_ARGS(message);
       gst_object arguments = OOP_TO_OBJ (argumentsOOP);
 
       if (selectorOOP == _gst_primitive_symbol)
