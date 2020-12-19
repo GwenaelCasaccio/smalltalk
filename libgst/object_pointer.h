@@ -225,4 +225,23 @@
 #define OBJ_VARIABLE_BINDING_GET_ENVIRONMENT(obj) ((obj))->data[2]
 #define OBJ_VARIABLE_BINDING_SET_ENVIRONMENT(obj, valueOOP) do { ((obj))->data[2] = (valueOOP); } while(0)
 
+/* MESSAGE */
+
+#define OBJ_MESSAGE_GET_SELECTOR(obj) ((obj))->data[0]
+#define OBJ_MESSAGE_SET_SELECTOR(obj, valueOOP) do { ((obj))->data[0] = (valueOOP); } while(0)
+
+#define OBJ_MESSAGE_GET_ARGS(obj) ((obj))->data[1]
+#define OBJ_MESSAGE_SET_ARGS(obj, valueOOP) do { ((obj))->data[1] = (valueOOP); } while(0)
+
+/* MESSAGE LOOKUP */
+#define OBJ_MESSAGE_LOOKUP_GET_SELECTOR(obj) ((obj))->data[0]
+#define OBJ_MESSAGE_LOOKUP_SET_SELECTOR(obj, valueOOP) do { ((obj))->data[0] = (valueOOP); } while(0)
+
+#define OBJ_MESSAGE_LOOKUP_GET_ARGS(obj) ((obj))->data[1]
+#define OBJ_MESSAGE_LOOKUP_SET_ARGS(obj, valueOOP) do { ((obj))->data[1] = (valueOOP); } while(0)
+
+#define OBJ_MESSAGE_LOOKUP_GET_STARTING_CLASS(obj) ((obj))->data[2]
+#define OBJ_MESSAGE_LOOKUP_SET_STARTING_CLASS(obj, valueOOP) do { ((obj))->data[2] = (valueOOP); } while(0)
+
+
 #endif /* GST_OBJECT_POINTER_H */

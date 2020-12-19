@@ -1790,13 +1790,13 @@ void _gst_set_oop_bytes(OOP byteArrayOOP, gst_uchar *bytes) {
 }
 
 OOP _gst_message_new_args(OOP selectorOOP, OOP argsArray) {
-  gst_message message;
+  gst_object message;
   OOP messageOOP;
 
-  message = (gst_message)new_instance(_gst_message_class, &messageOOP);
+  message = new_instance(_gst_message_class, &messageOOP);
 
-  message->selector = selectorOOP;
-  message->args = argsArray;
+  OBJ_MESSAGE_SET_SELECTOR(message, selectorOOP);
+  OBJ_MESSAGE_SET_ARGS(message, argsArray);
 
   return (messageOOP);
 }
