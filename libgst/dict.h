@@ -172,13 +172,6 @@ typedef struct gst_floatq {
   long double value;
 } * gst_floatq;
 
-typedef struct gst_message_lookup {
-  OBJ_HEADER;
-  OOP selector;
-  OOP args;
-  OOP startingClass;
-} * gst_message_lookup;
-
 typedef struct gst_string {
   OBJ_HEADER;
   char chars[1];

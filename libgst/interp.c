@@ -863,7 +863,7 @@ mst_Boolean lookup_method(OOP sendSelector, method_cache_entry *methodData,
                           int sendArgs, OOP method_class) {
   inc_ptr inc;
   OOP argsArrayOOP;
-  gst_message_lookup messageLookup;
+  gst_object messageLookup;
   OOP messageLookupOOP;
 
   if (_gst_find_method(method_class, sendSelector, methodData))
@@ -873,12 +873,12 @@ mst_Boolean lookup_method(OOP sendSelector, method_cache_entry *methodData,
   argsArrayOOP = create_args_array(sendArgs);
   INC_ADD_OOP(argsArrayOOP);
 
-  messageLookup = (gst_message_lookup)new_instance(_gst_message_lookup_class,
+  messageLookup = new_instance(_gst_message_lookup_class,
                                                    &messageLookupOOP);
 
-  messageLookup->selector = sendSelector;
-  messageLookup->args = argsArrayOOP;
-  messageLookup->startingClass = method_class;
+  OBJ_MESSAGE_LOOKUP_SET_SELECTOR(messageLookup, sendSelector);
+  OBJ_MESSAGE_LOOKUP_SET_ARGS(messageLookup, argsArrayOOP);
+  OBJ_MESSAGE_LOOKUP_SET_STARTING_CLASS(messageLookup, method_class);
   PUSH_OOP(messageLookupOOP);
   INC_RESTORE_POINTER(inc);
 
