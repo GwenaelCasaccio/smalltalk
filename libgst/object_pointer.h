@@ -248,4 +248,14 @@
 #define OBJ_IDENTITY_DICTIONARY_GET_TALLY(obj) ((obj))->data[0]
 #define OBJ_IDENTITY_DICTIONARY_SET_TALLY(obj, valueOOP) do { ((obj))->data[0] = (valueOOP); } while(0)
 
+/* BEHAVIOR */
+#define OBJ_BEHAVIOR_GET_SUPER_CLASS(obj) ((obj))->data[0]
+#define OBJ_BEHAVIOR_SET_SUPER_CLASS(obj, valueOOP) do { ((obj))->data[0] = (valueOOP); } while(0)
+
+#define OBJ_BEHAVIOR_GET_SUB_CLASSES(obj) ((obj))->data[3]
+#define OBJ_BEHAVIOR_SET_SUB_CLASSES(obj, valueOOP) do { ((obj))->data[3] = (valueOOP); } while(0)
+
+#define OBJ_BEHAVIOR_GET_INSTANCE_VARIABLES(obj) ((obj))->data[4]
+#define OBJ_BEHAVIOR_SET_INSTANCE_VARIABLES(obj, valueOOP) do { ((obj))->data[4] = (valueOOP); } while(0)
+
 #endif /* GST_OBJECT_POINTER_H */

@@ -1263,8 +1263,8 @@ parse_instance_variables (gst_parser *p, OOP classOOP, mst_Boolean extend)
 
   if (extend)
     {
-      gst_behavior class = (gst_behavior) OOP_TO_OBJ (classOOP);
-      OOP *instVars = OOP_TO_OBJ (class->instanceVariables)->data;
+      gst_object class = OOP_TO_OBJ (classOOP);
+      OOP *instVars = OOP_TO_OBJ (OBJ_BEHAVIOR_GET_INSTANCE_VARIABLES(class))->data;
       int n = CLASS_FIXED_FIELDS (classOOP);
       OOP superclassOOP = SUPERCLASS (classOOP);
       if (!IS_NIL (superclassOOP))

@@ -864,10 +864,10 @@ void init_class(OOP class_oop, const class_definition *ci) {
 }
 
 void add_subclass(OOP superClassOOP, OOP subClassOOP) {
-  gst_class_description superclass;
+  gst_object superclass;
   int index;
 
-  superclass = (gst_class_description)OOP_TO_OBJ(superClassOOP);
+  superclass = OOP_TO_OBJ(superClassOOP);
 
 #ifndef OPTIMIZE
   if (NUM_WORDS(OOP_TO_OBJ(superclass->subClasses)) == 0) {
@@ -876,9 +876,9 @@ void add_subclass(OOP superClassOOP, OOP subClassOOP) {
   }
 #endif
 
-  index = TO_INT(ARRAY_AT(superclass->subClasses, 1));
-  ARRAY_AT_PUT(superclass->subClasses, 1, FROM_INT(index - 1));
-  ARRAY_AT_PUT(superclass->subClasses, index, subClassOOP);
+  index = TO_INT(ARRAY_AT(OBJ_BEHAVIOR_GET_SUB_CLASSES(superclass), 1));
+  ARRAY_AT_PUT(OBJ_BEHAVIOR_GET_SUB_CLASSES(superclass), 1, FROM_INT(index - 1));
+  ARRAY_AT_PUT(OBJ_BEHAVIOR_GET_SUB_CLASSES(superclass), index, subClassOOP);
 }
 
 void init_smalltalk_dictionary(void) {

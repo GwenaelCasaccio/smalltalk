@@ -88,10 +88,6 @@ typedef struct gst_file_stream {
   OOP subClasses;                                                              \
   OOP instanceVariables
 
-typedef struct gst_behavior {
-  BEHAVIOR_HEADER;
-} * gst_behavior;
-
 #define CLASS_DESCRIPTION_HEADER BEHAVIOR_HEADER
 
 #define COBJECT_ANON_TYPE FROM_INT(-1)
@@ -135,10 +131,6 @@ enum {
   /* Set to 1 to mark a SmallInteger.  */
   GST_ISP_INTMARK = 1
 };
-
-typedef struct gst_class_description {
-  CLASS_DESCRIPTION_HEADER;
-} * gst_class_description;
 
 typedef struct gst_deferred_variable_binding {
   OBJ_HEADER;
