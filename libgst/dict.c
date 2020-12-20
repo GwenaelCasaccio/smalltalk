@@ -1402,7 +1402,7 @@ gst_object grow_dictionary(OOP oldDictionaryOOP) {
 
 gst_object grow_identity_dictionary(OOP oldIdentityDictionaryOOP) {
   gst_object oldIdentityDictionary, identityDictionary;
-  gst_identity_dictionary oldIdentDict, identDict;
+  gst_object oldIdentDict, identDict;
   OOP key, identityDictionaryOOP;
   size_t oldNumFields, numFields, numFixedFields, i, index;
 
@@ -1415,9 +1415,9 @@ gst_object grow_identity_dictionary(OOP oldIdentityDictionaryOOP) {
   identityDictionary = instantiate_with(OOP_CLASS(oldIdentityDictionaryOOP),
                                         numFields * 2, &identityDictionaryOOP);
   oldIdentityDictionary = OOP_TO_OBJ(oldIdentityDictionaryOOP);
-  oldIdentDict = (gst_identity_dictionary)oldIdentityDictionary;
-  identDict = (gst_identity_dictionary)identityDictionary;
-  identDict->tally = INCR_INT(oldIdentDict->tally);
+  oldIdentDict = oldIdentityDictionary;
+  identDict = identityDictionary;
+  OBJ_IDENTITY_DICTIONARY_SET_TALLY(identDict, INCR_INT(OBJ_IDENTITY_DICTIONARY_GET_TALLY(oldIdentDict)));
 
   /* rehash all associations from old dictionary into new one */
   for (i = 0; i < oldNumFields; i++) {
@@ -1496,22 +1496,22 @@ size_t identity_dictionary_find_key_or_nil(OOP identityDictionaryOOP,
 }
 
 OOP _gst_identity_dictionary_new(OOP classOOP, int size) {
-  gst_identity_dictionary identityDictionary;
+  gst_object identityDictionary;
   OOP identityDictionaryOOP;
 
   size = new_num_fields(size);
 
-  identityDictionary = (gst_identity_dictionary)instantiate_with(
+  identityDictionary = instantiate_with(
       classOOP, size * 2, &identityDictionaryOOP);
 
-  identityDictionary->tally = FROM_INT(0);
+  OBJ_IDENTITY_DICTIONARY_SET_TALLY(identityDictionary, FROM_INT(0));
   return (identityDictionaryOOP);
 }
 
 OOP _gst_identity_dictionary_at_put(OOP identityDictionaryOOP, OOP keyOOP,
                                     OOP valueOOP) {
   gst_object identityDictionary;
-  gst_identity_dictionary identDict;
+  gst_object identDict;
   intptr_t index;
   OOP oldValueOOP;
   size_t numFixedFields;
@@ -1523,15 +1523,15 @@ OOP _gst_identity_dictionary_at_put(OOP identityDictionaryOOP, OOP keyOOP,
      if the key is present in the dictionary (because it will most
      likely resolve some collisions and make things faster).  */
 
-  identDict = (gst_identity_dictionary)identityDictionary;
-  if UNCOMMON (TO_INT(identDict->tally) >= TO_INT(OBJ_SIZE (identDict)) * 3 / 8)
+  identDict = identityDictionary;
+  if UNCOMMON (TO_INT(OBJ_IDENTITY_DICTIONARY_GET_TALLY(identDict)) >= TO_INT(OBJ_SIZE (identDict)) * 3 / 8)
     identityDictionary = grow_identity_dictionary(identityDictionaryOOP);
 
   index = identity_dictionary_find_key_or_nil(identityDictionaryOOP, keyOOP);
 
   if COMMON (IS_NIL(identityDictionary->data[index - 1 + numFixedFields])) {
-    identDict = (gst_identity_dictionary)identityDictionary;
-    identDict->tally = INCR_INT(identDict->tally);
+    identDict = identityDictionary;
+    OBJ_IDENTITY_DICTIONARY_SET_TALLY(identDict, INCR_INT(OBJ_IDENTITY_DICTIONARY_GET_TALLY(identDict)));
   }
 
   identityDictionary->data[index - 1 + numFixedFields] = keyOOP;
@@ -1911,7 +1911,7 @@ void _gst_record_profile(OOP oldMethod, OOP newMethod, int ipOffset) {
 int _gst_identity_dictionary_at_inc(OOP identityDictionaryOOP, OOP keyOOP,
                                     int inc) {
   gst_object identityDictionary;
-  gst_identity_dictionary identDict;
+  gst_object identDict;
   intptr_t index;
   int oldValue;
   size_t numFixedFields;
@@ -1923,14 +1923,14 @@ int _gst_identity_dictionary_at_inc(OOP identityDictionaryOOP, OOP keyOOP,
      if the key is present in the dictionary (because it will most
      likely resolve some collisions and make things faster).  */
 
-  identDict = (gst_identity_dictionary)identityDictionary;
-  if UNCOMMON (TO_INT(identDict->tally) >= TO_INT(OBJ_SIZE (identDict)) * 3 / 8)
+  identDict = identityDictionary;
+  if UNCOMMON (TO_INT(OBJ_IDENTITY_DICTIONARY_GET_TALLY(identDict)) >= TO_INT(OBJ_SIZE (identDict)) * 3 / 8)
     identityDictionary = grow_identity_dictionary(identityDictionaryOOP);
   index = identity_dictionary_find_key_or_nil(identityDictionaryOOP, keyOOP);
 
   if UNCOMMON (IS_NIL(identityDictionary->data[index - 1 + numFixedFields])) {
-    identDict = (gst_identity_dictionary)identityDictionary;
-    identDict->tally = INCR_INT(identDict->tally);
+    identDict = identityDictionary;
+    OBJ_IDENTITY_DICTIONARY_SET_TALLY(identDict, INCR_INT(OBJ_IDENTITY_DICTIONARY_GET_TALLY(identDict)));
     oldValue = 0;
   } else
     oldValue = TO_INT(identityDictionary->data[index + numFixedFields]);
