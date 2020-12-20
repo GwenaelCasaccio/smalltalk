@@ -734,7 +734,7 @@ void _gst_init_dictionary(void) {
 void create_classes_pass1(const class_definition *ci, int n) {
   OOP superClassOOP;
   int nilSubclasses;
-  gst_class classObj, superclass;
+ gst_object classObj, superclass;
 
   for (nilSubclasses = 0; n--; ci++) {
     superClassOOP = *ci->superClassPtr;
@@ -743,8 +743,8 @@ void create_classes_pass1(const class_definition *ci, int n) {
     if (IS_NIL(superClassOOP))
       nilSubclasses++;
     else {
-      superclass = (gst_class)OOP_TO_OBJ(superClassOOP);
-      superclass->subClasses = FROM_INT(TO_INT(superclass->subClasses) + 1);
+      superclass = OOP_TO_OBJ(superClassOOP);
+      OBJ_BEHAVIOR_SET_SUB_CLASSES(superclass, FROM_INT(TO_INT(OBJ_BEHAVIOR_GET_SUB_CLASSES(superclass)) + 1));
     }
   }
 
@@ -756,22 +756,22 @@ void create_classes_pass1(const class_definition *ci, int n) {
      (`Class class' and `Class' are unique in that they don't have the
      same number of subclasses), so since we have the information here,
      we special case the Class class and create its metaclass here.  */
-  classObj = (gst_class)OOP_TO_OBJ(_gst_class_class);
-  create_metaclass(_gst_class_class, TO_INT(classObj->subClasses),
-                   TO_INT(classObj->subClasses) + nilSubclasses);
+  classObj = OOP_TO_OBJ(_gst_class_class);
+  create_metaclass(_gst_class_class, TO_INT(OBJ_BEHAVIOR_GET_SUB_CLASSES(classObj)),
+                   TO_INT(OBJ_BEHAVIOR_GET_SUB_CLASSES(classObj)) + nilSubclasses);
 }
 
 void create_classes_pass2(const class_definition *ci, int n) {
   OOP class_oop;
-  gst_class class;
+  gst_object class;
   int numSubclasses;
 
   for (; n--; ci++) {
     class_oop = *ci->classVar;
-    class = (gst_class)OOP_TO_OBJ(class_oop);
+    class = OOP_TO_OBJ(class_oop);
 
     if (!OBJ_CLASS(class)) {
-      numSubclasses = TO_INT(class->subClasses);
+      numSubclasses = TO_INT(OBJ_BEHAVIOR_GET_SUB_CLASSES(class));
       create_metaclass(class_oop, numSubclasses, numSubclasses);
     }
 
@@ -782,85 +782,83 @@ void create_classes_pass2(const class_definition *ci, int n) {
 
 void create_metaclass(OOP class_oop, int numMetaclassSubClasses,
                       int numSubClasses) {
-  gst_class class;
-  gst_metaclass metaclass;
+  gst_object class;
+  gst_object metaclass;
   gst_object subClasses;
 
-  class = (gst_class)OOP_TO_OBJ(class_oop);
+  class = OOP_TO_OBJ(class_oop);
   metaclass =
-      (gst_metaclass)new_instance(_gst_metaclass_class, &OBJ_CLASS(class));
+      new_instance(_gst_metaclass_class, &OBJ_CLASS(class));
 
-  metaclass->instanceClass = class_oop;
+  OBJ_META_CLASS_SET_INSTANCE_CLASS(metaclass, class_oop);
 
   subClasses =
-      new_instance_with(_gst_array_class, numSubClasses, &class->subClasses);
+    new_instance_with(_gst_array_class, numSubClasses, &OBJ_BEHAVIOR_GET_SUB_CLASSES(class));
   if (numSubClasses > 0)
     subClasses->data[0] = FROM_INT(numSubClasses);
 
   subClasses = new_instance_with(_gst_array_class, numMetaclassSubClasses,
-                                 &metaclass->subClasses);
+                                 &OBJ_BEHAVIOR_GET_SUB_CLASSES(metaclass));
   if (numMetaclassSubClasses > 0)
     subClasses->data[0] = FROM_INT(numMetaclassSubClasses);
 }
 
 void init_metaclass(OOP metaclassOOP) {
-  gst_metaclass metaclass;
+  gst_object metaclass;
   OOP class_oop, superClassOOP;
 
-  metaclass = (gst_metaclass)OOP_TO_OBJ(metaclassOOP);
-  class_oop = metaclass->instanceClass;
+  metaclass = OOP_TO_OBJ(metaclassOOP);
+  class_oop = OBJ_META_CLASS_GET_INSTANCE_CLASS(metaclass);
   superClassOOP = SUPERCLASS(class_oop);
 
   if (IS_NIL(superClassOOP))
     /* Object case: make this be gst_class to close the circularity */
-    metaclass->superclass = _gst_class_class;
+    OBJ_BEHAVIOR_SET_SUPER_CLASS(metaclass, _gst_class_class);
   else
-    metaclass->superclass = OOP_CLASS(superClassOOP);
+    OBJ_BEHAVIOR_SET_SUPER_CLASS(metaclass, OOP_CLASS(superClassOOP));
 
-  add_subclass(metaclass->superclass, metaclassOOP);
+  add_subclass(OBJ_BEHAVIOR_GET_SUPER_CLASS(metaclass), metaclassOOP);
 
   /* the specifications here should match what a class should have:
      instance variable names, the right number of instance variables,
      etc.  We could take three passes, and use the instance variable
      spec for classes once it's established, but it's easier to create
      them here by hand */
-  metaclass->instanceVariables = _gst_make_instance_variable_array(
+  OBJ_BEHAVIOR_SET_INSTANCE_VARIABLES(metaclass,
+                                      _gst_make_instance_variable_array(
       _gst_nil_oop, "superClass methodDictionary instanceSpec subClasses "
                     "instanceVariables name comment category environment "
                     "classVariables sharedPools "
-                    "pragmaHandlers");
+      "pragmaHandlers"));
 
-  metaclass->instanceSpec =
-      GST_ISP_INTMARK | GST_ISP_FIXED |
-      (((sizeof(struct gst_class) - sizeof(gst_object_header)) / sizeof(OOP))
-       << ISP_NUMFIXEDFIELDS);
+  OBJ_BEHAVIOR_SET_INSTANCE_SPEC(metaclass, (OOP) (GST_ISP_INTMARK | GST_ISP_FIXED | (12 << ISP_NUMFIXEDFIELDS)));
 
-  metaclass->methodDictionary = _gst_nil_oop;
+  OBJ_BEHAVIOR_SET_METHOD_DICTIONARY(metaclass, _gst_nil_oop);
 }
 
 void init_class(OOP class_oop, const class_definition *ci) {
-  gst_class class;
+  gst_object class;
 
-  class = (gst_class)OOP_TO_OBJ(class_oop);
-  class->name = _gst_intern_string(ci->name);
+  class = OOP_TO_OBJ(class_oop);
+  OBJ_CLASS_SET_NAME(class, _gst_intern_string(ci->name));
   add_smalltalk(ci->name, class_oop);
 
-  if (!IS_NIL(class->superclass))
-    add_subclass(class->superclass, class_oop);
+  if (!IS_NIL(OBJ_BEHAVIOR_GET_SUPER_CLASS(class)))
+    add_subclass(OBJ_BEHAVIOR_GET_SUPER_CLASS(class), class_oop);
 
-  class->environment = _gst_smalltalk_dictionary;
-  class->instanceVariables =
-      _gst_make_instance_variable_array(class->superclass, ci->instVarNames);
-  class->classVariables =
-      _gst_make_class_variable_dictionary(ci->classVarNames, class_oop);
+  OBJ_CLASS_SET_ENVIRONMENT(class, _gst_smalltalk_dictionary);
+  OBJ_BEHAVIOR_SET_INSTANCE_VARIABLES(class,
+                                   _gst_make_instance_variable_array(OBJ_BEHAVIOR_GET_SUPER_CLASS(class), ci->instVarNames));
+  OBJ_CLASS_SET_CLASS_VARIABLES(class,
+                                _gst_make_class_variable_dictionary(ci->classVarNames, class_oop));
 
-  class->sharedPools = _gst_make_pool_array(ci->sharedPoolNames);
+  OBJ_CLASS_SET_SHARED_POOLS(class, _gst_make_pool_array(ci->sharedPoolNames));
 
   /* Other fields are set by the Smalltalk code.  */
-  class->methodDictionary = _gst_nil_oop;
-  class->comment = _gst_nil_oop;
-  class->category = _gst_nil_oop;
-  class->pragmaHandlers = _gst_nil_oop;
+  OBJ_BEHAVIOR_SET_METHOD_DICTIONARY(class, _gst_nil_oop);
+  OBJ_CLASS_SET_COMMENT(class, _gst_nil_oop);
+  OBJ_CLASS_SET_CATEGORY(class, _gst_nil_oop);
+  OBJ_CLASS_SET_PRAGMA_HANDLERS(class, _gst_nil_oop);
 }
 
 void add_subclass(OOP superClassOOP, OOP subClassOOP) {
@@ -1110,7 +1108,7 @@ void add_file_stream_object(int fd, int access, const char *fileObjectName) {
 }
 
 void create_class(const class_definition *ci) {
-  gst_class class;
+  gst_object class;
   intptr_t superInstanceSpec;
   OOP classOOP, superClassOOP;
   int numFixedFields;
@@ -1124,14 +1122,13 @@ void create_class(const class_definition *ci) {
     numFixedFields += superInstanceSpec >> ISP_NUMFIXEDFIELDS;
   }
 
-  class = (gst_class)_gst_alloc_obj(sizeof(struct gst_class), &classOOP);
+  class = _gst_alloc_obj(14 * sizeof(OOP), &classOOP);
 
   OBJ_SET_CLASS(class, NULL);
-  class->superclass = superClassOOP;
-  class->instanceSpec = GST_ISP_INTMARK | ci->instanceSpec |
-                        (numFixedFields << ISP_NUMFIXEDFIELDS);
+  OBJ_BEHAVIOR_SET_SUPER_CLASS(class, superClassOOP);
+  OBJ_BEHAVIOR_SET_INSTANCE_SPEC(class, (OOP)(GST_ISP_INTMARK | ci->instanceSpec | (numFixedFields << ISP_NUMFIXEDFIELDS)));
 
-  class->subClasses = FROM_INT(0);
+  OBJ_BEHAVIOR_SET_SUB_CLASSES(class, FROM_INT(0));
 
   *ci->classVar = classOOP;
 }
@@ -1208,10 +1205,10 @@ void prepare_primitive_numbers_table() {
 }
 
 OOP _gst_get_class_symbol(OOP class_oop) {
-  gst_class class;
+  gst_object class;
 
-  class = (gst_class)OOP_TO_OBJ(class_oop);
-  return (class->name);
+  class = OOP_TO_OBJ(class_oop);
+  return OBJ_CLASS_GET_NAME(class);
   /* this is the case when we have a metaclass, ??? I don't think that
      this is right, but I don't know what else to do here */
 }
@@ -1221,30 +1218,30 @@ OOP _gst_find_class(OOP classNameOOP) {
 }
 
 OOP _gst_valid_class_method_dictionary(OOP class_oop) {
-  gst_class class;
+  gst_object class;
 
   /* ??? check for non-class objects */
-  class = (gst_class)OOP_TO_OBJ(class_oop);
-  if (IS_NIL(class->methodDictionary)) {
+  class = OOP_TO_OBJ(class_oop);
+  if (IS_NIL(OBJ_BEHAVIOR_GET_METHOD_DICTIONARY(class))) {
     OOP methodDictionaryOOP;
     methodDictionaryOOP =
         _gst_identity_dictionary_new(_gst_method_dictionary_class, 32);
-    class = (gst_class)OOP_TO_OBJ(class_oop);
-    class->methodDictionary = methodDictionaryOOP;
+    class = OOP_TO_OBJ(class_oop);
+    OBJ_BEHAVIOR_SET_METHOD_DICTIONARY(class, methodDictionaryOOP);
   }
 
-  return (class->methodDictionary);
+  return OBJ_BEHAVIOR_GET_METHOD_DICTIONARY(class);
 }
 
 OOP _gst_find_class_method(OOP class_oop, OOP selector) {
-  gst_class class;
+  gst_object class;
   gst_object methodDictionary;
   OOP method_dictionary_oop;
   int index;
   size_t numFixedFields;
 
-  class = (gst_class)OOP_TO_OBJ(class_oop);
-  method_dictionary_oop = class->methodDictionary;
+  class = OOP_TO_OBJ(class_oop);
+  method_dictionary_oop = OBJ_BEHAVIOR_GET_METHOD_DICTIONARY(class);
   if (IS_NIL(method_dictionary_oop))
     return (_gst_nil_oop);
 
@@ -1260,27 +1257,27 @@ OOP _gst_find_class_method(OOP class_oop, OOP selector) {
 }
 
 OOP _gst_class_variable_dictionary(OOP class_oop) {
-  gst_class class;
+  gst_object class;
 
   /* ??? check for non-class objects */
-  class = (gst_class)OOP_TO_OBJ(class_oop);
-  return (class->classVariables);
+  class = OOP_TO_OBJ(class_oop);
+  return OBJ_CLASS_GET_CLASS_VARIABLES(class);
 }
 
 OOP _gst_instance_variable_array(OOP class_oop) {
-  gst_class class;
+  gst_object class;
 
   /* ??? check for non-class objects */
-  class = (gst_class)OOP_TO_OBJ(class_oop);
-  return (class->instanceVariables);
+  class = OOP_TO_OBJ(class_oop);
+  return OBJ_BEHAVIOR_GET_INSTANCE_VARIABLES(class);
 }
 
 OOP _gst_shared_pool_dictionary(OOP class_oop) {
-  gst_class class;
+  gst_object class;
 
   /* ??? check for non-class objects */
-  class = (gst_class)OOP_TO_OBJ(class_oop);
-  return (class->sharedPools);
+  class = OOP_TO_OBJ(class_oop);
+  return OBJ_CLASS_GET_SHARED_POOLS(class);
 }
 
 OOP _gst_namespace_association_at(OOP poolOOP, OOP symbol) {

@@ -318,7 +318,7 @@ static inline uint64_t to_c_uint_64(OOP oop);
   (((uintptr_t *)cObj)[TO_INT(OBJ_SIZE ((cObj))) - 1] = (uintptr_t)(value))
 
 /* Answer the superclass of the Behavior, CLASS_OOP.  */
-#define SUPERCLASS(class_oop) (((gst_class)OOP_TO_OBJ(class_oop))->superclass)
+#define SUPERCLASS(class_oop) ((OBJ_BEHAVIOR_GET_SUPER_CLASS(OOP_TO_OBJ(class_oop))))
 
 /* Answer the number of fixed instance variables in OOP.  */
 #define OOP_FIXED_FIELDS(oop) (OOP_INSTANCE_SPEC(oop) >> ISP_NUMFIXEDFIELDS)
@@ -375,16 +375,16 @@ static inline uint64_t to_c_uint_64(OOP oop);
 
 /* Answer the sole instance of the metaclass, METACLASSOOP.  */
 #define METACLASS_INSTANCE(metaclassOOP)                                       \
-  (((gst_metaclass)OOP_TO_OBJ(metaclassOOP))->instanceClass)
+  (OBJ_META_CLASS_GET_INSTANCE_CLASS(OOP_TO_OBJ(metaclassOOP)))
 
 /* Return  the namespace in which references to globals
    from methods of CLASS_OOP are resolved.  */
 #define CLASS_ENVIRONMENT(class_oop)                                           \
-  (((gst_class)OOP_TO_OBJ(class_oop))->environment)
+  (OBJ_CLASS_GET_ENVIRONMENT((OOP_TO_OBJ(class_oop))))
 
 /* Answer the instance specification for instances of CLASS_OOP.  */
 #define CLASS_INSTANCE_SPEC(class_oop)                                         \
-  (((gst_class)OOP_TO_OBJ(class_oop))->instanceSpec)
+  ((intptr_t)(OBJ_BEHAVIOR_GET_INSTANCE_SPEC(OOP_TO_OBJ(class_oop))))
 
 /* Answer the instance specification of the object OBJ (*not* an OOP).  */
 #define GET_INSTANCE_SPEC(obj) CLASS_INSTANCE_SPEC(OBJ_CLASS((obj)))

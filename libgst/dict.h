@@ -80,16 +80,6 @@ typedef struct gst_file_stream {
   OOP writeEnd;
 } * gst_file_stream;
 
-#define BEHAVIOR_HEADER                                                        \
-  OBJ_HEADER;                                                                  \
-  OOP superclass;                                                              \
-  OOP methodDictionary;                                                        \
-  intptr_t instanceSpec;                                                       \
-  OOP subClasses;                                                              \
-  OOP instanceVariables
-
-#define CLASS_DESCRIPTION_HEADER BEHAVIOR_HEADER
-
 #define COBJECT_ANON_TYPE FROM_INT(-1)
 #define COBJECT_CHAR_TYPE FROM_INT(0)
 #define COBJECT_UNSIGNED_CHAR_TYPE FROM_INT(1)
@@ -170,22 +160,6 @@ typedef struct gst_byte_array {
   OBJ_HEADER;
   gst_uchar bytes[1];
 } * gst_byte_array;
-
-typedef struct gst_class {
-  CLASS_DESCRIPTION_HEADER;
-  OOP name;
-  OOP comment;
-  OOP category;
-  OOP environment;
-  OOP classVariables; /* dictionary of name->value pairs */
-  OOP sharedPools;
-  OOP pragmaHandlers;
-} * gst_class;
-
-typedef struct gst_metaclass {
-  CLASS_DESCRIPTION_HEADER;
-  OOP instanceClass;
-} * gst_metaclass;
 
 typedef struct gst_char {
   OBJ_HEADER;
