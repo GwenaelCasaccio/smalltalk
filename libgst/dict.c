@@ -734,7 +734,7 @@ void _gst_init_dictionary(void) {
 void create_classes_pass1(const class_definition *ci, int n) {
   OOP superClassOOP;
   int nilSubclasses;
- gst_object classObj, superclass;
+  gst_object classObj, superclass;
 
   for (nilSubclasses = 0; n--; ci++) {
     superClassOOP = *ci->superClassPtr;
@@ -744,7 +744,9 @@ void create_classes_pass1(const class_definition *ci, int n) {
       nilSubclasses++;
     else {
       superclass = OOP_TO_OBJ(superClassOOP);
-      OBJ_BEHAVIOR_SET_SUB_CLASSES(superclass, FROM_INT(TO_INT(OBJ_BEHAVIOR_GET_SUB_CLASSES(superclass)) + 1));
+      OBJ_BEHAVIOR_SET_SUB_CLASSES(
+          superclass,
+          FROM_INT(TO_INT(OBJ_BEHAVIOR_GET_SUB_CLASSES(superclass)) + 1));
     }
   }
 
@@ -757,8 +759,9 @@ void create_classes_pass1(const class_definition *ci, int n) {
      same number of subclasses), so since we have the information here,
      we special case the Class class and create its metaclass here.  */
   classObj = OOP_TO_OBJ(_gst_class_class);
-  create_metaclass(_gst_class_class, TO_INT(OBJ_BEHAVIOR_GET_SUB_CLASSES(classObj)),
-                   TO_INT(OBJ_BEHAVIOR_GET_SUB_CLASSES(classObj)) + nilSubclasses);
+  create_metaclass(
+      _gst_class_class, TO_INT(OBJ_BEHAVIOR_GET_SUB_CLASSES(classObj)),
+      TO_INT(OBJ_BEHAVIOR_GET_SUB_CLASSES(classObj)) + nilSubclasses);
 }
 
 void create_classes_pass2(const class_definition *ci, int n) {
@@ -787,13 +790,12 @@ void create_metaclass(OOP class_oop, int numMetaclassSubClasses,
   gst_object subClasses;
 
   class = OOP_TO_OBJ(class_oop);
-  metaclass =
-      new_instance(_gst_metaclass_class, &OBJ_CLASS(class));
+  metaclass = new_instance(_gst_metaclass_class, &OBJ_CLASS(class));
 
   OBJ_META_CLASS_SET_INSTANCE_CLASS(metaclass, class_oop);
 
-  subClasses =
-    new_instance_with(_gst_array_class, numSubClasses, &OBJ_BEHAVIOR_GET_SUB_CLASSES(class));
+  subClasses = new_instance_with(_gst_array_class, numSubClasses,
+                                 &OBJ_BEHAVIOR_GET_SUB_CLASSES(class));
   if (numSubClasses > 0)
     subClasses->data[0] = FROM_INT(numSubClasses);
 
@@ -824,14 +826,17 @@ void init_metaclass(OOP metaclassOOP) {
      etc.  We could take three passes, and use the instance variable
      spec for classes once it's established, but it's easier to create
      them here by hand */
-  OBJ_BEHAVIOR_SET_INSTANCE_VARIABLES(metaclass,
-                                      _gst_make_instance_variable_array(
-      _gst_nil_oop, "superClass methodDictionary instanceSpec subClasses "
-                    "instanceVariables name comment category environment "
-                    "classVariables sharedPools "
-      "pragmaHandlers"));
+  OBJ_BEHAVIOR_SET_INSTANCE_VARIABLES(
+      metaclass,
+      _gst_make_instance_variable_array(
+          _gst_nil_oop, "superClass methodDictionary instanceSpec subClasses "
+                        "instanceVariables name comment category environment "
+                        "classVariables sharedPools "
+                        "pragmaHandlers"));
 
-  OBJ_BEHAVIOR_SET_INSTANCE_SPEC(metaclass, (OOP) (GST_ISP_INTMARK | GST_ISP_FIXED | (12 << ISP_NUMFIXEDFIELDS)));
+  OBJ_BEHAVIOR_SET_INSTANCE_SPEC(
+      metaclass,
+      (OOP)(GST_ISP_INTMARK | GST_ISP_FIXED | (12 << ISP_NUMFIXEDFIELDS)));
 
   OBJ_BEHAVIOR_SET_METHOD_DICTIONARY(metaclass, _gst_nil_oop);
 }
@@ -847,10 +852,11 @@ void init_class(OOP class_oop, const class_definition *ci) {
     add_subclass(OBJ_BEHAVIOR_GET_SUPER_CLASS(class), class_oop);
 
   OBJ_CLASS_SET_ENVIRONMENT(class, _gst_smalltalk_dictionary);
-  OBJ_BEHAVIOR_SET_INSTANCE_VARIABLES(class,
-                                   _gst_make_instance_variable_array(OBJ_BEHAVIOR_GET_SUPER_CLASS(class), ci->instVarNames));
-  OBJ_CLASS_SET_CLASS_VARIABLES(class,
-                                _gst_make_class_variable_dictionary(ci->classVarNames, class_oop));
+  OBJ_BEHAVIOR_SET_INSTANCE_VARIABLES(
+      class, _gst_make_instance_variable_array(
+                 OBJ_BEHAVIOR_GET_SUPER_CLASS(class), ci->instVarNames));
+  OBJ_CLASS_SET_CLASS_VARIABLES(
+      class, _gst_make_class_variable_dictionary(ci->classVarNames, class_oop));
 
   OBJ_CLASS_SET_SHARED_POOLS(class, _gst_make_pool_array(ci->sharedPoolNames));
 
@@ -875,7 +881,8 @@ void add_subclass(OOP superClassOOP, OOP subClassOOP) {
 #endif
 
   index = TO_INT(ARRAY_AT(OBJ_BEHAVIOR_GET_SUB_CLASSES(superclass), 1));
-  ARRAY_AT_PUT(OBJ_BEHAVIOR_GET_SUB_CLASSES(superclass), 1, FROM_INT(index - 1));
+  ARRAY_AT_PUT(OBJ_BEHAVIOR_GET_SUB_CLASSES(superclass), 1,
+               FROM_INT(index - 1));
   ARRAY_AT_PUT(OBJ_BEHAVIOR_GET_SUB_CLASSES(superclass), index, subClassOOP);
 }
 
@@ -1126,7 +1133,9 @@ void create_class(const class_definition *ci) {
 
   OBJ_SET_CLASS(class, NULL);
   OBJ_BEHAVIOR_SET_SUPER_CLASS(class, superClassOOP);
-  OBJ_BEHAVIOR_SET_INSTANCE_SPEC(class, (OOP)(GST_ISP_INTMARK | ci->instanceSpec | (numFixedFields << ISP_NUMFIXEDFIELDS)));
+  OBJ_BEHAVIOR_SET_INSTANCE_SPEC(class,
+                                 (OOP)(GST_ISP_INTMARK | ci->instanceSpec |
+                                       (numFixedFields << ISP_NUMFIXEDFIELDS)));
 
   OBJ_BEHAVIOR_SET_SUB_CLASSES(class, FROM_INT(0));
 
@@ -1162,8 +1171,8 @@ mst_Boolean _gst_init_dictionary_on_image_load(mst_Boolean prim_table_matches) {
       dictionary_at(_gst_class_variable_dictionary(_gst_namespace_class),
                     _gst_intern_string("Current"));
 
- /* Important: this is called *after* _gst_init_symbols
-     fills in _gst_vm_primitives_symbol! */
+  /* Important: this is called *after* _gst_init_symbols
+      fills in _gst_vm_primitives_symbol! */
   if (prim_table_matches)
     memcpy(_gst_primitive_table, _gst_default_primitive_table,
            sizeof(_gst_primitive_table));
@@ -1300,7 +1309,7 @@ OOP _gst_namespace_association_at(OOP poolOOP, OOP symbol) {
       return (_gst_nil_oop);
 
     pool = OOP_TO_OBJ(poolOOP);
-    poolOOP = OBJ_NAMESPACE_GET_SUPER_SPACE (pool);
+    poolOOP = OBJ_NAMESPACE_GET_SUPER_SPACE(pool);
   }
 }
 
@@ -1388,7 +1397,8 @@ gst_object grow_dictionary(OOP oldDictionaryOOP) {
     associationOOP = oldDictionary->data[numFixedFields + i];
     if COMMON (!IS_NIL(associationOOP)) {
       association = OOP_TO_OBJ(associationOOP);
-      index = find_key_or_nil(dictionaryOOP, OBJ_ASSOCIATION_GET_KEY(association));
+      index =
+          find_key_or_nil(dictionaryOOP, OBJ_ASSOCIATION_GET_KEY(association));
       dictionary->data[numFixedFields + index] = associationOOP;
     }
   }
@@ -1414,7 +1424,8 @@ gst_object grow_identity_dictionary(OOP oldIdentityDictionaryOOP) {
   oldIdentityDictionary = OOP_TO_OBJ(oldIdentityDictionaryOOP);
   oldIdentDict = oldIdentityDictionary;
   identDict = identityDictionary;
-  OBJ_IDENTITY_DICTIONARY_SET_TALLY(identDict, INCR_INT(OBJ_IDENTITY_DICTIONARY_GET_TALLY(oldIdentDict)));
+  OBJ_IDENTITY_DICTIONARY_SET_TALLY(
+      identDict, INCR_INT(OBJ_IDENTITY_DICTIONARY_GET_TALLY(oldIdentDict)));
 
   /* rehash all associations from old dictionary into new one */
   for (i = 0; i < oldNumFields; i++) {
@@ -1498,8 +1509,8 @@ OOP _gst_identity_dictionary_new(OOP classOOP, int size) {
 
   size = new_num_fields(size);
 
-  identityDictionary = instantiate_with(
-      classOOP, size * 2, &identityDictionaryOOP);
+  identityDictionary =
+      instantiate_with(classOOP, size * 2, &identityDictionaryOOP);
 
   OBJ_IDENTITY_DICTIONARY_SET_TALLY(identityDictionary, FROM_INT(0));
   return (identityDictionaryOOP);
@@ -1521,14 +1532,16 @@ OOP _gst_identity_dictionary_at_put(OOP identityDictionaryOOP, OOP keyOOP,
      likely resolve some collisions and make things faster).  */
 
   identDict = identityDictionary;
-  if UNCOMMON (TO_INT(OBJ_IDENTITY_DICTIONARY_GET_TALLY(identDict)) >= TO_INT(OBJ_SIZE (identDict)) * 3 / 8)
+  if UNCOMMON (TO_INT(OBJ_IDENTITY_DICTIONARY_GET_TALLY(identDict)) >=
+               TO_INT(OBJ_SIZE(identDict)) * 3 / 8)
     identityDictionary = grow_identity_dictionary(identityDictionaryOOP);
 
   index = identity_dictionary_find_key_or_nil(identityDictionaryOOP, keyOOP);
 
   if COMMON (IS_NIL(identityDictionary->data[index - 1 + numFixedFields])) {
     identDict = identityDictionary;
-    OBJ_IDENTITY_DICTIONARY_SET_TALLY(identDict, INCR_INT(OBJ_IDENTITY_DICTIONARY_GET_TALLY(identDict)));
+    OBJ_IDENTITY_DICTIONARY_SET_TALLY(
+        identDict, INCR_INT(OBJ_IDENTITY_DICTIONARY_GET_TALLY(identDict)));
   }
 
   identityDictionary->data[index - 1 + numFixedFields] = keyOOP;
@@ -1573,8 +1586,7 @@ OOP _gst_dictionary_new(int size) {
   OOP dictionaryOOP;
 
   size = new_num_fields(size);
-  dictionary = instantiate_with(_gst_dictionary_class, size,
-                                                &dictionaryOOP);
+  dictionary = instantiate_with(_gst_dictionary_class, size, &dictionaryOOP);
 
   OBJ_DICTIONARY_SET_TALLY(dictionary, FROM_INT(0));
 
@@ -1586,8 +1598,8 @@ OOP _gst_binding_dictionary_new(int size, OOP environmentOOP) {
   OOP dictionaryOOP;
 
   size = new_num_fields(size);
-  dictionary = instantiate_with(
-      _gst_binding_dictionary_class, size, &dictionaryOOP);
+  dictionary =
+      instantiate_with(_gst_binding_dictionary_class, size, &dictionaryOOP);
 
   OBJ_BINDING_DICTIONARY_SET_TALLY(dictionary, FROM_INT(0));
   OBJ_BINDING_DICTIONARY_SET_ENVIRONMENT(dictionary, environmentOOP);
@@ -1610,7 +1622,8 @@ OOP _gst_dictionary_add(OOP dictionaryOOP, OOP associationOOP) {
   association = OOP_TO_OBJ(associationOOP);
   dictionary = OOP_TO_OBJ(dictionaryOOP);
   dict = dictionary;
-  if UNCOMMON (TO_INT(OBJ_DICTIONARY_GET_TALLY(dict)) >= TO_INT(OBJ_SIZE (dict)) * 3 / 4) {
+  if UNCOMMON (TO_INT(OBJ_DICTIONARY_GET_TALLY(dict)) >=
+               TO_INT(OBJ_SIZE(dict)) * 3 / 4) {
     dictionary = grow_dictionary(dictionaryOOP);
     dict = dictionary;
   }
@@ -1618,7 +1631,7 @@ OOP _gst_dictionary_add(OOP dictionaryOOP, OOP associationOOP) {
   index = find_key_or_nil(dictionaryOOP, OBJ_ASSOCIATION_GET_KEY(association));
   index += OOP_FIXED_FIELDS(dictionaryOOP);
   if COMMON (IS_NIL(dictionary->data[index])) {
-    OBJ_DICTIONARY_SET_TALLY (dict, INCR_INT(OBJ_DICTIONARY_GET_TALLY(dict)));
+    OBJ_DICTIONARY_SET_TALLY(dict, INCR_INT(OBJ_DICTIONARY_GET_TALLY(dict)));
     dictionary->data[index] = associationOOP;
   } else {
     value = OBJ_ASSOCIATION_GET_VALUE(OOP_TO_OBJ(associationOOP));
@@ -1642,7 +1655,7 @@ OOP _gst_object_copy(OOP oop) {
 
   new = instantiate_with(OOP_CLASS(oop), numFields, &newOOP);
   old = OOP_TO_OBJ(oop);
-  memcpy(new, old, SIZE_TO_BYTES(TO_INT(OBJ_SIZE (old))));
+  memcpy(new, old, SIZE_TO_BYTES(TO_INT(OBJ_SIZE(old))));
 
   OOP_SET_FLAGS(newOOP,
                 OOP_GET_FLAGS(newOOP) | (OOP_GET_FLAGS(oop) & F_CONTEXT));
@@ -1921,13 +1934,15 @@ int _gst_identity_dictionary_at_inc(OOP identityDictionaryOOP, OOP keyOOP,
      likely resolve some collisions and make things faster).  */
 
   identDict = identityDictionary;
-  if UNCOMMON (TO_INT(OBJ_IDENTITY_DICTIONARY_GET_TALLY(identDict)) >= TO_INT(OBJ_SIZE (identDict)) * 3 / 8)
+  if UNCOMMON (TO_INT(OBJ_IDENTITY_DICTIONARY_GET_TALLY(identDict)) >=
+               TO_INT(OBJ_SIZE(identDict)) * 3 / 8)
     identityDictionary = grow_identity_dictionary(identityDictionaryOOP);
   index = identity_dictionary_find_key_or_nil(identityDictionaryOOP, keyOOP);
 
   if UNCOMMON (IS_NIL(identityDictionary->data[index - 1 + numFixedFields])) {
     identDict = identityDictionary;
-    OBJ_IDENTITY_DICTIONARY_SET_TALLY(identDict, INCR_INT(OBJ_IDENTITY_DICTIONARY_GET_TALLY(identDict)));
+    OBJ_IDENTITY_DICTIONARY_SET_TALLY(
+        identDict, INCR_INT(OBJ_IDENTITY_DICTIONARY_GET_TALLY(identDict)));
     oldValue = 0;
   } else
     oldValue = TO_INT(identityDictionary->data[index + numFixedFields]);

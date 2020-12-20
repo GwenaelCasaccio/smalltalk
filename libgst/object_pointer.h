@@ -209,87 +209,159 @@
 /* ASSOCIATION */
 
 #define OBJ_ASSOCIATION_GET_KEY(obj) ((obj))->data[0]
-#define OBJ_ASSOCIATION_SET_KEY(obj, valueOOP) do { ((obj))->data[0] = (valueOOP); } while(0)
+#define OBJ_ASSOCIATION_SET_KEY(obj, valueOOP)                                 \
+  do {                                                                         \
+    ((obj))->data[0] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_ASSOCIATION_GET_VALUE(obj) ((obj))->data[1]
-#define OBJ_ASSOCIATION_SET_VALUE(obj, valueOOP) do { ((obj))->data[1] = (valueOOP); } while(0)
+#define OBJ_ASSOCIATION_SET_VALUE(obj, valueOOP)                               \
+  do {                                                                         \
+    ((obj))->data[1] = (valueOOP);                                             \
+  } while (0)
 
 /* VARIABLE BINDING */
 
 #define OBJ_VARIABLE_BINDING_GET_KEY(obj) ((obj))->data[0]
-#define OBJ_VARIABLE_BINDING_SET_KEY(obj, valueOOP) do { ((obj))->data[0] = (valueOOP); } while(0)
+#define OBJ_VARIABLE_BINDING_SET_KEY(obj, valueOOP)                            \
+  do {                                                                         \
+    ((obj))->data[0] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_VARIABLE_BINDING_GET_VALUE(obj) ((obj))->data[1]
-#define OBJ_VARIABLE_BINDING_SET_VALUE(obj, valueOOP) do { ((obj))->data[1] = (valueOOP); } while(0)
+#define OBJ_VARIABLE_BINDING_SET_VALUE(obj, valueOOP)                          \
+  do {                                                                         \
+    ((obj))->data[1] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_VARIABLE_BINDING_GET_ENVIRONMENT(obj) ((obj))->data[2]
-#define OBJ_VARIABLE_BINDING_SET_ENVIRONMENT(obj, valueOOP) do { ((obj))->data[2] = (valueOOP); } while(0)
+#define OBJ_VARIABLE_BINDING_SET_ENVIRONMENT(obj, valueOOP)                    \
+  do {                                                                         \
+    ((obj))->data[2] = (valueOOP);                                             \
+  } while (0)
 
 /* MESSAGE */
 
 #define OBJ_MESSAGE_GET_SELECTOR(obj) ((obj))->data[0]
-#define OBJ_MESSAGE_SET_SELECTOR(obj, valueOOP) do { ((obj))->data[0] = (valueOOP); } while(0)
+#define OBJ_MESSAGE_SET_SELECTOR(obj, valueOOP)                                \
+  do {                                                                         \
+    ((obj))->data[0] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_MESSAGE_GET_ARGS(obj) ((obj))->data[1]
-#define OBJ_MESSAGE_SET_ARGS(obj, valueOOP) do { ((obj))->data[1] = (valueOOP); } while(0)
+#define OBJ_MESSAGE_SET_ARGS(obj, valueOOP)                                    \
+  do {                                                                         \
+    ((obj))->data[1] = (valueOOP);                                             \
+  } while (0)
 
 /* MESSAGE LOOKUP */
 #define OBJ_MESSAGE_LOOKUP_GET_SELECTOR(obj) ((obj))->data[0]
-#define OBJ_MESSAGE_LOOKUP_SET_SELECTOR(obj, valueOOP) do { ((obj))->data[0] = (valueOOP); } while(0)
+#define OBJ_MESSAGE_LOOKUP_SET_SELECTOR(obj, valueOOP)                         \
+  do {                                                                         \
+    ((obj))->data[0] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_MESSAGE_LOOKUP_GET_ARGS(obj) ((obj))->data[1]
-#define OBJ_MESSAGE_LOOKUP_SET_ARGS(obj, valueOOP) do { ((obj))->data[1] = (valueOOP); } while(0)
+#define OBJ_MESSAGE_LOOKUP_SET_ARGS(obj, valueOOP)                             \
+  do {                                                                         \
+    ((obj))->data[1] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_MESSAGE_LOOKUP_GET_STARTING_CLASS(obj) ((obj))->data[2]
-#define OBJ_MESSAGE_LOOKUP_SET_STARTING_CLASS(obj, valueOOP) do { ((obj))->data[2] = (valueOOP); } while(0)
+#define OBJ_MESSAGE_LOOKUP_SET_STARTING_CLASS(obj, valueOOP)                   \
+  do {                                                                         \
+    ((obj))->data[2] = (valueOOP);                                             \
+  } while (0)
 
 /* IDENTITY DICTIONARY */
 
 #define OBJ_IDENTITY_DICTIONARY_GET_TALLY(obj) ((obj))->data[0]
-#define OBJ_IDENTITY_DICTIONARY_SET_TALLY(obj, valueOOP) do { ((obj))->data[0] = (valueOOP); } while(0)
+#define OBJ_IDENTITY_DICTIONARY_SET_TALLY(obj, valueOOP)                       \
+  do {                                                                         \
+    ((obj))->data[0] = (valueOOP);                                             \
+  } while (0)
 
 /* BEHAVIOR */
 #define OBJ_BEHAVIOR_GET_SUPER_CLASS(obj) ((obj))->data[0]
-#define OBJ_BEHAVIOR_SET_SUPER_CLASS(obj, valueOOP) do { ((obj))->data[0] = (valueOOP); } while(0)
+#define OBJ_BEHAVIOR_SET_SUPER_CLASS(obj, valueOOP)                            \
+  do {                                                                         \
+    ((obj))->data[0] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_BEHAVIOR_GET_METHOD_DICTIONARY(obj) ((obj))->data[1]
-#define OBJ_BEHAVIOR_SET_METHOD_DICTIONARY(obj, valueOOP) do { ((obj))->data[1] = (valueOOP); } while(0)
+#define OBJ_BEHAVIOR_SET_METHOD_DICTIONARY(obj, valueOOP)                      \
+  do {                                                                         \
+    ((obj))->data[1] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_BEHAVIOR_GET_INSTANCE_SPEC(obj) ((obj))->data[2]
-#define OBJ_BEHAVIOR_SET_INSTANCE_SPEC(obj, valueOOP) do { ((obj))->data[2] = (valueOOP); } while(0)
+#define OBJ_BEHAVIOR_SET_INSTANCE_SPEC(obj, valueOOP)                          \
+  do {                                                                         \
+    ((obj))->data[2] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_BEHAVIOR_GET_SUB_CLASSES(obj) ((obj))->data[3]
-#define OBJ_BEHAVIOR_SET_SUB_CLASSES(obj, valueOOP) do { ((obj))->data[3] = (valueOOP); } while(0)
+#define OBJ_BEHAVIOR_SET_SUB_CLASSES(obj, valueOOP)                            \
+  do {                                                                         \
+    ((obj))->data[3] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_BEHAVIOR_GET_INSTANCE_VARIABLES(obj) ((obj))->data[4]
-#define OBJ_BEHAVIOR_SET_INSTANCE_VARIABLES(obj, valueOOP) do { ((obj))->data[4] = (valueOOP); } while(0)
+#define OBJ_BEHAVIOR_SET_INSTANCE_VARIABLES(obj, valueOOP)                     \
+  do {                                                                         \
+    ((obj))->data[4] = (valueOOP);                                             \
+  } while (0)
 
 /* CLASS */
 
 #define OBJ_CLASS_GET_NAME(obj) ((obj))->data[5]
-#define OBJ_CLASS_SET_NAME(obj, valueOOP) do { ((obj))->data[5] = (valueOOP); } while(0)
+#define OBJ_CLASS_SET_NAME(obj, valueOOP)                                      \
+  do {                                                                         \
+    ((obj))->data[5] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_CLASS_GET_COMMENT(obj) ((obj))->data[6]
-#define OBJ_CLASS_SET_COMMENT(obj, valueOOP) do { ((obj))->data[6] = (valueOOP); } while(0)
+#define OBJ_CLASS_SET_COMMENT(obj, valueOOP)                                   \
+  do {                                                                         \
+    ((obj))->data[6] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_CLASS_GET_CATEGORY(obj) ((obj))->data[7]
-#define OBJ_CLASS_SET_CATEGORY(obj, valueOOP) do { ((obj))->data[7] = (valueOOP); } while(0)
+#define OBJ_CLASS_SET_CATEGORY(obj, valueOOP)                                  \
+  do {                                                                         \
+    ((obj))->data[7] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_CLASS_GET_ENVIRONMENT(obj) ((obj))->data[8]
-#define OBJ_CLASS_SET_ENVIRONMENT(obj, valueOOP) do { ((obj))->data[8] = (valueOOP); } while(0)
+#define OBJ_CLASS_SET_ENVIRONMENT(obj, valueOOP)                               \
+  do {                                                                         \
+    ((obj))->data[8] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_CLASS_GET_CLASS_VARIABLES(obj) ((obj))->data[9]
-#define OBJ_CLASS_SET_CLASS_VARIABLES(obj, valueOOP) do { ((obj))->data[9] = (valueOOP); } while(0)
+#define OBJ_CLASS_SET_CLASS_VARIABLES(obj, valueOOP)                           \
+  do {                                                                         \
+    ((obj))->data[9] = (valueOOP);                                             \
+  } while (0)
 
 #define OBJ_CLASS_GET_SHARED_POOLS(obj) ((obj))->data[10]
-#define OBJ_CLASS_SET_SHARED_POOLS(obj, valueOOP) do { ((obj))->data[10] = (valueOOP); } while(0)
+#define OBJ_CLASS_SET_SHARED_POOLS(obj, valueOOP)                              \
+  do {                                                                         \
+    ((obj))->data[10] = (valueOOP);                                            \
+  } while (0)
 
 #define OBJ_CLASS_GET_PRAGMA_HANDLERS(obj) ((obj))->data[11]
-#define OBJ_CLASS_SET_PRAGMA_HANDLERS(obj, valueOOP) do { ((obj))->data[11] = (valueOOP); } while(0)
+#define OBJ_CLASS_SET_PRAGMA_HANDLERS(obj, valueOOP)                           \
+  do {                                                                         \
+    ((obj))->data[11] = (valueOOP);                                            \
+  } while (0)
 
 /* META CLASS */
 
 #define OBJ_META_CLASS_GET_INSTANCE_CLASS(obj) ((obj))->data[5]
-#define OBJ_META_CLASS_SET_INSTANCE_CLASS(obj, valueOOP) do { ((obj))->data[5] = (valueOOP); } while(0)
+#define OBJ_META_CLASS_SET_INSTANCE_CLASS(obj, valueOOP)                       \
+  do {                                                                         \
+    ((obj))->data[5] = (valueOOP);                                             \
+  } while (0)
 
 #endif /* GST_OBJECT_POINTER_H */
