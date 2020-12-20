@@ -709,7 +709,7 @@ parse_scoped_definition (gst_parser *p, tree_node first_stmt)
       if (classOrMetaclassOOP != NULL) 
  	{
           inc_ptr incPtr = INC_SAVE_POINTER ();
- 	  OOP namespace_new = ((gst_class) OOP_TO_OBJ (classOOP))->environment;
+          OOP namespace_new = OBJ_CLASS_GET_ENVIRONMENT(OOP_TO_OBJ (classOOP));
           OOP namespace_old = set_compilation_namespace (namespace_new);
           INC_ADD_OOP (namespace_old);
  	  ret_value = parse_class_definition (p, classOrMetaclassOOP, true);
@@ -949,10 +949,10 @@ parse_class_definition (gst_parser *p, OOP classOOP, mst_Boolean extend)
 	      class_var_dict = _gst_class_variable_dictionary (the_class);
 	      if (IS_NIL (class_var_dict))
 		{
-		  gst_class class;
+		  gst_object class;
 		  class_var_dict = _gst_binding_dictionary_new (8, the_class);
-		  class = (gst_class) OOP_TO_OBJ (the_class);
-		  class->classVariables = class_var_dict;
+		  class = OOP_TO_OBJ (the_class);
+		  OBJ_CLASS_SET_CLASS_VARIABLES(class, class_var_dict);
 		}
 
 	      stmt = parse_required_expression (p);
@@ -968,7 +968,7 @@ parse_class_definition (gst_parser *p, OOP classOOP, mst_Boolean extend)
 		}
 
 	      if (token (p, 0) != ']')
-		lex_skip_mandatory(p, '.');	      
+		lex_skip_mandatory(p, '.');
 	      continue;
 	    }
 	  else if (t2 == BINOP)
@@ -1022,7 +1022,7 @@ parse_class_definition (gst_parser *p, OOP classOOP, mst_Boolean extend)
 		      _gst_had_error = true;
 		      continue;
 		    }
-		  else if (((gst_class) OOP_TO_OBJ (classOOP))->name
+		  else if ((OBJ_CLASS_GET_NAME(OOP_TO_OBJ (classOOP)))
 			   != _gst_intern_string (val (p, 0)->sval))
 		    {
 		      _gst_errorf ("`%s class' invalid within %O",
@@ -1137,8 +1137,8 @@ parse_scoped_method (gst_parser *p, OOP classOOP)
     {
       _gst_skip_compilation = true;
       _gst_errorf ("%#O is not %#O or one of its superclasses",
-		   ((gst_class) OOP_TO_OBJ (class))->name,
-		   ((gst_class) OOP_TO_OBJ (classOOP))->name);
+                   OBJ_CLASS_GET_NAME((OOP_TO_OBJ (class))),
+                   OBJ_CLASS_GET_NAME((OOP_TO_OBJ (classOOP))));
     }
 
   else
@@ -1263,8 +1263,8 @@ parse_instance_variables (gst_parser *p, OOP classOOP, mst_Boolean extend)
 
   if (extend)
     {
-      gst_behavior class = (gst_behavior) OOP_TO_OBJ (classOOP);
-      OOP *instVars = OOP_TO_OBJ (class->instanceVariables)->data;
+      gst_object class = OOP_TO_OBJ (classOOP);
+      OOP *instVars = OOP_TO_OBJ (OBJ_BEHAVIOR_GET_INSTANCE_VARIABLES(class))->data;
       int n = CLASS_FIXED_FIELDS (classOOP);
       OOP superclassOOP = SUPERCLASS (classOOP);
       if (!IS_NIL (superclassOOP))

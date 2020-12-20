@@ -300,7 +300,8 @@ static inline uint64_t to_c_uint_64(OOP oop);
 
 /* Answer the array of arguments extracted by the Message,
    MESSAGEOOP.  */
-#define MESSAGE_ARGS(messageOOP) (OBJ_MESSAGE_GET_ARGS((OOP_TO_OBJ(messageOOP))))
+#define MESSAGE_ARGS(messageOOP)                                               \
+  (OBJ_MESSAGE_GET_ARGS((OOP_TO_OBJ(messageOOP))))
 
 /* Answer a new CObject pointing to COBJPTR.  */
 #define COBJECT_NEW(cObjPtr, typeOOP, defaultClassOOP)                         \
@@ -310,15 +311,16 @@ static inline uint64_t to_c_uint_64(OOP oop);
 /* Answer the offset component of the a CObject, COBJ (*not* an OOP,
    but an object pointer).  */
 #define COBJECT_OFFSET_OBJ(cObj)                                               \
-  (((uintptr_t *)cObj)[TO_INT(OBJ_SIZE ((cObj))) - 1])
+  (((uintptr_t *)cObj)[TO_INT(OBJ_SIZE((cObj))) - 1])
 
 /* Sets to VALUE the offset component of the CObject, COBJ (*not* an
    OOP, but an object pointer).  */
 #define SET_COBJECT_OFFSET_OBJ(cObj, value)                                    \
-  (((uintptr_t *)cObj)[TO_INT(OBJ_SIZE ((cObj))) - 1] = (uintptr_t)(value))
+  (((uintptr_t *)cObj)[TO_INT(OBJ_SIZE((cObj))) - 1] = (uintptr_t)(value))
 
 /* Answer the superclass of the Behavior, CLASS_OOP.  */
-#define SUPERCLASS(class_oop) (((gst_class)OOP_TO_OBJ(class_oop))->superclass)
+#define SUPERCLASS(class_oop)                                                  \
+  ((OBJ_BEHAVIOR_GET_SUPER_CLASS(OOP_TO_OBJ(class_oop))))
 
 /* Answer the number of fixed instance variables in OOP.  */
 #define OOP_FIXED_FIELDS(oop) (OOP_INSTANCE_SPEC(oop) >> ISP_NUMFIXEDFIELDS)
@@ -375,16 +377,16 @@ static inline uint64_t to_c_uint_64(OOP oop);
 
 /* Answer the sole instance of the metaclass, METACLASSOOP.  */
 #define METACLASS_INSTANCE(metaclassOOP)                                       \
-  (((gst_metaclass)OOP_TO_OBJ(metaclassOOP))->instanceClass)
+  (OBJ_META_CLASS_GET_INSTANCE_CLASS(OOP_TO_OBJ(metaclassOOP)))
 
 /* Return  the namespace in which references to globals
    from methods of CLASS_OOP are resolved.  */
 #define CLASS_ENVIRONMENT(class_oop)                                           \
-  (((gst_class)OOP_TO_OBJ(class_oop))->environment)
+  (OBJ_CLASS_GET_ENVIRONMENT((OOP_TO_OBJ(class_oop))))
 
 /* Answer the instance specification for instances of CLASS_OOP.  */
 #define CLASS_INSTANCE_SPEC(class_oop)                                         \
-  (((gst_class)OOP_TO_OBJ(class_oop))->instanceSpec)
+  ((intptr_t)(OBJ_BEHAVIOR_GET_INSTANCE_SPEC(OOP_TO_OBJ(class_oop))))
 
 /* Answer the instance specification of the object OBJ (*not* an OOP).  */
 #define GET_INSTANCE_SPEC(obj) CLASS_INSTANCE_SPEC(OBJ_CLASS((obj)))
@@ -415,7 +417,7 @@ static inline uint64_t to_c_uint_64(OOP oop);
 
 /* Answer the size in bytes of the object data for OOP.  */
 #define OBJECT_SIZE_BYTES(obj)                                                 \
-  (SIZE_TO_BYTES(TO_INT(OBJ_SIZE ((obj)))) - sizeof(gst_object_header))
+  (SIZE_TO_BYTES(TO_INT(OBJ_SIZE((obj)))) - sizeof(gst_object_header))
 
 /* Answer the size in bytes of the object data for OOP.  */
 #define OOP_SIZE_BYTES(oop) OBJECT_SIZE_BYTES(OOP_TO_OBJ(oop))
@@ -424,7 +426,7 @@ static inline uint64_t to_c_uint_64(OOP oop);
    variables, both fixed and indexed), in OOP.  Use instead of
    NUM_OOPS if you know OOP is not a byte object.  */
 #define NUM_WORDS(obj)                                                         \
-  ((size_t)(TO_INT(OBJ_SIZE ((obj))) - OBJ_HEADER_SIZE_WORDS))
+  ((size_t)(TO_INT(OBJ_SIZE((obj))) - OBJ_HEADER_SIZE_WORDS))
 
 /* Return the number of pointer instance variables (both fixed and
    indexed), in the object OBJ.  */
@@ -746,8 +748,7 @@ OOP association_new(OOP key, OOP value) {
   gst_object association;
   OOP associationOOP;
 
-  association =
-      new_instance(_gst_association_class, &associationOOP);
+  association = new_instance(_gst_association_class, &associationOOP);
 
   OBJ_ASSOCIATION_SET_KEY(association, key);
   OBJ_ASSOCIATION_SET_VALUE(association, value);
@@ -759,8 +760,7 @@ OOP variable_binding_new(OOP key, OOP value, OOP environment) {
   gst_object binding;
   OOP bindingOOP;
 
-  binding = new_instance(_gst_variable_binding_class,
-                                               &bindingOOP);
+  binding = new_instance(_gst_variable_binding_class, &bindingOOP);
 
   OBJ_VARIABLE_BINDING_SET_KEY(binding, key);
   OBJ_VARIABLE_BINDING_SET_VALUE(binding, value);

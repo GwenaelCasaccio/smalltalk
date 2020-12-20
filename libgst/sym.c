@@ -733,13 +733,13 @@ static pool_list *combine_local_pools(OOP sharedPoolsOOP,
 
 static pool_list *add_shared_pool_resolution(OOP class_oop, OOP environmentOOP,
                                              pool_list *p_end) {
-  gst_class class;
+  gst_object class;
   struct pointer_set_t *pset;
 
   /* Then in all the imports not reachable from the environment.  */
   pset = make_with_all_superspaces_set(environmentOOP);
-  class = (gst_class)OOP_TO_OBJ(class_oop);
-  p_end = combine_local_pools(class->sharedPools, pset, p_end);
+  class = OOP_TO_OBJ(class_oop);
+  p_end = combine_local_pools(OBJ_CLASS_GET_SHARED_POOLS(class), pset, p_end);
   pointer_set_destroy(pset);
 
   /* Then search in the `environments', except those that are already
@@ -967,13 +967,13 @@ OOP _gst_find_pragma_handler(OOP classOOP, OOP symbolOOP) {
   /* Now search in the class pools */
   for (class_oop = myClass; !IS_NIL(class_oop);
        class_oop = SUPERCLASS(class_oop)) {
-    gst_class class = (gst_class)OOP_TO_OBJ(class_oop);
+    gst_object class = OOP_TO_OBJ(class_oop);
     OOP handlerOOP;
 
-    if (IS_NIL(class->pragmaHandlers))
+    if (IS_NIL(OBJ_CLASS_GET_PRAGMA_HANDLERS(class)))
       continue;
 
-    handlerOOP = _gst_identity_dictionary_at(class->pragmaHandlers, symbolOOP);
+    handlerOOP = _gst_identity_dictionary_at(OBJ_CLASS_GET_PRAGMA_HANDLERS(class), symbolOOP);
     if (!IS_NIL(handlerOOP))
       return handlerOOP;
   }

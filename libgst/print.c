@@ -124,10 +124,10 @@ int print_association_key_to_stream(FILE *stream, OOP associationOOP) {
 }
 
 int print_class_name_to_stream(FILE *stream, OOP class_oop) {
-  gst_class class;
-  class = (gst_class)OOP_TO_OBJ(class_oop);
-  if (IS_A_CLASS(class_oop) && !IS_NIL(class->name))
-    return print_string_to_stream(stream, class->name);
+  gst_object class;
+  class = OOP_TO_OBJ(class_oop);
+  if (IS_A_CLASS(class_oop) && !IS_NIL(OBJ_CLASS_GET_NAME(class)))
+    return print_string_to_stream(stream, OBJ_CLASS_GET_NAME(class));
   else if (IS_A_CLASS(OOP_CLASS(class_oop))) {
     int r;
     r = fprintf(stream, "<unnamed ");

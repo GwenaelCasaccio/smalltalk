@@ -80,28 +80,6 @@ typedef struct gst_file_stream {
   OOP writeEnd;
 } * gst_file_stream;
 
-typedef struct gst_identity_dictionary {
-  OBJ_HEADER;
-  OOP tally; /* really, an int */
-
-  /* Other, indexable fields that contain keys and values for this
-     dictionary.  */
-} * gst_identity_dictionary;
-
-#define BEHAVIOR_HEADER                                                        \
-  OBJ_HEADER;                                                                  \
-  OOP superclass;                                                              \
-  OOP methodDictionary;                                                        \
-  intptr_t instanceSpec;                                                       \
-  OOP subClasses;                                                              \
-  OOP instanceVariables
-
-typedef struct gst_behavior {
-  BEHAVIOR_HEADER;
-} * gst_behavior;
-
-#define CLASS_DESCRIPTION_HEADER BEHAVIOR_HEADER
-
 #define COBJECT_ANON_TYPE FROM_INT(-1)
 #define COBJECT_CHAR_TYPE FROM_INT(0)
 #define COBJECT_UNSIGNED_CHAR_TYPE FROM_INT(1)
@@ -144,10 +122,6 @@ enum {
   GST_ISP_INTMARK = 1
 };
 
-typedef struct gst_class_description {
-  CLASS_DESCRIPTION_HEADER;
-} * gst_class_description;
-
 typedef struct gst_deferred_variable_binding {
   OBJ_HEADER;
   OOP key;
@@ -186,22 +160,6 @@ typedef struct gst_byte_array {
   OBJ_HEADER;
   gst_uchar bytes[1];
 } * gst_byte_array;
-
-typedef struct gst_class {
-  CLASS_DESCRIPTION_HEADER;
-  OOP name;
-  OOP comment;
-  OOP category;
-  OOP environment;
-  OOP classVariables; /* dictionary of name->value pairs */
-  OOP sharedPools;
-  OOP pragmaHandlers;
-} * gst_class;
-
-typedef struct gst_metaclass {
-  CLASS_DESCRIPTION_HEADER;
-  OOP instanceClass;
-} * gst_metaclass;
 
 typedef struct gst_char {
   OBJ_HEADER;
