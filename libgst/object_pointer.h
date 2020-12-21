@@ -396,7 +396,31 @@
     ((obj))->data[5] = (valueOOP);                                             \
   } while (0)
 
-/* CTPYPE */
+/* COBJECT */
+#define OBJ_COBJECT_GET_TYPE(obj) ((obj))->data[0]
+#define OBJ_COBJECT_SET_TYPE(obj, valueOOP) \
+  do {                                            \
+    ((obj))->data[0] = (valueOOP);                \
+  } while (0)
+
+#define OBJ_COBJECT_GET_STORAGE(obj) ((obj))->data[1]
+#define OBJ_COBJECT_SET_STORAGE(obj, valueOOP)     \
+  do {                                          \
+    ((obj))->data[1] = (valueOOP);              \
+  } while (0)
+
+/* Answer the offset component of the a CObject, COBJ (*not* an OOP,
+   but an object pointer).  */
+#define COBJECT_OFFSET_OBJ(cObj)                      \
+  (((uintptr_t *)cObj)[TO_INT(OBJ_SIZE((cObj))) - 1])
+
+/* Sets to VALUE the offset component of the CObject, COBJ (*not* an
+   OOP, but an object pointer).  */
+#define SET_COBJECT_OFFSET_OBJ(cObj, value)                             \
+  (((uintptr_t *)cObj)[TO_INT(OBJ_SIZE((cObj))) - 1] = (uintptr_t)(value))
+
+
+/* CTYPE */
 
 #define OBJ_CTYPE_GET_COBJECT_TYPE(obj) ((obj))->data[0]
 #define OBJ_CTYPE_SET_COBJECT_TYPE(obj, valueOOP)         \

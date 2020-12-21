@@ -4268,8 +4268,8 @@ static intptr_t VMpr_CObject_at(int id, volatile int numArgs) {
            that a pointer that is one-past the end of the object is
            valid!).  */
 
-        gst_cobject cObj = (gst_cobject)OOP_TO_OBJ(oop1);
-        baseOOP = cObj->storage;
+        gst_object cObj = OOP_TO_OBJ(oop1);
+        baseOOP = OBJ_COBJECT_GET_STORAGE(cObj);
         ofs = COBJECT_OFFSET_OBJ(cObj) + arg2;
       }
 
@@ -4443,15 +4443,15 @@ fail:
 /* CObject address */
 static intptr_t VMpr_CObject_address(int id, volatile int numArgs) {
   OOP oop1;
-  gst_cobject cObj;
+  gst_object cObj;
   uintptr_t ptr;
   _gst_primitives_executed++;
 
   oop1 = STACKTOP();
-  cObj = (gst_cobject)OOP_TO_OBJ(oop1);
+  cObj = OOP_TO_OBJ(oop1);
   ptr = (uintptr_t)COBJECT_OFFSET_OBJ(cObj);
 
-  if (IS_NIL(cObj->storage))
+  if (IS_NIL(OBJ_COBJECT_GET_STORAGE(cObj)))
     SET_STACKTOP(FROM_C_ULONG(ptr));
   else
     SET_STACKTOP(FROM_C_LONG(ptr));
@@ -4462,14 +4462,14 @@ static intptr_t VMpr_CObject_address(int id, volatile int numArgs) {
 /* CObject address: */
 static intptr_t VMpr_CObject_addressColon(int id, volatile int numArgs) {
   OOP oop1, oop2;
-  gst_cobject cObj;
+  gst_object cObj;
   _gst_primitives_executed++;
 
   oop2 = POP_OOP();
   oop1 = STACKTOP();
-  cObj = (gst_cobject)OOP_TO_OBJ(oop1);
+  cObj = OOP_TO_OBJ(oop1);
 
-  if (IS_NIL(cObj->storage) ? IS_C_ULONG(oop2) : IS_C_LONG(oop2)) {
+  if (IS_NIL(OBJ_COBJECT_GET_STORAGE(cObj)) ? IS_C_ULONG(oop2) : IS_C_LONG(oop2)) {
     SET_COBJECT_OFFSET_OBJ(cObj, TO_C_LONG(oop2));
     PRIM_SUCCEEDED;
   }

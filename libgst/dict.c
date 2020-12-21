@@ -1813,7 +1813,7 @@ OOP _gst_message_new_args(OOP selectorOOP, OOP argsArray) {
 
 OOP _gst_c_object_new_base(OOP baseOOP, uintptr_t cObjOfs, OOP typeOOP,
                            OOP defaultClassOOP) {
-  gst_cobject cObject;
+  gst_object cObject;
   gst_object cType;
   OOP cObjectOOP;
   OOP classOOP;
@@ -1824,20 +1824,20 @@ OOP _gst_c_object_new_base(OOP baseOOP, uintptr_t cObjOfs, OOP typeOOP,
   } else
     classOOP = defaultClassOOP;
 
-  cObject = (gst_cobject)instantiate_with(classOOP, 1, &cObjectOOP);
-  cObject->type = typeOOP;
-  cObject->storage = baseOOP;
+  cObject = instantiate_with(classOOP, 1, &cObjectOOP);
+  OBJ_COBJECT_SET_TYPE(cObject, typeOOP);
+  OBJ_COBJECT_SET_STORAGE(cObject, baseOOP);
   SET_COBJECT_OFFSET_OBJ(cObject, cObjOfs);
 
   return (cObjectOOP);
 }
 
 void _gst_free_cobject(OOP cObjOOP) {
-  gst_cobject cObject;
+  gst_object cObject;
 
-  cObject = (gst_cobject)OOP_TO_OBJ(cObjOOP);
-  if (!IS_NIL(cObject->storage))
-    cObject->storage = _gst_nil_oop;
+  cObject = OOP_TO_OBJ(cObjOOP);
+  if (!IS_NIL(OBJ_COBJECT_GET_STORAGE(cObject)))
+    OBJ_COBJECT_SET_STORAGE(cObject, _gst_nil_oop);
   else
     xfree((PTR)COBJECT_OFFSET_OBJ(cObject));
 
