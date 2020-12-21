@@ -290,10 +290,6 @@ static inline uint64_t to_c_uint_64(OOP oop);
 #define CHAR_OOP_VALUE(charOOP)                                                \
   TO_INT(((gst_char)OOP_TO_OBJ(charOOP))->codePoint)
 
-/* Answer a pointer to the first character of STRINGOOP.  */
-#define STRING_OOP_CHARS(stringOOP)                                            \
-  ((gst_uchar *)((gst_string)OOP_TO_OBJ(stringOOP))->chars)
-
 /* Answer the selector extracted by the Message, MESSAGEOOP.  */
 #define MESSAGE_SELECTOR(messageOOP)                                           \
   (OBJ_MESSAGE_GET_SELECTOR((OOP_TO_OBJ(messageOOP))))

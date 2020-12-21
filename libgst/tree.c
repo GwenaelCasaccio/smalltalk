@@ -678,11 +678,11 @@ static void print_attribute_list_node(tree_node node, int level) {
   OOP messageOOP = value->v_const.val.oopVal;
   gst_object message = OOP_TO_OBJ(messageOOP);
   OOP selectorOOP = OBJ_MESSAGE_GET_SELECTOR(message);
-  gst_string selector = (gst_string)OOP_TO_OBJ(selectorOOP);
+  gst_object selector = OOP_TO_OBJ(selectorOOP);
   OOP argumentsOOP = OBJ_MESSAGE_GET_ARGS(message);
   gst_object arguments = OOP_TO_OBJ(argumentsOOP);
 
-  const char *sel = selector->chars;
+  const char *sel = OBJ_STRING_GET_CHARS(selector);
   char *name = alloca(oop_num_fields(selectorOOP) + 1);
   int numArgs = oop_num_fields(argumentsOOP);
 

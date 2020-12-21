@@ -122,11 +122,6 @@ enum {
   GST_ISP_INTMARK = 1
 };
 
-typedef struct gst_string {
-  OBJ_HEADER;
-  char chars[1];
-} * gst_string;
-
 typedef struct gst_unicode_string {
   OBJ_HEADER;
   uint32_t chars[1];

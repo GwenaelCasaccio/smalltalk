@@ -449,4 +449,15 @@
     ((long double *)((obj))->data)[0] = (valueOOP);  \
   } while (0)
 
+/* STRING */
+#define OBJ_STRING_GET_CHARS(obj) ((char *)((obj))->data)
+#define OBJ_STRING_SET_CHARS(obj, valueOOP)         \
+  do {                                              \
+    ((char *)((obj))->data)[0] = (valueOOP); \
+  } while (0)
+
+/* Answer a pointer to the first character of STRINGOOP.  */
+#define STRING_OOP_CHARS(stringOOP)                         \
+  ((gst_uchar *)(OBJ_STRING_GET_CHARS(OOP_TO_OBJ(stringOOP))))
+
 #endif /* GST_OBJECT_POINTER_H */
