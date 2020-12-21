@@ -396,4 +396,12 @@
     ((obj))->data[5] = (valueOOP);                                             \
   } while (0)
 
+/* CTPYPE */
+
+#define OBJ_CTYPE_GET_COBJECT_TYPE(obj) ((obj))->data[0]
+#define OBJ_CTYPE_SET_COBJECT_TYPE(obj, valueOOP)         \
+  do {                                                    \
+    ((obj))->data[0] = (valueOOP);                        \
+  } while (0)
+
 #endif /* GST_OBJECT_POINTER_H */

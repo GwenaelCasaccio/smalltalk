@@ -163,12 +163,6 @@ typedef struct gst_cobject {
   OOP storage;
 } * gst_cobject;
 
-typedef struct gst_ctype {
-  OBJ_HEADER;
-  OOP cObjectType; /* the gst_cobject subclass to use when
-                      instantiating this type */
-} * gst_ctype;
-
 extern OOP _gst_abstract_namespace_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_array_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_arrayed_collection_class ATTRIBUTE_HIDDEN;
