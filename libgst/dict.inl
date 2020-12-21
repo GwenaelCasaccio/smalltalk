@@ -288,7 +288,7 @@ static inline uint64_t to_c_uint_64(OOP oop);
 
 /* Answer the code point of the character OOP, charOOP.  */
 #define CHAR_OOP_VALUE(charOOP)                                                \
-  TO_INT(((gst_char)OOP_TO_OBJ(charOOP))->codePoint)
+  TO_INT(OBJ_CHAR_GET_CODE_POINTS((OOP_TO_OBJ(charOOP))))
 
 /* Answer the selector extracted by the Message, MESSAGEOOP.  */
 #define MESSAGE_SELECTOR(messageOOP)                                           \
@@ -512,7 +512,7 @@ OOP floatq_new(long double f) {
 }
 
 OOP char_new(unsigned codePoint) {
-  gst_char charObject;
+  gst_object charObject;
   OOP charOOP;
 
   if (codePoint <= 127)
@@ -520,9 +520,9 @@ OOP char_new(unsigned codePoint) {
   if UNCOMMON (codePoint > 0x10FFFF)
     codePoint = 0xFFFD;
 
-  charObject = (gst_char)new_instance(_gst_unicode_character_class, &charOOP);
+  charObject = new_instance(_gst_unicode_character_class, &charOOP);
 
-  charObject->codePoint = FROM_INT(codePoint);
+  OBJ_CHAR_SET_CODE_POINTS(charObject, FROM_INT(codePoint));
   MAKE_OOP_READONLY(charOOP, true);
   return (charOOP);
 }

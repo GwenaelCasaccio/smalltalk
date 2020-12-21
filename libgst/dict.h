@@ -132,11 +132,6 @@ typedef struct gst_byte_array {
   gst_uchar bytes[1];
 } * gst_byte_array;
 
-typedef struct gst_char {
-  OBJ_HEADER;
-  OOP codePoint;
-} * gst_char;
-
 extern OOP _gst_abstract_namespace_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_array_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_arrayed_collection_class ATTRIBUTE_HIDDEN;
