@@ -2081,15 +2081,14 @@ equal_constant (OOP oop,
     case CONST_DEFERRED_BINDING:
       if (IS_OOP (oop) && OOP_CLASS (oop) == _gst_deferred_variable_binding_class)
 	{
-	  gst_deferred_variable_binding binding =
-	    (gst_deferred_variable_binding) OOP_TO_OBJ (oop);
-	  gst_object path = OOP_TO_OBJ (binding->path);
+	  gst_object binding = OOP_TO_OBJ (oop);
+	  gst_object path = OOP_TO_OBJ (OBJ_DEFERRED_VARIABLE_BINDING_GET_PATH(binding));
 	  int i, size = NUM_OOPS (path);
 	  OOP *pKey;
 	  tree_node varNode = constExpr->v_const.val.aVal;
 
 	  /* Use <= because we test the key first.  */
-	  for (i = 0, pKey = &binding->key; i <= size; pKey = &path->data[i++])
+	  for (i = 0, pKey = &OBJ_DEFERRED_VARIABLE_BINDING_GET_KEY(binding); i <= size; pKey = &path->data[i++])
 	    {
 	      if (!varNode
 		  || *pKey != _gst_intern_string (varNode->v_list.name))
@@ -2213,18 +2212,17 @@ _gst_make_constant_oop (tree_node constExpr)
 
     case CONST_DEFERRED_BINDING:
       {
-	gst_deferred_variable_binding dvb;
+        gst_object dvb;
 	tree_node varNode = constExpr->v_const.val.aVal;
 
         incPtr = INC_SAVE_POINTER ();
-        dvb = (gst_deferred_variable_binding)
-	  instantiate (_gst_deferred_variable_binding_class, &resultOOP);
+        dvb = instantiate (_gst_deferred_variable_binding_class, &resultOOP);
         INC_ADD_OOP (resultOOP);
 
-	dvb->key = _gst_intern_string (varNode->v_list.name);
-	dvb->class = _gst_current_parser->currentClass;
-	dvb->defaultDictionary = _gst_get_undeclared_dictionary ();
-	dvb->association = _gst_nil_oop;
+        OBJ_DEFERRED_VARIABLE_BINDING_SET_KEY(dvb, _gst_intern_string (varNode->v_list.name));
+        OBJ_DEFERRED_VARIABLE_BINDING_SET_CLASS(dvb, _gst_current_parser->currentClass);
+        OBJ_DEFERRED_VARIABLE_BINDING_SET_DEFAULT_DICTIONARY(dvb, _gst_get_undeclared_dictionary ());
+        OBJ_DEFERRED_VARIABLE_BINDING_SET_ASSOCIATION(dvb, _gst_nil_oop);
 
 	varNode = varNode->v_list.next;
 	if (varNode)
@@ -2234,7 +2232,7 @@ _gst_make_constant_oop (tree_node constExpr)
 	    gst_object array =
 	      instantiate_with (_gst_array_class, size, &arrayOOP);
 
-	    dvb->path = arrayOOP;
+	    OBJ_DEFERRED_VARIABLE_BINDING_SET_PATH(dvb, arrayOOP);
 	    for (i = 0; i < size; i++, varNode = varNode->v_list.next)
 	      array->data[i] = _gst_intern_string (varNode->v_list.name);
 	  }

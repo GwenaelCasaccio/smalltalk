@@ -240,6 +240,38 @@
     ((obj))->data[2] = (valueOOP);                                             \
   } while (0)
 
+/* DEFERRED VARIABLE BINDING */
+
+#define OBJ_DEFERRED_VARIABLE_BINDING_GET_KEY(obj) ((obj))->data[0]
+#define OBJ_DEFERRED_VARIABLE_BINDING_SET_KEY(obj, valueOOP)  \
+  do {                                                        \
+    ((obj))->data[0] = (valueOOP);                            \
+  } while (0)
+
+#define OBJ_DEFERRED_VARIABLE_BINDING_GET_CLASS(obj) ((obj))->data[1]
+#define OBJ_DEFERRED_VARIABLE_BINDING_SET_CLASS(obj, valueOOP)  \
+  do {                                                        \
+    ((obj))->data[1] = (valueOOP);                            \
+  } while (0)
+
+#define OBJ_DEFERRED_VARIABLE_BINDING_GET_DEFAULT_DICTIONARY(obj) ((obj))->data[2]
+#define OBJ_DEFERRED_VARIABLE_BINDING_SET_DEFAULT_DICTIONARY(obj, valueOOP) \
+  do {                                                                  \
+    ((obj))->data[2] = (valueOOP);                                      \
+  } while (0)
+
+#define OBJ_DEFERRED_VARIABLE_BINDING_GET_ASSOCIATION(obj) ((obj))->data[3]
+#define OBJ_DEFERRED_VARIABLE_BINDING_SET_ASSOCIATION(obj, valueOOP)    \
+  do {                                                                  \
+    ((obj))->data[3] = (valueOOP);                                      \
+  } while (0)
+
+#define OBJ_DEFERRED_VARIABLE_BINDING_GET_PATH(obj) ((obj))->data[4]
+#define OBJ_DEFERRED_VARIABLE_BINDING_SET_PATH(obj, valueOOP)         \
+  do {                                                                \
+    ((obj))->data[4] = (valueOOP);                                    \
+  } while (0)
+
 /* MESSAGE */
 
 #define OBJ_MESSAGE_GET_SELECTOR(obj) ((obj))->data[0]

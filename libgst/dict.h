@@ -122,15 +122,6 @@ enum {
   GST_ISP_INTMARK = 1
 };
 
-typedef struct gst_deferred_variable_binding {
-  OBJ_HEADER;
-  OOP key;
-  OOP class;
-  OOP defaultDictionary;
-  OOP association;
-  OOP path;
-} * gst_deferred_variable_binding;
-
 typedef struct gst_floatd {
   OBJ_HEADER;
   double value;
