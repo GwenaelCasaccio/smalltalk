@@ -1814,13 +1814,13 @@ OOP _gst_message_new_args(OOP selectorOOP, OOP argsArray) {
 OOP _gst_c_object_new_base(OOP baseOOP, uintptr_t cObjOfs, OOP typeOOP,
                            OOP defaultClassOOP) {
   gst_cobject cObject;
-  gst_ctype cType;
+  gst_object cType;
   OOP cObjectOOP;
   OOP classOOP;
 
   if (!IS_NIL(typeOOP)) {
-    cType = (gst_ctype)OOP_TO_OBJ(typeOOP);
-    classOOP = OBJ_ASSOCIATION_GET_VALUE(OOP_TO_OBJ(cType->cObjectType));
+    cType = OOP_TO_OBJ(typeOOP);
+    classOOP = OBJ_ASSOCIATION_GET_VALUE(OOP_TO_OBJ(OBJ_CTYPE_GET_COBJECT_TYPE(cType)));
   } else
     classOOP = defaultClassOOP;
 
