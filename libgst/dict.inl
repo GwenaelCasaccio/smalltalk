@@ -426,16 +426,16 @@ static inline uint64_t to_c_uint_64(OOP oop);
           ? (CLASS_INSTANCE_SPEC(OBJ_CLASS((obj))) >> ISP_NUMFIXEDFIELDS)      \
           : NUM_WORDS(obj)))
 
-#define FLOATE_OOP_VALUE(floatOOP) (((gst_floate)OOP_TO_OBJ(floatOOP))->value)
+#define FLOATE_OOP_VALUE(floatOOP) ((OBJ_FLOATE_GET_VALUE(OOP_TO_OBJ(floatOOP))))
 
 OOP floate_new(double f) {
-  gst_floate floatObject;
+  gst_object floatObject;
   OOP floatOOP;
 
-  floatObject = (gst_floate)new_instance_with(_gst_floate_class, sizeof(float),
+  floatObject = new_instance_with(_gst_floate_class, sizeof(float),
                                               &floatOOP);
 
-  floatObject->value = f;
+  OBJ_FLOATE_SET_VALUE(floatObject, f);
   MAKE_OOP_READONLY(floatOOP, true);
   return (floatOOP);
 }
