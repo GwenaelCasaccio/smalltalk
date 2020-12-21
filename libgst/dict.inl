@@ -308,16 +308,6 @@ static inline uint64_t to_c_uint_64(OOP oop);
   (_gst_c_object_new_base(_gst_nil_oop, (uintptr_t)cObjPtr, typeOOP,           \
                           defaultClassOOP))
 
-/* Answer the offset component of the a CObject, COBJ (*not* an OOP,
-   but an object pointer).  */
-#define COBJECT_OFFSET_OBJ(cObj)                                               \
-  (((uintptr_t *)cObj)[TO_INT(OBJ_SIZE((cObj))) - 1])
-
-/* Sets to VALUE the offset component of the CObject, COBJ (*not* an
-   OOP, but an object pointer).  */
-#define SET_COBJECT_OFFSET_OBJ(cObj, value)                                    \
-  (((uintptr_t *)cObj)[TO_INT(OBJ_SIZE((cObj))) - 1] = (uintptr_t)(value))
-
 /* Answer the superclass of the Behavior, CLASS_OOP.  */
 #define SUPERCLASS(class_oop)                                                  \
   ((OBJ_BEHAVIOR_GET_SUPER_CLASS(OOP_TO_OBJ(class_oop))))
@@ -1357,19 +1347,19 @@ OOP from_c_uint_64(uint64_t ui) {
 }
 
 static inline PTR cobject_value(OOP oop) {
-  gst_cobject cObj = (gst_cobject)OOP_TO_OBJ(oop);
-  if (IS_NIL(cObj->storage))
+  gst_object cObj = OOP_TO_OBJ(oop);
+  if (IS_NIL(OBJ_COBJECT_GET_STORAGE(cObj)))
     return (PTR)COBJECT_OFFSET_OBJ(cObj);
   else {
-    gst_uchar *baseAddr = ((gst_byte_array)OOP_TO_OBJ(cObj->storage))->bytes;
+    gst_uchar *baseAddr = ((gst_byte_array)OOP_TO_OBJ(OBJ_COBJECT_GET_STORAGE(cObj)))->bytes;
     return (PTR)(baseAddr + COBJECT_OFFSET_OBJ(cObj));
   }
 }
 
 /* Sets the address of the data stored in a CObject.  */
 static inline void set_cobject_value(OOP oop, PTR val) {
-  gst_cobject cObj = (gst_cobject)OOP_TO_OBJ(oop);
-  cObj->storage = _gst_nil_oop;
+  gst_object cObj = OOP_TO_OBJ(oop);
+  OBJ_COBJECT_SET_STORAGE(cObj, _gst_nil_oop);
   SET_COBJECT_OFFSET_OBJ(cObj, (uintptr_t)val);
 }
 
@@ -1377,8 +1367,8 @@ static inline void set_cobject_value(OOP oop, PTR val) {
    by OFFSET bytes, is still in bounds.  */
 static inline mst_Boolean cobject_index_check(OOP oop, intptr_t offset,
                                               size_t size) {
-  gst_cobject cObj = (gst_cobject)OOP_TO_OBJ(oop);
-  OOP baseOOP = cObj->storage;
+  gst_object cObj = OOP_TO_OBJ(oop);
+  OOP baseOOP = OBJ_COBJECT_GET_STORAGE(cObj);
   intptr_t maxOffset;
   if (IS_NIL(baseOOP))
     return true;

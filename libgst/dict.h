@@ -157,12 +157,6 @@ typedef struct gst_char {
   OOP codePoint;
 } * gst_char;
 
-typedef struct gst_cobject {
-  OBJ_HEADER;
-  OOP type;
-  OOP storage;
-} * gst_cobject;
-
 extern OOP _gst_abstract_namespace_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_array_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_arrayed_collection_class ATTRIBUTE_HIDDEN;
