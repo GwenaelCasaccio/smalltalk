@@ -1686,23 +1686,22 @@ OOP _gst_string_new(const char *s) {
 
 OOP _gst_unicode_string_new(const wchar_t *s) {
   int i;
-  gst_unicode_string string;
+  gst_object string;
   size_t len;
   OOP stringOOP;
 
   if (s) {
     len = wcslen(s);
-    string = (gst_unicode_string)new_instance_with(_gst_unicode_string_class,
+    string = new_instance_with(_gst_unicode_string_class,
                                                    len, &stringOOP);
 
-    if (sizeof(wchar_t) == sizeof(string->chars[0]))
-      memcpy(string->chars, s, len * sizeof(wchar_t));
+    if (sizeof(wchar_t) == sizeof(OBJ_UNICODE_STRING_GET_CHARS(string)[0]))
+      memcpy(OBJ_UNICODE_STRING_GET_CHARS(string), s, len * sizeof(wchar_t));
     else
       for (i = 0; i < len; i++)
-        string->chars[i] = *s++;
+        OBJ_UNICODE_STRING_SET_CHARS(string, i, *s++);
   } else
-    string = (gst_unicode_string)new_instance_with(_gst_unicode_string_class, 0,
-                                                   &stringOOP);
+    string = new_instance_with(_gst_unicode_string_class, 0, &stringOOP);
 
   return (stringOOP);
 }
@@ -1750,17 +1749,18 @@ char *_gst_to_cstring(OOP stringOOP) {
 wchar_t *_gst_to_wide_cstring(OOP stringOOP) {
   wchar_t *result, *p;
   size_t len;
-  gst_unicode_string string;
+  gst_object string;
   int i;
 
-  string = (gst_unicode_string)OOP_TO_OBJ(stringOOP);
+  string = OOP_TO_OBJ(stringOOP);
   len = oop_num_fields(stringOOP);
   result = (wchar_t *)xmalloc(len + 1);
   if (sizeof(wchar_t) == 4)
-    memcpy(result, string->chars, len * sizeof(wchar_t));
+    memcpy(result, OBJ_UNICODE_STRING_GET_CHARS(string), len * sizeof(wchar_t));
   else
-    for (p = result, i = 0; i < len; i++)
-      *p++ = string->chars[i];
+    for (p = result, i = 0; i < len; i++) {
+      *p++ = OBJ_UNICODE_STRING_GET_CHARS(string)[i];
+    }
   result[len] = '\0';
 
   return (result);

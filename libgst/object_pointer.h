@@ -460,6 +460,13 @@
 #define STRING_OOP_CHARS(stringOOP)                         \
   ((gst_uchar *)(OBJ_STRING_GET_CHARS(OOP_TO_OBJ(stringOOP))))
 
+/* UNICODE STRING */
+#define OBJ_UNICODE_STRING_GET_CHARS(obj) ((uint32_t *)((obj))->data)
+#define OBJ_UNICODE_STRING_SET_CHARS(obj, i, valueOOP) \
+  do {                                          \
+    ((uint32_t *)((obj))->data)[i] = (valueOOP);  \
+  } while (0)
+
 /* CHAR */
 #define OBJ_CHAR_GET_CODE_POINTS(obj) (((obj))->data)[0]
 #define OBJ_CHAR_SET_CODE_POINTS(obj, valueOOP)     \
