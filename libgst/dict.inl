@@ -426,22 +426,22 @@ static inline uint64_t to_c_uint_64(OOP oop);
           ? (CLASS_INSTANCE_SPEC(OBJ_CLASS((obj))) >> ISP_NUMFIXEDFIELDS)      \
           : NUM_WORDS(obj)))
 
-#define FLOATE_OOP_VALUE(floatOOP) (((gst_floate)OOP_TO_OBJ(floatOOP))->value)
+#define FLOATE_OOP_VALUE(floatOOP) ((OBJ_FLOATE_GET_VALUE(OOP_TO_OBJ(floatOOP))))
 
 OOP floate_new(double f) {
-  gst_floate floatObject;
+  gst_object floatObject;
   OOP floatOOP;
 
-  floatObject = (gst_floate)new_instance_with(_gst_floate_class, sizeof(float),
+  floatObject = new_instance_with(_gst_floate_class, sizeof(float),
                                               &floatOOP);
 
-  floatObject->value = f;
+  OBJ_FLOATE_SET_VALUE(floatObject, f);
   MAKE_OOP_READONLY(floatOOP, true);
   return (floatOOP);
 }
 
 #if (ALIGNOF_DOUBLE <= SIZEOF_OOP)
-#define FLOATD_OOP_VALUE(floatOOP) (((gst_floatd)OOP_TO_OBJ(floatOOP))->value)
+#define FLOATD_OOP_VALUE(floatOOP) ((OBJ_FLOATD_GET_VALUE(OOP_TO_OBJ(floatOOP))))
 
 #else
 #define FLOATD_OOP_VALUE(floatOOP) floatd_oop_value(floatOOP)
@@ -461,12 +461,12 @@ static inline double floatd_oop_value(floatOOP) OOP floatOOP;
 OOP floatd_new(double f) {
   OOP floatOOP;
 #if (ALIGNOF_DOUBLE <= SIZEOF_OOP)
-  gst_floatd floatObject;
+  gst_object floatObject;
 
-  floatObject = (gst_floatd)new_instance_with(_gst_floatd_class, sizeof(double),
-                                              &floatOOP);
+  floatObject = new_instance_with(_gst_floatd_class, sizeof(double),
+                                  &floatOOP);
 
-  floatObject->value = f;
+  OBJ_FLOATD_SET_VALUE(floatObject, f);
 #else
   gst_object obj;
 
