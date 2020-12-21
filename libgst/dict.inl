@@ -441,7 +441,7 @@ OOP floate_new(double f) {
 }
 
 #if (ALIGNOF_DOUBLE <= SIZEOF_OOP)
-#define FLOATD_OOP_VALUE(floatOOP) (((gst_floatd)OOP_TO_OBJ(floatOOP))->value)
+#define FLOATD_OOP_VALUE(floatOOP) ((OBJ_FLOATD_GET_VALUE(OOP_TO_OBJ(floatOOP))))
 
 #else
 #define FLOATD_OOP_VALUE(floatOOP) floatd_oop_value(floatOOP)
@@ -461,12 +461,12 @@ static inline double floatd_oop_value(floatOOP) OOP floatOOP;
 OOP floatd_new(double f) {
   OOP floatOOP;
 #if (ALIGNOF_DOUBLE <= SIZEOF_OOP)
-  gst_floatd floatObject;
+  gst_object floatObject;
 
-  floatObject = (gst_floatd)new_instance_with(_gst_floatd_class, sizeof(double),
-                                              &floatOOP);
+  floatObject = new_instance_with(_gst_floatd_class, sizeof(double),
+                                  &floatOOP);
 
-  floatObject->value = f;
+  OBJ_FLOATD_SET_VALUE(floatObject, f);
 #else
   gst_object obj;
 

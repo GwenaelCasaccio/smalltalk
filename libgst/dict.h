@@ -122,11 +122,6 @@ enum {
   GST_ISP_INTMARK = 1
 };
 
-typedef struct gst_floatd {
-  OBJ_HEADER;
-  double value;
-} * gst_floatd;
-
 typedef struct gst_floate {
   OBJ_HEADER;
   float value;

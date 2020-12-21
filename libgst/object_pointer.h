@@ -428,4 +428,11 @@
     ((obj))->data[0] = (valueOOP);                        \
   } while (0)
 
+/* FLOATD */
+#define OBJ_FLOATD_GET_VALUE(obj) ((double *)((obj))->data)[0]
+#define OBJ_FLOATD_SET_VALUE(obj, valueOOP)          \
+  do {                                               \
+    ((double *)((obj))->data)[0] = (valueOOP);        \
+  } while (0)
+
 #endif /* GST_OBJECT_POINTER_H */
