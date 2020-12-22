@@ -1201,7 +1201,7 @@ OOP _gst_make_block_closure(OOP blockOOP) {
 
 void change_process_context(OOP newProcess) {
   OOP processOOP;
-  gst_process process;
+  gst_object process;
   gst_processor_scheduler processor;
   mst_Boolean enable_async_queue;
 
@@ -1219,17 +1219,17 @@ void change_process_context(OOP newProcess) {
   processor = (gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop);
   processOOP = processor->activeProcess;
   if (processOOP != newProcess) {
-    process = (gst_process)OOP_TO_OBJ(processOOP);
+    process = OOP_TO_OBJ(processOOP);
 
     if (!IS_NIL(processOOP) && !is_process_terminating(processOOP))
-      process->suspendedContext = _gst_this_context_oop;
+      OBJ_PROCESS_SET_SUSPENDED_CONTEXT(process, _gst_this_context_oop);
 
     processor->activeProcess = newProcess;
-    process = (gst_process)OOP_TO_OBJ(newProcess);
+    process = OOP_TO_OBJ(newProcess);
     enable_async_queue =
-        IS_NIL(process->interrupts) || TO_INT(process->interrupts) >= 0;
+        IS_NIL(OBJ_PROCESS_GET_INTERRUPTS(process)) || TO_INT(OBJ_PROCESS_GET_INTERRUPTS(process)) >= 0;
 
-    resume_suspended_context(process->suspendedContext);
+    resume_suspended_context(OBJ_PROCESS_GET_SUSPENDED_CONTEXT(process));
 
     /* Interrupt-enabling cannot be controlled globally from Smalltalk,
        but only on a per-Process basis.  You might think that this leaves
@@ -1281,51 +1281,51 @@ OOP get_scheduled_process(void) {
 
 static void remove_process_from_list(OOP processOOP) {
   gst_object sem;
-  gst_process process, lastProcess;
+  gst_object process, lastProcess;
   OOP lastProcessOOP;
 
   if (IS_NIL(processOOP))
     return;
 
-  process = (gst_process)OOP_TO_OBJ(processOOP);
-  if (!IS_NIL(process->myList)) {
+  process = OOP_TO_OBJ(processOOP);
+  if (!IS_NIL(OBJ_PROCESS_GET_MY_LIST(process))) {
     /* Disconnect the process from its list.  */
-    sem = OOP_TO_OBJ(process->myList);
+    sem = OOP_TO_OBJ(OBJ_PROCESS_GET_MY_LIST(process));
     if (OBJ_SEMAPHORE_GET_FIRST_LINK(sem) == processOOP) {
-      OBJ_SEMAPHORE_SET_FIRST_LINK(sem, process->nextLink);
+      OBJ_SEMAPHORE_SET_FIRST_LINK(sem, OBJ_PROCESS_GET_NEXT_LINK(process));
       if (OBJ_SEMAPHORE_GET_LAST_LINK(sem) == processOOP)
         /* It was the only process in the list */
         OBJ_SEMAPHORE_SET_LAST_LINK(sem, _gst_nil_oop);
     } else {
       /* Find the new prev node */
       lastProcessOOP = OBJ_SEMAPHORE_GET_FIRST_LINK(sem);
-      lastProcess = (gst_process)OOP_TO_OBJ(lastProcessOOP);
-      while (lastProcess->nextLink != processOOP) {
-        lastProcessOOP = lastProcess->nextLink;
-        lastProcess = (gst_process)OOP_TO_OBJ(lastProcessOOP);
+      lastProcess = OOP_TO_OBJ(lastProcessOOP);
+      while (OBJ_PROCESS_GET_NEXT_LINK(lastProcess) != processOOP) {
+        lastProcessOOP = OBJ_PROCESS_GET_NEXT_LINK(lastProcess);
+        lastProcess = OOP_TO_OBJ(lastProcessOOP);
       }
 
-      lastProcess->nextLink = process->nextLink;
+      OBJ_PROCESS_SET_NEXT_LINK(lastProcess, OBJ_PROCESS_GET_NEXT_LINK(process));
       if (OBJ_SEMAPHORE_GET_LAST_LINK(sem) == processOOP)
         OBJ_SEMAPHORE_SET_LAST_LINK(sem, lastProcessOOP);
     }
 
-    process->myList = _gst_nil_oop;
+    OBJ_PROCESS_SET_MY_LIST(process, _gst_nil_oop);
   }
 
-  process->nextLink = _gst_nil_oop;
+  OBJ_PROCESS_SET_NEXT_LINK(process, _gst_nil_oop);
 }
 
 void add_first_link(OOP semaphoreOOP, OOP processOOP) {
   gst_object sem;
-  gst_process process;
+  gst_object process;
 
-  process = (gst_process)OOP_TO_OBJ(processOOP);
+  process = OOP_TO_OBJ(processOOP);
   remove_process_from_list(processOOP);
 
   sem = OOP_TO_OBJ(semaphoreOOP);
-  process->myList = semaphoreOOP;
-  process->nextLink = OBJ_SEMAPHORE_GET_FIRST_LINK(sem);
+  OBJ_PROCESS_SET_MY_LIST(process, semaphoreOOP);
+  OBJ_PROCESS_SET_NEXT_LINK(process, OBJ_SEMAPHORE_GET_FIRST_LINK(sem));
 
   OBJ_SEMAPHORE_SET_FIRST_LINK(sem, processOOP);
   if (IS_NIL(OBJ_SEMAPHORE_GET_LAST_LINK(sem)))
@@ -1339,32 +1339,32 @@ void suspend_process(OOP processOOP) {
 }
 
 void _gst_terminate_process(OOP processOOP) {
-  gst_process process;
+  gst_object process;
 
-  process = (gst_process)OOP_TO_OBJ(processOOP);
-  process->suspendedContext = _gst_nil_oop;
+  process = OOP_TO_OBJ(processOOP);
+  OBJ_PROCESS_SET_SUSPENDED_CONTEXT(process, _gst_nil_oop);
   suspend_process(processOOP);
 }
 
 void add_last_link(OOP semaphoreOOP, OOP processOOP) {
   gst_object sem;
-  gst_process process, lastProcess;
+  gst_object process, lastProcess;
   OOP lastProcessOOP;
 
-  process = (gst_process)OOP_TO_OBJ(processOOP);
+  process = OOP_TO_OBJ(processOOP);
   remove_process_from_list(processOOP);
 
   sem = OOP_TO_OBJ(semaphoreOOP);
-  process->myList = semaphoreOOP;
-  process->nextLink = _gst_nil_oop;
+  OBJ_PROCESS_SET_MY_LIST(process, semaphoreOOP);
+  OBJ_PROCESS_SET_NEXT_LINK(process, _gst_nil_oop);
 
   if (IS_NIL(OBJ_SEMAPHORE_GET_LAST_LINK(sem))) {
     OBJ_SEMAPHORE_SET_FIRST_LINK(sem, processOOP);
     OBJ_SEMAPHORE_SET_LAST_LINK(sem, processOOP);
   } else {
     lastProcessOOP = OBJ_SEMAPHORE_GET_LAST_LINK(sem);
-    lastProcess = (gst_process)OOP_TO_OBJ(lastProcessOOP);
-    lastProcess->nextLink = processOOP;
+    lastProcess = OOP_TO_OBJ(lastProcessOOP);
+    OBJ_PROCESS_SET_NEXT_LINK(lastProcess, processOOP);
     OBJ_SEMAPHORE_SET_LAST_LINK(sem, processOOP);
   }
 }
@@ -1391,7 +1391,7 @@ void active_process_yield(void) {
 
 mst_Boolean _gst_sync_signal(OOP semaphoreOOP, mst_Boolean incr_if_empty) {
   gst_object sem;
-  gst_process process;
+  gst_object process;
   gst_object suspendedContext;
   OOP processOOP;
   int spOffset;
@@ -1414,8 +1414,8 @@ mst_Boolean _gst_sync_signal(OOP semaphoreOOP, mst_Boolean incr_if_empty) {
   /* Put the semaphore at the stack top as a marker that the
      wait was not interrupted.  This assumes that _gst_sync_wait
      is only called from primitives.  */
-  process = (gst_process)OOP_TO_OBJ(processOOP);
-  suspendedContext = OOP_TO_OBJ(process->suspendedContext);
+  process = OOP_TO_OBJ(processOOP);
+  suspendedContext = OOP_TO_OBJ(OBJ_PROCESS_GET_SUSPENDED_CONTEXT(process));
   spOffset = TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(suspendedContext));
   OBJ_METHOD_CONTEXT_CONTEXT_STACK_AT_PUT(suspendedContext, spOffset,
                                           semaphoreOOP);
@@ -1563,21 +1563,21 @@ void _gst_sync_wait(OOP semaphoreOOP) {
 
 OOP remove_first_link(OOP semaphoreOOP) {
   gst_object sem;
-  gst_process process;
+  gst_object process;
   OOP processOOP;
 
   sem = OOP_TO_OBJ(semaphoreOOP);
   processOOP = OBJ_SEMAPHORE_GET_FIRST_LINK(sem);
-  process = (gst_process)OOP_TO_OBJ(processOOP);
+  process = OOP_TO_OBJ(processOOP);
 
   sem = OOP_TO_OBJ(semaphoreOOP);
-  OBJ_SEMAPHORE_SET_FIRST_LINK(sem, process->nextLink);
+  OBJ_SEMAPHORE_SET_FIRST_LINK(sem, OBJ_PROCESS_GET_NEXT_LINK(process));
   if (IS_NIL(OBJ_SEMAPHORE_GET_FIRST_LINK(sem)))
     OBJ_SEMAPHORE_SET_LAST_LINK(sem, _gst_nil_oop);
 
   /* Unlink the process from any list it was in! */
-  process->myList = _gst_nil_oop;
-  process->nextLink = _gst_nil_oop;
+  OBJ_PROCESS_SET_MY_LIST(process, _gst_nil_oop);
+  OBJ_PROCESS_SET_NEXT_LINK(process, _gst_nil_oop);
   return (processOOP);
 }
 
@@ -1586,14 +1586,14 @@ mst_Boolean resume_process(OOP processOOP, mst_Boolean alwaysPreempt) {
   OOP activeOOP;
   OOP processLists;
   OOP processList;
-  gst_process process, active;
+  gst_object process, active;
   /* mst_Boolean ints_enabled; */
 
   /* 2002-19-12: tried get_active_process instead of get_scheduled_process.  */
   activeOOP = get_active_process();
-  active = (gst_process)OOP_TO_OBJ(activeOOP);
-  process = (gst_process)OOP_TO_OBJ(processOOP);
-  priority = TO_INT(process->priority);
+  active = OOP_TO_OBJ(activeOOP);
+  process = OOP_TO_OBJ(processOOP);
+  priority = TO_INT(OBJ_PROCESS_GET_PRIORITY(process));
 
   /* As a special exception, don't preempt a process that has disabled
      interrupts. ### this behavior is currently disabled.
@@ -1605,7 +1605,7 @@ mst_Boolean resume_process(OOP processOOP, mst_Boolean alwaysPreempt) {
   if (processOOP == activeOOP) {
     assert(!alwaysPreempt);
     remove_process_from_list(processOOP);
-  } else if (priority >= TO_INT(active->priority) /* && ints_enabled */)
+  } else if (priority >= TO_INT(OBJ_PROCESS_GET_PRIORITY(active)) /* && ints_enabled */)
     alwaysPreempt = true;
 
   if (IS_NIL(processOOP) || is_process_terminating(processOOP))
@@ -1624,7 +1624,7 @@ mst_Boolean resume_process(OOP processOOP, mst_Boolean alwaysPreempt) {
   if (alwaysPreempt) {
     /* We're resuming a process with a *equal or higher* priority, so sleep
        the current one and activate the new one */
-    if (active->myList != _gst_nil_oop)
+    if (OBJ_PROCESS_GET_MY_LIST(active) != _gst_nil_oop)
       sleep_process(activeOOP);
     activate_process(processOOP);
   } else {
@@ -1639,7 +1639,7 @@ mst_Boolean resume_process(OOP processOOP, mst_Boolean alwaysPreempt) {
 }
 
 OOP activate_process(OOP processOOP) {
-  gst_process process;
+  gst_object process;
   int priority;
   OOP processLists;
   OOP processList;
@@ -1649,8 +1649,8 @@ OOP activate_process(OOP processOOP) {
 
   /* 2002-19-12: tried get_active_process instead of get_scheduled_process.  */
   if (processOOP != get_active_process()) {
-    process = (gst_process)OOP_TO_OBJ(processOOP);
-    priority = TO_INT(process->priority);
+    process = OOP_TO_OBJ(processOOP);
+    priority = TO_INT(OBJ_PROCESS_GET_PRIORITY(process));
     processLists = GET_PROCESS_LISTS();
     processList = ARRAY_AT(processLists, priority);
     add_first_link(processList, processOOP);
@@ -1670,35 +1670,35 @@ preempt_smalltalk_process(int sig) {
 #endif
 
 mst_Boolean is_process_terminating(OOP processOOP) {
-  gst_process process;
+  gst_object process;
 
-  process = (gst_process)OOP_TO_OBJ(processOOP);
-  return (IS_NIL(process->suspendedContext));
+  process = OOP_TO_OBJ(processOOP);
+  return (IS_NIL(OBJ_PROCESS_GET_SUSPENDED_CONTEXT(process)));
 }
 
 mst_Boolean is_process_ready(OOP processOOP) {
-  gst_process process;
+  gst_object process;
   int priority;
   OOP processLists;
   OOP processList;
 
-  process = (gst_process)OOP_TO_OBJ(processOOP);
-  priority = TO_INT(process->priority);
+  process = OOP_TO_OBJ(processOOP);
+  priority = TO_INT(OBJ_PROCESS_GET_PRIORITY(process));
   processLists = GET_PROCESS_LISTS();
   processList = ARRAY_AT(processLists, priority);
 
   /* check if process is in the priority queue */
-  return (process->myList == processList);
+  return (OBJ_PROCESS_GET_MY_LIST(process) == processList);
 }
 
 void sleep_process(OOP processOOP) {
-  gst_process process;
+  gst_object process;
   int priority;
   OOP processLists;
   OOP processList;
 
-  process = (gst_process)OOP_TO_OBJ(processOOP);
-  priority = TO_INT(process->priority);
+  process = OOP_TO_OBJ(processOOP);
+  priority = TO_INT(OBJ_PROCESS_GET_PRIORITY(process));
   processLists = GET_PROCESS_LISTS();
   processList = ARRAY_AT(processLists, priority);
 
@@ -1710,15 +1710,15 @@ mst_Boolean would_reschedule_process() {
   OOP processLists, processListOOP;
   int priority, activePriority;
   OOP processOOP;
-  gst_process process;
+  gst_object process;
   gst_object processList;
 
   if (!IS_NIL(switch_to_process))
     return false;
 
   processOOP = get_scheduled_process();
-  process = (gst_process)OOP_TO_OBJ(processOOP);
-  activePriority = TO_INT(process->priority);
+  process = OOP_TO_OBJ(processOOP);
+  activePriority = TO_INT(OBJ_PROCESS_GET_PRIORITY(process));
   processLists = GET_PROCESS_LISTS();
   priority = NUM_OOPS(OOP_TO_OBJ(processLists));
   do {
@@ -1790,7 +1790,7 @@ void _gst_check_process_state(void) {
   OOP processLists, processListOOP, processOOP;
   int priority, n;
   gst_object processList;
-  gst_process process;
+  gst_object process;
 
   processLists = GET_PROCESS_LISTS();
   priority = NUM_OOPS(OOP_TO_OBJ(processLists));
@@ -1808,9 +1808,9 @@ void _gst_check_process_state(void) {
       abort();
 
     for (processOOP = OBJ_SEMAPHORE_GET_FIRST_LINK(processList);
-         !IS_NIL(processOOP); processOOP = process->nextLink, n++) {
-      process = (gst_process)OOP_TO_OBJ(processOOP);
-      if (process->myList != processListOOP)
+         !IS_NIL(processOOP); processOOP = OBJ_PROCESS_GET_NEXT_LINK(process), n++) {
+      process = OOP_TO_OBJ(processOOP);
+      if (OBJ_PROCESS_GET_MY_LIST(process) != processListOOP)
         abort();
 
 #if 0
@@ -1821,7 +1821,7 @@ void _gst_check_process_state(void) {
 #endif
 
       /* Sanity check the last link in the process list.  */
-      if (IS_NIL(process->nextLink) &&
+      if (IS_NIL(OBJ_PROCESS_GET_NEXT_LINK(process)) &&
           processOOP != OBJ_SEMAPHORE_GET_LAST_LINK(processList))
         abort();
 
@@ -1837,19 +1837,19 @@ void _gst_print_process_state(void) {
   OOP processLists, processListOOP, processOOP;
   int priority;
   gst_object processList;
-  gst_process process;
+  gst_object process;
 
   processLists = GET_PROCESS_LISTS();
   priority = NUM_OOPS(OOP_TO_OBJ(processLists));
 
   processOOP = get_scheduled_process();
-  process = (gst_process)OOP_TO_OBJ(processOOP);
+  process = OOP_TO_OBJ(processOOP);
   if (processOOP == _gst_nil_oop)
     printf("No active process\n");
   else
     printf("Active process: <Proc %p prio: %td next %p context %p>\n",
-           processOOP, TO_INT(process->priority), process->nextLink,
-           process->suspendedContext);
+           processOOP, TO_INT(OBJ_PROCESS_GET_PRIORITY(process)), OBJ_PROCESS_GET_NEXT_LINK(process),
+           OBJ_PROCESS_GET_SUSPENDED_CONTEXT(process));
 
   for (; priority > 0; priority--) {
     processListOOP = ARRAY_AT(processLists, priority);
@@ -1863,10 +1863,10 @@ void _gst_print_process_state(void) {
            OBJ_SEMAPHORE_GET_LAST_LINK(processList));
 
     for (processOOP = OBJ_SEMAPHORE_GET_FIRST_LINK(processList);
-         !IS_NIL(processOOP); processOOP = process->nextLink) {
-      process = (gst_process)OOP_TO_OBJ(processOOP);
+         !IS_NIL(processOOP); processOOP = OBJ_PROCESS_GET_NEXT_LINK(process)) {
+      process = OOP_TO_OBJ(processOOP);
       printf("\n    <Proc %p prio: %td context %p> ", processOOP,
-             TO_INT(process->priority), process->suspendedContext);
+             TO_INT(OBJ_PROCESS_GET_PRIORITY(process)), OBJ_PROCESS_GET_SUSPENDED_CONTEXT(process));
     }
 
     printf("\n");
@@ -1912,7 +1912,7 @@ void _gst_init_process_system(void) {
 OOP create_callin_process(OOP contextOOP) {
   OOP processListsOOP;
   gst_processor_scheduler processor;
-  gst_process initialProcess;
+  gst_object initialProcess;
   OOP initialProcessOOP, initialProcessListOOP, nameOOP;
   inc_ptr inc = INC_SAVE_POINTER();
 
@@ -1924,13 +1924,13 @@ OOP create_callin_process(OOP contextOOP) {
   INC_ADD_OOP(nameOOP);
 
   initialProcess =
-      (gst_process)instantiate(_gst_callin_process_class, &initialProcessOOP);
+      instantiate(_gst_callin_process_class, &initialProcessOOP);
 
   INC_ADD_OOP(initialProcessOOP);
-  initialProcess->priority = FROM_INT(USER_SCHEDULING_PRIORITY);
-  initialProcess->interruptLock = _gst_nil_oop;
-  initialProcess->suspendedContext = contextOOP;
-  initialProcess->name = nameOOP;
+  OBJ_PROCESS_SET_PRIORITY(initialProcess, FROM_INT(USER_SCHEDULING_PRIORITY));
+  OBJ_PROCESS_SET_INTERRUPT_LOCK(initialProcess, _gst_nil_oop);
+  OBJ_PROCESS_SET_SUSPENDED_CONTEXT(initialProcess, contextOOP);
+  OBJ_PROCESS_SET_NAME(initialProcess, nameOOP);
   INC_RESTORE_POINTER(inc);
 
   /* Put initialProcessOOP in the root set */
@@ -2054,7 +2054,7 @@ OOP _gst_nvmsg_send(OOP receiver, OOP sendSelector, OOP *args, int sendArgs) {
 #endif
   OOP processOOP, currentProcessOOP;
   OOP result;
-  gst_process process;
+  gst_object process;
   int i;
 
   processOOP = _gst_prepare_execution_environment();
@@ -2081,10 +2081,10 @@ OOP _gst_nvmsg_send(OOP receiver, OOP sendSelector, OOP *args, int sendArgs) {
   else
     _gst_send_method(sendSelector);
 
-  process = (gst_process)OOP_TO_OBJ(currentProcessOOP);
+  process = OOP_TO_OBJ(currentProcessOOP);
 
   if (!IS_NIL(currentProcessOOP) &&
-      TO_INT(process->priority) > USER_SCHEDULING_PRIORITY)
+      TO_INT(OBJ_PROCESS_GET_PRIORITY(process)) > USER_SCHEDULING_PRIORITY)
     ACTIVE_PROCESS_YIELD();
 
   result = _gst_interpret(processOOP);

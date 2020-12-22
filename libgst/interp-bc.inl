@@ -413,7 +413,7 @@ void _gst_validate_method_cache_entries(void) {}
 
 OOP _gst_interpret(OOP processOOP) {
   interp_jmp_buf jb;
-  gst_callin_process process;
+  gst_object process;
 
 #ifdef LOCAL_REGS
 #undef sp
@@ -557,11 +557,11 @@ lookahead_dup_false:
   NEXT_BC_VEC(false_byte_codes);
 
 return_value:
-  process = (gst_callin_process)OOP_TO_OBJ(processOOP);
+  process = OOP_TO_OBJ(processOOP);
   if (pop_jmp_buf())
     stop_execution();
 
-  return (process->returnedValue);
+  return (OBJ_CALLIN_PROCESS_GET_RETURNED_VALUE(process));
 }
 
 /* Always use outer ip/sp outside _gst_interpret */

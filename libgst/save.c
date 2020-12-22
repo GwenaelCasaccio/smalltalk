@@ -645,20 +645,20 @@ void fixup_object(OOP oop, gst_object dest, gst_object src, int numBytes) {
   }
 
   else if (class_oop == _gst_callin_process_class) {
-    gst_process process = (gst_process)dest;
-    process->suspendedContext = _gst_nil_oop;
-    process->nextLink = _gst_nil_oop;
-    process->myList = _gst_nil_oop;
+    gst_object process = dest;
+    OBJ_PROCESS_SET_SUSPENDED_CONTEXT(process, _gst_nil_oop);
+    OBJ_PROCESS_SET_NEXT_LINK(process, _gst_nil_oop);
+    OBJ_PROCESS_SET_MY_LIST(process, _gst_nil_oop);
   }
 
   else if (class_oop == _gst_process_class) {
     /* Find the new next link.  */
-    gst_process destProcess = (gst_process)dest;
-    gst_process next = (gst_process)src;
-    while (OOP_CLASS(next->nextLink) == _gst_callin_process_class)
-      next = (gst_process)OOP_TO_OBJ(next->nextLink);
+    gst_object destProcess = dest;
+    gst_object next = src;
+    while (OOP_CLASS(OBJ_PROCESS_GET_NEXT_LINK(next)) == _gst_callin_process_class)
+      next = OOP_TO_OBJ(OBJ_PROCESS_GET_NEXT_LINK(next));
 
-    destProcess->nextLink = next->nextLink;
+    OBJ_PROCESS_SET_NEXT_LINK(destProcess, OBJ_PROCESS_GET_NEXT_LINK(next));
   }
 
   else if (class_oop == _gst_semaphore_class) {
@@ -670,13 +670,13 @@ void fixup_object(OOP oop, gst_object dest, gst_object src, int numBytes) {
     OBJ_SEMAPHORE_SET_FIRST_LINK(destSem, _gst_nil_oop);
     OBJ_SEMAPHORE_SET_LAST_LINK(destSem, _gst_nil_oop);
     while (!IS_NIL(linkOOP)) {
-      gst_process process = (gst_process)OOP_TO_OBJ(linkOOP);
+      gst_object process = OOP_TO_OBJ(linkOOP);
       if (OBJ_CLASS(process) != _gst_callin_process_class) {
         if (IS_NIL(OBJ_SEMAPHORE_GET_FIRST_LINK(destSem)))
           OBJ_SEMAPHORE_SET_FIRST_LINK(destSem, linkOOP);
         OBJ_SEMAPHORE_SET_LAST_LINK(destSem, linkOOP);
       }
-      linkOOP = process->nextLink;
+      linkOOP = OBJ_PROCESS_GET_NEXT_LINK(process);
     }
   }
 
