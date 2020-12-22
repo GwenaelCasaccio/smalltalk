@@ -4845,7 +4845,7 @@ static intptr_t VMpr_Stream_fileInLine(int id, volatile int numArgs) {
 
 static intptr_t VMpr_FileDescriptor_fileOp(int id, volatile int numArgs) {
   char *fileName, *fileName2;
-  gst_file_stream fileStream;
+  gst_object fileStream;
   int fd, rc;
   OOP oop1;
   OOP *oopVec = alloca(numArgs * sizeof(OOP));
@@ -4930,17 +4930,17 @@ static intptr_t VMpr_FileDescriptor_fileOp(int id, volatile int numArgs) {
     goto succeed;
   }
 
-  fileStream = (gst_file_stream)OOP_TO_OBJ(oop1);
-  if (!IS_INT(fileStream->fd))
+  fileStream = OOP_TO_OBJ(oop1);
+  if (!IS_INT(OBJ_FILE_STREAM_GET_FD(fileStream)))
     goto fail;
 
-  fd = TO_INT(fileStream->fd);
+  fd = TO_INT(OBJ_FILE_STREAM_GET_FD(fileStream));
   switch (arg1) {
   case PRIM_CLOSE_FILE: /* FileDescriptor close */
     _gst_remove_fd_polling_handlers(fd);
     rc = close(fd);
     if (rc == 0)
-      fileStream->fd = _gst_nil_oop;
+      OBJ_FILE_STREAM_SET_FD(fileStream, _gst_nil_oop);
     resultOOP = FROM_INT(rc);
     goto succeed;
 
@@ -5180,7 +5180,7 @@ succeed:
 /* FileDescriptor>>#socketOp..., socket version, variadic */
 
 static intptr_t VMpr_FileDescriptor_socketOp(int id, volatile int numArgs) {
-  gst_file_stream fileStream;
+  gst_object fileStream;
   int fd, rc;
   OOP oop1, resultOOP;
   OOP *oopVec = alloca(numArgs * sizeof(OOP));
@@ -5199,11 +5199,11 @@ static intptr_t VMpr_FileDescriptor_socketOp(int id, volatile int numArgs) {
     goto fail;
 
   arg1 = TO_INT(oopVec[0]);
-  fileStream = (gst_file_stream)OOP_TO_OBJ(oop1);
-  if (IS_NIL(fileStream->fd))
+  fileStream = OOP_TO_OBJ(oop1);
+  if (IS_NIL(OBJ_FILE_STREAM_GET_FD(fileStream)))
     goto fail;
 
-  fd = TO_INT(fileStream->fd);
+  fd = TO_INT(OBJ_FILE_STREAM_GET_FD(fileStream));
   switch (arg1) {
 
   case PRIM_CLOSE_FILE: /* FileDescriptor close */
@@ -5211,7 +5211,7 @@ static intptr_t VMpr_FileDescriptor_socketOp(int id, volatile int numArgs) {
     _gst_remove_fd_polling_handlers(fd);
     rc = close(fd);
     if (rc == 0)
-      fileStream->fd = _gst_nil_oop;
+      OBJ_FILE_STREAM_SET_FD(fileStream, _gst_nil_oop);
     resultOOP = FROM_INT(rc);
     goto succeed;
   }

@@ -481,4 +481,71 @@
     ((gst_uchar *)((obj))->data)[(i)] = (valueOOP);  \
   } while (0)
 
+/* FILE STREAM */
+#define OBJ_FILE_STREAM_GET_ACCESS(obj) (((obj))->data)[0]
+#define OBJ_FILE_STREAM_SET_ACCESS(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[0] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_FILE_STREAM_GET_FD(obj) (((obj))->data)[1]
+#define OBJ_FILE_STREAM_SET_FD(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[1] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_FILE_STREAM_GET_FILE(obj) (((obj))->data)[2]
+#define OBJ_FILE_STREAM_SET_FILE(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[2] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_FILE_STREAM_GET_IS_PIPE(obj) (((obj))->data)[3]
+#define OBJ_FILE_STREAM_SET_IS_PIPE(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[3] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_FILE_STREAM_GET_AT_END(obj) (((obj))->data)[4]
+#define OBJ_FILE_STREAM_SET_AT_END(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[4] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_FILE_STREAM_GET_PEEK(obj) (((obj))->data)[5]
+#define OBJ_FILE_STREAM_SET_PEEK(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[5] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_FILE_STREAM_GET_COLLECTION(obj) (((obj))->data)[6]
+#define OBJ_FILE_STREAM_SET_COLLECTION(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[6] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_FILE_STREAM_GET_PTR(obj) (((obj))->data)[7]
+#define OBJ_FILE_STREAM_SET_PTR(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[7] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_FILE_STREAM_GET_END_PTR(obj) (((obj))->data)[8]
+#define OBJ_FILE_STREAM_SET_END_PTR(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[8] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_FILE_STREAM_GET_WRITE_PTR(obj) (((obj))->data)[9]
+#define OBJ_FILE_STREAM_SET_WRITE_PTR(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[9] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_FILE_STREAM_GET_WRITE_END(obj) (((obj))->data)[10]
+#define OBJ_FILE_STREAM_SET_WRITE_END(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[10] = (valueOOP);  \
+  } while (0)
+
 #endif /* GST_OBJECT_POINTER_H */

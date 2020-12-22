@@ -1848,36 +1848,36 @@ void _gst_free_cobject(OOP cObjOOP) {
 void _gst_set_file_stream_file(OOP fileStreamOOP, int fd, OOP fileNameOOP,
                                mst_Boolean isPipe, int access,
                                mst_Boolean buffered) {
-  gst_file_stream fileStream;
+  gst_object fileStream;
 
-  fileStream = (gst_file_stream)OOP_TO_OBJ(fileStreamOOP);
+  fileStream = OOP_TO_OBJ(fileStreamOOP);
 
   switch (access & O_ACCMODE) {
   case O_RDONLY:
-    fileStream->access = FROM_INT(1);
+    OBJ_FILE_STREAM_SET_ACCESS(fileStream, FROM_INT(1));
     break;
   case O_WRONLY:
-    fileStream->access = FROM_INT(2);
+    OBJ_FILE_STREAM_SET_ACCESS(fileStream, FROM_INT(2));
     break;
   case O_RDWR:
-    fileStream->access = FROM_INT(3);
+    OBJ_FILE_STREAM_SET_ACCESS(fileStream, FROM_INT(3));
     break;
   }
 
   if (buffered) {
     char buffer[1024];
     memset(buffer, 0, sizeof(buffer));
-    fileStream->collection = _gst_counted_string_new(buffer, sizeof(buffer));
-    fileStream->ptr = FROM_INT(1);
-    fileStream->endPtr = FROM_INT(0);
-    fileStream->writePtr = _gst_nil_oop;
-    fileStream->writeEnd = _gst_nil_oop;
+    OBJ_FILE_STREAM_SET_COLLECTION(fileStream, _gst_counted_string_new(buffer, sizeof(buffer)));
+    OBJ_FILE_STREAM_SET_PTR(fileStream, FROM_INT(1));
+    OBJ_FILE_STREAM_SET_END_PTR(fileStream, FROM_INT(0));
+    OBJ_FILE_STREAM_SET_WRITE_PTR(fileStream, _gst_nil_oop);
+    OBJ_FILE_STREAM_SET_WRITE_END(fileStream, _gst_nil_oop);
   }
 
-  fileStream->fd = FROM_INT(fd);
-  fileStream->file = fileNameOOP;
-  fileStream->isPipe =
-      isPipe == -1 ? _gst_nil_oop : isPipe ? _gst_true_oop : _gst_false_oop;
+  OBJ_FILE_STREAM_SET_FD(fileStream, FROM_INT(fd));
+  OBJ_FILE_STREAM_SET_FILE(fileStream, fileNameOOP);
+  OBJ_FILE_STREAM_SET_IS_PIPE(fileStream,
+      isPipe == -1 ? _gst_nil_oop : isPipe ? _gst_true_oop : _gst_false_oop);
 }
 
 /* Profiling callback.  The profiler use a simple data structure
