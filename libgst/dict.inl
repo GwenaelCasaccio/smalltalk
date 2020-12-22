@@ -1099,7 +1099,7 @@ void inst_var_at_put(OOP oop, int index, OOP value) {
 }
 
 mst_Boolean is_c_int_32(OOP oop) {
-  gst_byte_array ba;
+  gst_object ba;
 
   if COMMON (IS_INT(oop))
 #if SIZEOF_OOP == 4
@@ -1108,7 +1108,7 @@ mst_Boolean is_c_int_32(OOP oop) {
     return (TO_INT(oop) >= INT_MIN && TO_INT(oop) < INT_MAX);
 #endif
 
-  ba = (gst_byte_array)OOP_TO_OBJ(oop);
+  ba = OOP_TO_OBJ(oop);
   if (COMMON(OBJ_CLASS(ba) == _gst_large_positive_integer_class) ||
       OBJ_CLASS(ba) == _gst_large_negative_integer_class)
     return (NUM_INDEXABLE_FIELDS(oop) == 4);
@@ -1117,7 +1117,7 @@ mst_Boolean is_c_int_32(OOP oop) {
 }
 
 mst_Boolean is_c_uint_32(OOP oop) {
-  gst_byte_array ba;
+  gst_object ba;
 
   if COMMON (IS_INT(oop))
 #if SIZEOF_OOP == 4
@@ -1126,13 +1126,13 @@ mst_Boolean is_c_uint_32(OOP oop) {
     return (TO_INT(oop) >= 0 && TO_INT(oop) < UINT_MAX);
 #endif
 
-  ba = (gst_byte_array)OOP_TO_OBJ(oop);
+  ba = OOP_TO_OBJ(oop);
   if COMMON (OBJ_CLASS(ba) == _gst_large_positive_integer_class) {
     switch (NUM_INDEXABLE_FIELDS(oop)) {
     case 4:
       return (true);
     case 5:
-      return (ba->bytes[4] == 0);
+      return (OBJ_BYTE_ARRAY_GET_BYTES(ba, 4) == 0);
     }
   }
 
@@ -1140,19 +1140,19 @@ mst_Boolean is_c_uint_32(OOP oop) {
 }
 
 int32_t to_c_int_32(OOP oop) {
-  gst_byte_array ba;
+  gst_object ba;
 
   if COMMON (IS_INT(oop))
     return (TO_INT(oop));
 
-  ba = (gst_byte_array)OOP_TO_OBJ(oop);
+  ba = OOP_TO_OBJ(oop);
   return ((int32_t)(
-      (((uint32_t)ba->bytes[3]) << 24) + (((uint32_t)ba->bytes[2]) << 16) +
-      (((uint32_t)ba->bytes[1]) << 8) + ((uint32_t)ba->bytes[0])));
+      (((uint32_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 3)) << 24) + (((uint32_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 2)) << 16) +
+      (((uint32_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 1)) << 8) + ((uint32_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 0))));
 }
 
 OOP from_c_int_32(int32_t i) {
-  gst_byte_array ba;
+  gst_object ba;
   OOP oop;
   const uint32_t ui = (uint32_t)i;
 
@@ -1160,50 +1160,50 @@ OOP from_c_int_32(int32_t i) {
     return (FROM_INT(i));
 
   if (i < 0)
-    ba = (gst_byte_array)new_instance_with(_gst_large_negative_integer_class, 4,
+    ba = new_instance_with(_gst_large_negative_integer_class, 4,
                                            &oop);
   else
-    ba = (gst_byte_array)new_instance_with(_gst_large_positive_integer_class, 4,
+    ba = new_instance_with(_gst_large_positive_integer_class, 4,
                                            &oop);
 
-  ba->bytes[0] = (gst_uchar)ui;
-  ba->bytes[1] = (gst_uchar)(ui >> 8);
-  ba->bytes[2] = (gst_uchar)(ui >> 16);
-  ba->bytes[3] = (gst_uchar)(ui >> 24);
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 0, (gst_uchar)ui);
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 1, (gst_uchar)(ui >> 8));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 2, (gst_uchar)(ui >> 16));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 3, (gst_uchar)(ui >> 24));
   return (oop);
 }
 
 OOP from_c_uint_32(uint32_t ui) {
-  gst_byte_array ba;
+  gst_object ba;
   OOP oop;
 
   if COMMON (ui <= MAX_ST_INT)
     return (FROM_INT(ui));
 
   if UNCOMMON (((intptr_t)ui) < 0) {
-    ba = (gst_byte_array)new_instance_with(_gst_large_positive_integer_class, 5,
+    ba = new_instance_with(_gst_large_positive_integer_class, 5,
                                            &oop);
 
-    ba->bytes[4] = 0;
+    OBJ_BYTE_ARRAY_SET_BYTES(ba, 4, 0);
   } else
-    ba = (gst_byte_array)new_instance_with(_gst_large_positive_integer_class, 4,
+    ba = new_instance_with(_gst_large_positive_integer_class, 4,
                                            &oop);
 
-  ba->bytes[0] = (gst_uchar)ui;
-  ba->bytes[1] = (gst_uchar)(ui >> 8);
-  ba->bytes[2] = (gst_uchar)(ui >> 16);
-  ba->bytes[3] = (gst_uchar)(ui >> 24);
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 0, (gst_uchar)ui);
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 1, (gst_uchar)(ui >> 8));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 2, (gst_uchar)(ui >> 16));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 3, (gst_uchar)(ui >> 24));
 
   return (oop);
 }
 
 mst_Boolean is_c_int_64(OOP oop) {
-  gst_byte_array ba;
+  gst_object ba;
 
   if COMMON (IS_INT(oop))
     return (true);
 
-  ba = (gst_byte_array)OOP_TO_OBJ(oop);
+  ba = OOP_TO_OBJ(oop);
   if COMMON (OBJ_CLASS(ba) == _gst_large_negative_integer_class ||
              OBJ_CLASS(ba) == _gst_large_positive_integer_class) {
     switch (NUM_INDEXABLE_FIELDS(oop)) {
@@ -1220,12 +1220,12 @@ mst_Boolean is_c_int_64(OOP oop) {
 }
 
 mst_Boolean is_c_uint_64(OOP oop) {
-  gst_byte_array ba;
+  gst_object ba;
 
   if COMMON (IS_INT(oop))
     return (TO_INT(oop) >= 0);
 
-  ba = (gst_byte_array)OOP_TO_OBJ(oop);
+  ba = OOP_TO_OBJ(oop);
   if COMMON (OBJ_CLASS(ba) == _gst_large_positive_integer_class) {
     switch (NUM_INDEXABLE_FIELDS(oop)) {
     case 4:
@@ -1235,7 +1235,7 @@ mst_Boolean is_c_uint_64(OOP oop) {
     case 8:
       return (true);
     case 9:
-      return (ba->bytes[8] == 0);
+      return (OBJ_BYTE_ARRAY_GET_BYTES(ba, 8) == 0);
     }
   }
 
@@ -1243,52 +1243,52 @@ mst_Boolean is_c_uint_64(OOP oop) {
 }
 
 uint64_t to_c_uint_64(OOP oop) {
-  gst_byte_array ba;
+  gst_object ba;
   uint64_t result, mask;
 
   if COMMON (IS_INT(oop))
     return (TO_INT(oop));
 
-  ba = (gst_byte_array)OOP_TO_OBJ(oop);
+  ba = OOP_TO_OBJ(oop);
   mask = (((uint64_t)2) << (NUM_INDEXABLE_FIELDS(oop) * 8 - 1)) - 1;
   result = ((int64_t)(
-      (((uint64_t)ba->bytes[3]) << 24) + (((uint64_t)ba->bytes[2]) << 16) +
-      (((uint64_t)ba->bytes[1]) << 8) + ((uint64_t)ba->bytes[0])));
+      (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 3)) << 24) + (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 2)) << 16) +
+      (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 1)) << 8) + ((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 0))));
 
   if (NUM_INDEXABLE_FIELDS(oop) > 4)
-    result |= mask & ((int64_t)((((uint64_t)ba->bytes[7]) << 56) +
-                                (((uint64_t)ba->bytes[6]) << 48) +
-                                (((uint64_t)ba->bytes[5]) << 40) +
-                                (((uint64_t)ba->bytes[4]) << 32)));
+    result |= mask & ((int64_t)((((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 7)) << 56) +
+                                (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 6)) << 48) +
+                                (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 5)) << 40) +
+                                (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 4)) << 32)));
 
   return result;
 }
 
 int64_t to_c_int_64(OOP oop) {
-  gst_byte_array ba;
+  gst_object ba;
   int64_t result, mask;
 
   if COMMON (IS_INT(oop))
     return (TO_INT(oop));
 
-  ba = (gst_byte_array)OOP_TO_OBJ(oop);
+  ba = OOP_TO_OBJ(oop);
   mask = (((uint64_t)2) << (NUM_INDEXABLE_FIELDS(oop) * 8 - 1)) - 1;
   result = (OBJ_CLASS(ba) == _gst_large_negative_integer_class) ? ~mask : 0;
   result |= ((int64_t)(
-      (((uint64_t)ba->bytes[3]) << 24) + (((uint64_t)ba->bytes[2]) << 16) +
-      (((uint64_t)ba->bytes[1]) << 8) + ((uint64_t)ba->bytes[0])));
+      (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba,3)) << 24) + (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 2)) << 16) +
+      (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba,1)) << 8) + ((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 0))));
 
   if (NUM_INDEXABLE_FIELDS(oop) > 4)
-    result |= mask & ((int64_t)((((uint64_t)ba->bytes[7]) << 56) +
-                                (((uint64_t)ba->bytes[6]) << 48) +
-                                (((uint64_t)ba->bytes[5]) << 40) +
-                                (((uint64_t)ba->bytes[4]) << 32)));
+    result |= mask & ((int64_t)((((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 7)) << 56) +
+                                (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 6)) << 48) +
+                                (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 5)) << 40) +
+                                (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 4)) << 32)));
 
   return result;
 }
 
 OOP from_c_int_64(int64_t i) {
-  gst_byte_array ba;
+  gst_object ba;
   OOP oop;
   const uint64_t ui = (uint64_t)i;
 
@@ -1296,48 +1296,48 @@ OOP from_c_int_64(int64_t i) {
     return (FROM_INT(i));
 
   if (i < 0)
-    ba = (gst_byte_array)new_instance_with(_gst_large_negative_integer_class, 8,
+    ba = new_instance_with(_gst_large_negative_integer_class, 8,
                                            &oop);
   else
-    ba = (gst_byte_array)new_instance_with(_gst_large_positive_integer_class, 8,
+    ba = new_instance_with(_gst_large_positive_integer_class, 8,
                                            &oop);
 
-  ba->bytes[0] = (gst_uchar)ui;
-  ba->bytes[1] = (gst_uchar)(ui >> 8);
-  ba->bytes[2] = (gst_uchar)(ui >> 16);
-  ba->bytes[3] = (gst_uchar)(ui >> 24);
-  ba->bytes[4] = (gst_uchar)(ui >> 32);
-  ba->bytes[5] = (gst_uchar)(ui >> 40);
-  ba->bytes[6] = (gst_uchar)(ui >> 48);
-  ba->bytes[7] = (gst_uchar)(ui >> 56);
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 0, (gst_uchar)ui);
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 1, (gst_uchar)(ui >> 8));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 2, (gst_uchar)(ui >> 16));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 3, (gst_uchar)(ui >> 24));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 4, (gst_uchar)(ui >> 32));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 5, (gst_uchar)(ui >> 40));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 6, (gst_uchar)(ui >> 48));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 7, (gst_uchar)(ui >> 56));
 
   return (oop);
 }
 
 OOP from_c_uint_64(uint64_t ui) {
-  gst_byte_array ba;
+  gst_object ba;
   OOP oop;
 
   if COMMON (ui <= MAX_ST_INT)
     return (FROM_INT(ui));
 
   if UNCOMMON (((int64_t)ui) < 0) {
-    ba = (gst_byte_array)new_instance_with(_gst_large_positive_integer_class, 9,
+    ba = new_instance_with(_gst_large_positive_integer_class, 9,
                                            &oop);
 
-    ba->bytes[8] = 0;
+    OBJ_BYTE_ARRAY_SET_BYTES(ba, 8, 0);
   } else
-    ba = (gst_byte_array)new_instance_with(_gst_large_positive_integer_class, 8,
+    ba = new_instance_with(_gst_large_positive_integer_class, 8,
                                            &oop);
 
-  ba->bytes[0] = (gst_uchar)ui;
-  ba->bytes[1] = (gst_uchar)(ui >> 8);
-  ba->bytes[2] = (gst_uchar)(ui >> 16);
-  ba->bytes[3] = (gst_uchar)(ui >> 24);
-  ba->bytes[4] = (gst_uchar)(ui >> 32);
-  ba->bytes[5] = (gst_uchar)(ui >> 40);
-  ba->bytes[6] = (gst_uchar)(ui >> 48);
-  ba->bytes[7] = (gst_uchar)(ui >> 56);
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 0, (gst_uchar)ui);
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 1, (gst_uchar)(ui >> 8));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 2, (gst_uchar)(ui >> 16));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 3, (gst_uchar)(ui >> 24));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 4, (gst_uchar)(ui >> 32));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 5, (gst_uchar)(ui >> 40));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 6, (gst_uchar)(ui >> 48));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 7, (gst_uchar)(ui >> 56));
 
   return (oop);
 }
@@ -1347,7 +1347,7 @@ static inline PTR cobject_value(OOP oop) {
   if (IS_NIL(OBJ_COBJECT_GET_STORAGE(cObj)))
     return (PTR)COBJECT_OFFSET_OBJ(cObj);
   else {
-    gst_uchar *baseAddr = ((gst_byte_array)OOP_TO_OBJ(OBJ_COBJECT_GET_STORAGE(cObj)))->bytes;
+    gst_uchar *baseAddr = (gst_uchar *)(OOP_TO_OBJ(OBJ_COBJECT_GET_STORAGE(cObj)))->data;
     return (PTR)(baseAddr + COBJECT_OFFSET_OBJ(cObj));
   }
 }

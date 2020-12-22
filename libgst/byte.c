@@ -74,16 +74,16 @@ _gst_extract_bytecodes (OOP byteArrayOOP)
 {
   bc_vector result;
   int len;
-  gst_byte_array byteArray;
+  gst_object byteArray;
 
-  byteArray = (gst_byte_array) OOP_TO_OBJ (byteArrayOOP);
+  byteArray = OOP_TO_OBJ (byteArrayOOP);
   len = oop_num_fields (byteArrayOOP);
   result = (bc_vector) xmalloc (sizeof (struct bytecode_array));
 
   result->base = (gst_uchar *) xmalloc (len);
   result->ptr = result->base + len;
   result->maxLen = len;
-  memcpy (result->base, byteArray->bytes, len);
+  memcpy (result->base, byteArray->data, len);
   return (result);
 }
 

@@ -453,7 +453,7 @@
 #define OBJ_STRING_GET_CHARS(obj) ((char *)((obj))->data)
 #define OBJ_STRING_SET_CHARS(obj, valueOOP)         \
   do {                                              \
-    ((char *)((obj))->data)[0] = (valueOOP); \
+    ((char *)((obj))->data)[0] = (valueOOP);        \
   } while (0)
 
 /* Answer a pointer to the first character of STRINGOOP.  */
@@ -464,7 +464,7 @@
 #define OBJ_UNICODE_STRING_GET_CHARS(obj) ((uint32_t *)((obj))->data)
 #define OBJ_UNICODE_STRING_SET_CHARS(obj, i, valueOOP) \
   do {                                          \
-    ((uint32_t *)((obj))->data)[i] = (valueOOP);  \
+    ((uint32_t *)((obj))->data)[(i)] = (valueOOP);  \
   } while (0)
 
 /* CHAR */
@@ -472,6 +472,13 @@
 #define OBJ_CHAR_SET_CODE_POINTS(obj, valueOOP)     \
   do {                                              \
     (((obj))->data)[0] = (valueOOP);                \
+  } while (0)
+
+/* BYTE ARRAY */
+#define OBJ_BYTE_ARRAY_GET_BYTES(obj, i) ((gst_uchar *)((obj))->data)[(i)]
+#define OBJ_BYTE_ARRAY_SET_BYTES(obj, i, valueOOP) \
+  do {                                             \
+    ((gst_uchar *)((obj))->data)[(i)] = (valueOOP);  \
   } while (0)
 
 #endif /* GST_OBJECT_POINTER_H */
