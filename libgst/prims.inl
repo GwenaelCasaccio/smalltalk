@@ -3533,16 +3533,16 @@ static intptr_t VMpr_Behavior_methodsForIfTrue(int id, volatile int numArgs) {
 static intptr_t VMpr_Processor_disableEnableInterrupts(int id,
                                                        volatile int numArgs) {
   OOP processOOP;
-  gst_process process;
+  gst_object process;
   gst_processor_scheduler processor;
   int count;
 
   _gst_primitives_executed++;
   processor = (gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop);
   processOOP = processor->activeProcess;
-  process = (gst_process)OOP_TO_OBJ(processOOP);
+  process = OOP_TO_OBJ(processOOP);
 
-  count = IS_NIL(process->interrupts) ? 0 : TO_INT(process->interrupts);
+  count = IS_NIL(OBJ_PROCESS_GET_INTERRUPTS(process)) ? 0 : TO_INT(OBJ_PROCESS_GET_INTERRUPTS(process));
 
   if (id == 0 && count++ == 0)
     async_queue_enabled = false;
@@ -3551,7 +3551,7 @@ static intptr_t VMpr_Processor_disableEnableInterrupts(int id,
     SET_EXCEPT_FLAG(true);
   }
 
-  process->interrupts = FROM_INT(count);
+  OBJ_PROCESS_SET_INTERRUPTS(process, FROM_INT(count));
 
   PRIM_SUCCEEDED;
 }

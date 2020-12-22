@@ -548,4 +548,54 @@
     (((obj))->data)[10] = (valueOOP);  \
   } while (0)
 
+/* PROCESS */
+#define OBJ_PROCESS_GET_NEXT_LINK(obj) (((obj))->data)[0]
+#define OBJ_PROCESS_SET_NEXT_LINK(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[0] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_PROCESS_GET_SUSPENDED_CONTEXT(obj) (((obj))->data)[1]
+#define OBJ_PROCESS_SET_SUSPENDED_CONTEXT(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[1] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_PROCESS_GET_PRIORITY(obj) (((obj))->data)[2]
+#define OBJ_PROCESS_SET_PRIORITY(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[2] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_PROCESS_GET_MY_LIST(obj) (((obj))->data)[3]
+#define OBJ_PROCESS_SET_MY_LIST(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[3] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_PROCESS_GET_NAME(obj) (((obj))->data)[4]
+#define OBJ_PROCESS_SET_NAME(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[4] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_PROCESS_GET_UNWIND_POINTS(obj) (((obj))->data)[5]
+#define OBJ_PROCESS_SET_UNWIND_POINTS(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[5] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_PROCESS_GET_INTERRUPTS(obj) (((obj))->data)[6]
+#define OBJ_PROCESS_SET_INTERRUPTS(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[6] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_PROCESS_GET_INTERRUPT_LOCK(obj) (((obj))->data)[7]
+#define OBJ_PROCESS_SET_INTERRUPT_LOCK(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[7] = (valueOOP);  \
+  } while (0)
+
+
 #endif /* GST_OBJECT_POINTER_H */

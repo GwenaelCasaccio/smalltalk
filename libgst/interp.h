@@ -135,9 +135,9 @@ typedef struct method_cache_entry {
   OOP interrupts;                                                              \
   OOP interruptLock
 
-typedef struct gst_process {
+/* typedef struct gst_process {
   PROCESS_HEADER;
-} * gst_process;
+} * gst_process; */
 
 typedef struct gst_callin_process {
   PROCESS_HEADER;
