@@ -122,26 +122,6 @@ enum {
   GST_ISP_INTMARK = 1
 };
 
-typedef struct gst_string {
-  OBJ_HEADER;
-  char chars[1];
-} * gst_string;
-
-typedef struct gst_unicode_string {
-  OBJ_HEADER;
-  uint32_t chars[1];
-} * gst_unicode_string;
-
-typedef struct gst_byte_array {
-  OBJ_HEADER;
-  gst_uchar bytes[1];
-} * gst_byte_array;
-
-typedef struct gst_char {
-  OBJ_HEADER;
-  OOP codePoint;
-} * gst_char;
-
 extern OOP _gst_abstract_namespace_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_array_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_arrayed_collection_class ATTRIBUTE_HIDDEN;

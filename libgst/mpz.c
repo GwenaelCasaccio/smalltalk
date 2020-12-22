@@ -1449,7 +1449,7 @@ void _gst_mpz_divexact(gst_mpz *quot, const gst_mpz *num, const gst_mpz *den) {
 
 void _gst_mpz_from_oop(gst_mpz *mpz, OOP srcOOP) {
   OOP srcClass;
-  gst_byte_array ba;
+  gst_object ba;
   mp_limb_t *src, *dest, adjust;
   int n;
 
@@ -1461,10 +1461,10 @@ void _gst_mpz_from_oop(gst_mpz *mpz, OOP srcOOP) {
     return;
   }
 
-  ba = (gst_byte_array)OOP_TO_OBJ(srcOOP);
+  ba = OOP_TO_OBJ(srcOOP);
   n = TO_INT(OBJ_SIZE (ba)) - OBJ_HEADER_SIZE_WORDS;
   srcClass = OOP_CLASS(srcOOP);
-  src = (mp_limb_t *)ba->bytes;
+  src = (mp_limb_t *)ba->data;
 
   if (srcClass == _gst_large_zero_integer_class) {
     gst_mpz_realloc(mpz, 1);
@@ -1545,7 +1545,7 @@ OOP _gst_oop_from_mpz(gst_mpz *mpz) {
   mst_Boolean neg;
   int n;
   OOP oop;
-  gst_byte_array ba;
+  gst_object ba;
 
   /* Convert to the absolute value (for ease in referencing mpz->size)
      and remove leading zero bytes.  */
@@ -1598,7 +1598,7 @@ OOP _gst_oop_from_mpz(gst_mpz *mpz) {
     if (bytes[n] < 128)
       n++;
 
-    ba = (gst_byte_array)new_instance_with(_gst_large_negative_integer_class,
+    ba = new_instance_with(_gst_large_negative_integer_class,
                                            ++n, &oop);
   } else {
     /* Search where the number really ends -- discard trailing 000...
@@ -1609,7 +1609,7 @@ OOP _gst_oop_from_mpz(gst_mpz *mpz) {
     if (bytes[n] >= 128)
       n++;
 
-    ba = (gst_byte_array)new_instance_with(_gst_large_positive_integer_class,
+    ba = new_instance_with(_gst_large_positive_integer_class,
                                            ++n, &oop);
   }
 
@@ -1617,9 +1617,9 @@ OOP _gst_oop_from_mpz(gst_mpz *mpz) {
      for example 16r80000000 fits a single limb but uses a 5-byte object)
      fill in the last byte.  */
   if (n > SIZEOF_MP_LIMB_T * mpz->size)
-    ba->bytes[--n] = neg ? 255 : 0;
+    OBJ_BYTE_ARRAY_SET_BYTES(ba, --n, neg ? 255 : 0);
 
-  memcpy(ba->bytes, bytes, n);
+  memcpy(ba->data, bytes, n);
   return oop;
 }
 #endif

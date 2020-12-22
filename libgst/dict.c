@@ -1670,51 +1670,50 @@ OOP _gst_new_string(size_t len) {
 }
 
 OOP _gst_string_new(const char *s) {
-  gst_string string;
+  gst_object string;
   size_t len;
   OOP stringOOP;
 
   if (s) {
     len = strlen(s);
-    string = (gst_string)new_instance_with(_gst_string_class, len, &stringOOP);
+    string = new_instance_with(_gst_string_class, len, &stringOOP);
 
-    memcpy(string->chars, s, len);
+    memcpy(OBJ_STRING_GET_CHARS(string), s, len);
   } else
-    string = (gst_string)new_instance_with(_gst_string_class, 0, &stringOOP);
+    string = new_instance_with(_gst_string_class, 0, &stringOOP);
   return (stringOOP);
 }
 
 OOP _gst_unicode_string_new(const wchar_t *s) {
   int i;
-  gst_unicode_string string;
+  gst_object string;
   size_t len;
   OOP stringOOP;
 
   if (s) {
     len = wcslen(s);
-    string = (gst_unicode_string)new_instance_with(_gst_unicode_string_class,
+    string = new_instance_with(_gst_unicode_string_class,
                                                    len, &stringOOP);
 
-    if (sizeof(wchar_t) == sizeof(string->chars[0]))
-      memcpy(string->chars, s, len * sizeof(wchar_t));
+    if (sizeof(wchar_t) == sizeof(OBJ_UNICODE_STRING_GET_CHARS(string)[0]))
+      memcpy(OBJ_UNICODE_STRING_GET_CHARS(string), s, len * sizeof(wchar_t));
     else
       for (i = 0; i < len; i++)
-        string->chars[i] = *s++;
+        OBJ_UNICODE_STRING_SET_CHARS(string, i, *s++);
   } else
-    string = (gst_unicode_string)new_instance_with(_gst_unicode_string_class, 0,
-                                                   &stringOOP);
+    string = new_instance_with(_gst_unicode_string_class, 0, &stringOOP);
 
   return (stringOOP);
 }
 
 OOP _gst_counted_string_new(const char *s, size_t len) {
-  gst_string string;
+  gst_object string;
   OOP stringOOP;
 
-  string = (gst_string)new_instance_with(_gst_string_class, len, &stringOOP);
+  string = new_instance_with(_gst_string_class, len, &stringOOP);
 
   if (len)
-    memcpy(string->chars, s, len);
+    memcpy(OBJ_STRING_GET_CHARS(string), s, len);
 
   return (stringOOP);
 }
@@ -1736,12 +1735,12 @@ void _gst_set_oop_unicode_string(OOP unicodeStringOOP, const wchar_t *s) {
 char *_gst_to_cstring(OOP stringOOP) {
   char *result;
   size_t len;
-  gst_string string;
+  gst_object string;
 
-  string = (gst_string)OOP_TO_OBJ(stringOOP);
+  string = OOP_TO_OBJ(stringOOP);
   len = oop_num_fields(stringOOP);
   result = (char *)xmalloc(len + 1);
-  memcpy(result, string->chars, len);
+  memcpy(result, OBJ_STRING_GET_CHARS(string), len);
   result[len] = '\0';
 
   return (result);
@@ -1750,53 +1749,54 @@ char *_gst_to_cstring(OOP stringOOP) {
 wchar_t *_gst_to_wide_cstring(OOP stringOOP) {
   wchar_t *result, *p;
   size_t len;
-  gst_unicode_string string;
+  gst_object string;
   int i;
 
-  string = (gst_unicode_string)OOP_TO_OBJ(stringOOP);
+  string = OOP_TO_OBJ(stringOOP);
   len = oop_num_fields(stringOOP);
   result = (wchar_t *)xmalloc(len + 1);
   if (sizeof(wchar_t) == 4)
-    memcpy(result, string->chars, len * sizeof(wchar_t));
+    memcpy(result, OBJ_UNICODE_STRING_GET_CHARS(string), len * sizeof(wchar_t));
   else
-    for (p = result, i = 0; i < len; i++)
-      *p++ = string->chars[i];
+    for (p = result, i = 0; i < len; i++) {
+      *p++ = OBJ_UNICODE_STRING_GET_CHARS(string)[i];
+    }
   result[len] = '\0';
 
   return (result);
 }
 
 OOP _gst_byte_array_new(const gst_uchar *bytes, size_t len) {
-  gst_byte_array byteArray;
+  gst_object byteArray;
   OOP byteArrayOOP;
 
-  byteArray = (gst_byte_array)new_instance_with(_gst_byte_array_class, len,
+  byteArray = new_instance_with(_gst_byte_array_class, len,
                                                 &byteArrayOOP);
 
-  memcpy(byteArray->bytes, bytes, len);
+  memcpy(byteArray->data, bytes, len);
   return (byteArrayOOP);
 }
 
 gst_uchar *_gst_to_byte_array(OOP byteArrayOOP) {
   gst_uchar *result;
   size_t len;
-  gst_byte_array byteArray;
+  gst_object byteArray;
 
-  byteArray = (gst_byte_array)OOP_TO_OBJ(byteArrayOOP);
+  byteArray = OOP_TO_OBJ(byteArrayOOP);
   len = oop_num_fields(byteArrayOOP);
   result = (gst_uchar *)xmalloc(len);
-  memcpy(result, byteArray->bytes, len);
+  memcpy(result, byteArray->data, len);
 
   return (result);
 }
 
 void _gst_set_oop_bytes(OOP byteArrayOOP, gst_uchar *bytes) {
-  gst_byte_array byteArray;
+  gst_object byteArray;
   size_t len;
 
   len = oop_num_fields(byteArrayOOP);
-  byteArray = (gst_byte_array)OOP_TO_OBJ(byteArrayOOP);
-  memcpy(byteArray->bytes, bytes, len);
+  byteArray = OOP_TO_OBJ(byteArrayOOP);
+  memcpy(byteArray->data, bytes, len);
 }
 
 OOP _gst_message_new_args(OOP selectorOOP, OOP argsArray) {
