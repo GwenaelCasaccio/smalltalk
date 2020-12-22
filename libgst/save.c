@@ -682,8 +682,8 @@ void fixup_object(OOP oop, gst_object dest, gst_object src, int numBytes) {
 
   /* File descriptors are invalidated on resume.  */
   else if (is_a_kind_of(class_oop, _gst_file_descriptor_class)) {
-    gst_file_stream file = (gst_file_stream)dest;
-    file->fd = _gst_nil_oop;
+    gst_object file = dest;
+    OBJ_FILE_STREAM_SET_FD(file, _gst_nil_oop);
   }
 
   /* The other case is to reset CFunctionDescriptor objects, so that we'll

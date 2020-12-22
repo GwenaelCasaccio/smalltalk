@@ -62,24 +62,6 @@
  *
  ***********************************************************************/
 
-/* Note the use of structural inheritance in C structure definitions
-   here */
-
-typedef struct gst_file_stream {
-  OBJ_HEADER;
-  OOP access;
-  OOP fd;
-  OOP file;
-  OOP isPipe;
-  OOP atEnd;
-  OOP peek;
-  OOP collection;
-  OOP ptr;
-  OOP endPtr;
-  OOP writePtr;
-  OOP writeEnd;
-} * gst_file_stream;
-
 #define COBJECT_ANON_TYPE FROM_INT(-1)
 #define COBJECT_CHAR_TYPE FROM_INT(0)
 #define COBJECT_UNSIGNED_CHAR_TYPE FROM_INT(1)
