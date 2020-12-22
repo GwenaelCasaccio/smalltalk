@@ -248,7 +248,7 @@ static void
 poll_events (OOP blockingOOP)
 {
   unsigned ms;
-  gst_processor_scheduler processor;
+  gst_object processor;
   if (blockingOOP == _gst_nil_oop)
     ms = 0;
   else if (blockingOOP == _gst_true_oop)
@@ -260,15 +260,14 @@ poll_events (OOP blockingOOP)
     {
       /* Polling told us they have events ready.  If available, signal the
          event semaphore and switch to STATE_DISPATCHING.  */
-      processor = (gst_processor_scheduler) OOP_TO_OBJ (_gst_processor_oop);
-      if (TO_INT (OBJ_SIZE (processor))
-          > offsetof (struct gst_processor_scheduler, eventSemaphore) / sizeof(OOP))
+      processor = OOP_TO_OBJ (_gst_processor_oop);
+      if (TO_INT (OBJ_SIZE (processor)) > 6)
         {
           event_loop_lock ();
           set_event_loop_state (STATE_DISPATCHING);
           event_loop_unlock ();
-          processor = (gst_processor_scheduler) OOP_TO_OBJ (_gst_processor_oop);
-          _gst_sync_signal (processor->eventSemaphore, true);
+          processor = OOP_TO_OBJ (_gst_processor_oop);
+          _gst_sync_signal (OBJ_PROCESSOR_SCHEDULER_GET_EVENT_SEMAPHORE(processor), true);
         }
     }
 

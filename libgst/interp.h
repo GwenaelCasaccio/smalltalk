@@ -124,17 +124,6 @@ typedef struct method_cache_entry {
    time of the call-in, and is the parent of the called-in method).  */
 #define MCF_IS_EXECUTION_ENVIRONMENT 8
 
-typedef struct gst_processor_scheduler {
-  OBJ_HEADER;
-  OOP processLists;
-  OOP activeProcess;
-  OOP idleTasks;
-  OOP processTimeslice;
-  OOP gcSemaphore;
-  OOP gcArray;
-  OOP eventSemaphore;
-} * gst_processor_scheduler;
-
 /* Some performance counters from the interpreter: these
    count the number of special returns.  */
 extern unsigned long _gst_literal_returns ATTRIBUTE_HIDDEN,

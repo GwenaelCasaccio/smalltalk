@@ -1276,24 +1276,24 @@ void _gst_sweep_oop(OOP oop) {
 void mourn_objects(void) {
   gst_object array;
   long size;
-  gst_processor_scheduler processor;
+  gst_object processor;
 
   size = _gst_buffer_size() / sizeof(OOP);
   if (!size)
     return;
 
-  processor = (gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop);
-  if (!IS_NIL(processor->gcArray)) {
+  processor = OOP_TO_OBJ(_gst_processor_oop);
+  if (!IS_NIL(OBJ_PROCESSOR_SCHEDULER_GET_GC_ARRAY(processor))) {
     _gst_errorf("Too many garbage collections, finalizers missed!");
     _gst_errorf("This is a bug, please report.");
   } else {
     /* Copy the buffer into an Array */
-    array = new_instance_with(_gst_array_class, size, &processor->gcArray);
+    array = new_instance_with(_gst_array_class, size, &OBJ_PROCESSOR_SCHEDULER_GET_GC_ARRAY(processor));
     _gst_copy_buffer(array->data);
-    if (!IS_NIL(processor->gcSemaphore)) {
+    if (!IS_NIL(OBJ_PROCESSOR_SCHEDULER_GET_GC_SEMAPHORE(processor))) {
       static async_queue_entry e;
       e.func = _gst_do_async_signal;
-      e.data = processor->gcSemaphore;
+      e.data = OBJ_PROCESSOR_SCHEDULER_GET_GC_SEMAPHORE(processor);
       _gst_async_call_internal(&e);
     } else {
       _gst_errorf("Running finalizers before initialization.");
