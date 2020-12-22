@@ -2860,13 +2860,12 @@ bc53 : {
 
     {
       OOP activeProcessOOP = get_scheduled_process();
-      gst_callin_process process =
-          (gst_callin_process)OOP_TO_OBJ(activeProcessOOP);
+      gst_object process = OOP_TO_OBJ(activeProcessOOP);
       if (IS_NIL(activeProcessOOP))
         abort();
 
       if (OBJ_CLASS(process) == _gst_callin_process_class)
-        process->returnedValue = val;
+        OBJ_CALLIN_PROCESS_SET_RETURNED_VALUE(process, val);
       _gst_terminate_process(activeProcessOOP);
       if (processOOP == activeProcessOOP)
         SET_EXCEPT_FLAG(true);

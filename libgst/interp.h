@@ -124,26 +124,6 @@ typedef struct method_cache_entry {
    time of the call-in, and is the parent of the called-in method).  */
 #define MCF_IS_EXECUTION_ENVIRONMENT 8
 
-#define PROCESS_HEADER                                                         \
-  OBJ_HEADER;                                                                  \
-  OOP nextLink;                                                                \
-  OOP suspendedContext;                                                        \
-  OOP priority;                                                                \
-  OOP myList;                                                                  \
-  OOP name;                                                                    \
-  OOP unwindPoints;                                                            \
-  OOP interrupts;                                                              \
-  OOP interruptLock
-
-/* typedef struct gst_process {
-  PROCESS_HEADER;
-} * gst_process; */
-
-typedef struct gst_callin_process {
-  PROCESS_HEADER;
-  OOP returnedValue;
-} * gst_callin_process;
-
 typedef struct gst_processor_scheduler {
   OBJ_HEADER;
   OOP processLists;

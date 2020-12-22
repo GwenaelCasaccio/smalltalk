@@ -597,5 +597,11 @@
     (((obj))->data)[7] = (valueOOP);  \
   } while (0)
 
+/* CALLIN PROCESS */
+#define OBJ_CALLIN_PROCESS_GET_RETURNED_VALUE(obj) (((obj))->data)[8]
+#define OBJ_CALLIN_PROCESS_SET_RETURNED_VALUE(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[8] = (valueOOP);  \
+  } while (0)
 
 #endif /* GST_OBJECT_POINTER_H */
