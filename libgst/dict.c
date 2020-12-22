@@ -700,7 +700,7 @@ void init_proto_oops() {
   nil_fill(OBJ_NAMESPACE_ASSOC(smalltalkDictionary), INITIAL_SMALLTALK_SIZE);
 
   /* ... and finally Processor */
-  numWords = sizeof(struct gst_processor_scheduler) / sizeof(PTR);
+  numWords = 9;
   processorScheduler = _gst_alloc_words(numWords);
   OOP_SET_OBJECT(_gst_processor_oop, processorScheduler);
 

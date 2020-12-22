@@ -2651,7 +2651,7 @@ static intptr_t VMpr_Process_yield(int id, volatile int numArgs) {
 /* Processor waitForEvents */
 static intptr_t VMpr_Processor_dispatchEvents(int id, volatile int numArgs) {
   interp_jmp_buf jb;
-  gst_processor_scheduler processor;
+  gst_object processor;
   OOP oop1 = STACKTOP();
   OOP semaphoreOOP;
   OOP processOOP;
@@ -2659,11 +2659,10 @@ static intptr_t VMpr_Processor_dispatchEvents(int id, volatile int numArgs) {
 
   incPtr = INC_SAVE_POINTER();
   _gst_primitives_executed++;
-  processor = (gst_processor_scheduler)OOP_TO_OBJ(oop1);
-  if (TO_INT(OBJ_SIZE(processor)) >
-      offsetof(struct gst_processor_scheduler, eventSemaphore) / sizeof(OOP)) {
-    processor = (gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop);
-    semaphoreOOP = processor->eventSemaphore;
+  processor = OOP_TO_OBJ(oop1);
+  if (TO_INT(OBJ_SIZE(processor)) > 6) {
+    processor = OOP_TO_OBJ(_gst_processor_oop);
+    semaphoreOOP = OBJ_PROCESSOR_SCHEDULER_GET_EVENT_SEMAPHORE(processor);
     INC_ADD_OOP(semaphoreOOP);
   } else
     semaphoreOOP = _gst_nil_oop;
@@ -2682,8 +2681,8 @@ static intptr_t VMpr_Processor_dispatchEvents(int id, volatile int numArgs) {
     /* If there was a context switch in the meanwhile, be sure to
        suspend the process that invoked us!  */
     sync_wait_process(semaphoreOOP, processOOP);
-    processor = (gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop);
-    processor->eventSemaphore = semaphoreOOP;
+    processor = OOP_TO_OBJ(_gst_processor_oop);
+    OBJ_PROCESSOR_SCHEDULER_SET_EVENT_SEMAPHORE(processor, semaphoreOOP);
   }
 
   INC_RESTORE_POINTER(incPtr);
@@ -3534,12 +3533,12 @@ static intptr_t VMpr_Processor_disableEnableInterrupts(int id,
                                                        volatile int numArgs) {
   OOP processOOP;
   gst_object process;
-  gst_processor_scheduler processor;
+  gst_object processor;
   int count;
 
   _gst_primitives_executed++;
-  processor = (gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop);
-  processOOP = processor->activeProcess;
+  processor = OOP_TO_OBJ(_gst_processor_oop);
+  processOOP = OBJ_PROCESSOR_SCHEDULER_GET_ACTIVE_PROCESS(processor);
   process = OOP_TO_OBJ(processOOP);
 
   count = IS_NIL(OBJ_PROCESS_GET_INTERRUPTS(process)) ? 0 : TO_INT(OBJ_PROCESS_GET_INTERRUPTS(process));

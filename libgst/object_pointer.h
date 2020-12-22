@@ -604,4 +604,47 @@
     (((obj))->data)[8] = (valueOOP);  \
   } while (0)
 
+/* PROCESSOR SCHEDULER */
+#define OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_LISTS(obj) (((obj))->data)[0]
+#define OBJ_PROCESSOR_SCHEDULER_SET_PROCESS_LISTS(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[0] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_PROCESSOR_SCHEDULER_GET_ACTIVE_PROCESS(obj) (((obj))->data)[1]
+#define OBJ_PROCESSOR_SCHEDULER_SET_ACTIVE_PROCESS(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[1] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_PROCESSOR_SCHEDULER_GET_IDLE_TASKS(obj) (((obj))->data)[2]
+#define OBJ_PROCESSOR_SCHEDULER_SET_IDLE_TASKS(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[2] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_TIME_SLICE(obj) (((obj))->data)[3]
+#define OBJ_PROCESSOR_SCHEDULER_SET_PROCESS_TIME_SLICE(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[3] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_PROCESSOR_SCHEDULER_GET_GC_SEMAPHORE(obj) (((obj))->data)[4]
+#define OBJ_PROCESSOR_SCHEDULER_SET_GC_SEMAPHORE(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[4] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_PROCESSOR_SCHEDULER_GET_GC_ARRAY(obj) (((obj))->data)[5]
+#define OBJ_PROCESSOR_SCHEDULER_SET_GC_ARRAY(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[5] = (valueOOP);  \
+  } while (0)
+
+#define OBJ_PROCESSOR_SCHEDULER_GET_EVENT_SEMAPHORE(obj) (((obj))->data)[6]
+#define OBJ_PROCESSOR_SCHEDULER_SET_EVENT_SEMAPHORE(obj, valueOOP)     \
+  do {                                          \
+    (((obj))->data)[6] = (valueOOP);  \
+  } while (0)
+
 #endif /* GST_OBJECT_POINTER_H */

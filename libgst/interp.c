@@ -543,7 +543,7 @@ static void stop_execution(void);
 /* Answer an OOP for a Smalltalk object of class Array, holding the
    different process lists for each priority.  */
 #define GET_PROCESS_LISTS()                                                    \
-  (((gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop))->processLists)
+  ((OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_LISTS(OOP_TO_OBJ(_gst_processor_oop))))
 
 /* Tell the interpreter that special actions are needed as soon as a
    sequence point is reached.  */
@@ -1202,7 +1202,7 @@ OOP _gst_make_block_closure(OOP blockOOP) {
 void change_process_context(OOP newProcess) {
   OOP processOOP;
   gst_object process;
-  gst_processor_scheduler processor;
+  gst_object processor;
   mst_Boolean enable_async_queue;
 
   switch_to_process = _gst_nil_oop;
@@ -1216,15 +1216,15 @@ void change_process_context(OOP newProcess) {
     ((gst_process) OOP_TO_OBJ (newProcess))->name,
     ((gst_process) OOP_TO_OBJ (newProcess))->priority); */
 
-  processor = (gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop);
-  processOOP = processor->activeProcess;
+  processor = OOP_TO_OBJ(_gst_processor_oop);
+  processOOP = OBJ_PROCESSOR_SCHEDULER_GET_ACTIVE_PROCESS(processor);
   if (processOOP != newProcess) {
     process = OOP_TO_OBJ(processOOP);
 
     if (!IS_NIL(processOOP) && !is_process_terminating(processOOP))
       OBJ_PROCESS_SET_SUSPENDED_CONTEXT(process, _gst_this_context_oop);
 
-    processor->activeProcess = newProcess;
+    OBJ_PROCESSOR_SCHEDULER_SET_ACTIVE_PROCESS(processor, newProcess);
     process = OOP_TO_OBJ(newProcess);
     enable_async_queue =
         IS_NIL(OBJ_PROCESS_GET_INTERRUPTS(process)) || TO_INT(OBJ_PROCESS_GET_INTERRUPTS(process)) >= 0;
@@ -1272,11 +1272,11 @@ OOP get_active_process(void) {
 }
 
 OOP get_scheduled_process(void) {
-  gst_processor_scheduler processor;
+  gst_object processor;
 
-  processor = (gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop);
+  processor = OOP_TO_OBJ(_gst_processor_oop);
 
-  return (processor->activeProcess);
+  return (OBJ_PROCESSOR_SCHEDULER_GET_ACTIVE_PROCESS(processor));
 }
 
 static void remove_process_from_list(OOP processOOP) {
@@ -1770,7 +1770,7 @@ OOP highest_priority_process(void) {
 
 OOP next_scheduled_process(void) {
   OOP processOOP;
-  gst_processor_scheduler processor;
+  gst_object processor;
 
   processOOP = highest_priority_process();
 
@@ -1780,8 +1780,8 @@ OOP next_scheduled_process(void) {
   if (is_process_ready(get_scheduled_process()))
     return (_gst_nil_oop);
 
-  processor = (gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop);
-  processor->activeProcess = _gst_nil_oop;
+  processor = OOP_TO_OBJ(_gst_processor_oop);
+  OBJ_PROCESSOR_SCHEDULER_SET_ACTIVE_PROCESS(processor, _gst_nil_oop);
 
   return (_gst_nil_oop);
 }
@@ -1884,26 +1884,26 @@ OOP semaphore_new(int signals) {
 }
 
 void _gst_init_process_system(void) {
-  gst_processor_scheduler processor;
+  gst_object processor;
   int i;
 
-  processor = (gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop);
-  if (IS_NIL(processor->processLists)) {
+  processor = OOP_TO_OBJ(_gst_processor_oop);
+  if (IS_NIL(OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_LISTS(processor))) {
     gst_object processLists;
 
     processLists = instantiate_with(_gst_array_class, NUM_PRIORITIES,
-                                    &processor->processLists);
+                                    &OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_LISTS(processor));
 
     for (i = 0; i < NUM_PRIORITIES; i++)
       processLists->data[i] = semaphore_new(0);
   }
 
-  if (IS_NIL(processor->processTimeslice))
-    processor->processTimeslice = FROM_INT(DEFAULT_PREEMPTION_TIMESLICE);
+  if (IS_NIL(OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_TIME_SLICE(processor)))
+    OBJ_PROCESSOR_SCHEDULER_SET_PROCESS_TIME_SLICE(processor, FROM_INT(DEFAULT_PREEMPTION_TIMESLICE));
 
   /* No process is active -- so highest_priority_process() need not
      worry about discarding an active process.  */
-  processor->activeProcess = _gst_nil_oop;
+  OBJ_PROCESSOR_SCHEDULER_SET_ACTIVE_PROCESS(processor, _gst_nil_oop);
   switch_to_process = _gst_nil_oop;
   activate_process(highest_priority_process());
   set_preemption_timer();
@@ -1911,13 +1911,13 @@ void _gst_init_process_system(void) {
 
 OOP create_callin_process(OOP contextOOP) {
   OOP processListsOOP;
-  gst_processor_scheduler processor;
+  gst_object processor;
   gst_object initialProcess;
   OOP initialProcessOOP, initialProcessListOOP, nameOOP;
   inc_ptr inc = INC_SAVE_POINTER();
 
-  processor = (gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop);
-  processListsOOP = processor->processLists;
+  processor = OOP_TO_OBJ(_gst_processor_oop);
+  processListsOOP = OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_LISTS(processor);
   initialProcessListOOP = ARRAY_AT(processListsOOP, 4);
 
   nameOOP = _gst_string_new("call-in process");
