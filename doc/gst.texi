@@ -494,9 +494,6 @@ paths in succession:
 @itemize
 @item the directory part of the @option{--image-file} option if it is
   given;
-@item the value of the @env{SMALLTALK_IMAGE} environment variable
-  if it is defined and readable; this step will disappear in a future
-  release;
 @item the path compiled in the binary (usually, under Unix systems,
   @file{/usr/local/var/lib/smalltalk} or a similar path under @file{/var})
   if it exists and it is readable;
@@ -510,9 +507,6 @@ The ``kernel path'' is the directory in which to look for Smalltalk code
 compiled into the base image.  The possibilities in this case are:
 @itemize
 @item the argument to the @option{--kernel-dir} option if it is given;
-@item the value of the @env{SMALLTALK_KERNEL} environment variable
-  if it is defined and readable; this step will disappear in a future
-  release;
 @item the path compiled in the binary (usually, under Unix systems,
   @file{/usr/local/share/smalltalk/kernel} or a similar data file path)
   if it exists and it is readable;
