@@ -261,7 +261,7 @@ poll_events (OOP blockingOOP)
       /* Polling told us they have events ready.  If available, signal the
          event semaphore and switch to STATE_DISPATCHING.  */
       processor = OOP_TO_OBJ (_gst_processor_oop);
-      if (TO_INT (OBJ_SIZE (processor)) > 6)
+      if (TO_INT (OBJ_SIZE (processor)) > 8)
         {
           event_loop_lock ();
           set_event_loop_state (STATE_DISPATCHING);
