@@ -131,9 +131,7 @@ static char *find_user_file(const char *fileName);
 /* Loads the kernel Smalltalk files.  It uses a vector of file names,
    and loads each file individually.  To provide for greater
    flexibility, if a one of the files exists in the current directory,
-   that is used in preference to one in the default location.  The
-   default location can be overridden at runtime by setting the
-   SMALLTALK_KERNEL environment variable.  */
+   that is used in preference to one in the default location. */
 static int load_standard_files(void);
 
 /* Path names for the per-user customization files, respectively

@@ -352,35 +352,6 @@ main(int argc, const char **argv)
 #endif
     parse_args (argc, argv);
 
-  /* These might go away in the next release.  */
-  if (!kernel_dir)
-    {
-      kernel_dir = getenv ("SMALLTALK_KERNEL");
-      if (kernel_dir)
-	{
-          flags |= GST_IGNORE_BAD_KERNEL_PATH;
-          fprintf (stderr, "gst: SMALLTALK_KERNEL variable deprecated, "
-		           "use --kernel-directory instead\n");
-	}
-    }
-
-  if (!image_file)
-    {
-      const char *image_dir = getenv ("SMALLTALK_IMAGE");
-      flags |= GST_MAYBE_REBUILD_IMAGE;
-      if (image_dir)
-        {
-	  int len = strlen (image_dir);
-	  char *p = malloc (len + 8);
-	  memcpy (p, image_dir, len);
-	  strcpy (p + len, "/gst.im");
-	  image_file = p;
-          flags |= GST_IGNORE_BAD_IMAGE_PATH;
-          fprintf (stderr, "gst: SMALLTALK_IMAGE variable deprecated, "
-		           "use -I instead\n");
-        }
-    }
-
   gst_set_var (GST_DECLARE_TRACING, declare_tracing > 1);
   gst_set_var (GST_EXECUTION_TRACING, execution_tracing > 1);
   result = gst_initialize (kernel_dir, image_file, flags);
