@@ -159,6 +159,7 @@ OOP _gst_while_false_colon_symbol = NULL;
 OOP _gst_while_false_symbol = NULL;
 OOP _gst_while_true_colon_symbol = NULL;
 OOP _gst_while_true_symbol = NULL;
+OOP _gst_write_slot_at_put_symbol = NULL;
 OOP _gst_current_namespace = NULL;
 
 /* Symbols inside the builtin selectors */
@@ -302,6 +303,7 @@ static const symbol_info sym_info[] = {
     {&_gst_while_false_symbol, "whileFalse"},
     {&_gst_while_true_colon_symbol, "whileTrue:"},
     {&_gst_while_true_symbol, "whileTrue"},
+    {&_gst_write_slot_at_put_symbol, "writeSlotAt:put:"},
     {NULL, NULL},
 };
 

@@ -40,3 +40,13 @@ returned value is 'b'
 Execution begins...
 5
 returned value is 5
+
+Execution begins...
+ error: Invalid value nil: object is read-only
+returned value is nil
+
+Execution begins...
+true
+125
+124
+returned value is 124

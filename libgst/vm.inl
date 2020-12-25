@@ -2439,11 +2439,34 @@ bc39 : {
   /* STORE_RECEIVER_VARIABLE ( tos | -- tos | ) */
   do {
     int n = arg;
+
+#define PREPARE_STACK()                                                        \
+  do {                                                                         \
+  } while (0)
+#define UNDO_PREPARE_STACK()                                                   \
+  do {                                                                         \
+  } while (0)
+
 #define tos _stack0
 #line 758 "vm.def"
-    STORE_RECEIVER_VARIABLE(n, tos);
+    if (COMMON (!IS_OOP_READONLY (_gst_self))) {
+      STORE_RECEIVER_VARIABLE(n, tos);
+    } else {
+      PREPARE_STACK();
+      SET_STACKTOP(_gst_self);
+      PUSH_OOP(FROM_INT(n + 1));
+      PUSH_OOP(tos);
+      EXPORT_REGS();
+      SEND_MESSAGE(_gst_write_slot_at_put_symbol, 2);
+      IMPORT_REGS();
+      FETCH;
+    }
 
 #line 2170 "vm.inl"
+
+#undef PREPARE_STACK
+#undef UNDO_PREPARE_STACK
+
 #undef tos
   } while (0);
 }
@@ -3632,51 +3655,22 @@ bc79 : {
 }
 NEXT_BC;
 bc80 : {
-  OOP _stack0 ATTRIBUTE_UNUSED;
-  OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 3580 "vm.inl"
+#line 1730 "vm.inl"
   } while (0);
-  /* STORE_RECEIVER_VARIABLE ( tos | -- tos | ) */
+  /* INVALID ( -- ) */
   do {
-    int n = arg;
-#define tos _stack0
-#line 758 "vm.def"
-    STORE_RECEIVER_VARIABLE(n, tos);
+    int arg = arg;
+#line 226 "vm.def"
+    _gst_errorf("Invalid bytecode %d(%d) found!", ip[-1], arg);
 
-#line 3591 "vm.inl"
-#undef tos
+#line 1740 "vm.inl"
   } while (0);
-  /* PUSH_SELF ( -- tos ) */
-  do {
-#define tos _extra1
-#line 897 "vm.def"
-    tos = _gst_self;
-
-#line 3602 "vm.inl"
-#undef tos
-  } while (0);
-  /* RETURN_CONTEXT_STACK_TOP ( val | -- val | ) */
-  do {
-#define val _extra1
-#line 855 "vm.def"
-    /* The current context dies here, so the stack need not be prepared.  */
-    EXPORT_REGS();
-    unwind_context();
-    IMPORT_REGS();
-    SET_STACKTOP(val);
-    FETCH;
-
-#line 3618 "vm.inl"
-#undef val
-  } while (0);
-  PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc81 : {
@@ -5490,35 +5484,22 @@ bc119 : {
 }
 NEXT_BC;
 bc120 : {
-  OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 5699 "vm.inl"
+#line 1730 "vm.inl"
   } while (0);
-  /* STORE_RECEIVER_VARIABLE ( tos | -- tos | ) */
+  /* INVALID ( -- ) */
   do {
-    int n = arg;
-#define tos _stack0
-#line 758 "vm.def"
-    STORE_RECEIVER_VARIABLE(n, tos);
+    int arg = arg;
+#line 226 "vm.def"
+    _gst_errorf("Invalid bytecode %d(%d) found!", ip[-1], arg);
 
-#line 5710 "vm.inl"
-#undef tos
+#line 1740 "vm.inl"
   } while (0);
-  /* POP_STACK_TOP ( tos -- ) */
-  do {
-#define tos _stack0
-#line 828 "vm.def"
-
-#line 5720 "vm.inl"
-#undef tos
-  } while (0);
-  POP_N_OOPS(1);
 }
 NEXT_BC;
 bc121 : {
@@ -10852,36 +10833,22 @@ bc231 : {
 }
 NEXT_BC;
 bc232 : {
-  OOP _extra1 ATTRIBUTE_UNUSED;
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 11812 "vm.inl"
+#line 1730 "vm.inl"
   } while (0);
-  /* PUSH_SPECIAL ( -- tos ) */
+  /* INVALID ( -- ) */
   do {
-    int n = 0;
-#define tos _extra1
-#line 816 "vm.def"
-    tos = _gst_nil_oop + (n - NIL_INDEX);
+    int arg = arg;
+#line 226 "vm.def"
+    _gst_errorf("Invalid bytecode %d(%d) found!", ip[-1], arg);
 
-#line 11823 "vm.inl"
-#undef tos
+#line 1740 "vm.inl"
   } while (0);
-  /* STORE_RECEIVER_VARIABLE ( tos | -- tos | ) */
-  do {
-    int n = arg;
-#define tos _extra1
-#line 758 "vm.def"
-    STORE_RECEIVER_VARIABLE(n, tos);
-
-#line 11835 "vm.inl"
-#undef tos
-  } while (0);
-  PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc233 : {
@@ -11685,39 +11652,21 @@ bc247 : {
 }
 NEXT_BC;
 bc248 : {
-  OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 12770 "vm.inl"
+#line 1730 "vm.inl"
   } while (0);
-  /* STORE_RECEIVER_VARIABLE ( tos | -- tos | ) */
+  /* INVALID ( -- ) */
   do {
-    int n = arg;
-#define tos _stack0
-#line 758 "vm.def"
-    STORE_RECEIVER_VARIABLE(n, tos);
+    int arg = arg;
+#line 226 "vm.def"
+    _gst_errorf("Invalid bytecode %d(%d) found!", ip[-1], arg);
 
-#line 12781 "vm.inl"
-#undef tos
-  } while (0);
-  /* RETURN_CONTEXT_STACK_TOP ( val | -- val | ) */
-  do {
-#define val _stack0
-#line 855 "vm.def"
-    /* The current context dies here, so the stack need not be prepared.  */
-    EXPORT_REGS();
-    unwind_context();
-    IMPORT_REGS();
-    SET_STACKTOP(val);
-    FETCH;
-
-#line 12797 "vm.inl"
-#undef val
+#line 1740 "vm.inl"
   } while (0);
 }
 NEXT_BC;
