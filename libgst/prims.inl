@@ -2660,7 +2660,7 @@ static intptr_t VMpr_Processor_dispatchEvents(int id, volatile int numArgs) {
   incPtr = INC_SAVE_POINTER();
   _gst_primitives_executed++;
   processor = OOP_TO_OBJ(oop1);
-  if (TO_INT(OBJ_SIZE(processor)) > 6) {
+  if (TO_INT(OBJ_SIZE(processor)) > 8) {
     processor = OOP_TO_OBJ(_gst_processor_oop);
     semaphoreOOP = OBJ_PROCESSOR_SCHEDULER_GET_EVENT_SEMAPHORE(processor);
     INC_ADD_OOP(semaphoreOOP);
