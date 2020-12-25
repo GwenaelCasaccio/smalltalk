@@ -153,3 +153,44 @@ Eval [
     a becomeForward: b.
     a printNl
 ]
+
+" Test ReadOnly "
+
+Object subclass: ReadOnlyTest [
+
+  | slot0 slot1 |
+
+  slot1: anInteger [
+
+    (slot0:= (slot1 := anInteger)).
+  ]
+]
+
+Eval [
+  | ro |
+  ro := ReadOnlyTest new.
+  ro makeReadOnly: true.
+  ro slot1: 123.
+]
+
+ReadOnlyTest extend [
+
+   writeSlotAt: anInteger put: anObject [
+
+     self makeReadOnly: false.
+     self instVarAt: anInteger put: anObject + 1.
+     self makeReadOnly: true.
+    ^ anObject + 1
+  ]
+]
+
+Eval [
+  | ro |
+  ro := ReadOnlyTest new.
+  ro makeReadOnly: true.
+  ro slot1: 123.
+  ro isReadOnly printNl.
+  (ro instVarAt: 1) printNl.
+  (ro instVarAt: 2) printNl.
+]
+

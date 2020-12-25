@@ -1026,6 +1026,12 @@ All classes in the system are subclasses of me.'>
 	^self basicAt: index - self class instSize put: value
     ]
 
+  writeSlotAt: anInteger put: anObject [
+	  <category: 'VM callbacks'>
+
+    ^ SystemExceptions.ReadOnlyObject signal
+  ]
+
     isReadOnly [
 	"Answer whether the object's indexed instance variables can be
 	 written"
