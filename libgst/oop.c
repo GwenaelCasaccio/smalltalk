@@ -94,22 +94,6 @@ int _gst_gc_running = 0;
 /* This is the memory area which holds the object table.  */
 static heap oop_heap;
 
-/* This vector holds the storage for all the Character objects in the
-   system.  Since all character objects are unique, we pre-allocate
-   space for 256 of them, and treat them as special built-ins when
-   doing garbage collection.  */
-static gst_object _gst_char_object_table[NUM_CHAR_OBJECTS];
-
-/* This is "nil" object in the system.  That is, the single instance
-   of the UndefinedObject class, which is called "nil".  */
-static gst_object _gst_nil_object;
-
-/* These represent the two boolean objects in the system, true and
-   false.  This is the object storage for those two objects.
-   false == &_gst_boolean_objects[0],
-   true == &_gst_boolean_objects[1] */
-static gst_object _gst_boolean_objects[2];
-
 /* This variable represents information about the memory space.
    _gst_mem holds the required information: basically the
    pointer to the base and top of the space, and the pointers into it
@@ -165,7 +149,7 @@ static void compact(size_t new_heap_limit);
 /* Allocate and return space for a fixedspace object of SIZE bytes.
    The pointer to the object data is returned, the OOP is
    stored in P_OOP.  */
-static gst_object alloc_fixed_obj(size_t size, OOP *p_oop, mst_Boolean alloc_oop_entry);
+static gst_object alloc_fixed_obj(size_t size, OOP *p_oop);
 
 /* Gather statistics.  */
 static void update_stats(unsigned long *last, double *between,
@@ -413,23 +397,26 @@ void _gst_init_oop_table(PTR address, size_t size) {
 }
 
 void _gst_init_basic_objects() {
+  gst_object _gst_char_object_table[NUM_CHAR_OBJECTS];
+  gst_object _gst_boolean_objects[2];
+
   for (unsigned int i = 0; i < NUM_CHAR_OBJECTS; i++) {
     OOP oop;
 
-    _gst_char_object_table[i] = alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &oop, true);
+    _gst_char_object_table[i] = alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &oop);
     _gst_char_object_table[i]->data[0] = FROM_INT(i);
 
     _gst_register_oop(oop);
   }
 
-  _gst_nil_object = alloc_fixed_obj(OBJ_HEADER_SIZE_WORDS * SIZEOF_OOP, &_gst_nil_oop, true);
+  alloc_fixed_obj(OBJ_HEADER_SIZE_WORDS * SIZEOF_OOP, &_gst_nil_oop);
   _gst_register_oop(_gst_nil_oop);
 
-  _gst_boolean_objects[0] = alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &_gst_true_oop, true);
+  _gst_boolean_objects[0] = alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &_gst_true_oop);
    _gst_boolean_objects[0]->data[0] = _gst_true_oop;
   _gst_register_oop(_gst_true_oop);
 
-  _gst_boolean_objects[1] = alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &_gst_false_oop, true);
+  _gst_boolean_objects[1] = alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &_gst_false_oop);
   _gst_boolean_objects[1]->data[0] = _gst_false_oop;
   _gst_register_oop(_gst_false_oop);
 }
@@ -697,7 +684,7 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
   newAllocPtr = _gst_mem.eden.allocPtr + BYTES_TO_SIZE(size);
 
   if UNCOMMON (size >= _gst_mem.big_object_threshold)
-    return alloc_fixed_obj(size, p_oop, true);
+    return alloc_fixed_obj(size, p_oop);
 
   if UNCOMMON (newAllocPtr >= _gst_mem.eden.maxPtr) {
     _gst_scavenge();
@@ -712,7 +699,7 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
   return p_instance;
 }
 
-gst_object alloc_fixed_obj(size_t size, OOP *p_oop, mst_Boolean alloc_oop_entry) {
+gst_object alloc_fixed_obj(size_t size, OOP *p_oop) {
   gst_object p_instance;
 
   size = ROUNDED_BYTES(size);
@@ -736,12 +723,7 @@ gst_object alloc_fixed_obj(size_t size, OOP *p_oop, mst_Boolean alloc_oop_entry)
   }
 
 ok:
-  if (alloc_oop_entry) {
-    *p_oop = alloc_oop(p_instance, F_OLD | F_FIXED);
-  } else {
-    OOP_SET_FLAGS(*p_oop, F_OLD | F_FIXED);
-    OOP_SET_OBJECT(*p_oop, p_instance);
-  }
+  *p_oop = alloc_oop(p_instance, F_OLD | F_FIXED);
   OBJ_SET_SIZE (p_instance, FROM_INT(BYTES_TO_SIZE(size)));
   return p_instance;
 }
