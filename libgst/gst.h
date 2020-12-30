@@ -54,31 +54,6 @@
 #ifndef GST_GST_H
 #define GST_GST_H
 
-/* AIX is so broken that requires this to be the first thing in the file.  */
-#if defined(_AIX)
-#pragma alloca
-#else
-# if !defined(alloca)		/* predefined by HP cc +Olibcalls */
-#  ifdef __GNUC__
-#   define alloca(size) __builtin_alloca(size)
-#  else
-#   if HAVE_ALLOCA_H
-#    include <alloca.h>
-#   else
-#    if defined(__hpux)
-void *alloca ();
-#    else
-#     if !defined(__OS2__) && !defined(WIN32)
-char *alloca ();
-#     else
-#      include <malloc.h>	/* OS/2 defines alloca in here */
-#     endif
-#    endif
-#   endif
-#  endif
-# endif
-#endif
-
 /* Some compilers use different win32 definitions. Define WIN32 so we 
    have only to check for one symbol.  */
 #if defined(_WIN32) || defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(Win32) || defined(__WIN32)
