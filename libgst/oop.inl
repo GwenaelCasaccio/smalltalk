@@ -102,9 +102,6 @@ static inline OOP alloc_oop(PTR obj, intptr_t flags);
 /* Answer the index of OOP in the table.  */
 #define OOP_INDEX(oop) ((OOP)(oop)-_gst_mem.ot)
 
-/* Answer whether OOP is a builtin OOP (a Character, true, false, nil).  */
-#define IS_BUILTIN_OOP(oop) ((OOP)(oop)-_gst_mem.ot < 0)
-
 /* Answer whether ADDR is part of the OOP table.  */
 #define IS_OOP_ADDR(addr)                                                      \
   ((OOP)(addr) >= _gst_mem.ot &&                                          \
