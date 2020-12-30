@@ -1648,7 +1648,7 @@ OOP _gst_object_copy(OOP oop) {
   OOP newOOP;
   size_t numFields;
 
-  if UNCOMMON (IS_INT(oop) || IS_BUILTIN_OOP(oop))
+  if UNCOMMON (IS_INT(oop))
     return (oop);
 
   numFields = NUM_INDEXABLE_FIELDS(oop);
