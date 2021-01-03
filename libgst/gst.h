@@ -106,6 +106,8 @@ gst_object_header;
 
 #define OBJ_HEADER_SIZE_WORDS	(sizeof(gst_object_header) / sizeof(PTR))
 
+_Static_assert(OBJ_HEADER_SIZE_WORDS == 2, "Be carrefull when adding new fields in the header take care of context copy and allocation!");
+
 /* A bare-knuckles accessor for real objects */
 struct object_s
 {

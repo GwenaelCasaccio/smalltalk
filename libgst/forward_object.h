@@ -16,6 +16,8 @@ struct oop_s
   uintptr_t flags;
 };
 
+_Static_assert(sizeof(struct oop_s) == 0x10, "Be carrefull with padding needed by IS_OOP_ADDR");
+
 /* Convert an OOP (indirect pointer to an object) to the real object
    data.  */
 #define OOP_TO_OBJ(oop) \
