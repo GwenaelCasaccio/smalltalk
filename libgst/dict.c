@@ -700,7 +700,7 @@ void init_proto_oops() {
   nil_fill(OBJ_NAMESPACE_ASSOC(smalltalkDictionary), INITIAL_SMALLTALK_SIZE);
 
   /* ... and finally Processor */
-  numWords = 9;
+  numWords = 7 + OBJ_HEADER_SIZE_WORDS;
   processorScheduler = _gst_alloc_words(numWords);
   OOP_SET_OBJECT(_gst_processor_oop, processorScheduler);
 
@@ -1129,7 +1129,7 @@ void create_class(const class_definition *ci) {
     numFixedFields += superInstanceSpec >> ISP_NUMFIXEDFIELDS;
   }
 
-  class = _gst_alloc_obj(14 * sizeof(OOP), &classOOP);
+  class = _gst_alloc_obj((12 + OBJ_HEADER_SIZE_WORDS) * sizeof(OOP), &classOOP);
 
   OBJ_SET_CLASS(class, NULL);
   OBJ_BEHAVIOR_SET_SUPER_CLASS(class, superClassOOP);
