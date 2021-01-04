@@ -11,6 +11,14 @@
     (obj)->objSize = (valueOOP);                                               \
   } while (0)
 
+#define OBJ_IDENTITY(obj) ((obj)->objIdentity)
+
+#define OBJ_SET_IDENTITY(obj, valueOOP)                                        \
+  do {                                                                         \
+    (obj)->objIdentity = (valueOOP);                                           \
+  } while (0)
+
+
 #define OBJ_CLASS(obj) ((obj)->objClass)
 
 #define OBJ_SET_CLASS(obj, valueOOP)                                           \

@@ -695,7 +695,7 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
   _gst_mem.eden.allocPtr = newAllocPtr;
   *p_oop = alloc_oop(p_instance, _gst_mem.active_flag);
   OBJ_SET_SIZE (p_instance, FROM_INT(BYTES_TO_SIZE(size)));
-
+  OBJ_SET_IDENTITY (p_instance, FROM_INT(0));
   return p_instance;
 }
 
@@ -725,6 +725,7 @@ gst_object alloc_fixed_obj(size_t size, OOP *p_oop) {
 ok:
   *p_oop = alloc_oop(p_instance, F_OLD | F_FIXED);
   OBJ_SET_SIZE (p_instance, FROM_INT(BYTES_TO_SIZE(size)));
+  OBJ_SET_IDENTITY (p_instance, FROM_INT(0));
   return p_instance;
 }
 
@@ -747,6 +748,7 @@ gst_object _gst_alloc_words(size_t size) {
   p_instance = (gst_object)_gst_mem.eden.allocPtr;
   _gst_mem.eden.allocPtr = newAllocPtr;
   OBJ_SET_SIZE (p_instance, FROM_INT(size));
+  OBJ_SET_IDENTITY (p_instance, FROM_INT(0));
   return p_instance;
 }
 
