@@ -697,7 +697,8 @@ OOP dictionary_association_at(OOP dictionaryOOP, OOP keyOOP) {
   dictionary = OOP_TO_OBJ(dictionaryOOP);
   numFixedFields = OOP_FIXED_FIELDS(dictionaryOOP);
   numFields = NUM_WORDS(dictionary) - numFixedFields;
-  index = scramble(OOP_INDEX(keyOOP));
+  OBJ_UPDATE_IDENTITY(OOP_TO_OBJ(keyOOP));
+  index = scramble(TO_INT(OBJ_IDENTITY(OOP_TO_OBJ(keyOOP))));
   count = numFields;
 
   while (count--) {

@@ -1348,7 +1348,8 @@ static int find_key_or_nil(OOP dictionaryOOP, OOP keyOOP) {
   dictionary = (gst_object)OOP_TO_OBJ(dictionaryOOP);
   numFixedFields = OOP_FIXED_FIELDS(dictionaryOOP);
   numFields = NUM_WORDS(dictionary) - numFixedFields;
-  index = scramble(OOP_INDEX(keyOOP));
+  OBJ_UPDATE_IDENTITY(OOP_TO_OBJ(keyOOP));
+  index = scramble(TO_INT(OBJ_IDENTITY(OOP_TO_OBJ(keyOOP))));
   count = numFields;
 
   for (; count; count--) {
@@ -1450,7 +1451,8 @@ ssize_t identity_dictionary_find_key(OOP identityDictionaryOOP, OOP keyOOP) {
   numFixedFields = OOP_FIXED_FIELDS(identityDictionaryOOP);
 
   numFields = NUM_WORDS(identityDictionary) - numFixedFields;
-  index = scramble(OOP_INDEX(keyOOP)) * 2;
+  OBJ_UPDATE_IDENTITY(OOP_TO_OBJ(keyOOP));
+  index = scramble(TO_INT(OBJ_IDENTITY(OOP_TO_OBJ(keyOOP)))) * 2;
   count = numFields / 2;
   /* printf ("%d %d %O\n", count, index & numFields - 1, keyOOP); */
   while (count--) {
@@ -1481,7 +1483,8 @@ size_t identity_dictionary_find_key_or_nil(OOP identityDictionaryOOP,
   numFixedFields = OOP_FIXED_FIELDS(identityDictionaryOOP);
 
   numFields = NUM_WORDS(identityDictionary) - numFixedFields;
-  index = scramble(OOP_INDEX(keyOOP)) * 2;
+  OBJ_UPDATE_IDENTITY(OOP_TO_OBJ(keyOOP));
+  index = scramble(TO_INT(OBJ_IDENTITY(OOP_TO_OBJ(keyOOP)))) * 2;
   count = numFields / 2;
   /* printf ("%d %d %O\n", count, index & numFields - 1, keyOOP); */
   while (count--) {

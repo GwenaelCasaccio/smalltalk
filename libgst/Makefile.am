@@ -25,7 +25,7 @@ libgst_la_SOURCES = \
        save.c      cint.c    	 heap.c	        input.c      \
        sysdep.c    callin.c      mpz.c        \
        print.c	   alloc.c	 re.c	        interp.c     \
-       real.c	   sockets.c	 events.c
+       real.c	   sockets.c	 events.c object_pointer.c
 
 dist_noinst_DATA = valgrind.supp builtins.gperf
 
@@ -38,7 +38,8 @@ noinst_HEADERS = \
 	dict.inl interp.inl interp-bc.inl \
 	sockets.h comp.inl input.h events.h \
 	print.h alloc.h gst-parse.h prims.inl \
-	superop1.inl superop2.inl \
+	superop1.inl superop2.inl object_pointer.h \
+	forward_object.h \
 	sysdep/common/files.c sysdep/common/time.c sysdep/cygwin/files.c \
 	sysdep/cygwin/findexec.c sysdep/cygwin/mem.c sysdep/cygwin/signals.c \
 	sysdep/cygwin/time.c sysdep/cygwin/timer.c sysdep/posix/files.c \

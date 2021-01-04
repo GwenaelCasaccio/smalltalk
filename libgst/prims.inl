@@ -2164,7 +2164,12 @@ static intptr_t VMpr_Object_hash(int id, volatile int numArgs) {
 
   oop1 = POP_OOP();
   if COMMON (IS_OOP(oop1)) {
-    PUSH_INT(OOP_INDEX(oop1));
+    gst_object object;
+
+    object = OOP_TO_OBJ(oop1);
+    OBJ_UPDATE_IDENTITY(object);
+    PUSH_OOP(OBJ_IDENTITY(object));
+
     PRIM_SUCCEEDED;
   }
   UNPOP(1);

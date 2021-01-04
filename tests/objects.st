@@ -194,3 +194,13 @@ Eval [
   (ro instVarAt: 2) printNl.
 ]
 
+Eval [
+  | id1 id2 o1 o2 |
+  o1 := Object new.
+  o2 := Object new.
+  id1 := o1 identityHash.
+  id2 := o2 identityHash.
+  o1 become: o2.
+  (id1 = o1 identityHash) printNl.
+  (id2 = o2 identityHash) printNl.
+]
