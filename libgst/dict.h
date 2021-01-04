@@ -89,6 +89,8 @@
    not see GST_ISP_INTMARK!!  */
 
 enum {
+  ISP_PROXY = 0x80000000,
+
   ISP_NUMFIXEDFIELDS = 13,
 
   /* Set if the instances of the class have indexed instance

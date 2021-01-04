@@ -109,6 +109,7 @@ OOP _gst_c_object_symbol = NULL;
 OOP _gst_category_symbol = NULL;
 OOP _gst_char_symbol = NULL;
 OOP _gst_does_not_understand_symbol = NULL;
+OOP _gst_cannot_interpret_symbol = NULL;
 OOP _gst_double_symbol = NULL;
 OOP _gst_false_symbol = NULL;
 OOP _gst_float_symbol = NULL;
@@ -256,6 +257,7 @@ static const symbol_info sym_info[] = {
     {&_gst_char_symbol, "char"},
     {&_gst_uchar_symbol, "uChar"},
     {&_gst_does_not_understand_symbol, "doesNotUnderstand:"},
+    {&_gst_cannot_interpret_symbol, "cannotInterpret:"},
     {&_gst_float_symbol, "float"},
     {&_gst_double_symbol, "double"},
     {&_gst_false_symbol, "false"},

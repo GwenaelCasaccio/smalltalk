@@ -55,3 +55,10 @@ Execution begins...
 true
 true
 returned value is true
+
+Execution begins...
+1073741824
+MessageLookup
+#cannotInterpret:
+2468
+returned value is 2468

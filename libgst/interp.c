@@ -860,6 +860,29 @@ void prepare_context(gst_context_part context, int args, int temps) {
   sp = stackBase - 1;
 }
 
+mst_Boolean _gst_send_cannot_interpret_message(OOP sendSelector, method_cache_entry *methodData,
+                          int sendArgs, OOP method_class) {
+  inc_ptr inc;
+  OOP argsArrayOOP;
+  gst_object messageLookup;
+  OOP messageLookupOOP;
+
+  inc = INC_SAVE_POINTER();
+  argsArrayOOP = create_args_array(sendArgs);
+  INC_ADD_OOP(argsArrayOOP);
+
+  messageLookup = new_instance(_gst_message_lookup_class,
+                               &messageLookupOOP);
+
+  OBJ_MESSAGE_LOOKUP_SET_SELECTOR(messageLookup, sendSelector);
+  OBJ_MESSAGE_LOOKUP_SET_ARGS(messageLookup, argsArrayOOP);
+  OBJ_MESSAGE_LOOKUP_SET_STARTING_CLASS(messageLookup, method_class);
+  PUSH_OOP(messageLookupOOP);
+  INC_RESTORE_POINTER(inc);
+
+  return _gst_find_method(method_class, _gst_cannot_interpret_symbol, methodData);
+}
+
 mst_Boolean lookup_method(OOP sendSelector, method_cache_entry *methodData,
                           int sendArgs, OOP method_class) {
   inc_ptr inc;

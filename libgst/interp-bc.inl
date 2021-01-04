@@ -192,7 +192,14 @@ void _gst_send_message_internal(OOP sendSelector, int sendArgs, OOP receiver,
   if UNCOMMON (methodData->selectorOOP != sendSelector ||
                methodData->startingClassOOP != method_class) {
     /* :-( cache miss )-: */
-    if (!lookup_method(sendSelector, methodData, sendArgs, method_class)) {
+    if (CLASS_INSTANCE_SPEC(method_class) & ISP_PROXY) {
+      if (!_gst_send_cannot_interpret_message(sendSelector, methodData, sendArgs, method_class)) {
+        _gst_errorf("cannot interpret not found in method dictionary");
+
+        abort();
+      }
+      sendArgs = 1;
+    } else if (!lookup_method(sendSelector, methodData, sendArgs, method_class)) {
       _gst_send_message_internal(_gst_does_not_understand_symbol, 1, receiver,
                                  method_class);
       return;
