@@ -588,6 +588,7 @@ void _gst_make_oop_weak(OOP oop) {
 void _gst_swap_objects(OOP oop1, OOP oop2) {
   struct oop_s tempOOP;
   inc_ptr incPtr;
+  OOP tempId;
 
   incPtr = INC_SAVE_POINTER();
   INC_ADD_OOP(oop1);
@@ -608,6 +609,10 @@ void _gst_swap_objects(OOP oop1, OOP oop2) {
   tempOOP = *oop2; /* note structure assignment going on here */
   *oop2 = *oop1;
   *oop1 = tempOOP;
+
+  tempId = OBJ_IDENTITY(OOP_TO_OBJ(oop1));
+  OBJ_SET_IDENTITY(OOP_TO_OBJ(oop1), OBJ_IDENTITY(OOP_TO_OBJ(oop2)));
+  OBJ_SET_IDENTITY(OOP_TO_OBJ(oop2), tempId);
 
   /* If the incremental GC has reached oop1 but not oop2 (or vice versa),
      this flag will end up in the wrong OOP, i.e. in the one that has already

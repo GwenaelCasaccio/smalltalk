@@ -1,6 +1,8 @@
 #ifndef GST_OBJECT_POINTER_H
 #define GST_OBJECT_POINTER_H
 
+extern intptr_t _gst_object_identity;
+
 #define OBJ_ARRAY_AT(obj, n) (((OOP *)((gst_object)obj)->data)[(n)-1])
 #define OBJ_STRING_AT(obj, n) (((char *)((gst_object)obj)->data)[(n)-1])
 
@@ -16,6 +18,14 @@
 #define OBJ_SET_IDENTITY(obj, valueOOP)                                        \
   do {                                                                         \
     (obj)->objIdentity = (valueOOP);                                           \
+  } while (0)
+
+#define OBJ_UPDATE_IDENTITY(obj)                                               \
+  do {                                                                         \
+    if (TO_INT((obj)->objIdentity) == 0) {                                     \
+      _gst_object_identity++;                                                  \
+      (obj)->objIdentity = FROM_INT(_gst_object_identity);                     \
+    }                                                                          \
   } while (0)
 
 

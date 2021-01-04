@@ -108,6 +108,7 @@ typedef struct save_file_header {
   size_t grow_threshold_percent;
   size_t space_grow_rate;
   size_t num_free_oops;
+  intptr_t object_identity;
   intptr_t ot_base;
   intptr_t prim_table_md5[16 / sizeof(intptr_t)]; /* checksum for the primitive
                                                      table */
@@ -395,6 +396,7 @@ void save_file_version(int imageFd, struct save_file_header *headerp) {
   headerp->edenSpaceSize = _gst_mem.eden.totalSize;
   headerp->survSpaceSize = _gst_mem.surv[0].totalSize;
   headerp->oldSpaceSize = _gst_mem.old->heap_limit;
+  headerp->object_identity = _gst_object_identity;
 
   headerp->big_object_threshold = _gst_mem.big_object_threshold;
   headerp->grow_threshold_percent = _gst_mem.grow_threshold_percent;
@@ -437,6 +439,8 @@ mst_Boolean load_snapshot(int imageFd) {
 #ifdef SNAPSHOT_TRACE
   printf("After loading header: %lld\n", file_pos + buf_pos);
 #endif /* SNAPSHOT_TRACE */
+
+  _gst_object_identity = header.object_identity;
 
   _gst_init_mem(header.edenSpaceSize, header.survSpaceSize,
                 header.oldSpaceSize * 3, header.big_object_threshold,
