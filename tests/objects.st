@@ -204,3 +204,20 @@ Eval [
   (id1 = o1 identityHash) printNl.
   (id2 = o2 identityHash) printNl.
 ]
+
+Object subclass: Proxy [
+
+  cannotInterpret: aMessage [
+    aMessage class printNl.
+    aMessage selector printNl.
+    ^ aMessage arguments first * 2
+  ]
+]
+
+Eval [
+  | p |
+  Proxy proxy.
+  Proxy instanceSpec printNl.
+  p := Proxy basicNew.
+  (p cannotInterpret: 1234) printNl.
+]

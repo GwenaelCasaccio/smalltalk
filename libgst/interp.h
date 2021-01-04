@@ -372,6 +372,11 @@ extern void _gst_terminate_process(OOP processOOP) ATTRIBUTE_HIDDEN;
 extern mst_Boolean _gst_find_method(OOP classOOP, OOP sendSelector,
                                     method_cache_entry *mce) ATTRIBUTE_HIDDEN;
 
+extern mst_Boolean _gst_send_cannot_interpret_message(OOP sendSelector, 
+                                                      method_cache_entry *mce,
+                                                      int sendArgs, 
+                                                      OOP method_class) ATTRIBUTE_HIDDEN;
+
 /* Similar to _gst_send_message_internal, but forces the specified
    CompiledMethod to be sent.  If it is not valid for the current
    receiver, well, you are looking for trouble and well deserve it.

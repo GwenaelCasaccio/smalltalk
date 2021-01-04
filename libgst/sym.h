@@ -99,6 +99,7 @@ extern OOP _gst_c_object_symbol ATTRIBUTE_HIDDEN;
 extern OOP _gst_category_symbol ATTRIBUTE_HIDDEN;
 extern OOP _gst_char_symbol ATTRIBUTE_HIDDEN;
 extern OOP _gst_does_not_understand_symbol ATTRIBUTE_HIDDEN;
+extern OOP _gst_cannot_interpret_symbol ATTRIBUTE_HIDDEN;
 extern OOP _gst_double_symbol ATTRIBUTE_HIDDEN;
 extern OOP _gst_false_symbol ATTRIBUTE_HIDDEN;
 extern OOP _gst_float_symbol ATTRIBUTE_HIDDEN;

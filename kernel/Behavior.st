@@ -1029,6 +1029,16 @@ method dictionary, and iterating over the class hierarchy.'>
 	^self instanceSpec bitShift: -12
     ]
 
+    isProxy [
+
+		  ^ (instanceSpec bitAt: 31) ~= 0
+    ]
+
+    proxy [
+
+		  instanceSpec := instanceSpec bitAt: 31 put: 1.
+    ]
+
     includesBehavior: aClass [
 	"Returns true if aClass is the receiver or a superclass of the receiver."
 
