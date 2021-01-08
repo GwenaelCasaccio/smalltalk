@@ -1,0 +1,7 @@
+<package>
+  <name>Mirror</name>
+  <prereq>Compiler</prereq>
+
+  <filein>Isolation.st</filein>
+  <file>kernel/kernel.st</file>
+</package>
