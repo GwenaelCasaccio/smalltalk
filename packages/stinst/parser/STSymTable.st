@@ -470,11 +470,13 @@ Object subclass: STSymbolTable [
 	 syntactic candidate; otherwise answer nil."
 
 	<category: 'private'>
+  | currentUndeclared |
+  currentUndeclared := Namespace current at: #Undeclared.
 	self class insideFilein ifFalse: [^nil].
 	(symbol at: 1) isUppercase ifFalse: [^nil].
-	^Undeclared associationAt: symbol ifAbsent:
-	    [Undeclared add: (VariableBinding key: symbol value: nil
-					      environment: Undeclared)]
+	^ currentUndeclared associationAt: symbol ifAbsent: [ currentUndeclared add: (VariableBinding key: symbol
+                                                                                                value: nil
+                                                                                                environment: currentUndeclared) ].
     ]
 ]
 
