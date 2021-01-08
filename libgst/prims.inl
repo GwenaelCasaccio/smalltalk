@@ -2734,9 +2734,7 @@ static intptr_t VMpr_Object_changeClassTo(int id, volatile int numArgs) {
   oop2 = STACKTOP();
   obj1 = OOP_TO_OBJ(oop1);
   obj2 = OOP_TO_OBJ(oop2);
-  if (NUM_WORDS(obj1) > 0 && !IS_INT(obj1->data[0]) &&
-      (IS_NIL(obj1->data[0]) ||
-       is_a_kind_of(OOP_CLASS(obj1->data[0]), _gst_behavior_class))) {
+  if (NUM_WORDS(obj1) > 0 && !IS_INT(obj1->data[0])) {
     OBJ_SET_CLASS(obj2, oop1);
     PRIM_SUCCEEDED;
   }
