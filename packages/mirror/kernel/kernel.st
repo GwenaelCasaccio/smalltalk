@@ -163,6 +163,35 @@ Object subclass: Namespace [
   <shape: #pointer>
 ]
 
+Object subclass: MirrorPrimitive [
+
+  MirrorPrimitive class >> on: anObject do: aPrimitiveInteger [
+
+    <primitive: VMpr_Object_primitive>
+  ]
+
+  MirrorPrimitive class >> on: anObject with: anArgumentObject1 do: aPrimitiveInteger [
+
+    <primitive: VMpr_Object_primitive>
+  ]
+
+
+  MirrorPrimitive class >> on: anObject with: anArgumentObject1 with: anArgumentObject2 do: aPrimitiveInteger [
+
+    <primitive: VMpr_Object_primitive>
+  ]
+
+  MirrorPrimitive class >> on: anObject with: anArgumentObject1 with: anArgumentObject2 with: anArgumentObject3 do: aPrimitiveInteger [
+
+    <primitive: VMpr_Object_primitive>
+  ]
+
+  MirrorPrimitive class >> on: anObject with: anArgumentObject1 with: anArgumentObject2 with: anArgumentObject3 with: anArgumentObject4 do: aPrimitiveInteger [
+
+    <primitive: VMpr_Object_primitive>
+  ]
+]
+
 Object subclass: MirrorBuilder [
 
   | subject |
