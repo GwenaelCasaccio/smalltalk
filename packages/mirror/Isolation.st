@@ -8,14 +8,20 @@ UndefinedObject extend [
 
 Object subclass: MetaLevelKernel [
 
-  | rootNs undeclaredNs metaclass class compiledMethodClass methodDictionaryClass |
+  | rootNs undeclaredNs metaclass class compiledMethodClass methodDictionaryClass mirror |
 
   initialize [
     self createNamespace;
          installPrimitives;
          loadKernel;
          fixKernel;
+         installMirror;
          fixNamespaces
+  ]
+
+  mirror [
+
+    ^ mirror
   ]
 
   createNamespace [
@@ -54,9 +60,6 @@ Object subclass: MetaLevelKernel [
     compiledMethodClass := rootNs at: #CompiledMethod.
     methodDictionaryClass := rootNs at: #MethodDictionary.
 
-    ' !!! TODO Fix subClasses' printNl.
-    ' FIX the root classes ' printNl.
-
     rootNs keysAndValuesDo: [ : key : value |
       value isClass ifTrue: [
         ('  Class: ', key) displayNl.
@@ -65,7 +68,25 @@ Object subclass: MetaLevelKernel [
         value class methodDictionary ifNotNil: [ : methodDictionary | self fixMethodDictionary: methodDictionary ].
 
         value class changeClassTo: metaclass.
-        (value instVarAt: 1) == nil ifTrue: [ value class instVarAt: 1 put: class ]. ] ].
+        (value instVarAt: 1) == nil ifTrue: [ (Class instVarAt: 4) ifNotNil: [ : subclasses | Class instVarAt: 4 put: ((subclasses reject: [ : aClass | value class = aClass ])) ].
+                                              (rootNs at: #Class) instVarAt: 4 put: (((rootNs at: #Class) instVarAt: 4) 
+                                                                                          ifNil: [ { value class } ] 
+                                                                                          ifNotNil: [ : subclassArray | subclassArray copyWith: value class ]).
+                                              value class instVarAt: 1 put: class ]. ] ].
+  ]
+
+  installMirror [
+
+    mirror := rootNs at: #Mirror.
+  ]
+
+  fixNamespaces [
+
+    | namespaceClass rootNamespaceClass |
+    namespaceClass := rootNs at: #Namespace.
+    rootNamespaceClass := rootNs at: #RootNamespace.
+    rootNs changeClassTo: namespaceClass.
+    undeclaredNs changeClassTo: rootNamespaceClass.
   ]
 
   fixMethodDictionary: aMethodDictionary [

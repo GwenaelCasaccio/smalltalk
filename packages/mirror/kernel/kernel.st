@@ -1,6 +1,9 @@
 nil subclass: Object [
 
-  isClass [ ^ false ]
+  isClass [
+
+    ^ false
+  ]
 
   instVarAt: anIndex [
 
@@ -50,6 +53,15 @@ nil subclass: Object [
     result := MustBeBoolean signalOn: self.
     result == false ifFalse: [ result := true ].
     ^ result
+  ]
+
+  makeReadOnly: aBoolean [
+    <primitive: VMpr_Object_makeReadOnly>
+  ]
+
+  hash [
+
+    <primitive: VMpr_Object_hash>
   ]
 ]
 
@@ -137,6 +149,20 @@ Object subclass: VariableBinding [
   ]
 ]
 
+Object subclass: RootNamespace [
+
+  | tally environment name subspaces sharedPools |
+
+  <shape: #pointer>
+]
+
+Object subclass: Namespace [
+
+  | tally environment name subspaces sharedPools |
+
+  <shape: #pointer>
+]
+
 Object subclass: MirrorBuilder [
 
   | subject |
@@ -159,6 +185,27 @@ nil subclass: Mirror [
 
   Mirror class >> on: anObject [
 
-    ^ (MirrorBuilder on: anObject) changeClassTo: Mirror
+    ^ (MirrorBuilder on: anObject) makeReadOnly: true; 
+                                   changeClassTo: Mirror
+  ]
+
+  doesNotUnderstand: aMessage [
+
+  ]
+
+  instVarAt: anIndex [
+
+    ^ subject instVarAt: anIndex
+  ]
+
+  at: anIndex [
+
+    ^ subject basicAt: anIndex
+  ]
+
+  class [
+
+    ^ subject class
   ]
 ]
+
