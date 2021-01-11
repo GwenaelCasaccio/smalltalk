@@ -221,3 +221,21 @@ Eval [
   p := Proxy basicNew.
   (p cannotInterpret: 1234) printNl.
 ]
+
+Object subclass: PrimitiveTest [
+
+  PrimitiveTest class >> on: anObject do: aPrimitiveInteger [
+
+    <primitive: VMpr_Object_primitive>
+  ]
+
+  PrimitiveTest class >> on: anObject with: anArgumentObject1 do: aPrimitiveInteger [
+
+    <primitive: VMpr_Object_primitive>
+  ]
+]
+
+Eval [
+  ((PrimitiveTest on: 123 do: VMpr_Object_class) = SmallInteger) printNl.
+  ((PrimitiveTest on: #('abc' 'def' 'ghi') with: 1 do: VMpr_Object_basicAt) = 'abc') printNl.
+]
