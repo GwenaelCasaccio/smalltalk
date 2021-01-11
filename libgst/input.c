@@ -222,7 +222,7 @@ void _gst_push_unix_file(int fd, const char *fileName) {
 
   newStream = push_new_stream(STREAM_FILE);
   newStream->st_file.fd = fd;
-  newStream->st_file.buf = xmalloc(1024);
+  newStream->st_file.buf = xcalloc(1, 1024);
   newStream->st_file.ptr = newStream->st_file.buf;
   newStream->st_file.end = newStream->st_file.buf;
   newStream->fileName = fileName;
@@ -474,9 +474,9 @@ OOP _gst_get_source_string(off_t startPos, off_t endPos) {
     return (_gst_nil_oop);
   }
 
-  if (startPos == -1)
+  if (startPos == -1) {
     result = _gst_string_new(p);
-  else
+  } else
     result = _gst_counted_string_new(p + (startPos - in_stream->fileOffset),
                                      endPos - startPos);
 

@@ -62,3 +62,8 @@ MessageLookup
 #cannotInterpret:
 2468
 returned value is 2468
+
+Execution begins...
+true
+true
+returned value is true

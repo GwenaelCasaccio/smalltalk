@@ -2734,9 +2734,7 @@ static intptr_t VMpr_Object_changeClassTo(int id, volatile int numArgs) {
   oop2 = STACKTOP();
   obj1 = OOP_TO_OBJ(oop1);
   obj2 = OOP_TO_OBJ(oop2);
-  if (NUM_WORDS(obj1) > 0 && !IS_INT(obj1->data[0]) &&
-      (IS_NIL(obj1->data[0]) ||
-       is_a_kind_of(OOP_CLASS(obj1->data[0]), _gst_behavior_class))) {
+  if (NUM_WORDS(obj1) > 0 && !IS_INT(obj1->data[0])) {
     OBJ_SET_CLASS(obj2, oop1);
     PRIM_SUCCEEDED;
   }
@@ -3083,6 +3081,25 @@ static intptr_t VMpr_Object_class(int id, volatile int numArgs) {
     PUSH_OOP(OOP_CLASS(oop1));
 
   PRIM_SUCCEEDED;
+}
+
+/* Object primitive */
+static intptr_t VMpr_Object_primitive(int id, volatile int numArgs) {
+  intptr_t primitiveIndex;
+
+  _gst_primitives_executed++;
+
+  primitiveIndex = TO_INT(POP_OOP());
+
+  if (primitiveIndex <= 0 || primitiveIndex >= NUM_PRIMITIVES) {
+    PRIM_FAILED;
+  }
+
+  if (numArgs - 2 < 0) {
+    PRIM_FAILED;
+  }
+
+  return _gst_default_primitive_table[primitiveIndex].func(_gst_default_primitive_table[primitiveIndex].id, numArgs - 2);
 }
 
 /* ------- GNU Smalltalk specific primitives begin here -------------------- */
@@ -6549,8 +6566,12 @@ void _gst_init_primitives() {
   _gst_default_primitive_table[241].attributes = PRIM_SUCCEED;
   _gst_default_primitive_table[241].id = 0;
   _gst_default_primitive_table[241].func = VMpr_Random_next;
+  _gst_default_primitive_table[242].name = "VMpr_Object_primitive";
+  _gst_default_primitive_table[242].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[242].id = 0;
+  _gst_default_primitive_table[242].func = VMpr_Object_primitive;
 
-  for (i = 242; i < NUM_PRIMITIVES; i++) {
+  for (i = 243; i < NUM_PRIMITIVES; i++) {
     _gst_default_primitive_table[i].name = NULL;
     _gst_default_primitive_table[i].attributes = PRIM_FAIL;
     _gst_default_primitive_table[i].id = i;
