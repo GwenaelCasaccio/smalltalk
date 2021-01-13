@@ -775,13 +775,13 @@ All classes in the system are subclasses of me.'>
     ]
 
     changeClassTo: aBehavior [
-	"Mutate the class of the receiver to be aBehavior.
-	 Note: Tacitly assumes that the structure is the same
-	 for the original and new class!!"
+	    "Mutate the class of the receiver to be aBehavior.
+	     Note: Tacitly assumes that the structure is the same
+	     for the original and new class!!"
 
-	<category: 'built ins'>
-	<primitive: VMpr_Object_changeClassTo>
-	
+	    <category: 'built ins'>
+	    <primitive: VMpr_Object_changeClassTo>
+	    ^ SystemExceptions.ReadOnlyObject signal
     ]
 
     checkIndexableBounds: index ifAbsent: aBlock [

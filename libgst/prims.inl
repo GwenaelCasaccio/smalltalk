@@ -2732,12 +2732,20 @@ static intptr_t VMpr_Object_changeClassTo(int id, volatile int numArgs) {
 
   oop1 = POP_OOP();
   oop2 = STACKTOP();
+
+  if (IS_INT(oop2) || IS_OOP_READONLY(oop2)) {
+    goto error;
+  }
+
   obj1 = OOP_TO_OBJ(oop1);
   obj2 = OOP_TO_OBJ(oop2);
+
   if (NUM_WORDS(obj1) > 0 && !IS_INT(obj1->data[0])) {
     OBJ_SET_CLASS(obj2, oop1);
     PRIM_SUCCEEDED;
   }
+
+error:
   UNPOP(1); /* trying to do Bad Things */
   PRIM_FAILED;
 }
