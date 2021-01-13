@@ -239,3 +239,8 @@ Eval [
   ((PrimitiveTest on: 123 do: VMpr_Object_class) = SmallInteger) printNl.
   ((PrimitiveTest on: #('abc' 'def' 'ghi') with: 1 do: VMpr_Object_basicAt) = 'abc') printNl.
 ]
+
+Eval [
+  ([ #[ 1 2 3 ] changeClassTo: Object. false ] on: SystemExceptions.ReadOnlyObject do: [ true ]) printNl.
+]
+
