@@ -214,8 +214,11 @@ nil subclass: Mirror [
 
   Mirror class >> on: anObject [
 
-    ^ (MirrorBuilder on: anObject) makeReadOnly: true; 
-                                   changeClassTo: Mirror
+    | mirror |
+    mirror := MirrorBuilder on: anObject.
+    MirrorPrimitive on: mirror with: Mirror do: VMpr_Object_changeClassTo.
+    MirrorPrimitive on: mirror with: true do: VMpr_Object_makeReadOnly.
+    ^ mirror
   ]
 
   doesNotUnderstand: aMessage [
