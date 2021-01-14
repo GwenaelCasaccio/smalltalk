@@ -2176,6 +2176,41 @@ static intptr_t VMpr_Object_hash(int id, volatile int numArgs) {
   PRIM_FAILED;
 }
 
+static intptr_t VMpr_Object_changeHashTo(int id, volatile int numArgs) {
+  OOP oop1;
+  OOP oop2;
+  _gst_primitives_executed++;
+
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
+
+  if COMMON (IS_INT(oop2) && IS_OOP(oop1) && !IS_OOP_READONLY(oop1)) {
+    gst_object object;
+
+    object = OOP_TO_OBJ(oop1);
+    OBJ_SET_IDENTITY(object, oop2);
+
+    PRIM_SUCCEEDED;
+  }
+  UNPOP(1);
+  PRIM_FAILED;
+}
+
+static intptr_t VMpr_Object_asOop(int id, volatile int numArgs) {
+  OOP oop1;
+  _gst_primitives_executed++;
+
+  oop1 = STACKTOP();
+
+  if COMMON (IS_OOP(oop1)) {
+    SET_STACKTOP(FROM_INT(OOP_INDEX(oop1)));
+
+    PRIM_SUCCEEDED;
+  }
+
+  PRIM_FAILED;
+}
+
 /* SmallInteger asObject; SmallInteger asObjectNoFail */
 static intptr_t VMpr_SmallInteger_asObject(int id, volatile int numArgs) {
   OOP oop1;
@@ -6578,8 +6613,16 @@ void _gst_init_primitives() {
   _gst_default_primitive_table[242].attributes = PRIM_SUCCEED | PRIM_FAIL;
   _gst_default_primitive_table[242].id = 0;
   _gst_default_primitive_table[242].func = VMpr_Object_primitive;
+  _gst_default_primitive_table[243].name = "VMpr_Object_changeHashTo";
+  _gst_default_primitive_table[243].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[243].id = 0;
+  _gst_default_primitive_table[243].func = VMpr_Object_changeHashTo;
+  _gst_default_primitive_table[244].name = "VMpr_Object_asOop";
+  _gst_default_primitive_table[244].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[244].id = 0;
+  _gst_default_primitive_table[244].func = VMpr_Object_asOop;
 
-  for (i = 243; i < NUM_PRIMITIVES; i++) {
+  for (i = 245; i < NUM_PRIMITIVES; i++) {
     _gst_default_primitive_table[i].name = NULL;
     _gst_default_primitive_table[i].attributes = PRIM_FAIL;
     _gst_default_primitive_table[i].id = i;

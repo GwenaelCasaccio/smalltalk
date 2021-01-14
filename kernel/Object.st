@@ -1077,7 +1077,7 @@ All classes in the system are subclasses of me.'>
 	"We are an integer - fail"
 
 	<category: 'built ins'>
-	<primitive: VMpr_Object_hash>
+	<primitive: VMpr_Object_asOop>
 	SystemExceptions.InvalidValue signalOn: self
 	    reason: 'Instances of Integer have no associated OOP!'
     ]
@@ -1091,6 +1091,13 @@ All classes in the system are subclasses of me.'>
 	<category: 'built ins'>
 	<primitive: VMpr_Object_hash>
 	^self
+    ]
+
+    identityHash: anInteger [
+      <category: 'built ins'>
+
+      <primitive: VMpr_Object_changeHashTo>
+      ^ self
     ]
 
     hash [
