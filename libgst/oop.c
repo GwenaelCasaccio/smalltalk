@@ -87,6 +87,7 @@ OOP _gst_false_oop = NULL;
 
 pthread_mutex_t alloc_oop_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t alloc_object_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutexattr_t alloc_object_mutex_attr;
 
 /* This is true to show a message whenever a GC happens.  */
 int _gst_gc_message = true;
@@ -387,6 +388,10 @@ void _gst_update_object_memory_oop(OOP oop) {
 
 void _gst_init_oop_table(PTR address, size_t size) {
   size_t i;
+
+  pthread_mutexattr_init(&alloc_object_mutex_attr);
+  pthread_mutexattr_settype(&alloc_object_mutex_attr, PTHREAD_MUTEX_RECURSIVE);
+  pthread_mutex_init(&alloc_object_mutex, &alloc_object_mutex_attr);
 
   oop_heap = NULL;
   for (i = MAX_OOP_TABLE_SIZE; i && !oop_heap; i >>= 1) {
@@ -699,10 +704,8 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
   }
 
   if UNCOMMON (newAllocPtr >= _gst_mem.eden.maxPtr) {
-    pthread_mutex_unlock(&alloc_object_mutex);
     // Will allocate new object with mourn_objects
     _gst_scavenge();
-    pthread_mutex_lock(&alloc_object_mutex);
     newAllocPtr = _gst_mem.eden.allocPtr + size;
   }
 
