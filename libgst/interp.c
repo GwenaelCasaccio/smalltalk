@@ -144,7 +144,7 @@ typedef struct interp_jmp_buf {
 /* If this is true, for each byte code that is executed, we print on
    stdout the byte index within the current gst_compiled_method and a
    decoded interpretation of the byte code.  */
-int _gst_execution_tracing = 0;
+thread_local int _gst_execution_tracing = 0;
 
 /* When this is true, and an interrupt occurs (such as SIGABRT),
    Smalltalk will terminate itself by making a core dump (normally it
@@ -161,21 +161,21 @@ prim_table_entry _gst_default_primitive_table[NUM_PRIMITIVES];
 
 /* Some performance counters from the interpreter: these
    count the number of special returns.  */
-unsigned long _gst_literal_returns = 0;
-unsigned long _gst_inst_var_returns = 0;
-unsigned long _gst_self_returns = 0;
+thread_local unsigned long _gst_literal_returns = 0;
+thread_local unsigned long _gst_inst_var_returns = 0;
+thread_local unsigned long _gst_self_returns = 0;
 
 /* The number of primitives executed.  */
-unsigned long _gst_primitives_executed = 0;
+thread_local unsigned long _gst_primitives_executed = 0;
 
 /* The number of bytecodes executed.  */
-unsigned long _gst_bytecode_counter = 0;
+thread_local unsigned long _gst_bytecode_counter = 0;
 
 /* The number of method cache misses */
-unsigned long _gst_cache_misses = 0;
+thread_local unsigned long _gst_cache_misses = 0;
 
 /* The number of cache lookups - either hits or misses */
-unsigned long _gst_sample_counter = 0;
+thread_local unsigned long _gst_sample_counter = 0;
 
 /* The OOP for an IdentityDictionary that stores the raw profile.  */
 OOP _gst_raw_profile = NULL;
@@ -183,7 +183,7 @@ OOP _gst_raw_profile = NULL;
 /* A bytecode counter value used while profiling. */
 unsigned long _gst_saved_bytecode_counter = 0;
 
-static ip_type method_base;
+static thread_local ip_type method_base;
 
 /* Global state
    The following variables constitute the interpreter's state:
@@ -211,24 +211,24 @@ static ip_type method_base;
    message.  */
 
 /* The virtual machine's stack and instruction pointers.  */
-OOP *sp = NULL;
-ip_type ip;
+thread_local OOP *sp = NULL;
+thread_local ip_type ip;
 
-OOP *_gst_temporaries = NULL;
-OOP *_gst_literals = NULL;
-OOP _gst_self = NULL;
-OOP _gst_this_context_oop = NULL;
-OOP _gst_this_method = NULL;
+thread_local OOP *_gst_temporaries = NULL;
+thread_local OOP *_gst_literals = NULL;
+thread_local OOP _gst_self = NULL;
+thread_local OOP _gst_this_context_oop = NULL;
+thread_local OOP _gst_this_method = NULL;
 
 /* Signal this semaphore at the following instruction.  */
 static OOP single_step_semaphore = NULL;
 
 /* CompiledMethod cache which memoizes the methods and some more
    information for each class->selector pairs.  */
-static method_cache_entry method_cache[METHOD_CACHE_SIZE] CACHELINE_ALIGNED;
+static thread_local method_cache_entry method_cache[METHOD_CACHE_SIZE] CACHELINE_ALIGNED;
 
 /* The number of the last primitive called.  */
-static int last_primitive;
+static thread_local int last_primitive;
 
 /* A special cache that tries to skip method lookup when #at:, #at:put
    and #size are implemented by a class through a primitive, and is
@@ -236,21 +236,21 @@ static int last_primitive;
    mini-inline cache it makes no sense when JIT translation is
    enabled.  */
 #ifndef ENABLE_JIT_TRANSLATION
-static OOP at_cache_class;
-static intptr_t at_cache_spec;
+static thread_local OOP at_cache_class;
+static thread_local intptr_t at_cache_spec;
 
-static OOP at_put_cache_class;
-static intptr_t at_put_cache_spec;
+static thread_local OOP at_put_cache_class;
+static thread_local intptr_t at_put_cache_spec;
 
-static OOP size_cache_class;
-static int size_cache_prim;
+static thread_local OOP size_cache_class;
+static thread_local int size_cache_prim;
 
-static OOP class_cache_class;
-static int class_cache_prim;
+static thread_local OOP class_cache_class;
+static thread_local int class_cache_prim;
 #endif
 
 /* Queue for async (outside the interpreter) semaphore signals */
-static mst_Boolean async_queue_enabled = true;
+static thread_local mst_Boolean async_queue_enabled = true;
 static async_queue_entry queued_async_signals_tail;
 static async_queue_entry *queued_async_signals = &queued_async_signals_tail;
 static async_queue_entry *queued_async_signals_sig = &queued_async_signals_tail;
@@ -261,14 +261,14 @@ static async_queue_entry *queued_async_signals_sig = &queued_async_signals_tail;
 const char *_gst_abort_execution = NULL;
 
 /* Set to non-nil if a process must preempt the current one.  */
-static OOP switch_to_process;
+static thread_local OOP switch_to_process;
 
 /* Set to true if it is time to switch process in a round-robin
    time-sharing fashion.  */
 static mst_Boolean time_to_preempt;
 
 /* Used to bail out of a C callout and back to the interpreter.  */
-static interp_jmp_buf *reentrancy_jmp_buf = NULL;
+static thread_local interp_jmp_buf *reentrancy_jmp_buf = NULL;
 
 /* when this flag is on and execution tracing is in effect, the top of
    the stack is printed as well as the byte code */
@@ -547,9 +547,9 @@ static void stop_execution(void);
 
 /* Tell the interpreter that special actions are needed as soon as a
    sequence point is reached.  */
-static void *const *global_monitored_bytecodes;
-static void *const *global_normal_bytecodes;
-static void *const *dispatch_vec;
+static thread_local void *const *global_monitored_bytecodes;
+static thread_local void *const *global_normal_bytecodes;
+static thread_local void *const *dispatch_vec;
 
 #define SET_EXCEPT_FLAG(x)                                                     \
   do {                                                                         \
@@ -624,9 +624,9 @@ static void *const *dispatch_vec;
 /* CHUNK points to an item of CHUNKS.  CUR_CHUNK_BEGIN is equal
    to *CHUNK (i.e. points to the base of the current chunk) and
    CUR_CHUNK_END is equal to CUR_CHUNK_BEGIN + CHUNK_SIZE.  */
-static gst_context_part cur_chunk_begin = NULL, cur_chunk_end = NULL;
-static gst_context_part chunks[MAX_CHUNKS_IN_MEMORY] CACHELINE_ALIGNED;
-static gst_context_part *chunk = chunks - 1;
+static thread_local gst_context_part cur_chunk_begin = NULL, cur_chunk_end = NULL;
+static thread_local gst_context_part chunks[MAX_CHUNKS_IN_MEMORY] CACHELINE_ALIGNED;
+static thread_local gst_context_part *chunk;
 
 /* These are used for OOP's allocated in a LIFO manner.  A context is
    kept on this stack as long as it generates only clean blocks, as
@@ -634,8 +634,8 @@ static gst_context_part *chunk = chunks - 1;
    and as long as no context switches happen since the time the
    process was created.  FREE_LIFO_CONTEXT points to just after the
    top of the stack.  */
-static struct oop_s lifo_contexts[MAX_LIFO_DEPTH] CACHELINE_ALIGNED;
-static OOP free_lifo_context = lifo_contexts;
+static thread_local struct oop_s lifo_contexts[MAX_LIFO_DEPTH] CACHELINE_ALIGNED;
+static thread_local OOP free_lifo_context;
 
 /* Include `plug-in' modules for the appropriate interpreter.
 
@@ -2039,6 +2039,16 @@ void _gst_init_interpreter(void) {
 
   _gst_init_async_events();
   _gst_init_process_system();
+}
+
+void _gst_init_context(void) {
+
+  chunk = chunks - 1;
+  free_lifo_context = lifo_contexts;
+
+  for (size_t i = 0; i < MAX_LIFO_DEPTH; i++) {
+    lifo_contexts[i].flags = F_POOLED | F_CONTEXT;
+  }
 }
 
 OOP _gst_prepare_execution_environment(void) {

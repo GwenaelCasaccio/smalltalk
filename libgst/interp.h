@@ -126,26 +126,26 @@ typedef struct method_cache_entry {
 
 /* Some performance counters from the interpreter: these
    count the number of special returns.  */
-extern unsigned long _gst_literal_returns ATTRIBUTE_HIDDEN,
+extern thread_local unsigned long _gst_literal_returns ATTRIBUTE_HIDDEN,
     _gst_inst_var_returns ATTRIBUTE_HIDDEN, _gst_self_returns ATTRIBUTE_HIDDEN;
 
 /* The number of primitives executed.  */
-extern unsigned long _gst_primitives_executed ATTRIBUTE_HIDDEN;
+extern thread_local unsigned long _gst_primitives_executed ATTRIBUTE_HIDDEN;
 
 /* The number of bytecodes executed.  */
-extern unsigned long _gst_bytecode_counter ATTRIBUTE_HIDDEN;
+extern thread_local unsigned long _gst_bytecode_counter ATTRIBUTE_HIDDEN;
 
 /* The number of method cache misses */
-extern unsigned long _gst_cache_misses ATTRIBUTE_HIDDEN;
+extern thread_local unsigned long _gst_cache_misses ATTRIBUTE_HIDDEN;
 
 /* The number of cache lookups - either hits or misses */
-extern unsigned long _gst_sample_counter ATTRIBUTE_HIDDEN;
+extern thread_local unsigned long _gst_sample_counter ATTRIBUTE_HIDDEN;
 
 /* If this is true, for each byte code that is executed, we print on
    stdout the byte index within the current gst_compiled_method and a
    decoded interpretation of the byte code.  If > 1, it applies also
    to code not invoked by the user.  */
-extern int _gst_execution_tracing ATTRIBUTE_HIDDEN;
+extern thread_local int _gst_execution_tracing ATTRIBUTE_HIDDEN;
 
 /* When this is true, and an interrupt occurs (such as SIGSEGV),
    Smalltalk will terminate itself by making a core dump (normally it
@@ -158,22 +158,22 @@ extern mst_Boolean _gst_non_interactive ATTRIBUTE_HIDDEN;
 
 /* The OOP for a gst_compiled_method or gst_compiled_block that is the
    currently executing method.  */
-extern OOP _gst_this_method ATTRIBUTE_HIDDEN;
+extern thread_local OOP _gst_this_method ATTRIBUTE_HIDDEN;
 
 /* Physical address of the base of the method temporary variables.
    Typically a small number of bytes (multiple of 4 since it points to
    OOPs) lower than sp.  */
-extern OOP *_gst_temporaries ATTRIBUTE_HIDDEN;
+extern thread_local OOP *_gst_temporaries ATTRIBUTE_HIDDEN;
 
 /* Physical address of the base of the method literals.  */
-extern OOP *_gst_literals ATTRIBUTE_HIDDEN;
+extern thread_local OOP *_gst_literals ATTRIBUTE_HIDDEN;
 
 /* An OOP that is the current receiver of the current message.  */
-extern OOP _gst_self ATTRIBUTE_HIDDEN;
+extern thread_local OOP _gst_self ATTRIBUTE_HIDDEN;
 
 /* A gst_block_context or gst_method_context that indicates the
    context that the interpreter is currently running in.  */
-extern OOP _gst_this_context_oop ATTRIBUTE_HIDDEN;
+extern thread_local OOP _gst_this_context_oop ATTRIBUTE_HIDDEN;
 
 /* The OOP for an IdentityDictionary that stores the raw profile. */
 extern OOP _gst_raw_profile ATTRIBUTE_HIDDEN;
@@ -196,7 +196,7 @@ typedef gst_uchar *ip_type;
 #endif
 #define ip _gst_ip
 
-extern ip_type ip ATTRIBUTE_HIDDEN;
+extern thread_local ip_type ip ATTRIBUTE_HIDDEN;
 
 typedef struct async_queue_entry {
   void (*func)(OOP);
@@ -253,6 +253,8 @@ extern void _gst_send_message_internal(OOP sendSelector, int sendArgs,
 
 /* Prepare the data structures held by the interpreter.  */
 extern void _gst_init_interpreter(void) ATTRIBUTE_HIDDEN;
+
+extern void _gst_init_context(void) ATTRIBUTE_HIDDEN;
 
 /* Reset the fast allocator for context objects, telling it that
    all contexts living there have been tenured and thus the space

@@ -173,7 +173,7 @@ OOP _gst_weak_identity_set_class = NULL;
 OOP _gst_weak_key_identity_dictionary_class = NULL;
 OOP _gst_weak_value_identity_dictionary_class = NULL;
 OOP _gst_write_stream_class = NULL;
-OOP _gst_processor_oop = NULL;
+thread_local OOP _gst_processor_oop = NULL;
 OOP _gst_debug_information_class = NULL;
 
 /* Called when a dictionary becomes full, this routine replaces the

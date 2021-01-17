@@ -85,6 +85,9 @@ OOP _gst_nil_oop = NULL;
 OOP _gst_true_oop = NULL;
 OOP _gst_false_oop = NULL;
 
+pthread_mutex_t alloc_oop_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t alloc_object_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 /* This is true to show a message whenever a GC happens.  */
 int _gst_gc_message = true;
 
@@ -682,17 +685,24 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
   OOP *newAllocPtr;
   gst_object p_instance;
 
+  pthread_mutex_lock(&alloc_object_mutex);
+
   size = ROUNDED_BYTES(size);
 
   /* We don't want to have allocPtr pointing to the wrong thing during
      GC, so we use a local var to hold its new value */
   newAllocPtr = _gst_mem.eden.allocPtr + BYTES_TO_SIZE(size);
 
-  if UNCOMMON (size >= _gst_mem.big_object_threshold)
+  if UNCOMMON (size >= _gst_mem.big_object_threshold) {
+    pthread_mutex_unlock(&alloc_object_mutex);
     return alloc_fixed_obj(size, p_oop);
+  }
 
   if UNCOMMON (newAllocPtr >= _gst_mem.eden.maxPtr) {
+    pthread_mutex_unlock(&alloc_object_mutex);
+    // Will allocate new object with mourn_objects
     _gst_scavenge();
+    pthread_mutex_lock(&alloc_object_mutex);
     newAllocPtr = _gst_mem.eden.allocPtr + size;
   }
 
@@ -701,6 +711,7 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
   *p_oop = alloc_oop(p_instance, _gst_mem.active_flag);
   OBJ_SET_SIZE (p_instance, FROM_INT(BYTES_TO_SIZE(size)));
   OBJ_SET_IDENTITY (p_instance, FROM_INT(0));
+  pthread_mutex_unlock(&alloc_object_mutex);
   return p_instance;
 }
 

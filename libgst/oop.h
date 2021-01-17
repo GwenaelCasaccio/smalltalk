@@ -242,6 +242,8 @@ struct memory_space {
       reclaimedBytesPerGlobalGC, reclaimedPercentPerScavenge;
 };
 
+extern pthread_mutex_t alloc_oop_mutex;
+
 /* This is true to show a message whenever a GC happens.  */
 extern int _gst_gc_message ATTRIBUTE_HIDDEN;
 

@@ -77,6 +77,8 @@
 #include <dirent.h>
 #include <sys/time.h>
 #include <time.h>
+#include <threads.h>
+#include <pthread.h>
 
 #ifdef HAVE_CRT_EXTERNS_H
 #include <crt_externs.h>
@@ -372,7 +374,7 @@ enum {
 #endif
 
 /* The VM's stack pointer */
-extern OOP *sp 
+extern thread_local OOP *sp 
   ATTRIBUTE_HIDDEN;
 
 /* Some useful constants */

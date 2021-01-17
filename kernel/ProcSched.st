@@ -46,6 +46,11 @@ Object subclass: ProcessorScheduler [
 	self shouldNotImplement
     ]
 
+    newThread: aProcess [
+
+      <primitive: VMpr_Processor_newThread>
+    ]
+
     processEnvironment [
 	"Answer another singleton object hosting thread-local variables
 	 for the Smalltalk processes.  This acts like a normal Dictionary

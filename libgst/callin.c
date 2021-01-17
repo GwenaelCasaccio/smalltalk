@@ -86,6 +86,7 @@ oop_array_registry;
    that OOPs that C code knows about don't go away.  */
 static oop_registry *oop_registry_root;
 static oop_array_registry *oop_array_registry_root;
+static pthread_mutex_t oop_registry_root_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 OOP
 _gst_va_msg_send (OOP receiver,
@@ -978,12 +979,15 @@ _gst_oop_indexed_kind (OOP oop)
 OOP
 _gst_register_oop (OOP oop)
 {
-  rb_node_t **p = (rb_node_t **) &oop_registry_root;
+  rb_node_t **p = NULL;
   oop_registry *node;
   oop_registry *entry = NULL;
 
   if (!oop || IS_NIL (oop))
     return (oop);
+
+  pthread_mutex_lock(&oop_registry_root_mutex);
+  p = (rb_node_t **) &oop_registry_root;
 
   while (*p)
     {
@@ -996,6 +1000,7 @@ _gst_register_oop (OOP oop)
       else
 	{
 	  entry->usage++;
+  pthread_mutex_unlock(&oop_registry_root_mutex);
 	  return (oop);
 	}
     }
@@ -1008,6 +1013,7 @@ _gst_register_oop (OOP oop)
   *p = &(node->rb);
 
   rb_rebalance(&node->rb, (rb_node_t **) &oop_registry_root);
+  pthread_mutex_unlock(&oop_registry_root_mutex);
   return (oop);
 }
 
@@ -1020,6 +1026,8 @@ _gst_unregister_oop (OOP oop)
      it to simplify client code).  */
   if (!oop || IS_NIL (oop))
     return;
+
+  pthread_mutex_lock(&oop_registry_root_mutex);
 
   while (entry)
     {
@@ -1036,6 +1044,7 @@ _gst_unregister_oop (OOP oop)
       entry = (oop_registry *) 
 	(oop < entry->oop ? entry->rb.rb_left : entry->rb.rb_right);
     }
+  pthread_mutex_unlock(&oop_registry_root_mutex);
 }
 
 
@@ -1045,6 +1054,8 @@ _gst_register_oop_array (OOP **first, OOP **last)
   rb_node_t **p = (rb_node_t **) &oop_array_registry_root;
   oop_array_registry *node;
   oop_array_registry *entry = NULL;
+
+  pthread_mutex_lock(&oop_registry_root_mutex);
 
   while (*p)
     {
@@ -1067,12 +1078,15 @@ _gst_register_oop_array (OOP **first, OOP **last)
   *p = &(node->rb);
 
   rb_rebalance(&node->rb, (rb_node_t **) &oop_array_registry_root);
+  pthread_mutex_unlock(&oop_registry_root_mutex);
 }
 
 void
 _gst_unregister_oop_array (OOP **first)
 {
   oop_array_registry *entry = oop_array_registry_root;
+
+  pthread_mutex_lock(&oop_registry_root_mutex);
 
   while (entry)
     {
@@ -1089,6 +1103,7 @@ _gst_unregister_oop_array (OOP **first)
       entry = (oop_array_registry *) 
 	(first < entry->first ? entry->rb.rb_left : entry->rb.rb_right);
     }
+  pthread_mutex_unlock(&oop_registry_root_mutex);
 }
 
 
@@ -1098,6 +1113,7 @@ _gst_copy_registered_oops (void)
   rb_node_t *node;
   rb_traverse_t t;
 
+  pthread_mutex_lock(&oop_registry_root_mutex);
   /* Walk the OOP registry...  */
   for (node = rb_first(&(oop_registry_root->rb), &t); 
        node; node = rb_next(&t))
@@ -1118,6 +1134,7 @@ _gst_copy_registered_oops (void)
       OOP *last = *(k->last);
       _gst_copy_oop_range (first, last);
     }
+  pthread_mutex_unlock(&oop_registry_root_mutex);
 }
 
 void
@@ -1126,6 +1143,7 @@ _gst_mark_registered_oops (void)
   rb_node_t *node;
   rb_traverse_t t;
 
+  pthread_mutex_lock(&oop_registry_root_mutex);
   /* Walk the OOP registry...  */
   for (node = rb_first(&(oop_registry_root->rb), &t); 
        node; node = rb_next(&t))
@@ -1146,6 +1164,7 @@ _gst_mark_registered_oops (void)
       OOP *last = *(k->last);
       _gst_mark_oop_range (first, last);
     }
+  pthread_mutex_unlock(&oop_registry_root_mutex);
 }
 
 void

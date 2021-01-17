@@ -2688,6 +2688,64 @@ static intptr_t VMpr_Process_yield(int id, volatile int numArgs) {
   PRIM_SUCCEEDED;
 }
 
+void *start_vm_thread(void *argument) {
+  OOP *array;
+  OOP activeProcess;
+
+  fprintf(stderr, "started thread\n");
+
+  array = (OOP *) argument;
+
+  _gst_execution_tracing = true;
+
+  _gst_processor_oop = array[0];
+  activeProcess = array[1];
+
+  switch_to_process = _gst_nil_oop;
+ _gst_this_context_oop = _gst_nil_oop;
+
+  fprintf(stderr, "%O\n", _gst_processor_oop);
+  fflush(stderr);
+
+  change_process_context(activeProcess);
+
+  _gst_init_context();
+
+  // Force cache cleanup and *init*
+  _gst_sample_counter = 1;
+  _gst_invalidate_method_cache();
+
+  fprintf(stderr, "%O\n", activeProcess);
+  fflush(stderr);
+
+  _gst_interpret(activeProcess);
+
+  return NULL;
+}
+
+static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
+  int result;
+  pthread_t thread_id;
+  OOP oop1;
+  OOP oop2;
+
+  OOP *array = xcalloc(2, sizeof(*array));
+
+  oop2 = POP_OOP();
+  oop1 = STACKTOP();
+
+  array[0] = oop1;
+  array[1] = oop2;
+
+  result = pthread_create(&thread_id, NULL, &start_vm_thread, array);
+  if (result != 0) {
+  }
+
+  /*while (1)
+    ;*/
+  PRIM_SUCCEEDED;
+}
+
 /* Processor waitForEvents */
 static intptr_t VMpr_Processor_dispatchEvents(int id, volatile int numArgs) {
   interp_jmp_buf jb;
@@ -6621,8 +6679,13 @@ void _gst_init_primitives() {
   _gst_default_primitive_table[244].attributes = PRIM_SUCCEED | PRIM_FAIL;
   _gst_default_primitive_table[244].id = 0;
   _gst_default_primitive_table[244].func = VMpr_Object_asOop;
+  _gst_default_primitive_table[245].name = "VMpr_Processor_newThread";
+  _gst_default_primitive_table[245].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[245].id = 0;
+  _gst_default_primitive_table[245].func = VMpr_Processor_newThread;
 
-  for (i = 245; i < NUM_PRIMITIVES; i++) {
+
+  for (i = 246; i < NUM_PRIMITIVES; i++) {
     _gst_default_primitive_table[i].name = NULL;
     _gst_default_primitive_table[i].attributes = PRIM_FAIL;
     _gst_default_primitive_table[i].id = i;
