@@ -244,6 +244,8 @@ struct memory_space {
 
 extern pthread_mutex_t alloc_oop_mutex;
 
+extern pthread_mutex_t global_gc_mutex;
+
 /* This is true to show a message whenever a GC happens.  */
 extern int _gst_gc_message ATTRIBUTE_HIDDEN;
 

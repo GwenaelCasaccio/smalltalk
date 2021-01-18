@@ -86,8 +86,13 @@ OOP _gst_true_oop = NULL;
 OOP _gst_false_oop = NULL;
 
 pthread_mutex_t alloc_oop_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 static pthread_mutex_t alloc_object_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutexattr_t alloc_object_mutex_attr;
+
+pthread_mutex_t global_gc_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutexattr_t global_gc_mutex_attr;
+
 
 /* This is true to show a message whenever a GC happens.  */
 int _gst_gc_message = true;
@@ -393,6 +398,10 @@ void _gst_init_oop_table(PTR address, size_t size) {
   pthread_mutexattr_settype(&alloc_object_mutex_attr, PTHREAD_MUTEX_RECURSIVE);
   pthread_mutex_init(&alloc_object_mutex, &alloc_object_mutex_attr);
 
+  pthread_mutexattr_init(&global_gc_mutex_attr);
+  pthread_mutexattr_settype(&global_gc_mutex_attr, PTHREAD_MUTEX_RECURSIVE);
+  pthread_mutex_init(&global_gc_mutex, &global_gc_mutex_attr);
+
   oop_heap = NULL;
   for (i = MAX_OOP_TABLE_SIZE; i && !oop_heap; i >>= 1) {
     oop_heap = _gst_heap_create(address, i * sizeof(struct oop_s));
@@ -690,6 +699,7 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
   OOP *newAllocPtr;
   gst_object p_instance;
 
+  pthread_mutex_lock(&global_gc_mutex);
   pthread_mutex_lock(&alloc_object_mutex);
 
   size = ROUNDED_BYTES(size);
@@ -700,6 +710,7 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
 
   if UNCOMMON (size >= _gst_mem.big_object_threshold) {
     pthread_mutex_unlock(&alloc_object_mutex);
+    pthread_mutex_unlock(&global_gc_mutex);
     return alloc_fixed_obj(size, p_oop);
   }
 
@@ -714,7 +725,10 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
   *p_oop = alloc_oop(p_instance, _gst_mem.active_flag);
   OBJ_SET_SIZE (p_instance, FROM_INT(BYTES_TO_SIZE(size)));
   OBJ_SET_IDENTITY (p_instance, FROM_INT(0));
+
   pthread_mutex_unlock(&alloc_object_mutex);
+  pthread_mutex_unlock(&global_gc_mutex);
+
   return p_instance;
 }
 
@@ -947,6 +961,8 @@ void _gst_global_gc(int next_allocation) {
   const char *s;
   int old_limit;
 
+  pthread_mutex_lock(&global_gc_mutex);
+
   _gst_mem.numGlobalGCs++;
 
   old_limit = _gst_mem.old->heap_limit;
@@ -1042,6 +1058,7 @@ void _gst_global_gc(int next_allocation) {
 
   _gst_invalidate_croutine_cache();
   mourn_objects();
+  pthread_mutex_unlock(&global_gc_mutex);
 }
 
 void _gst_scavenge(void) {

@@ -613,32 +613,44 @@ gst_object instantiate_numbytes(OOP class_oop, OOP *p_oop,
   int n;
   OOP src, *dest;
 
+  pthread_mutex_lock(&global_gc_mutex);
+
   p_instance = _gst_alloc_obj(numBytes, p_oop);
   OBJ_SET_CLASS(p_instance, class_oop);
 
   n = instanceSpec >> ISP_NUMFIXEDFIELDS;
-  if UNCOMMON (n == 0)
+  if UNCOMMON (n == 0) {
+      pthread_mutex_unlock(&global_gc_mutex);
     return p_instance;
+    }
 
   src = _gst_nil_oop;
   dest = p_instance->data;
   dest[0] = src;
-  if UNCOMMON (n == 1)
+  if UNCOMMON (n == 1) {
+      pthread_mutex_unlock(&global_gc_mutex);
     return p_instance;
+    }
 
   dest[1] = src;
-  if UNCOMMON (n == 2)
-    return p_instance;
+  if UNCOMMON (n == 2) {
+      pthread_mutex_unlock(&global_gc_mutex);
+      return p_instance;
+    }
 
   dest[2] = src;
-  if UNCOMMON (n == 3)
-    return p_instance;
+  if UNCOMMON (n == 3) {
+      pthread_mutex_unlock(&global_gc_mutex);
+      return p_instance;
+    }
 
   dest += 3;
   n -= 3;
-  do
+  do {
     *(dest++) = src;
-  while (--n > 0);
+  } while (--n > 0);
+
+  pthread_mutex_unlock(&global_gc_mutex);
   return p_instance;
 }
 
