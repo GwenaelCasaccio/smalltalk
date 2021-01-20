@@ -391,8 +391,18 @@ void _gst_update_object_memory_oop(OOP oop) {
   }
 }
 
+pthread_barrier_t end_of_gc_barrier;
+
 void _gst_init_oop_table(PTR address, size_t size) {
   size_t i;
+
+  if (pthread_barrier_init(&interp_sync_barrier, NULL, _gst_interpret_thread_counter)) {
+    abort();
+  }
+
+  if (pthread_barrier_init(&end_of_gc_barrier, NULL, _gst_interpret_thread_counter)) {
+    abort();
+  }
 
   pthread_mutexattr_init(&alloc_object_mutex_attr);
   pthread_mutexattr_settype(&alloc_object_mutex_attr, PTHREAD_MUTEX_RECURSIVE);

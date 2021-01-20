@@ -82,16 +82,16 @@
 
 #ifdef PIPELINING
 #define FETCH                                                                  \
-  goto *(t = dispatch_vec[*ip], b2 = ip[2], b4 = ip[4], arg = ip[1],           \
-         arg2 = ip[3], t2 = dispatch_vec[b2], t)
+  goto *(t = dispatch_vec_per_thread[current_thread_id][*ip], b2 = ip[2], b4 = ip[4], arg = ip[1],           \
+         arg2 = ip[3], t2 = dispatch_vec_per_thread[current_thread_id][b2], t)
 #define FETCH_VEC(v)                                                           \
   goto *(t = (v)[*ip], b2 = ip[2], b4 = ip[4], arg = ip[1], arg2 = ip[3],      \
-         t2 = dispatch_vec[b2], t)
+         t2 = dispatch_vec_per_thread[current_thread_id][b2], t)
 
 #define PREFETCH                                                               \
-  (t = t2, t2 = dispatch_vec[b4], arg2 = ip[3], b2 = b4, b4 = ip[6], ip += 2)
+  (t = t2, t2 = dispatch_vec_per_thread[current_thread_id][b4], arg2 = ip[3], b2 = b4, b4 = ip[6], ip += 2)
 #define PREFETCH_VEC(v)                                                        \
-  (t = (v)[b2], t2 = dispatch_vec[b4], arg2 = ip[3], b2 = b4, b4 = ip[6],      \
+  (t = (v)[b2], t2 = dispatch_vec_per_thread[current_thread_id][b4], arg2 = ip[3], b2 = b4, b4 = ip[6],      \
    ip += 2)
 
 #define NEXT_BC goto *(arg = GET_ARG, t)
@@ -100,9 +100,9 @@
 #define GET_ARG arg2
 
 #elif REG_AVAILABILITY >= 1
-#define FETCH goto *(arg = GET_ARG, dispatch_vec[*ip])
+#define FETCH goto *(arg = GET_ARG, dispatch_vec_per_thread[current_thread_id][*ip])
 #define FETCH_VEC(v) goto *(arg = GET_ARG, (v)[*ip])
-#define PREFETCH (ip += 2, prefetch = dispatch_vec[*ip])
+#define PREFETCH (ip += 2, prefetch = dispatch_vec_per_thread[current_thread_id][*ip])
 #define PREFETCH_VEC(v) (ip += 2, prefetch = (v)[*ip])
 #define NEXT_BC goto *(arg = GET_ARG, prefetch)
 #define NEXT_BC_VEC(v) goto *(arg = GET_ARG, prefetch)
@@ -114,13 +114,144 @@
 #define FETCH_VEC(v) NEXT_BC_VEC(v)
 #define PREFETCH (ip += 2)
 #define PREFETCH_VEC(v) (ip += 2)
-#define NEXT_BC goto *(arg = GET_ARG, dispatch_vec[*ip])
+#define NEXT_BC goto *(arg = GET_ARG, dispatch_vec_per_thread[current_thread_id][*ip])
 #define NEXT_BC_VEC(v) goto *(arg = GET_ARG, (v)[*ip])
 #define NEXT_BC_NO_ARG(v) goto *(v)[*ip]
 #define GET_ARG (ip[1])
 #endif
 
 #define DISPATCH(v) goto *(arg = GET_ARG, (v)[*ip])
+
+static void *sync_barrier_byte_codes[256] = {
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*   0 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*   4 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*   8 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  12 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  16 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  20 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  24 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  28 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  32 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  36 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  40 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  44 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  48 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  52 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  56 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  60 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  64 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  68 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  72 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  76 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  80 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  84 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  88 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  92 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /*  96 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 100 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 104 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 108 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 112 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 116 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 120 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 124 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 128 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 132 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 136 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 140 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 144 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 148 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 152 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 156 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 160 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 164 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 168 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 172 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 176 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 180 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 184 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 188 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 192 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 196 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 200 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 204 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 208 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 212 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 216 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 220 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 224 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 228 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 232 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 236 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 240 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 244 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes, /* 248 */
+    &&barrier_byte_codes, &&barrier_byte_codes,
+    &&barrier_byte_codes, &&barrier_byte_codes /* 252 */
+};
 
 static void *monitored_byte_codes[256] = {
     &&monitor_byte_codes, &&monitor_byte_codes,

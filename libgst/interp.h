@@ -175,6 +175,10 @@ extern thread_local OOP _gst_self ATTRIBUTE_HIDDEN;
    context that the interpreter is currently running in.  */
 extern thread_local OOP _gst_this_context_oop ATTRIBUTE_HIDDEN;
 
+extern pthread_barrier_t interp_sync_barrier;
+
+extern volatile _Atomic(size_t) _gst_interpret_thread_counter;
+
 /* The OOP for an IdentityDictionary that stores the raw profile. */
 extern OOP _gst_raw_profile ATTRIBUTE_HIDDEN;
 
@@ -214,6 +218,8 @@ extern const char *_gst_abort_execution ATTRIBUTE_HIDDEN;
 #ifdef ENABLE_JIT_TRANSLATION
 extern mst_Boolean _gst_except_flag ATTRIBUTE_HIDDEN;
 #endif
+
+extern void global_lock_for_gc(void) ATTRIBUTE_HIDDEN;
 
 /* Create a new Process on the top of the stack, which is specially
    marked so that it stops the interpreter's execution.  This kind
