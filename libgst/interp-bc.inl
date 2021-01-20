@@ -480,7 +480,9 @@ OOP _gst_interpret(OOP processOOP) {
      monitor_byte_codes.  */
   global_normal_bytecodes = normal_byte_codes;
   global_monitored_bytecodes = monitored_byte_codes;
-  dispatch_vec = normal_byte_codes;
+  global_sync_barrier_bytecodes = sync_barrier_byte_codes;
+
+  dispatch_vec_per_thread[current_thread_id] = normal_byte_codes;
 
   /* Prime the interpreter's registers.  */
   IMPORT_REGS();
@@ -542,6 +544,17 @@ monitor_byte_codes:
   if UNCOMMON (time_to_preempt)
     set_preemption_timer();
 
+  FETCH_VEC(normal_byte_codes);
+
+barrier_byte_codes:
+  pthread_barrier_wait(&interp_sync_barrier);
+  fprintf(stderr, "ici\n");
+  fflush(stderr);
+  pthread_barrier_wait(&end_of_gc_barrier);
+  fprintf(stderr, "ici 2\n");
+  fflush(stderr);
+  abort();
+  SET_EXCEPT_FLAG(false);
   FETCH_VEC(normal_byte_codes);
 
   /* Some more routines we need... */

@@ -547,13 +547,31 @@ static void stop_execution(void);
 
 /* Tell the interpreter that special actions are needed as soon as a
    sequence point is reached.  */
+static thread_local void *const *global_sync_barrier_bytecodes;
 static thread_local void *const *global_monitored_bytecodes;
 static thread_local void *const *global_normal_bytecodes;
-static thread_local void *const *dispatch_vec;
+// static thread_local void *const *dispatch_vec;
+
+static void *const *dispatch_vec_per_thread[100];
+static thread_local size_t current_thread_id = 0;
+
+pthread_barrier_t interp_sync_barrier;
+
+volatile _Atomic(size_t) _gst_interpret_thread_counter = 1;
+
+void global_lock_for_gc(void) {
+  for (size_t i = 0; i < atomic_load(&_gst_interpret_thread_counter); i++) {
+    if (i == current_thread_id)
+      continue;
+    dispatch_vec_per_thread[i] = global_sync_barrier_bytecodes;
+    __sync_synchronize();
+  }
+}
+
 
 #define SET_EXCEPT_FLAG(x)                                                     \
   do {                                                                         \
-    dispatch_vec = (x) ? global_monitored_bytecodes : global_normal_bytecodes; \
+    dispatch_vec_per_thread[current_thread_id] = (x) ? global_monitored_bytecodes : global_normal_bytecodes; \
     __sync_synchronize();                                                      \
   } while (0)
 

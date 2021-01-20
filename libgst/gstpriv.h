@@ -79,6 +79,7 @@
 #include <time.h>
 #include <threads.h>
 #include <pthread.h>
+#include <stdatomic.h>
 
 #ifdef HAVE_CRT_EXTERNS_H
 #include <crt_externs.h>

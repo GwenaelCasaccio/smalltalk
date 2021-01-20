@@ -2694,12 +2694,32 @@ void *start_vm_thread(void *argument) {
 
   fprintf(stderr, "started thread\n");
 
+  current_thread_id = atomic_fetch_add(&_gst_interpret_thread_counter, 1);
+
+  if (pthread_barrier_destroy(&interp_sync_barrier)) {
+    abort();
+  }
+
+  if (pthread_barrier_init(&interp_sync_barrier, NULL, atomic_load(&_gst_interpret_thread_counter))) {
+    abort();
+  }
+
+  if (pthread_barrier_destroy(&end_of_gc_barrier)) {
+    abort();
+  }
+
+  if (pthread_barrier_init(&end_of_gc_barrier, NULL, atomic_load(&_gst_interpret_thread_counter))) {
+    abort();
+  }
+
   array = (OOP *) argument;
 
   _gst_execution_tracing = true;
 
   _gst_processor_oop = array[0];
   activeProcess = array[1];
+
+  xfree(array);
 
   switch_to_process = _gst_nil_oop;
  _gst_this_context_oop = _gst_nil_oop;
@@ -2739,10 +2759,12 @@ static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
 
   result = pthread_create(&thread_id, NULL, &start_vm_thread, array);
   if (result != 0) {
+    xfree(array);
+
+    PUSH_OOP(oop2);
+    PRIM_FAILED;
   }
 
-  /*while (1)
-    ;*/
   PRIM_SUCCEEDED;
 }
 
@@ -5542,6 +5564,10 @@ static intptr_t VMpr_Namespace_setCurrent(int id, volatile int numArgs) {
 
 static intptr_t VMpr_ObjectMemory_gcPrimitives(int id, volatile int numArgs) {
   _gst_primitives_executed++;
+
+  global_lock_for_gc();
+  pthread_barrier_wait(&interp_sync_barrier);
+
   switch (id) {
   case 0:
     _gst_scavenge();
@@ -5563,6 +5589,7 @@ static intptr_t VMpr_ObjectMemory_gcPrimitives(int id, volatile int numArgs) {
     _gst_finish_incremental_gc();
     break;
   }
+  pthread_barrier_wait(&end_of_gc_barrier);
   PRIM_SUCCEEDED;
 }
 
