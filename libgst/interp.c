@@ -642,9 +642,9 @@ void global_lock_for_gc(void) {
 /* CHUNK points to an item of CHUNKS.  CUR_CHUNK_BEGIN is equal
    to *CHUNK (i.e. points to the base of the current chunk) and
    CUR_CHUNK_END is equal to CUR_CHUNK_BEGIN + CHUNK_SIZE.  */
-static thread_local gst_context_part cur_chunk_begin = NULL, cur_chunk_end = NULL;
-static thread_local gst_context_part chunks[MAX_CHUNKS_IN_MEMORY] CACHELINE_ALIGNED;
-static thread_local gst_context_part *chunk;
+static gst_context_part cur_chunk_begin[100] = { NULL }, cur_chunk_end[100] = { NULL };
+static gst_context_part chunks[100][MAX_CHUNKS_IN_MEMORY] CACHELINE_ALIGNED;
+static gst_context_part *chunk[100];
 
 /* These are used for OOP's allocated in a LIFO manner.  A context is
    kept on this stack as long as it generates only clean blocks, as
@@ -652,8 +652,8 @@ static thread_local gst_context_part *chunk;
    and as long as no context switches happen since the time the
    process was created.  FREE_LIFO_CONTEXT points to just after the
    top of the stack.  */
-static thread_local struct oop_s lifo_contexts[MAX_LIFO_DEPTH] CACHELINE_ALIGNED;
-static thread_local OOP free_lifo_context;
+static struct oop_s lifo_contexts[100][MAX_LIFO_DEPTH] CACHELINE_ALIGNED;
+static OOP free_lifo_context[100];
 
 /* Include `plug-in' modules for the appropriate interpreter.
 
@@ -676,14 +676,14 @@ static thread_local OOP free_lifo_context;
 #include "interp-bc.inl"
 
 void _gst_empty_context_pool(void) {
-  if (*chunks) {
-    chunk = chunks;
-    cur_chunk_begin = *chunk;
-    cur_chunk_end = (gst_context_part)(((char *)cur_chunk_begin) +
+  if (*chunks[current_thread_id]) {
+    chunk[current_thread_id] = chunks[current_thread_id];
+    cur_chunk_begin[current_thread_id] = *chunk[current_thread_id];
+    cur_chunk_end[current_thread_id] = (gst_context_part)(((char *)cur_chunk_begin[current_thread_id]) +
                                        SIZE_TO_BYTES(CHUNK_SIZE));
   } else {
-    chunk = chunks - 1;
-    cur_chunk_begin = cur_chunk_end = NULL;
+    chunk[current_thread_id] = chunks[current_thread_id] - 1;
+    cur_chunk_begin[current_thread_id] = cur_chunk_end[current_thread_id] = NULL;
   }
 }
 
@@ -693,8 +693,8 @@ void empty_context_stack(void) {
 
   /* printf("[[[[ Gosh, not lifo anymore! (free = %p, base = %p)\n",
      free_lifo_context, lifo_contexts); */
-  if COMMON (free_lifo_context != lifo_contexts)
-    for (free_lifo_context = contextOOP = lifo_contexts,
+  if COMMON (free_lifo_context[current_thread_id] != lifo_contexts[current_thread_id])
+    for (free_lifo_context[current_thread_id] = contextOOP = lifo_contexts[current_thread_id],
         last = _gst_this_context_oop, context = OOP_TO_OBJ(contextOOP);
          ;) {
       oop =
@@ -751,7 +751,7 @@ void empty_context_stack(void) {
 }
 
 void alloc_new_chunk(void) {
-  if UNCOMMON (++chunk >= &chunks[MAX_CHUNKS_IN_MEMORY]) {
+  if UNCOMMON (++chunk[current_thread_id] >= &chunks[current_thread_id][MAX_CHUNKS_IN_MEMORY]) {
     /* No more chunks available - GC */
     _gst_scavenge();
     return;
@@ -762,12 +762,12 @@ void alloc_new_chunk(void) {
   /* Allocate memory only the first time we're using the chunk.
      _gst_empty_context_pool resets the status but doesn't free
      the memory.  */
-  if UNCOMMON (!*chunk)
-    *chunk = (gst_context_part)xcalloc(1, SIZE_TO_BYTES(CHUNK_SIZE));
+  if UNCOMMON (!*chunk[current_thread_id])
+    *chunk[current_thread_id] = (gst_context_part)xcalloc(1, SIZE_TO_BYTES(CHUNK_SIZE));
 
-  cur_chunk_begin = *chunk;
-  cur_chunk_end =
-      (gst_context_part)(((char *)cur_chunk_begin) + SIZE_TO_BYTES(CHUNK_SIZE));
+  cur_chunk_begin[current_thread_id] = *chunk[current_thread_id];
+  cur_chunk_end[current_thread_id] =
+      (gst_context_part)(((char *)cur_chunk_begin[current_thread_id]) + SIZE_TO_BYTES(CHUNK_SIZE));
 }
 
 gst_object alloc_stack_context(int size) {
@@ -775,9 +775,9 @@ gst_object alloc_stack_context(int size) {
 
   size = CTX_SIZE(size);
   for (;;) {
-    newContext = (gst_object)cur_chunk_begin;
-    cur_chunk_begin += size;
-    if COMMON (cur_chunk_begin < cur_chunk_end) {
+    newContext = (gst_object)cur_chunk_begin[current_thread_id];
+    cur_chunk_begin[current_thread_id] += size;
+    if COMMON (cur_chunk_begin[current_thread_id] < cur_chunk_end[current_thread_id]) {
       OBJ_SET_SIZE(newContext, FROM_INT(size));
       OBJ_SET_IDENTITY (newContext, FROM_INT(0));
       return (newContext);
@@ -804,7 +804,7 @@ gst_object activate_new_context(int size, int sendArgs) {
      contain all of the contexts in a chunk, and we empty lifo_contexts
      when we exhaust a chunk.  So we can get the oop the easy way.  */
   newContext = alloc_stack_context(size);
-  oop = free_lifo_context++;
+  oop = free_lifo_context[current_thread_id]++;
 
   /* printf("[[[[ Context (size %d) allocated at %p (oop = %p)\n",
      size, newContext, oop); */
@@ -831,15 +831,15 @@ gst_object activate_new_context(int size, int sendArgs) {
 
 void dealloc_stack_context(gst_context_part context) {
 #ifndef OPTIMIZE
-  if (free_lifo_context == lifo_contexts ||
-      (OOP_TO_OBJ(free_lifo_context - 1) != (gst_object)context)) {
+  if (free_lifo_context[current_thread_id] == lifo_contexts[current_thread_id] ||
+      (OOP_TO_OBJ(free_lifo_context[current_thread_id] - 1) != (gst_object)context)) {
     _gst_errorf("Deallocating a non-LIFO context!!!");
     abort();
   }
 #endif
 
-  cur_chunk_begin = context;
-  free_lifo_context--;
+  cur_chunk_begin[current_thread_id] = context;
+  free_lifo_context[current_thread_id]--;
 }
 
 void prepare_context(gst_context_part context, int args, int temps) {
@@ -995,7 +995,7 @@ void unwind_context(void) {
     /* Descend in the chain...  */
     newContextOOP = OBJ_METHOD_CONTEXT_PARENT_CONTEXT(oldContext);
 
-    if COMMON (free_lifo_context > lifo_contexts)
+    if COMMON (free_lifo_context[current_thread_id] > lifo_contexts[current_thread_id])
       dealloc_stack_context((gst_context_part)oldContext);
 
     /* This context cannot be deallocated in a LIFO way.  We must
@@ -1303,7 +1303,7 @@ void resume_suspended_context(OOP oop) {
                   GET_CONTEXT_IP(thisContext));
   _gst_temporaries = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
   _gst_self = OBJ_METHOD_CONTEXT_RECEIVER(thisContext);
-  free_lifo_context = lifo_contexts;
+  free_lifo_context[current_thread_id] = lifo_contexts[current_thread_id];
 }
 
 OOP get_active_process(void) {
@@ -2053,7 +2053,7 @@ void _gst_init_interpreter(void) {
 
   _gst_this_context_oop = _gst_nil_oop;
   for (i = 0; i < MAX_LIFO_DEPTH; i++)
-    lifo_contexts[i].flags = F_POOLED | F_CONTEXT;
+    lifo_contexts[current_thread_id][i].flags = F_POOLED | F_CONTEXT;
 
   _gst_init_async_events();
   _gst_init_process_system();
@@ -2061,11 +2061,11 @@ void _gst_init_interpreter(void) {
 
 void _gst_init_context(void) {
 
-  chunk = chunks - 1;
-  free_lifo_context = lifo_contexts;
+  chunk[current_thread_id] = chunks[current_thread_id] - 1;
+  free_lifo_context[current_thread_id] = lifo_contexts[current_thread_id];
 
   for (size_t i = 0; i < MAX_LIFO_DEPTH; i++) {
-    lifo_contexts[i].flags = F_POOLED | F_CONTEXT;
+    lifo_contexts[current_thread_id][i].flags = F_POOLED | F_CONTEXT;
   }
 }
 
