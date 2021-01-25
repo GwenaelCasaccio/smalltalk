@@ -2370,7 +2370,7 @@ static intptr_t VMpr_Object_allOwners(int id, volatile int numArgs) {
 static intptr_t VMpr_ContextPart_thisContext(int id, volatile int numArgs) {
   _gst_primitives_executed++;
   empty_context_stack();
-  SET_STACKTOP(_gst_this_context_oop);
+  SET_STACKTOP(_gst_this_context_oop[current_thread_id]);
   PRIM_SUCCEEDED;
 }
 
@@ -2445,7 +2445,7 @@ static intptr_t VMpr_BlockClosure_valueAndResumeOnUnwind(int id,
 
   _gst_primitives_executed++;
 
-  context = OOP_TO_OBJ(_gst_this_context_oop);
+  context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
   OBJ_METHOD_CONTEXT_SET_FLAGS(
       context, (OOP)((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) |
                      MCF_IS_UNWIND_CONTEXT));
@@ -2722,7 +2722,7 @@ void *start_vm_thread(void *argument) {
   xfree(array);
 
   switch_to_process = _gst_nil_oop;
- _gst_this_context_oop = _gst_nil_oop;
+ _gst_this_context_oop[current_thread_id] = _gst_nil_oop;
 
   fprintf(stderr, "%O\n", _gst_processor_oop);
   fflush(stderr);
@@ -5454,7 +5454,7 @@ static intptr_t VMpr_CFuncDescriptor_asyncCall(int id, volatile int numArgs) {
     context = OOP_TO_OBJ(contextOOP);
     receiverOOP = OBJ_METHOD_CONTEXT_RECEIVER(context);
   } else {
-    contextOOP = _gst_this_context_oop;
+    contextOOP = _gst_this_context_oop[current_thread_id];
     context = OOP_TO_OBJ(contextOOP);
     receiverOOP = _gst_self;
   }
@@ -5497,7 +5497,7 @@ static intptr_t VMpr_CFuncDescriptor_call(int id, volatile int numArgs) {
     context = OOP_TO_OBJ(contextOOP);
     receiverOOP = OBJ_METHOD_CONTEXT_RECEIVER(context);
   } else {
-    contextOOP = _gst_this_context_oop;
+    contextOOP = _gst_this_context_oop[current_thread_id];
     context = OOP_TO_OBJ(contextOOP);
     receiverOOP = _gst_self;
   }

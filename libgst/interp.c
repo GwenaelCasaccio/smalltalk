@@ -217,7 +217,7 @@ thread_local ip_type ip;
 thread_local OOP *_gst_temporaries = NULL;
 thread_local OOP *_gst_literals = NULL;
 thread_local OOP _gst_self = NULL;
-thread_local OOP _gst_this_context_oop = NULL;
+OOP _gst_this_context_oop[100] = { NULL };
 thread_local OOP _gst_this_method = NULL;
 
 /* Signal this semaphore at the following instruction.  */
@@ -695,7 +695,7 @@ void empty_context_stack(void) {
      free_lifo_context, lifo_contexts); */
   if COMMON (free_lifo_context[current_thread_id] != lifo_contexts[current_thread_id])
     for (free_lifo_context[current_thread_id] = contextOOP = lifo_contexts[current_thread_id],
-        last = _gst_this_context_oop, context = OOP_TO_OBJ(contextOOP);
+        last = _gst_this_context_oop[current_thread_id], context = OOP_TO_OBJ(contextOOP);
          ;) {
       oop =
           alloc_oop(context, OOP_GET_FLAGS(contextOOP) | _gst_mem.active_flag);
@@ -716,7 +716,7 @@ void empty_context_stack(void) {
       /* The last context is not referenced anywhere, so we're done
          with it.  */
       if (contextOOP++ == last) {
-        _gst_this_context_oop = oop;
+        _gst_this_context_oop[current_thread_id] = oop;
         break;
       }
 
@@ -725,10 +725,10 @@ void empty_context_stack(void) {
       OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT(context, oop);
     }
   else {
-    if (IS_NIL(_gst_this_context_oop))
+    if (IS_NIL(_gst_this_context_oop[current_thread_id]))
       return;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop);
+    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
   }
 
   /* When a context gets out of the context stack it must be a fully
@@ -794,7 +794,7 @@ gst_object activate_new_context(int size, int sendArgs) {
   gst_object thisContext;
 
 #ifndef OPTIMIZE
-  if (IS_NIL(_gst_this_context_oop)) {
+  if (IS_NIL(_gst_this_context_oop[current_thread_id])) {
     printf("Somebody forgot _gst_prepare_execution_environment!\n");
     abort();
   }
@@ -810,12 +810,12 @@ gst_object activate_new_context(int size, int sendArgs) {
      size, newContext, oop); */
   OOP_SET_OBJECT(oop, newContext);
 
-  OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT(newContext, _gst_this_context_oop);
+  OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT(newContext, _gst_this_context_oop[current_thread_id]);
 
   /* save old context information */
   /* leave sp pointing to receiver, which is replaced on return with
      value */
-  thisContext = OOP_TO_OBJ(_gst_this_context_oop);
+  thisContext = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
   OBJ_METHOD_CONTEXT_SET_METHOD(thisContext, _gst_this_method);
   OBJ_METHOD_CONTEXT_SET_RECEIVER(thisContext, _gst_self);
   OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
@@ -824,7 +824,7 @@ gst_object activate_new_context(int size, int sendArgs) {
                sendArgs));
   OBJ_METHOD_CONTEXT_SET_IP_OFFSET(thisContext, FROM_INT(ip - method_base));
 
-  _gst_this_context_oop = oop;
+  _gst_this_context_oop[current_thread_id] = oop;
 
   return (newContext);
 }
@@ -986,7 +986,7 @@ void unwind_context(void) {
   gst_object oldContext, newContext;
   OOP newContextOOP;
 
-  newContextOOP = _gst_this_context_oop;
+  newContextOOP = _gst_this_context_oop[current_thread_id];
   newContext = OOP_TO_OBJ(newContextOOP);
 
   do {
@@ -1029,7 +1029,7 @@ void unwind_context(void) {
       newContext, (OOP)((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(newContext) &
                         (~(MCF_IS_DISABLED_CONTEXT | MCF_IS_UNWIND_CONTEXT))));
 
-  _gst_this_context_oop = newContextOOP;
+  _gst_this_context_oop[current_thread_id] = newContextOOP;
   _gst_temporaries = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext);
   sp = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext) +
        TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(newContext));
@@ -1049,7 +1049,7 @@ mst_Boolean unwind_method(void) {
      levels of message sending are between where we currently are and
      our parent method context.  */
 
-  newBlockContext = OOP_TO_OBJ(_gst_this_context_oop);
+  newBlockContext = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
   do {
     newContextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(newBlockContext);
     newBlockContext = OOP_TO_OBJ(newContextOOP);
@@ -1061,7 +1061,7 @@ mst_Boolean unwind_method(void) {
     /* We are to create a reference to thisContext, so empty the
        stack.  */
     empty_context_stack();
-    oldContextOOP = _gst_this_context_oop;
+    oldContextOOP = _gst_this_context_oop[current_thread_id];
 
     /* Just unwind to the caller, and prepare to send a message to
        the context */
@@ -1080,7 +1080,7 @@ mst_Boolean unwind_to(OOP returnContextOOP) {
 
   empty_context_stack();
 
-  newContextOOP = _gst_this_context_oop;
+  newContextOOP = _gst_this_context_oop[current_thread_id];
   newContext = OOP_TO_OBJ(newContextOOP);
 
   while (newContextOOP != returnContextOOP) {
@@ -1095,7 +1095,7 @@ mst_Boolean unwind_to(OOP returnContextOOP) {
     if UNCOMMON ((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(newContext) &
                  MCF_IS_UNWIND_CONTEXT) {
       mst_Boolean result;
-      _gst_this_context_oop = oldContextOOP;
+      _gst_this_context_oop[current_thread_id] = oldContextOOP;
 
       /* _gst_this_context_oop is the context above the
          one we return to.   We only unwind up to the #ensure:
@@ -1133,7 +1133,7 @@ mst_Boolean unwind_to(OOP returnContextOOP) {
       newContext, (OOP)(((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(newContext)) &
                         (~(MCF_IS_DISABLED_CONTEXT | MCF_IS_UNWIND_CONTEXT))));
 
-  _gst_this_context_oop = newContextOOP;
+  _gst_this_context_oop[current_thread_id] = newContextOOP;
   _gst_temporaries = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext);
   sp = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext) +
        TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(newContext));
@@ -1148,7 +1148,7 @@ mst_Boolean disable_non_unwind_contexts(OOP returnContextOOP) {
   OOP newContextOOP, *chain;
   gst_object oldContext, newContext;
 
-  newContextOOP = _gst_this_context_oop;
+  newContextOOP = _gst_this_context_oop[current_thread_id];
   newContext = OOP_TO_OBJ(newContextOOP);
   chain = &OBJ_METHOD_CONTEXT_PARENT_CONTEXT(newContext);
 
@@ -1232,7 +1232,7 @@ OOP _gst_make_block_closure(OOP blockOOP) {
 
   if (block->header.clean > 1) {
     empty_context_stack();
-    closure->outerContext = _gst_this_context_oop;
+    closure->outerContext = _gst_this_context_oop[current_thread_id];
   } else
     closure->outerContext = _gst_nil_oop;
 
@@ -1250,7 +1250,7 @@ void change_process_context(OOP newProcess) {
   switch_to_process = _gst_nil_oop;
 
   /* save old context information */
-  if (!IS_NIL(_gst_this_context_oop)) {
+  if (!IS_NIL(_gst_this_context_oop[current_thread_id])) {
     empty_context_stack();
   }
 
@@ -1264,7 +1264,7 @@ void change_process_context(OOP newProcess) {
     process = OOP_TO_OBJ(processOOP);
 
     if (!IS_NIL(processOOP) && !is_process_terminating(processOOP))
-      OBJ_PROCESS_SET_SUSPENDED_CONTEXT(process, _gst_this_context_oop);
+      OBJ_PROCESS_SET_SUSPENDED_CONTEXT(process, _gst_this_context_oop[current_thread_id]);
 
     OBJ_PROCESSOR_SCHEDULER_SET_ACTIVE_PROCESS(processor, newProcess);
     process = OOP_TO_OBJ(newProcess);
@@ -1295,7 +1295,7 @@ void change_process_context(OOP newProcess) {
 void resume_suspended_context(OOP oop) {
   gst_object thisContext;
 
-  _gst_this_context_oop = oop;
+  _gst_this_context_oop[current_thread_id] = oop;
   thisContext = OOP_TO_OBJ(oop);
   sp = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext) +
        TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(thisContext));
@@ -2051,7 +2051,7 @@ void _gst_init_interpreter(void) {
   ip = NULL;
 #endif
 
-  _gst_this_context_oop = _gst_nil_oop;
+  _gst_this_context_oop[current_thread_id] = _gst_nil_oop;
   for (i = 0; i < MAX_LIFO_DEPTH; i++)
     lifo_contexts[current_thread_id][i].flags = F_POOLED | F_CONTEXT;
 
@@ -2196,8 +2196,8 @@ void _gst_copy_processor_registers(void) {
   copy_semaphore_oops();
 
   /* Get everything into the main OOP table first.  */
-  if (_gst_this_context_oop)
-    MAYBE_COPY_OOP(_gst_this_context_oop);
+  if (_gst_this_context_oop[current_thread_id])
+    MAYBE_COPY_OOP(_gst_this_context_oop[current_thread_id]);
 
   /* everything else is pointed to by _gst_this_context_oop, either
      directly or indirectly, or has been copyed when scanning the
@@ -2224,8 +2224,8 @@ void copy_semaphore_oops(void) {
 
 void _gst_mark_processor_registers(void) {
   mark_semaphore_oops();
-  if (_gst_this_context_oop)
-    MAYBE_MARK_OOP(_gst_this_context_oop);
+  if (_gst_this_context_oop[current_thread_id])
+    MAYBE_MARK_OOP(_gst_this_context_oop[current_thread_id]);
 
   /* everything else is pointed to by _gst_this_context_oop, either
      directly or indirectly, or has been marked when scanning the
@@ -2253,12 +2253,12 @@ void mark_semaphore_oops(void) {
 void _gst_fixup_object_pointers(void) {
   gst_object thisContext;
 
-  if (!IS_NIL(_gst_this_context_oop)) {
+  if (!IS_NIL(_gst_this_context_oop[current_thread_id])) {
     /* Create real OOPs for the contexts here.  If we do it while copying,
        the newly created OOPs are in to-space and are never scanned! */
     empty_context_stack();
 
-    thisContext = OOP_TO_OBJ(_gst_this_context_oop);
+    thisContext = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
 #ifdef DEBUG_FIXUP
     fflush(stderr);
     printf("\nF sp %x %d    ip %x %d	_gst_this_method %x  thisContext %x",
@@ -2284,8 +2284,8 @@ void _gst_restore_object_pointers(void) {
      and we also pick up the context to adjust sp and the temps
      accordingly.  */
 
-  if (!IS_NIL(_gst_this_context_oop)) {
-    thisContext = OOP_TO_OBJ(_gst_this_context_oop);
+  if (!IS_NIL(_gst_this_context_oop[current_thread_id])) {
+    thisContext = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
     _gst_temporaries = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
 
 #ifndef OPTIMIZE /* Mon Jul 3 01:21:06 1995 */
@@ -2394,7 +2394,7 @@ void _gst_show_backtrace(FILE *fp) {
   gst_method_info methodInfo;
 
   empty_context_stack();
-  for (contextOOP = _gst_this_context_oop; !IS_NIL(contextOOP);
+  for (contextOOP = _gst_this_context_oop[current_thread_id]; !IS_NIL(contextOOP);
        contextOOP = OBJ_METHOD_CONTEXT_PARENT_CONTEXT(context)) {
     context = OOP_TO_OBJ(contextOOP);
     if ((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) ==
@@ -2451,10 +2451,10 @@ void _gst_show_stack_contents(void) {
   OOP *walk;
   mst_Boolean first;
 
-  if (IS_NIL(_gst_this_context_oop))
+  if (IS_NIL(_gst_this_context_oop[current_thread_id]))
     return;
 
-  context = OOP_TO_OBJ(_gst_this_context_oop);
+  context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
   for (first = true, walk = OBJ_METHOD_CONTEXT_CONTEXT_STACK(context);
        walk <= sp; first = false, walk++) {
     if (!first)
