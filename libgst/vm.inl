@@ -122,66 +122,6 @@
 
 #define DISPATCH(v) goto *(arg = GET_ARG, (v)[*ip])
 
-/* Some stack operations */
-#define VM_UNCHECKED_PUSH_OOP(oop) \
-  (*++sp = (oop))
-
-#define VM_UNCHECKED_SET_TOP(oop) \
-  (*sp = (oop))
-
-#ifndef OPTIMIZE
-#define VM_PUSH_OOP(oop) \
-  do { \
-    OOP __pushOOP = (oop); \
-    if (IS_OOP (__pushOOP) && !IS_OOP_VALID (__pushOOP)) \
-      abort (); \
-    VM_UNCHECKED_PUSH_OOP (__pushOOP); \
-  } while (0)
-#else
-#define VM_PUSH_OOP(oop) \
-  do { \
-    OOP __pushOOP = (oop); \
-    VM_UNCHECKED_PUSH_OOP (__pushOOP); \
-  } while (0)
-#endif
-
-#define VM_POP_OOP() \
-  (*sp--)
-
-#define VM_POP_N_OOPS(n) \
-  (sp -= (n))
-
-#define VM_UNPOP(n) \
-  (sp += (n))
-
-#define VM_STACKTOP() \
-  (*sp)
-
-#ifndef OPTIMIZE
-#define VM_SET_STACKTOP(oop) \
-  do { \
-    OOP __pushOOP = (oop); \
-    if (IS_OOP (__pushOOP) && !IS_OOP_VALID (__pushOOP)) \
-      abort (); \
-    VM_UNCHECKED_SET_TOP(__pushOOP); \
-  } while (0)
-#else
-#define VM_SET_STACKTOP(oop) \
-  do { \
-    OOP __pushOOP = (oop); \
-    VM_UNCHECKED_SET_TOP(__pushOOP); \
-  } while (0)
-#endif
-
-#define VM_SET_STACKTOP_INT(i) \
-  VM_UNCHECKED_SET_TOP(FROM_INT(i))
-
-#define VM_SET_STACKTOP_BOOLEAN(exp) \
-  VM_UNCHECKED_SET_TOP((exp) ? _gst_true_oop : _gst_false_oop)
-
-#define VM_STACK_AT(i) \
-  (sp[-(i)])
-
 static void *sync_barrier_byte_codes[256] = {
     &&barrier_byte_codes, &&barrier_byte_codes,
     &&barrier_byte_codes, &&barrier_byte_codes, /*   0 */
@@ -1058,7 +998,7 @@ bc0 : {
                     farg1 + farg2);
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[PLUS_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[PLUS_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -1101,7 +1041,7 @@ bc1 : {
                     farg1 - farg2);
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[MINUS_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[MINUS_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -1143,7 +1083,7 @@ bc2 : {
     PREPARE_STACK();
     INTERP_BASIC_BOOL(op, op1, op2, <);
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[LESS_THAN_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[LESS_THAN_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -1185,7 +1125,7 @@ bc3 : {
     PREPARE_STACK();
     INTERP_BASIC_BOOL(op, op1, op2, >);
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[GREATER_THAN_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[GREATER_THAN_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -1227,7 +1167,7 @@ bc4 : {
     PREPARE_STACK();
     INTERP_BASIC_BOOL(op, op1, op2, <=);
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[LESS_EQUAL_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[LESS_EQUAL_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -1269,7 +1209,7 @@ bc5 : {
     PREPARE_STACK();
     INTERP_BASIC_BOOL(op, op1, op2, >=);
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[GREATER_EQUAL_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[GREATER_EQUAL_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -1311,7 +1251,7 @@ bc6 : {
     PREPARE_STACK();
     INTERP_BASIC_BOOL(op, op1, op2, ==);
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[EQUAL_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[EQUAL_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -1353,7 +1293,7 @@ bc7 : {
     PREPARE_STACK();
     INTERP_BASIC_BOOL(op, op1, op2, !=);
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[NOT_EQUAL_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[NOT_EQUAL_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -1396,7 +1336,7 @@ bc8 : {
                     farg1 * farg2);
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[TIMES_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[TIMES_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -1450,7 +1390,7 @@ bc9 : {
       }
     }
 
-    SEND_MESSAGE(_gst_builtin_selectors[DIVIDE_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[DIVIDE_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -1496,7 +1436,7 @@ bc10 : {
       NEXT_BC;
     }
 
-    SEND_MESSAGE(_gst_builtin_selectors[REMAINDER_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[REMAINDER_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -1542,7 +1482,7 @@ bc11 : {
 
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[BIT_XOR_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[BIT_XOR_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -1603,7 +1543,7 @@ bc12 : {
 
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[BIT_SHIFT_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[BIT_SHIFT_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -1648,7 +1588,7 @@ bc13 : {
       NEXT_BC;
     }
 
-    SEND_MESSAGE(_gst_builtin_selectors[INTEGER_DIVIDE_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[INTEGER_DIVIDE_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -1690,7 +1630,7 @@ bc14 : {
 
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[BIT_AND_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[BIT_AND_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -1736,7 +1676,7 @@ bc15 : {
 
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[BIT_OR_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[BIT_OR_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -1779,7 +1719,7 @@ bc16 : {
     PREPARE_STACK();
     EXPORT_REGS();
     if UNCOMMON (IS_INT(rec)) {
-      SEND_MESSAGE(_gst_builtin_selectors[AT_SPECIAL].symbol, 1);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[AT_SPECIAL].symbol, 1);
       IMPORT_REGS();
       FETCH;
     }
@@ -1794,7 +1734,7 @@ bc16 : {
        send the message, and modify the cache if the send is resolved to
        a primitive.  */
     last_primitive = 0;
-    SEND_MESSAGE(_gst_builtin_selectors[AT_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[AT_SPECIAL].symbol, 1);
     IMPORT_REGS();
     if (_gst_primitive_table[last_primitive].id == 60) {
       at_cache_spec = CLASS_INSTANCE_SPEC(classOOP);
@@ -1845,7 +1785,7 @@ bc17 : {
     PREPARE_STACK();
     EXPORT_REGS();
     if UNCOMMON (IS_INT(rec)) {
-      SEND_MESSAGE(_gst_builtin_selectors[AT_PUT_SPECIAL].symbol, 2);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[AT_PUT_SPECIAL].symbol, 2);
       IMPORT_REGS();
       FETCH;
     }
@@ -1861,7 +1801,7 @@ bc17 : {
        send the message, and modify the cache if the send is resolved to
        a primitive.  */
     last_primitive = 0;
-    SEND_MESSAGE(_gst_builtin_selectors[AT_PUT_SPECIAL].symbol, 2);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[AT_PUT_SPECIAL].symbol, 2);
     IMPORT_REGS();
     if (_gst_primitive_table[last_primitive].id == 61) {
       at_put_cache_spec = CLASS_INSTANCE_SPEC(classOOP);
@@ -1908,7 +1848,7 @@ bc18 : {
     PREPARE_STACK();
     EXPORT_REGS();
     if UNCOMMON (IS_INT(rec)) {
-      SEND_MESSAGE(_gst_builtin_selectors[SIZE_SPECIAL].symbol, 0);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[SIZE_SPECIAL].symbol, 0);
       IMPORT_REGS();
       FETCH;
     }
@@ -1923,7 +1863,7 @@ bc18 : {
        send the message, and modify the cache if the send is resolved to
        a primitive.  */
     last_primitive = 0;
-    SEND_MESSAGE(_gst_builtin_selectors[SIZE_SPECIAL].symbol, 0);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[SIZE_SPECIAL].symbol, 0);
     IMPORT_REGS();
     if COMMON (last_primitive) {
       size_cache_prim = last_primitive;
@@ -1967,7 +1907,7 @@ bc19 : {
     PREPARE_STACK();
     EXPORT_REGS();
     if UNCOMMON (IS_INT(rec)) {
-      SEND_MESSAGE(_gst_builtin_selectors[CLASS_SPECIAL].symbol, 0);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[CLASS_SPECIAL].symbol, 0);
       IMPORT_REGS();
       FETCH;
     }
@@ -1982,7 +1922,7 @@ bc19 : {
        send the message, and modify the cache if the send is resolved to
        a primitive.  */
     last_primitive = 0;
-    SEND_MESSAGE(_gst_builtin_selectors[CLASS_SPECIAL].symbol, 0);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[CLASS_SPECIAL].symbol, 0);
     IMPORT_REGS();
     if COMMON (last_primitive) {
       class_cache_prim = last_primitive;
@@ -2078,7 +2018,7 @@ bc22 : {
     if (UNCOMMON(IS_INT(rec)) ||
         UNCOMMON(OOP_CLASS(rec) != _gst_block_closure_class) ||
         UNCOMMON(send_block_value(0, 0)))
-      SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
 
     IMPORT_REGS();
     FETCH;
@@ -2118,7 +2058,7 @@ bc23 : {
     if (UNCOMMON(IS_INT(rec)) ||
         UNCOMMON(OOP_CLASS(rec) != _gst_block_closure_class) ||
         UNCOMMON(send_block_value(1, 0)))
-      SEND_MESSAGE(_gst_builtin_selectors[VALUE_COLON_SPECIAL].symbol, 1);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[VALUE_COLON_SPECIAL].symbol, 1);
 
     IMPORT_REGS();
     FETCH;
@@ -2190,7 +2130,7 @@ bc25 : {
 
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[JAVA_AS_INT_SPECIAL].symbol, 0);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[JAVA_AS_INT_SPECIAL].symbol, 0);
     IMPORT_REGS();
     FETCH;
 
@@ -2232,7 +2172,7 @@ bc26 : {
 
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[JAVA_AS_LONG_SPECIAL].symbol, 0);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[JAVA_AS_LONG_SPECIAL].symbol, 0);
     IMPORT_REGS();
     FETCH;
 
@@ -2286,7 +2226,7 @@ bc28 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -2318,7 +2258,7 @@ bc29 : {
 #line 651 "vm.def"
     OOP classOOP;
     PREPARE_STACK();
-    classOOP = POP_OOP();
+    classOOP = VM_POP_OOP();
 
     EXPORT_REGS();
     SEND_TO_SUPER(METHOD_LITERAL(sel), n, classOOP);
@@ -2353,7 +2293,7 @@ bc30 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -2385,7 +2325,7 @@ bc31 : {
     OOP classOOP;
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
-    classOOP = POP_OOP();
+    classOOP = VM_POP_OOP();
 
     EXPORT_REGS();
     SEND_TO_SUPER(bs->symbol, bs->numArgs, classOOP);
@@ -2481,7 +2421,7 @@ bc34 : {
       PREPARE_STACK();
       VM_PUSH_OOP(tos);
       EXPORT_REGS();
-      SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
       IMPORT_REGS();
       FETCH;
     } else
@@ -2603,7 +2543,7 @@ bc38 : {
       VM_SET_STACKTOP(var);
       VM_PUSH_OOP(value);
       EXPORT_REGS();
-      SEND_MESSAGE(_gst_builtin_selectors[VALUE_COLON_SPECIAL].symbol, 1);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[VALUE_COLON_SPECIAL].symbol, 1);
       IMPORT_REGS();
       FETCH;
     } else {
@@ -2648,7 +2588,7 @@ bc39 : {
       VM_PUSH_OOP(FROM_INT(n + 1));
       VM_PUSH_OOP(tos);
       EXPORT_REGS();
-      SEND_MESSAGE(_gst_write_slot_at_put_symbol, 2);
+      VM_SEND_MESSAGE(_gst_write_slot_at_put_symbol, 2);
       IMPORT_REGS();
       FETCH;
     }
@@ -2751,7 +2691,7 @@ bc42 : {
       ip += n;
       PREPARE_STACK();
       EXPORT_REGS();
-      SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
+      VM_SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
       IMPORT_REGS();
       FETCH;
     }
@@ -2795,7 +2735,7 @@ bc43 : {
       ip += n;
       PREPARE_STACK();
       EXPORT_REGS();
-      SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
+      VM_SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
       IMPORT_REGS();
       FETCH;
     }
@@ -2981,7 +2921,7 @@ bc50 : {
     /* The current context dies here, so the stack need not be prepared.  */
     EXPORT_REGS();
     if UNCOMMON (!unwind_method()) {
-      SEND_MESSAGE(_gst_bad_return_error_symbol, 0);
+      VM_SEND_MESSAGE(_gst_bad_return_error_symbol, 0);
       IMPORT_REGS();
     } else {
       IMPORT_REGS();
@@ -3297,7 +3237,7 @@ bc64 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -3329,7 +3269,7 @@ bc65 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -3530,7 +3470,7 @@ bc71 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -3609,7 +3549,7 @@ bc73 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -3654,7 +3594,7 @@ bc74 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -3736,7 +3676,7 @@ bc76 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -3904,7 +3844,7 @@ bc81 : {
                     farg1 + farg2);
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[PLUS_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[PLUS_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -3951,7 +3891,7 @@ bc82 : {
       PREPARE_STACK();
       VM_PUSH_OOP(tos);
       EXPORT_REGS();
-      SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
       IMPORT_REGS();
       FETCH;
     } else
@@ -4034,7 +3974,7 @@ bc84 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -4118,7 +4058,7 @@ bc86 : {
       ip += n;
       PREPARE_STACK();
       EXPORT_REGS();
-      SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
+      VM_SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
       IMPORT_REGS();
       FETCH;
     }
@@ -4170,7 +4110,7 @@ bc87 : {
     PREPARE_STACK();
     INTERP_BASIC_BOOL(op, op1, op2, ==);
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[EQUAL_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[EQUAL_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -4206,7 +4146,7 @@ bc88 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -4251,7 +4191,7 @@ bc89 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -4302,7 +4242,7 @@ bc90 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -4385,7 +4325,7 @@ bc92 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -4441,7 +4381,7 @@ bc93 : {
       ip += n;
       PREPARE_STACK();
       EXPORT_REGS();
-      SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
+      VM_SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
       IMPORT_REGS();
       FETCH;
     }
@@ -4489,7 +4429,7 @@ bc94 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -4612,7 +4552,7 @@ bc97 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -4658,7 +4598,7 @@ bc98 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -4708,7 +4648,7 @@ bc99 : {
     PREPARE_STACK();
     INTERP_BASIC_BOOL(op, op1, op2, ==);
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[EQUAL_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[EQUAL_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -4762,7 +4702,7 @@ bc100 : {
                     farg1 - farg2);
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[MINUS_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[MINUS_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -4821,7 +4761,7 @@ bc101 : {
       ip += n;
       PREPARE_STACK();
       EXPORT_REGS();
-      SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
+      VM_SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
       IMPORT_REGS();
       FETCH;
     }
@@ -4896,7 +4836,7 @@ bc103 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -4944,7 +4884,7 @@ bc104 : {
     PREPARE_STACK();
     EXPORT_REGS();
     if UNCOMMON (IS_INT(rec)) {
-      SEND_MESSAGE(_gst_builtin_selectors[SIZE_SPECIAL].symbol, 0);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[SIZE_SPECIAL].symbol, 0);
       IMPORT_REGS();
       FETCH;
     }
@@ -4959,7 +4899,7 @@ bc104 : {
        send the message, and modify the cache if the send is resolved to
        a primitive.  */
     last_primitive = 0;
-    SEND_MESSAGE(_gst_builtin_selectors[SIZE_SPECIAL].symbol, 0);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[SIZE_SPECIAL].symbol, 0);
     IMPORT_REGS();
     if COMMON (last_primitive) {
       size_cache_prim = last_primitive;
@@ -5011,7 +4951,7 @@ bc105 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -5081,7 +5021,7 @@ bc107 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -5141,7 +5081,7 @@ bc108 : {
                     farg1 + farg2);
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[PLUS_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[PLUS_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -5219,7 +5159,7 @@ bc110 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -5270,7 +5210,7 @@ bc111 : {
     PREPARE_STACK();
     EXPORT_REGS();
     if UNCOMMON (IS_INT(rec)) {
-      SEND_MESSAGE(_gst_builtin_selectors[AT_SPECIAL].symbol, 1);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[AT_SPECIAL].symbol, 1);
       IMPORT_REGS();
       FETCH;
     }
@@ -5285,7 +5225,7 @@ bc111 : {
        send the message, and modify the cache if the send is resolved to
        a primitive.  */
     last_primitive = 0;
-    SEND_MESSAGE(_gst_builtin_selectors[AT_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[AT_SPECIAL].symbol, 1);
     IMPORT_REGS();
     if (_gst_primitive_table[last_primitive].id == 60) {
       at_cache_spec = CLASS_INSTANCE_SPEC(classOOP);
@@ -5412,7 +5352,7 @@ bc114 : {
       ip += n;
       PREPARE_STACK();
       EXPORT_REGS();
-      SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
+      VM_SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
       IMPORT_REGS();
       FETCH;
     }
@@ -5464,7 +5404,7 @@ bc115 : {
     PREPARE_STACK();
     EXPORT_REGS();
     if UNCOMMON (IS_INT(rec)) {
-      SEND_MESSAGE(_gst_builtin_selectors[AT_SPECIAL].symbol, 1);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[AT_SPECIAL].symbol, 1);
       IMPORT_REGS();
       FETCH;
     }
@@ -5479,7 +5419,7 @@ bc115 : {
        send the message, and modify the cache if the send is resolved to
        a primitive.  */
     last_primitive = 0;
-    SEND_MESSAGE(_gst_builtin_selectors[AT_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[AT_SPECIAL].symbol, 1);
     IMPORT_REGS();
     if (_gst_primitive_table[last_primitive].id == 60) {
       at_cache_spec = CLASS_INSTANCE_SPEC(classOOP);
@@ -5533,7 +5473,7 @@ bc116 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -5579,7 +5519,7 @@ bc117 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -5663,7 +5603,7 @@ bc119 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -5761,7 +5701,7 @@ bc122 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -6029,7 +5969,7 @@ bc129 : {
     PREPARE_STACK();
     EXPORT_REGS();
     if UNCOMMON (IS_INT(rec)) {
-      SEND_MESSAGE(_gst_builtin_selectors[SIZE_SPECIAL].symbol, 0);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[SIZE_SPECIAL].symbol, 0);
       IMPORT_REGS();
       FETCH;
     }
@@ -6044,7 +5984,7 @@ bc129 : {
        send the message, and modify the cache if the send is resolved to
        a primitive.  */
     last_primitive = 0;
-    SEND_MESSAGE(_gst_builtin_selectors[SIZE_SPECIAL].symbol, 0);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[SIZE_SPECIAL].symbol, 0);
     IMPORT_REGS();
     if COMMON (last_primitive) {
       size_cache_prim = last_primitive;
@@ -6106,7 +6046,7 @@ bc130 : {
       ip += n;
       PREPARE_STACK();
       EXPORT_REGS();
-      SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
+      VM_SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
       IMPORT_REGS();
       FETCH;
     }
@@ -6161,7 +6101,7 @@ bc131 : {
     PREPARE_STACK();
     EXPORT_REGS();
     if UNCOMMON (IS_INT(rec)) {
-      SEND_MESSAGE(_gst_builtin_selectors[AT_PUT_SPECIAL].symbol, 2);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[AT_PUT_SPECIAL].symbol, 2);
       IMPORT_REGS();
       FETCH;
     }
@@ -6177,7 +6117,7 @@ bc131 : {
        send the message, and modify the cache if the send is resolved to
        a primitive.  */
     last_primitive = 0;
-    SEND_MESSAGE(_gst_builtin_selectors[AT_PUT_SPECIAL].symbol, 2);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[AT_PUT_SPECIAL].symbol, 2);
     IMPORT_REGS();
     if (_gst_primitive_table[last_primitive].id == 61) {
       at_put_cache_spec = CLASS_INSTANCE_SPEC(classOOP);
@@ -6231,7 +6171,7 @@ bc132 : {
       PREPARE_STACK();
       VM_PUSH_OOP(tos);
       EXPORT_REGS();
-      SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
       IMPORT_REGS();
       FETCH;
     } else
@@ -6285,7 +6225,7 @@ bc133 : {
                     farg1 + farg2);
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[PLUS_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[PLUS_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -6371,7 +6311,7 @@ bc135 : {
       PREPARE_STACK();
       VM_PUSH_OOP(tos);
       EXPORT_REGS();
-      SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
       IMPORT_REGS();
       FETCH;
     } else
@@ -6453,7 +6393,7 @@ bc137 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -6567,7 +6507,7 @@ bc140 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -6617,7 +6557,7 @@ bc141 : {
     PREPARE_STACK();
     INTERP_BASIC_BOOL(op, op1, op2, >);
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[GREATER_THAN_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[GREATER_THAN_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -6668,7 +6608,7 @@ bc142 : {
     if (UNCOMMON(IS_INT(rec)) ||
         UNCOMMON(OOP_CLASS(rec) != _gst_block_closure_class) ||
         UNCOMMON(send_block_value(0, 0)))
-      SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
 
     IMPORT_REGS();
     FETCH;
@@ -6721,7 +6661,7 @@ bc143 : {
                     farg1 - farg2);
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[MINUS_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[MINUS_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -6770,7 +6710,7 @@ bc144 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -6838,7 +6778,7 @@ bc145 : {
       ip += n;
       PREPARE_STACK();
       EXPORT_REGS();
-      SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
+      VM_SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
       IMPORT_REGS();
       FETCH;
     }
@@ -6934,7 +6874,7 @@ bc147 : {
       ip += n;
       PREPARE_STACK();
       EXPORT_REGS();
-      SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
+      VM_SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
       IMPORT_REGS();
       FETCH;
     }
@@ -6987,7 +6927,7 @@ bc148 : {
                     farg1 * farg2);
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[TIMES_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[TIMES_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -7069,7 +7009,7 @@ bc150 : {
     PREPARE_STACK();
     INTERP_BASIC_BOOL(op, op1, op2, <);
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[LESS_THAN_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[LESS_THAN_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -7125,7 +7065,7 @@ bc151 : {
     PREPARE_STACK();
     EXPORT_REGS();
     if UNCOMMON (IS_INT(rec)) {
-      SEND_MESSAGE(_gst_builtin_selectors[AT_PUT_SPECIAL].symbol, 2);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[AT_PUT_SPECIAL].symbol, 2);
       IMPORT_REGS();
       FETCH;
     }
@@ -7141,7 +7081,7 @@ bc151 : {
        send the message, and modify the cache if the send is resolved to
        a primitive.  */
     last_primitive = 0;
-    SEND_MESSAGE(_gst_builtin_selectors[AT_PUT_SPECIAL].symbol, 2);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[AT_PUT_SPECIAL].symbol, 2);
     IMPORT_REGS();
     if (_gst_primitive_table[last_primitive].id == 61) {
       at_put_cache_spec = CLASS_INSTANCE_SPEC(classOOP);
@@ -7246,7 +7186,7 @@ bc153 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -7303,7 +7243,7 @@ bc154 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -7355,7 +7295,7 @@ bc155 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -7470,7 +7410,7 @@ bc158 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -7523,7 +7463,7 @@ bc159 : {
 
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[BIT_AND_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[BIT_AND_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -7572,7 +7512,7 @@ bc160 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -7629,7 +7569,7 @@ bc161 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -7744,7 +7684,7 @@ bc164 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -7799,7 +7739,7 @@ bc165 : {
       ip += n;
       PREPARE_STACK();
       EXPORT_REGS();
-      SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
+      VM_SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
       IMPORT_REGS();
       FETCH;
     }
@@ -7914,7 +7854,7 @@ bc168 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -7964,7 +7904,7 @@ bc169 : {
     PREPARE_STACK();
     INTERP_BASIC_BOOL(op, op1, op2, ==);
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[EQUAL_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[EQUAL_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -8050,7 +7990,7 @@ bc170 : {
                     farg1 + farg2);
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[PLUS_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[PLUS_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -8099,7 +8039,7 @@ bc171 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -8225,7 +8165,7 @@ bc174 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -8309,7 +8249,7 @@ bc176 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -8353,7 +8293,7 @@ bc177 : {
       PREPARE_STACK();
       VM_PUSH_OOP(tos);
       EXPORT_REGS();
-      SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
       IMPORT_REGS();
       FETCH;
     } else
@@ -8427,7 +8367,7 @@ bc178 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -8516,7 +8456,7 @@ bc180 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -8609,7 +8549,7 @@ bc182 : {
       NEXT_BC;
     }
 
-    SEND_MESSAGE(_gst_builtin_selectors[INTEGER_DIVIDE_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[INTEGER_DIVIDE_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -8682,7 +8622,7 @@ bc183 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -8728,7 +8668,7 @@ bc184 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -8871,7 +8811,7 @@ bc187 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -8922,7 +8862,7 @@ bc188 : {
     if (UNCOMMON(IS_INT(rec)) ||
         UNCOMMON(OOP_CLASS(rec) != _gst_block_closure_class) ||
         UNCOMMON(send_block_value(1, 0)))
-      SEND_MESSAGE(_gst_builtin_selectors[VALUE_COLON_SPECIAL].symbol, 1);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[VALUE_COLON_SPECIAL].symbol, 1);
 
     IMPORT_REGS();
     FETCH;
@@ -9008,7 +8948,7 @@ bc190 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -9068,7 +9008,7 @@ bc191 : {
                     farg1 - farg2);
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[MINUS_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[MINUS_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -9189,7 +9129,7 @@ bc194 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -9240,7 +9180,7 @@ bc195 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -9296,7 +9236,7 @@ bc196 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -9342,7 +9282,7 @@ bc197 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -9388,7 +9328,7 @@ bc198 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -9421,7 +9361,7 @@ bc199 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -9501,7 +9441,7 @@ bc201 : {
     PREPARE_STACK();
     EXPORT_REGS();
     if UNCOMMON (IS_INT(rec)) {
-      SEND_MESSAGE(_gst_builtin_selectors[CLASS_SPECIAL].symbol, 0);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[CLASS_SPECIAL].symbol, 0);
       IMPORT_REGS();
       FETCH;
     }
@@ -9516,7 +9456,7 @@ bc201 : {
        send the message, and modify the cache if the send is resolved to
        a primitive.  */
     last_primitive = 0;
-    SEND_MESSAGE(_gst_builtin_selectors[CLASS_SPECIAL].symbol, 0);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[CLASS_SPECIAL].symbol, 0);
     IMPORT_REGS();
     if COMMON (last_primitive) {
       class_cache_prim = last_primitive;
@@ -9569,7 +9509,7 @@ bc202 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -9625,7 +9565,7 @@ bc203 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -9672,7 +9612,7 @@ bc204 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -9718,7 +9658,7 @@ bc205 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -9766,7 +9706,7 @@ bc206 : {
     PREPARE_STACK();
     EXPORT_REGS();
     if UNCOMMON (IS_INT(rec)) {
-      SEND_MESSAGE(_gst_builtin_selectors[SIZE_SPECIAL].symbol, 0);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[SIZE_SPECIAL].symbol, 0);
       IMPORT_REGS();
       FETCH;
     }
@@ -9781,7 +9721,7 @@ bc206 : {
        send the message, and modify the cache if the send is resolved to
        a primitive.  */
     last_primitive = 0;
-    SEND_MESSAGE(_gst_builtin_selectors[SIZE_SPECIAL].symbol, 0);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[SIZE_SPECIAL].symbol, 0);
     IMPORT_REGS();
     if COMMON (last_primitive) {
       size_cache_prim = last_primitive;
@@ -9834,7 +9774,7 @@ bc207 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -9891,7 +9831,7 @@ bc208 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -9999,7 +9939,7 @@ bc210 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -10032,7 +9972,7 @@ bc211 : {
 #line 651 "vm.def"
     OOP classOOP;
     PREPARE_STACK();
-    classOOP = POP_OOP();
+    classOOP = VM_POP_OOP();
 
     EXPORT_REGS();
     SEND_TO_SUPER(METHOD_LITERAL(sel), n, classOOP);
@@ -10105,7 +10045,7 @@ bc212 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -10151,7 +10091,7 @@ bc213 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -10245,7 +10185,7 @@ bc215 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -10298,7 +10238,7 @@ bc216 : {
     PREPARE_STACK();
     EXPORT_REGS();
     if UNCOMMON (IS_INT(rec)) {
-      SEND_MESSAGE(_gst_builtin_selectors[CLASS_SPECIAL].symbol, 0);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[CLASS_SPECIAL].symbol, 0);
       IMPORT_REGS();
       FETCH;
     }
@@ -10313,7 +10253,7 @@ bc216 : {
        send the message, and modify the cache if the send is resolved to
        a primitive.  */
     last_primitive = 0;
-    SEND_MESSAGE(_gst_builtin_selectors[CLASS_SPECIAL].symbol, 0);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[CLASS_SPECIAL].symbol, 0);
     IMPORT_REGS();
     if COMMON (last_primitive) {
       class_cache_prim = last_primitive;
@@ -10366,7 +10306,7 @@ bc217 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -10417,7 +10357,7 @@ bc218 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -10463,7 +10403,7 @@ bc219 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -10513,7 +10453,7 @@ bc220 : {
       PREPARE_STACK();
       VM_PUSH_OOP(tos);
       EXPORT_REGS();
-      SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
       IMPORT_REGS();
       FETCH;
     } else
@@ -10592,7 +10532,7 @@ bc222 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -10643,7 +10583,7 @@ bc223 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -10752,7 +10692,7 @@ bc225 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -10790,7 +10730,7 @@ bc226 : {
     /* The current context dies here, so the stack need not be prepared.  */
     EXPORT_REGS();
     if UNCOMMON (!unwind_method()) {
-      SEND_MESSAGE(_gst_bad_return_error_symbol, 0);
+      VM_SEND_MESSAGE(_gst_bad_return_error_symbol, 0);
       IMPORT_REGS();
     } else {
       IMPORT_REGS();
@@ -10843,7 +10783,7 @@ bc227 : {
     PREPARE_STACK();
     INTERP_BASIC_BOOL(op, op1, op2, >=);
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[GREATER_EQUAL_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[GREATER_EQUAL_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -10928,7 +10868,7 @@ bc229 : {
       PREPARE_STACK();
       VM_PUSH_OOP(tos);
       EXPORT_REGS();
-      SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
       IMPORT_REGS();
       FETCH;
     } else
@@ -10977,7 +10917,7 @@ bc230 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -11010,7 +10950,7 @@ bc231 : {
 #line 651 "vm.def"
     OOP classOOP;
     PREPARE_STACK();
-    classOOP = POP_OOP();
+    classOOP = VM_POP_OOP();
 
     EXPORT_REGS();
     SEND_TO_SUPER(METHOD_LITERAL(sel), n, classOOP);
@@ -11087,7 +11027,7 @@ bc233 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -11250,7 +11190,7 @@ bc236 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -11344,7 +11284,7 @@ bc238 : {
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(bs->symbol, bs->numArgs);
+    VM_SEND_MESSAGE(bs->symbol, bs->numArgs);
     IMPORT_REGS();
     FETCH;
 
@@ -11407,7 +11347,7 @@ bc239 : {
     PREPARE_STACK();
     EXPORT_REGS();
     if UNCOMMON (IS_INT(rec)) {
-      SEND_MESSAGE(_gst_builtin_selectors[AT_PUT_SPECIAL].symbol, 2);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[AT_PUT_SPECIAL].symbol, 2);
       IMPORT_REGS();
       FETCH;
     }
@@ -11423,7 +11363,7 @@ bc239 : {
        send the message, and modify the cache if the send is resolved to
        a primitive.  */
     last_primitive = 0;
-    SEND_MESSAGE(_gst_builtin_selectors[AT_PUT_SPECIAL].symbol, 2);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[AT_PUT_SPECIAL].symbol, 2);
     IMPORT_REGS();
     if (_gst_primitive_table[last_primitive].id == 61) {
       at_put_cache_spec = CLASS_INSTANCE_SPEC(classOOP);
@@ -11507,7 +11447,7 @@ bc240 : {
                     farg1 + farg2);
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(_gst_builtin_selectors[PLUS_SPECIAL].symbol, 1);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[PLUS_SPECIAL].symbol, 1);
     IMPORT_REGS();
     FETCH;
 
@@ -11591,7 +11531,7 @@ bc242 : {
       PREPARE_STACK();
       VM_PUSH_OOP(tos);
       EXPORT_REGS();
-      SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
       IMPORT_REGS();
       FETCH;
     } else
@@ -11654,7 +11594,7 @@ bc243 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -11701,7 +11641,7 @@ bc244 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -11831,7 +11771,7 @@ bc247 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -11901,7 +11841,7 @@ bc249 : {
 #line 643 "vm.def"
     PREPARE_STACK();
     EXPORT_REGS();
-    SEND_MESSAGE(METHOD_LITERAL(sel), n);
+    VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
@@ -11970,7 +11910,7 @@ bc250 : {
       ip += n;
       PREPARE_STACK();
       EXPORT_REGS();
-      SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
+      VM_SEND_MESSAGE(_gst_must_be_boolean_symbol, 0);
       IMPORT_REGS();
       FETCH;
     }
@@ -12105,7 +12045,7 @@ bc253 : {
     PREPARE_STACK();
     EXPORT_REGS();
     if UNCOMMON (IS_INT(rec)) {
-      SEND_MESSAGE(_gst_builtin_selectors[AT_PUT_SPECIAL].symbol, 2);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[AT_PUT_SPECIAL].symbol, 2);
       IMPORT_REGS();
       FETCH;
     }
@@ -12121,7 +12061,7 @@ bc253 : {
        send the message, and modify the cache if the send is resolved to
        a primitive.  */
     last_primitive = 0;
-    SEND_MESSAGE(_gst_builtin_selectors[AT_PUT_SPECIAL].symbol, 2);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[AT_PUT_SPECIAL].symbol, 2);
     IMPORT_REGS();
     if (_gst_primitive_table[last_primitive].id == 61) {
       at_put_cache_spec = CLASS_INSTANCE_SPEC(classOOP);
@@ -12179,7 +12119,7 @@ bc254 : {
     PREPARE_STACK();
     EXPORT_REGS();
     if UNCOMMON (IS_INT(rec)) {
-      SEND_MESSAGE(_gst_builtin_selectors[CLASS_SPECIAL].symbol, 0);
+      VM_SEND_MESSAGE(_gst_builtin_selectors[CLASS_SPECIAL].symbol, 0);
       IMPORT_REGS();
       FETCH;
     }
@@ -12194,7 +12134,7 @@ bc254 : {
        send the message, and modify the cache if the send is resolved to
        a primitive.  */
     last_primitive = 0;
-    SEND_MESSAGE(_gst_builtin_selectors[CLASS_SPECIAL].symbol, 0);
+    VM_SEND_MESSAGE(_gst_builtin_selectors[CLASS_SPECIAL].symbol, 0);
     IMPORT_REGS();
     if COMMON (last_primitive) {
       class_cache_prim = last_primitive;

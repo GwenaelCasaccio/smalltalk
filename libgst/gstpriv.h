@@ -375,7 +375,7 @@ enum {
 #endif
 
 /* The VM's stack pointer */
-extern thread_local OOP *sp 
+extern OOP *sp[100] 
   ATTRIBUTE_HIDDEN;
 
 /* Some useful constants */
@@ -386,10 +386,10 @@ extern OOP _gst_nil_oop
 
 /* Some stack operations */
 #define UNCHECKED_PUSH_OOP(oop) \
-  (*++sp = (oop))
+  (*++sp[current_thread_id] = (oop))
 
 #define UNCHECKED_SET_TOP(oop) \
-  (*sp = (oop))
+  (*sp[current_thread_id] = (oop))
 
 #ifndef OPTIMIZE
 #define PUSH_OOP(oop) \
@@ -408,16 +408,16 @@ extern OOP _gst_nil_oop
 #endif
 
 #define POP_OOP() \
-  (*sp--)
+  (*sp[current_thread_id]--)
 
 #define POP_N_OOPS(n) \
-  (sp -= (n))
+  (sp[current_thread_id] -= (n))
 
 #define UNPOP(n) \
-  (sp += (n))
+  (sp[current_thread_id] += (n))
 
 #define STACKTOP() \
-  (*sp)
+  (*sp[current_thread_id])
 
 #ifndef OPTIMIZE
 #define SET_STACKTOP(oop) \
@@ -442,7 +442,7 @@ extern OOP _gst_nil_oop
   UNCHECKED_SET_TOP((exp) ? _gst_true_oop : _gst_false_oop)
 
 #define STACK_AT(i) \
-  (sp[-(i)])
+  (sp[current_thread_id][-(i)])
 
 #define PUSH_INT(i) \
   UNCHECKED_PUSH_OOP(FROM_INT(i))

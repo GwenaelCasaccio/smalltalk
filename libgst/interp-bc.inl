@@ -428,11 +428,11 @@ OOP _gst_interpret(OOP processOOP) {
 
 #if REG_AVAILABILITY == 0
 #define LOCAL_COUNTER _gst_bytecode_counter
-#define EXPORT_REGS() (_gst_sp = sp, _gst_ip[current_thread_id] = ip)
+#define EXPORT_REGS() (_gst_sp[current_thread_id] = sp, _gst_ip[current_thread_id] = ip)
 #else
   int LOCAL_COUNTER = 0;
 #define EXPORT_REGS()                                                          \
-  (_gst_sp = sp, _gst_ip[current_thread_id] = ip, _gst_bytecode_counter += LOCAL_COUNTER,         \
+  (_gst_sp[current_thread_id] = sp, _gst_ip[current_thread_id] = ip, _gst_bytecode_counter += LOCAL_COUNTER, \
    LOCAL_COUNTER = 0)
 #endif
 
@@ -446,11 +446,11 @@ OOP _gst_interpret(OOP processOOP) {
 #define _gst_true_oop my_true_oop
 #define _gst_false_oop my_false_oop
 #define IMPORT_REGS()                                                          \
-  (sp = _gst_sp, ip = _gst_ip[current_thread_id], self_cache = _gst_self[current_thread_id],                         \
+  (sp = _gst_sp[current_thread_id], ip = _gst_ip[current_thread_id], self_cache = _gst_self[current_thread_id], \
    temp_cache = _gst_temporaries[current_thread_id], lit_cache = _gst_literals[current_thread_id])
 
 #else
-#define IMPORT_REGS() (sp = _gst_sp, ip = _gst_ip[current_thread_id])
+#define IMPORT_REGS() (sp = _gst_sp[current_thread_id], ip = _gst_ip[current_thread_id])
 #endif
 
   REGISTER(1, ip_type ip);
@@ -473,6 +473,7 @@ OOP _gst_interpret(OOP processOOP) {
 #endif
 #endif /* !PIPELINING */
 
+#include "stack.inl"
 #include "vm.inl"
 
   /* Global pointers to the bytecode routines are used to interrupt the
@@ -523,7 +524,7 @@ monitor_byte_codes:
     OOP selectorOOP;
     selectorOOP = _gst_intern_string((char *)_gst_abort_execution);
     _gst_abort_execution = NULL;
-    SEND_MESSAGE(selectorOOP, 0);
+    VM_SEND_MESSAGE(selectorOOP, 0);
     IMPORT_REGS();
   }
 
@@ -531,7 +532,7 @@ monitor_byte_codes:
     if (verbose_exec_tracing) {
       if (sp >= _gst_temporaries[current_thread_id])
         printf("\t  [%2td] --> %O\n", (ptrdiff_t)(sp - _gst_temporaries[current_thread_id]),
-               STACKTOP());
+               VM_STACKTOP());
       else
         printf("\t  self --> %O\n", _gst_self[current_thread_id]);
     }
@@ -559,21 +560,21 @@ barrier_byte_codes:
 
   /* Some more routines we need... */
 lookahead_failed_true:
-  PUSH_OOP(_gst_true_oop);
+  VM_PUSH_OOP(_gst_true_oop);
   DISPATCH(normal_byte_codes);
 
 lookahead_dup_true:
   PREFETCH_VEC(true_byte_codes);
-  PUSH_OOP(_gst_true_oop);
+  VM_PUSH_OOP(_gst_true_oop);
   NEXT_BC_VEC(true_byte_codes);
 
 lookahead_failed_false:
-  PUSH_OOP(_gst_false_oop);
+  VM_PUSH_OOP(_gst_false_oop);
   DISPATCH(normal_byte_codes);
 
 lookahead_dup_false:
   PREFETCH_VEC(false_byte_codes);
-  PUSH_OOP(_gst_false_oop);
+  VM_PUSH_OOP(_gst_false_oop);
   NEXT_BC_VEC(false_byte_codes);
 
 return_value:

@@ -211,7 +211,7 @@ static thread_local ip_type method_base;
    message.  */
 
 /* The virtual machine's stack and instruction pointers.  */
-thread_local OOP *sp = NULL;
+OOP *sp[100] = { NULL };
 ip_type ip[100];
 
 OOP *_gst_temporaries[100] = { NULL };
@@ -737,7 +737,7 @@ void empty_context_stack(void) {
   OBJ_METHOD_CONTEXT_SET_METHOD(context, _gst_this_method[current_thread_id]);
   OBJ_METHOD_CONTEXT_SET_RECEIVER(context, _gst_self[current_thread_id]);
   OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
-      context, FROM_INT(sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)));
+      context, FROM_INT(sp[current_thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)));
   OBJ_METHOD_CONTEXT_SET_IP_OFFSET(context, FROM_INT(ip[current_thread_id] - method_base));
 
   /* Even if the JIT is active, the current context might have no
@@ -820,7 +820,7 @@ gst_object activate_new_context(int size, int sendArgs) {
   OBJ_METHOD_CONTEXT_SET_RECEIVER(thisContext, _gst_self[current_thread_id]);
   OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
       thisContext,
-      FROM_INT((sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext)) -
+      FROM_INT((sp[current_thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext)) -
                sendArgs));
   OBJ_METHOD_CONTEXT_SET_IP_OFFSET(thisContext, FROM_INT(ip[current_thread_id] - method_base));
 
@@ -848,7 +848,7 @@ void prepare_context(gst_context_part context, int args, int temps) {
       OBJ_METHOD_CONTEXT_CONTEXT_STACK((gst_object)context);
   if (args) {
     REGISTER(2, OOP * src);
-    src = &sp[1 - args];
+    src = &sp[current_thread_id][1 - args];
     stackBase[0] = src[0];
     if (args > 1) {
       stackBase[1] = src[1];
@@ -875,7 +875,7 @@ void prepare_context(gst_context_part context, int args, int temps) {
     }
     stackBase += temps;
   }
-  sp = stackBase - 1;
+  sp[current_thread_id] = stackBase - 1;
 }
 
 mst_Boolean _gst_send_cannot_interpret_message(OOP sendSelector, method_cache_entry *methodData,
@@ -1031,7 +1031,7 @@ void unwind_context(void) {
 
   _gst_this_context_oop[current_thread_id] = newContextOOP;
   _gst_temporaries[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext);
-  sp = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext) +
+  sp[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext) +
        TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(newContext));
   _gst_self[current_thread_id] = OBJ_METHOD_CONTEXT_RECEIVER(newContext);
 
@@ -1135,7 +1135,7 @@ mst_Boolean unwind_to(OOP returnContextOOP) {
 
   _gst_this_context_oop[current_thread_id] = newContextOOP;
   _gst_temporaries[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext);
-  sp = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext) +
+  sp[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext) +
        TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(newContext));
   _gst_self[current_thread_id] = OBJ_METHOD_CONTEXT_RECEIVER(newContext);
 
@@ -1297,7 +1297,7 @@ void resume_suspended_context(OOP oop) {
 
   _gst_this_context_oop[current_thread_id] = oop;
   thisContext = OOP_TO_OBJ(oop);
-  sp = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext) +
+  sp[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext) +
        TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(thisContext));
   SET_THIS_METHOD(OBJ_METHOD_CONTEXT_METHOD(thisContext),
                   GET_CONTEXT_IP(thisContext));
@@ -2261,8 +2261,8 @@ void _gst_fixup_object_pointers(void) {
     thisContext = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
 #ifdef DEBUG_FIXUP
     fflush(stderr);
-    printf("\nF sp %x %d    ip[current_thread_id] %x %d	_gst_this_method[current_thread_id] %x  thisContext %x",
-           sp, sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext), ip[current_thread_id],
+    printf("\nF sp[current_thread_id] %x %d    ip[current_thread_id] %x %d	_gst_this_method[current_thread_id] %x  thisContext %x",
+           sp[current_thread_id], sp[current_thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext), ip[current_thread_id],
            ip[current_thread_id] - method_base, _gst_this_method[current_thread_id]->object, thisContext);
     fflush(stdout);
 #endif
@@ -2270,7 +2270,7 @@ void _gst_fixup_object_pointers(void) {
     OBJ_METHOD_CONTEXT_SET_RECEIVER(thisContext, _gst_self[current_thread_id]);
     OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
         thisContext,
-        FROM_INT(sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext)));
+        FROM_INT(sp[current_thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext)));
     OBJ_METHOD_CONTEXT_SET_IP_OFFSET(thisContext, FROM_INT(ip[current_thread_id] - method_base));
   }
 }
@@ -2305,13 +2305,13 @@ void _gst_restore_object_pointers(void) {
 #endif /* OPTIMIZE Mon Jul 3 01:21:06 1995 */
 
     SET_THIS_METHOD(_gst_this_method[current_thread_id], GET_CONTEXT_IP(thisContext));
-    sp = TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(thisContext)) +
+    sp[current_thread_id] = TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(thisContext)) +
          OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
 
 #ifdef DEBUG_FIXUP
     fflush(stderr);
-    printf("\nR sp %x %d    ip[current_thread_id] %x %d	_gst_this_method[current_thread_id] %x  thisContext %x\n",
-           sp, sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext), ip[current_thread_id],
+    printf("\nR sp[current_thread_id] %x %d    ip[current_thread_id] %x %d	_gst_this_method[current_thread_id] %x  thisContext %x\n",
+           sp[current_thread_id], sp[current_thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext), ip[current_thread_id],
            ip[current_thread_id] - method_base, _gst_this_method[current_thread_id]->object, thisContext);
     fflush(stdout);
 #endif
@@ -2456,7 +2456,7 @@ void _gst_show_stack_contents(void) {
 
   context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
   for (first = true, walk = OBJ_METHOD_CONTEXT_CONTEXT_STACK(context);
-       walk <= sp; first = false, walk++) {
+       walk <= sp[current_thread_id]; first = false, walk++) {
     if (!first)
       printf(", ");
 
