@@ -214,7 +214,7 @@ static thread_local ip_type method_base;
 thread_local OOP *sp = NULL;
 thread_local ip_type ip;
 
-thread_local OOP *_gst_temporaries = NULL;
+OOP *_gst_temporaries[100] = { NULL };
 OOP *_gst_literals[100] = { NULL };
 OOP _gst_self[100] = { NULL };
 OOP _gst_this_context_oop[100] = { NULL };
@@ -844,7 +844,7 @@ void dealloc_stack_context(gst_context_part context) {
 
 void prepare_context(gst_context_part context, int args, int temps) {
   REGISTER(1, OOP * stackBase);
-  _gst_temporaries = stackBase =
+  _gst_temporaries[current_thread_id] = stackBase =
       OBJ_METHOD_CONTEXT_CONTEXT_STACK((gst_object)context);
   if (args) {
     REGISTER(2, OOP * src);
@@ -1030,7 +1030,7 @@ void unwind_context(void) {
                         (~(MCF_IS_DISABLED_CONTEXT | MCF_IS_UNWIND_CONTEXT))));
 
   _gst_this_context_oop[current_thread_id] = newContextOOP;
-  _gst_temporaries = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext);
+  _gst_temporaries[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext);
   sp = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext) +
        TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(newContext));
   _gst_self[current_thread_id] = OBJ_METHOD_CONTEXT_RECEIVER(newContext);
@@ -1134,7 +1134,7 @@ mst_Boolean unwind_to(OOP returnContextOOP) {
                         (~(MCF_IS_DISABLED_CONTEXT | MCF_IS_UNWIND_CONTEXT))));
 
   _gst_this_context_oop[current_thread_id] = newContextOOP;
-  _gst_temporaries = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext);
+  _gst_temporaries[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext);
   sp = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext) +
        TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(newContext));
   _gst_self[current_thread_id] = OBJ_METHOD_CONTEXT_RECEIVER(newContext);
@@ -1301,7 +1301,7 @@ void resume_suspended_context(OOP oop) {
        TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(thisContext));
   SET_THIS_METHOD(OBJ_METHOD_CONTEXT_METHOD(thisContext),
                   GET_CONTEXT_IP(thisContext));
-  _gst_temporaries = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
+  _gst_temporaries[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
   _gst_self[current_thread_id] = OBJ_METHOD_CONTEXT_RECEIVER(thisContext);
   free_lifo_context[current_thread_id] = lifo_contexts[current_thread_id];
 }
@@ -2286,7 +2286,7 @@ void _gst_restore_object_pointers(void) {
 
   if (!IS_NIL(_gst_this_context_oop[current_thread_id])) {
     thisContext = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
-    _gst_temporaries = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
+    _gst_temporaries[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
 
 #ifndef OPTIMIZE /* Mon Jul 3 01:21:06 1995 */
     /* these should not be necessary */
