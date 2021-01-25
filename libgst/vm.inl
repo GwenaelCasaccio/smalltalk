@@ -62,7 +62,7 @@
 #define INTERP_BASIC_BOOL(op, op1, op2, operator)                              \
   {                                                                            \
     if COMMON (ARE_INTS(op1, op2)) {                                           \
-      POP_N_OOPS(2);                                                           \
+      VM_POP_N_OOPS(2);                                                           \
       if (((intptr_t)op1) operator((intptr_t)op2))                             \
         DISPATCH(true_byte_codes);                                             \
       else                                                                     \
@@ -71,7 +71,7 @@
                       (IS_INT(op2) || OOP_CLASS(op2) == _gst_floatd_class)) {  \
       double farg1 = IS_INT(op1) ? TO_INT(op1) : FLOATD_OOP_VALUE(op1);        \
       double farg2 = IS_INT(op2) ? TO_INT(op2) : FLOATD_OOP_VALUE(op2);        \
-      POP_N_OOPS(2);                                                           \
+      VM_POP_N_OOPS(2);                                                           \
       if (farg1 operator farg2)                                                \
         DISPATCH(true_byte_codes);                                             \
       else                                                                     \
@@ -121,6 +121,66 @@
 #endif
 
 #define DISPATCH(v) goto *(arg = GET_ARG, (v)[*ip])
+
+/* Some stack operations */
+#define VM_UNCHECKED_PUSH_OOP(oop) \
+  (*++sp = (oop))
+
+#define VM_UNCHECKED_SET_TOP(oop) \
+  (*sp = (oop))
+
+#ifndef OPTIMIZE
+#define VM_PUSH_OOP(oop) \
+  do { \
+    OOP __pushOOP = (oop); \
+    if (IS_OOP (__pushOOP) && !IS_OOP_VALID (__pushOOP)) \
+      abort (); \
+    VM_UNCHECKED_PUSH_OOP (__pushOOP); \
+  } while (0)
+#else
+#define VM_PUSH_OOP(oop) \
+  do { \
+    OOP __pushOOP = (oop); \
+    VM_UNCHECKED_PUSH_OOP (__pushOOP); \
+  } while (0)
+#endif
+
+#define VM_POP_OOP() \
+  (*sp--)
+
+#define VM_POP_N_OOPS(n) \
+  (sp -= (n))
+
+#define VM_UNPOP(n) \
+  (sp += (n))
+
+#define VM_STACKTOP() \
+  (*sp)
+
+#ifndef OPTIMIZE
+#define VM_SET_STACKTOP(oop) \
+  do { \
+    OOP __pushOOP = (oop); \
+    if (IS_OOP (__pushOOP) && !IS_OOP_VALID (__pushOOP)) \
+      abort (); \
+    VM_UNCHECKED_SET_TOP(__pushOOP); \
+  } while (0)
+#else
+#define VM_SET_STACKTOP(oop) \
+  do { \
+    OOP __pushOOP = (oop); \
+    VM_UNCHECKED_SET_TOP(__pushOOP); \
+  } while (0)
+#endif
+
+#define VM_SET_STACKTOP_INT(i) \
+  VM_UNCHECKED_SET_TOP(FROM_INT(i))
+
+#define VM_SET_STACKTOP_BOOLEAN(exp) \
+  VM_UNCHECKED_SET_TOP((exp) ? _gst_true_oop : _gst_false_oop)
+
+#define VM_STACK_AT(i) \
+  (sp[-(i)])
 
 static void *sync_barrier_byte_codes[256] = {
     &&barrier_byte_codes, &&barrier_byte_codes,
@@ -972,8 +1032,8 @@ static void *normal_byte_codes[256] = {
 goto jump_around;
 bc0 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1009,14 +1069,14 @@ bc0 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(1) = _stack1;
-  POP_N_OOPS(1);
+  VM_STACK_AT(1) = _stack1;
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc1 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1052,14 +1112,14 @@ bc1 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(1) = _stack1;
-  POP_N_OOPS(1);
+  VM_STACK_AT(1) = _stack1;
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc2 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1094,14 +1154,14 @@ bc2 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(1) = _stack1;
-  POP_N_OOPS(1);
+  VM_STACK_AT(1) = _stack1;
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc3 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1136,14 +1196,14 @@ bc3 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(1) = _stack1;
-  POP_N_OOPS(1);
+  VM_STACK_AT(1) = _stack1;
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc4 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1178,14 +1238,14 @@ bc4 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(1) = _stack1;
-  POP_N_OOPS(1);
+  VM_STACK_AT(1) = _stack1;
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc5 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1220,14 +1280,14 @@ bc5 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(1) = _stack1;
-  POP_N_OOPS(1);
+  VM_STACK_AT(1) = _stack1;
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc6 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1262,14 +1322,14 @@ bc6 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(1) = _stack1;
-  POP_N_OOPS(1);
+  VM_STACK_AT(1) = _stack1;
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc7 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1304,14 +1364,14 @@ bc7 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(1) = _stack1;
-  POP_N_OOPS(1);
+  VM_STACK_AT(1) = _stack1;
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc8 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1347,14 +1407,14 @@ bc8 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(1) = _stack1;
-  POP_N_OOPS(1);
+  VM_STACK_AT(1) = _stack1;
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc9 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1401,14 +1461,14 @@ bc9 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(1) = _stack1;
-  POP_N_OOPS(1);
+  VM_STACK_AT(1) = _stack1;
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc10 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1447,14 +1507,14 @@ bc10 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(1) = _stack1;
-  POP_N_OOPS(1);
+  VM_STACK_AT(1) = _stack1;
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc11 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1493,14 +1553,14 @@ bc11 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(1) = _stack1;
-  POP_N_OOPS(1);
+  VM_STACK_AT(1) = _stack1;
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc12 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1554,14 +1614,14 @@ bc12 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(1) = _stack1;
-  POP_N_OOPS(1);
+  VM_STACK_AT(1) = _stack1;
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc13 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1602,8 +1662,8 @@ bc13 : {
 NEXT_BC;
 bc14 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1641,14 +1701,14 @@ bc14 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(1) = _stack1;
-  POP_N_OOPS(1);
+  VM_STACK_AT(1) = _stack1;
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc15 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1687,14 +1747,14 @@ bc15 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(1) = _stack1;
-  POP_N_OOPS(1);
+  VM_STACK_AT(1) = _stack1;
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc16 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1750,16 +1810,16 @@ bc16 : {
 #undef idx
 #undef val
   } while (0);
-  STACK_AT(1) = _stack1;
-  POP_N_OOPS(1);
+  VM_STACK_AT(1) = _stack1;
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc17 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED,
       _stack2 ATTRIBUTE_UNUSED;
-  _stack2 = STACK_AT(2);
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack2 = VM_STACK_AT(2);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1818,13 +1878,13 @@ bc17 : {
 #undef val
 #undef res
   } while (0);
-  STACK_AT(2) = _stack2;
-  POP_N_OOPS(2);
+  VM_STACK_AT(2) = _stack2;
+  VM_POP_N_OOPS(2);
 }
 NEXT_BC;
 bc18 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1878,12 +1938,12 @@ bc18 : {
 #undef rec
 #undef val
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc19 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1937,12 +1997,12 @@ bc19 : {
 #undef rec
 #undef val
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc20 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1963,12 +2023,12 @@ bc20 : {
 #undef rec
 #undef val
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc21 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -1989,12 +2049,12 @@ bc21 : {
 #undef rec
 #undef val
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc22 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -2032,8 +2092,8 @@ bc22 : {
 NEXT_BC;
 bc23 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -2073,8 +2133,8 @@ bc23 : {
 NEXT_BC;
 bc24 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -2097,13 +2157,13 @@ bc24 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(1) = _stack1;
-  POP_N_OOPS(1);
+  VM_STACK_AT(1) = _stack1;
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc25 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -2140,12 +2200,12 @@ bc25 : {
 #undef rec
 #undef val
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc26 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -2182,7 +2242,7 @@ bc26 : {
 #undef rec
 #undef val
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc27 : {
@@ -2358,7 +2418,7 @@ bc32 : {
 #line 1912 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc33 : {
@@ -2391,7 +2451,7 @@ bc33 : {
 #line 1952 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc34 : {
@@ -2419,7 +2479,7 @@ bc34 : {
     if (UNCOMMON(IS_INT(tos)) ||
         UNCOMMON(!is_a_kind_of(OOP_CLASS(tos), _gst_association_class))) {
       PREPARE_STACK();
-      PUSH_OOP(tos);
+      VM_PUSH_OOP(tos);
       EXPORT_REGS();
       SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
       IMPORT_REGS();
@@ -2432,7 +2492,7 @@ bc34 : {
 #undef UNDO_PREPARE_STACK
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc35 : {
@@ -2455,12 +2515,12 @@ bc35 : {
 #line 2026 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc36 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -2483,7 +2543,7 @@ bc36 : {
 NEXT_BC;
 bc37 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -2516,7 +2576,7 @@ bc37 : {
 NEXT_BC;
 bc38 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -2540,8 +2600,8 @@ bc38 : {
     if (UNCOMMON(IS_INT(var)) ||
         UNCOMMON(!is_a_kind_of(OOP_CLASS(var), _gst_association_class))) {
       PREPARE_STACK();
-      SET_STACKTOP(var);
-      PUSH_OOP(value);
+      VM_SET_STACKTOP(var);
+      VM_PUSH_OOP(value);
       EXPORT_REGS();
       SEND_MESSAGE(_gst_builtin_selectors[VALUE_COLON_SPECIAL].symbol, 1);
       IMPORT_REGS();
@@ -2558,7 +2618,7 @@ bc38 : {
 NEXT_BC;
 bc39 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -2584,9 +2644,9 @@ bc39 : {
       STORE_RECEIVER_VARIABLE(n, tos);
     } else {
       PREPARE_STACK();
-      SET_STACKTOP(_gst_self[current_thread_id]);
-      PUSH_OOP(FROM_INT(n + 1));
-      PUSH_OOP(tos);
+      VM_SET_STACKTOP(_gst_self[current_thread_id]);
+      VM_PUSH_OOP(FROM_INT(n + 1));
+      VM_PUSH_OOP(tos);
       EXPORT_REGS();
       SEND_MESSAGE(_gst_write_slot_at_put_symbol, 2);
       IMPORT_REGS();
@@ -2662,7 +2722,7 @@ bc41 : {
 NEXT_BC;
 bc42 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -2684,7 +2744,7 @@ bc42 : {
 #line 793 "vm.def"
     if UNCOMMON (tos == _gst_true_oop) {
       PREPARE_STACK();
-      POP_N_OOPS(1);
+      VM_POP_N_OOPS(1);
       ip += n;
       FETCH;
     } else if UNCOMMON (tos != _gst_false_oop) {
@@ -2701,12 +2761,12 @@ bc42 : {
 #undef UNDO_PREPARE_STACK
 #undef tos
   } while (0);
-  POP_N_OOPS(1);
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc43 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -2728,7 +2788,7 @@ bc43 : {
 #line 774 "vm.def"
     if UNCOMMON (tos == _gst_false_oop) {
       PREPARE_STACK();
-      POP_N_OOPS(1);
+      VM_POP_N_OOPS(1);
       ip += n;
       FETCH;
     } else if UNCOMMON (tos != _gst_true_oop) {
@@ -2745,7 +2805,7 @@ bc43 : {
 #undef UNDO_PREPARE_STACK
 #undef tos
   } while (0);
-  POP_N_OOPS(1);
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc44 : {
@@ -2768,7 +2828,7 @@ bc44 : {
 #line 2361 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc45 : {
@@ -2791,7 +2851,7 @@ bc45 : {
 #line 2389 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc46 : {
@@ -2814,13 +2874,13 @@ bc46 : {
 #line 2417 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc47 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -2841,12 +2901,12 @@ bc47 : {
 #undef obj
 #undef val
   } while (0);
-  POP_N_OOPS(1);
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc48 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -2863,12 +2923,12 @@ bc48 : {
 #line 2476 "vm.inl"
 #undef tos
   } while (0);
-  POP_N_OOPS(1);
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc49 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -2900,12 +2960,12 @@ bc49 : {
 #undef block
 #undef closure
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc50 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -2925,7 +2985,7 @@ bc50 : {
       IMPORT_REGS();
     } else {
       IMPORT_REGS();
-      SET_STACKTOP(val);
+      VM_SET_STACKTOP(val);
     }
     FETCH;
 
@@ -2936,7 +2996,7 @@ bc50 : {
 NEXT_BC;
 bc51 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -2953,7 +3013,7 @@ bc51 : {
     EXPORT_REGS();
     unwind_context();
     IMPORT_REGS();
-    SET_STACKTOP(val);
+    VM_SET_STACKTOP(val);
     FETCH;
 
 #line 2588 "vm.inl"
@@ -2964,7 +3024,7 @@ NEXT_BC;
 bc52 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -2984,12 +3044,12 @@ bc52 : {
 #undef tos
 #undef tos2
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc53 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -3079,7 +3139,7 @@ bc56 : {
 #line 2731 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc57 : {
@@ -3306,13 +3366,13 @@ bc66 : {
     EXPORT_REGS();
     unwind_context();
     IMPORT_REGS();
-    SET_STACKTOP(val);
+    VM_SET_STACKTOP(val);
     FETCH;
 
 #line 3012 "vm.inl"
 #undef val
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc67 : {
@@ -3340,12 +3400,12 @@ bc67 : {
 #line 3047 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc68 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -3368,7 +3428,7 @@ bc68 : {
 #line 3082 "vm.inl"
 #undef tos
   } while (0);
-  POP_N_OOPS(1);
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc69 : {
@@ -3397,7 +3457,7 @@ bc69 : {
 #line 3118 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc70 : {
@@ -3424,11 +3484,11 @@ bc70 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define block _extra1
 #define closure _extra1
@@ -3445,7 +3505,7 @@ bc70 : {
 #undef block
 #undef closure
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc71 : {
@@ -3482,8 +3542,8 @@ bc71 : {
 NEXT_BC;
 bc72 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -3511,7 +3571,7 @@ bc72 : {
 #undef tos
 #undef tos2
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc73 : {
@@ -3539,11 +3599,11 @@ bc73 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -3557,7 +3617,7 @@ bc73 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc74 : {
@@ -3585,11 +3645,11 @@ bc74 : {
     int n = 0;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -3602,7 +3662,7 @@ bc74 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc75 : {
@@ -3633,13 +3693,13 @@ bc75 : {
     EXPORT_REGS();
     unwind_context();
     IMPORT_REGS();
-    SET_STACKTOP(val);
+    VM_SET_STACKTOP(val);
     FETCH;
 
 #line 3392 "vm.inl"
 #undef val
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc76 : {
@@ -3666,11 +3726,11 @@ bc76 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -3684,7 +3744,7 @@ bc76 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc77 : {
@@ -3717,12 +3777,12 @@ bc77 : {
 #line 3482 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc78 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -3749,7 +3809,7 @@ bc78 : {
 #line 3521 "vm.inl"
 #undef tos
   } while (0);
-  POP_N_OOPS(1);
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc79 : {
@@ -3781,8 +3841,8 @@ bc79 : {
 #line 3560 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
-  PUSH_OOP(_extra2);
+  VM_PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra2);
 }
 NEXT_BC;
 bc80 : {
@@ -3807,7 +3867,7 @@ NEXT_BC;
 bc81 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -3830,11 +3890,11 @@ bc81 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define op1 _stack0
 #define op2 _extra1
@@ -3855,7 +3915,7 @@ bc81 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc82 : {
@@ -3889,7 +3949,7 @@ bc82 : {
     if (UNCOMMON(IS_INT(tos)) ||
         UNCOMMON(!is_a_kind_of(OOP_CLASS(tos), _gst_association_class))) {
       PREPARE_STACK();
-      PUSH_OOP(tos);
+      VM_PUSH_OOP(tos);
       EXPORT_REGS();
       SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
       IMPORT_REGS();
@@ -3902,7 +3962,7 @@ bc82 : {
 #undef UNDO_PREPARE_STACK
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc83 : {
@@ -3935,8 +3995,8 @@ bc83 : {
 #line 3772 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
-  PUSH_OOP(_extra2);
+  VM_PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra2);
 }
 NEXT_BC;
 bc84 : {
@@ -3965,11 +4025,11 @@ bc84 : {
     int n = arg & 255;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -3982,7 +4042,7 @@ bc84 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc85 : {
@@ -4011,12 +4071,12 @@ bc85 : {
 #line 3860 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc86 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -4042,7 +4102,7 @@ bc86 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    STACK_AT(0) = _stack0;                                                     \
+    VM_STACK_AT(0) = _stack0;                                                     \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
@@ -4051,7 +4111,7 @@ bc86 : {
 #line 774 "vm.def"
     if UNCOMMON (tos == _gst_false_oop) {
       PREPARE_STACK();
-      POP_N_OOPS(1);
+      VM_POP_N_OOPS(1);
       ip += n;
       FETCH;
     } else if UNCOMMON (tos != _gst_true_oop) {
@@ -4068,13 +4128,13 @@ bc86 : {
 #undef UNDO_PREPARE_STACK
 #undef tos
   } while (0);
-  POP_N_OOPS(1);
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc87 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -4097,11 +4157,11 @@ bc87 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define op1 _stack0
 #define op2 _extra1
@@ -4121,7 +4181,7 @@ bc87 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc88 : {
@@ -4182,11 +4242,11 @@ bc89 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -4199,7 +4259,7 @@ bc89 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc90 : {
@@ -4233,11 +4293,11 @@ bc90 : {
     int n = 0;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -4250,7 +4310,7 @@ bc90 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc91 : {
@@ -4281,13 +4341,13 @@ bc91 : {
     EXPORT_REGS();
     unwind_context();
     IMPORT_REGS();
-    SET_STACKTOP(val);
+    VM_SET_STACKTOP(val);
     FETCH;
 
 #line 4171 "vm.inl"
 #undef val
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc92 : {
@@ -4315,11 +4375,11 @@ bc92 : {
     int n = 36;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -4333,13 +4393,13 @@ bc92 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc93 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -4367,14 +4427,14 @@ bc93 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    STACK_AT(1) = _stack1;                                                     \
-    POP_N_OOPS(1);                                                             \
+    VM_STACK_AT(1) = _stack1;                                                     \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define tos _stack1
 #line 774 "vm.def"
     if UNCOMMON (tos == _gst_false_oop) {
       PREPARE_STACK();
-      POP_N_OOPS(1);
+      VM_POP_N_OOPS(1);
       ip += n;
       FETCH;
     } else if UNCOMMON (tos != _gst_true_oop) {
@@ -4391,7 +4451,7 @@ bc93 : {
 #undef UNDO_PREPARE_STACK
 #undef tos
   } while (0);
-  POP_N_OOPS(2);
+  VM_POP_N_OOPS(2);
 }
 NEXT_BC;
 bc94 : {
@@ -4420,11 +4480,11 @@ bc94 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -4437,12 +4497,12 @@ bc94 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc95 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -4474,13 +4534,13 @@ bc95 : {
 #line 4386 "vm.inl"
 #undef tos
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc96 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -4514,7 +4574,7 @@ bc96 : {
 
 #line 4436 "vm.inl"
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc97 : {
@@ -4543,11 +4603,11 @@ bc97 : {
     int n = 0;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -4560,7 +4620,7 @@ bc97 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc98 : {
@@ -4588,11 +4648,11 @@ bc98 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -4606,13 +4666,13 @@ bc98 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc99 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -4635,11 +4695,11 @@ bc99 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define op1 _stack0
 #define op2 _extra1
@@ -4659,13 +4719,13 @@ bc99 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc100 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -4688,11 +4748,11 @@ bc100 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define op1 _stack0
 #define op2 _extra1
@@ -4713,13 +4773,13 @@ bc100 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc101 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -4744,17 +4804,17 @@ bc101 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define tos _extra1
 #line 774 "vm.def"
     if UNCOMMON (tos == _gst_false_oop) {
       PREPARE_STACK();
-      POP_N_OOPS(1);
+      VM_POP_N_OOPS(1);
       ip += n;
       FETCH;
     } else if UNCOMMON (tos != _gst_true_oop) {
@@ -4775,7 +4835,7 @@ bc101 : {
 NEXT_BC;
 bc102 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -4798,7 +4858,7 @@ bc102 : {
 
 #line 4756 "vm.inl"
   } while (0);
-  POP_N_OOPS(1);
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc103 : {
@@ -4826,11 +4886,11 @@ bc103 : {
     int n = 32;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -4844,7 +4904,7 @@ bc103 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc104 : {
@@ -4871,11 +4931,11 @@ bc104 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define rec _extra1
 #define val _extra1
@@ -4914,7 +4974,7 @@ bc104 : {
 #undef rec
 #undef val
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc105 : {
@@ -4942,11 +5002,11 @@ bc105 : {
     int n = arg & 255;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -4959,7 +5019,7 @@ bc105 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc106 : {
@@ -4988,12 +5048,12 @@ bc106 : {
 #line 4970 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc107 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -5015,7 +5075,7 @@ bc107 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -5029,7 +5089,7 @@ bc107 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  POP_N_OOPS(1);
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc108 : {
@@ -5066,12 +5126,12 @@ bc108 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
-    PUSH_OOP(_extra2);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra2);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(2);                                                             \
+    VM_POP_N_OOPS(2);                                                             \
   } while (0)
 #define op1 _extra1
 #define op2 _extra2
@@ -5092,7 +5152,7 @@ bc108 : {
 #undef op2
 #undef op
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc109 : {
@@ -5121,7 +5181,7 @@ bc109 : {
 #line 5124 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc110 : {
@@ -5149,11 +5209,11 @@ bc110 : {
     int n = 38;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -5167,13 +5227,13 @@ bc110 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc111 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -5196,11 +5256,11 @@ bc111 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define rec _stack0
 #define idx _extra1
@@ -5241,7 +5301,7 @@ bc111 : {
 #undef idx
 #undef val
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc112 : {
@@ -5270,7 +5330,7 @@ bc112 : {
 #line 5293 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc113 : {
@@ -5303,14 +5363,14 @@ bc113 : {
 #line 5333 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
-  PUSH_OOP(_extra2);
+  VM_PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra2);
 }
 NEXT_BC;
 bc114 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -5335,17 +5395,17 @@ bc114 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define tos _extra1
 #line 793 "vm.def"
     if UNCOMMON (tos == _gst_true_oop) {
       PREPARE_STACK();
-      POP_N_OOPS(1);
+      VM_POP_N_OOPS(1);
       ip += n;
       FETCH;
     } else if UNCOMMON (tos != _gst_false_oop) {
@@ -5367,7 +5427,7 @@ NEXT_BC;
 bc115 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -5390,11 +5450,11 @@ bc115 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define rec _stack0
 #define idx _extra1
@@ -5435,7 +5495,7 @@ bc115 : {
 #undef idx
 #undef val
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc116 : {
@@ -5463,11 +5523,11 @@ bc116 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -5481,7 +5541,7 @@ bc116 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc117 : {
@@ -5509,11 +5569,11 @@ bc117 : {
     int n = 49;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -5527,12 +5587,12 @@ bc117 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc118 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -5565,7 +5625,7 @@ bc118 : {
 #line 5630 "vm.inl"
 #undef tos
   } while (0);
-  POP_N_OOPS(1);
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc119 : {
@@ -5594,11 +5654,11 @@ bc119 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -5611,7 +5671,7 @@ bc119 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc120 : {
@@ -5635,7 +5695,7 @@ bc120 : {
 NEXT_BC;
 bc121 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -5691,11 +5751,11 @@ bc122 : {
     int n = 96;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -5709,12 +5769,12 @@ bc122 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc123 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -5741,7 +5801,7 @@ bc123 : {
 #line 5850 "vm.inl"
 #undef tos
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc124 : {
@@ -5772,18 +5832,18 @@ bc124 : {
     EXPORT_REGS();
     unwind_context();
     IMPORT_REGS();
-    SET_STACKTOP(val);
+    VM_SET_STACKTOP(val);
     FETCH;
 
 #line 5894 "vm.inl"
 #undef val
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc125 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -5816,12 +5876,12 @@ bc125 : {
 #line 5941 "vm.inl"
 #undef tos
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc126 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -5854,7 +5914,7 @@ bc126 : {
 #line 5988 "vm.inl"
 #undef tos
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc127 : {
@@ -5892,8 +5952,8 @@ bc127 : {
 #line 6035 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
-  PUSH_OOP(_extra2);
+  VM_PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra2);
 }
 NEXT_BC;
 bc128 : {
@@ -5924,13 +5984,13 @@ bc128 : {
     EXPORT_REGS();
     unwind_context();
     IMPORT_REGS();
-    SET_STACKTOP(val);
+    VM_SET_STACKTOP(val);
     FETCH;
 
 #line 6080 "vm.inl"
 #undef val
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc129 : {
@@ -5956,11 +6016,11 @@ bc129 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define rec _extra1
 #define val _extra1
@@ -5999,12 +6059,12 @@ bc129 : {
 #undef rec
 #undef val
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc130 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -6030,7 +6090,7 @@ bc130 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    STACK_AT(0) = _stack0;                                                     \
+    VM_STACK_AT(0) = _stack0;                                                     \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
@@ -6039,7 +6099,7 @@ bc130 : {
 #line 793 "vm.def"
     if UNCOMMON (tos == _gst_true_oop) {
       PREPARE_STACK();
-      POP_N_OOPS(1);
+      VM_POP_N_OOPS(1);
       ip += n;
       FETCH;
     } else if UNCOMMON (tos != _gst_false_oop) {
@@ -6056,14 +6116,14 @@ bc130 : {
 #undef UNDO_PREPARE_STACK
 #undef tos
   } while (0);
-  POP_N_OOPS(1);
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc131 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -6086,11 +6146,11 @@ bc131 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define rec _stack1
 #define idx _stack0
@@ -6134,8 +6194,8 @@ bc131 : {
 #undef val
 #undef res
   } while (0);
-  STACK_AT(1) = _stack1;
-  POP_N_OOPS(1);
+  VM_STACK_AT(1) = _stack1;
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc132 : {
@@ -6169,7 +6229,7 @@ bc132 : {
     if (UNCOMMON(IS_INT(tos)) ||
         UNCOMMON(!is_a_kind_of(OOP_CLASS(tos), _gst_association_class))) {
       PREPARE_STACK();
-      PUSH_OOP(tos);
+      VM_PUSH_OOP(tos);
       EXPORT_REGS();
       SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
       IMPORT_REGS();
@@ -6182,13 +6242,13 @@ bc132 : {
 #undef UNDO_PREPARE_STACK
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc133 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -6211,11 +6271,11 @@ bc133 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define op1 _stack0
 #define op2 _extra1
@@ -6236,12 +6296,12 @@ bc133 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc134 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* ADVANCE ( -- ) */
   do {
 #line 212 "vm.def"
@@ -6263,7 +6323,7 @@ bc134 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 762 "vm.def"
     PREPARE_STACK();
@@ -6274,12 +6334,12 @@ bc134 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  POP_N_OOPS(1);
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc135 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -6301,7 +6361,7 @@ bc135 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define tos _stack0
 #line 702 "vm.def"
@@ -6309,7 +6369,7 @@ bc135 : {
     if (UNCOMMON(IS_INT(tos)) ||
         UNCOMMON(!is_a_kind_of(OOP_CLASS(tos), _gst_association_class))) {
       PREPARE_STACK();
-      PUSH_OOP(tos);
+      VM_PUSH_OOP(tos);
       EXPORT_REGS();
       SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
       IMPORT_REGS();
@@ -6322,7 +6382,7 @@ bc135 : {
 #undef UNDO_PREPARE_STACK
 #undef tos
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc136 : {
@@ -6355,7 +6415,7 @@ bc136 : {
 #line 6562 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc137 : {
@@ -6384,11 +6444,11 @@ bc137 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -6401,7 +6461,7 @@ bc137 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc138 : {
@@ -6430,7 +6490,7 @@ bc138 : {
 #line 6649 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc139 : {
@@ -6469,7 +6529,7 @@ bc139 : {
 #line 6697 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc140 : {
@@ -6498,11 +6558,11 @@ bc140 : {
     int n = 0;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -6515,13 +6575,13 @@ bc140 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc141 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -6544,11 +6604,11 @@ bc141 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define op1 _stack0
 #define op2 _extra1
@@ -6568,7 +6628,7 @@ bc141 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc142 : {
@@ -6595,11 +6655,11 @@ bc142 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define rec _extra1
 #line 586 "vm.def"
@@ -6618,13 +6678,13 @@ bc142 : {
 #undef UNDO_PREPARE_STACK
 #undef rec
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc143 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -6647,11 +6707,11 @@ bc143 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define op1 _stack0
 #define op2 _extra1
@@ -6672,7 +6732,7 @@ bc143 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc144 : {
@@ -6701,11 +6761,11 @@ bc144 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -6718,13 +6778,13 @@ bc144 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc145 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -6762,7 +6822,7 @@ bc145 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    STACK_AT(0) = _stack0;                                                     \
+    VM_STACK_AT(0) = _stack0;                                                     \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
@@ -6771,7 +6831,7 @@ bc145 : {
 #line 774 "vm.def"
     if UNCOMMON (tos == _gst_false_oop) {
       PREPARE_STACK();
-      POP_N_OOPS(1);
+      VM_POP_N_OOPS(1);
       ip += n;
       FETCH;
     } else if UNCOMMON (tos != _gst_true_oop) {
@@ -6788,12 +6848,12 @@ bc145 : {
 #undef UNDO_PREPARE_STACK
 #undef tos
   } while (0);
-  POP_N_OOPS(1);
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc146 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -6826,13 +6886,13 @@ bc146 : {
 #line 7099 "vm.inl"
 #undef tos
   } while (0);
-  POP_N_OOPS(1);
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc147 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -6860,14 +6920,14 @@ bc147 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    STACK_AT(1) = _stack1;                                                     \
-    POP_N_OOPS(1);                                                             \
+    VM_STACK_AT(1) = _stack1;                                                     \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define tos _stack1
 #line 793 "vm.def"
     if UNCOMMON (tos == _gst_true_oop) {
       PREPARE_STACK();
-      POP_N_OOPS(1);
+      VM_POP_N_OOPS(1);
       ip += n;
       FETCH;
     } else if UNCOMMON (tos != _gst_false_oop) {
@@ -6884,13 +6944,13 @@ bc147 : {
 #undef UNDO_PREPARE_STACK
 #undef tos
   } while (0);
-  POP_N_OOPS(2);
+  VM_POP_N_OOPS(2);
 }
 NEXT_BC;
 bc148 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -6913,11 +6973,11 @@ bc148 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define op1 _stack0
 #define op2 _extra1
@@ -6938,7 +6998,7 @@ bc148 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc149 : {
@@ -6967,13 +7027,13 @@ bc149 : {
 #line 7262 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc150 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -6996,11 +7056,11 @@ bc150 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define op1 _stack0
 #define op2 _extra1
@@ -7020,14 +7080,14 @@ bc150 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc151 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -7050,11 +7110,11 @@ bc151 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define rec _stack1
 #define idx _stack0
@@ -7098,8 +7158,8 @@ bc151 : {
 #undef val
 #undef res
   } while (0);
-  STACK_AT(1) = _stack1;
-  POP_N_OOPS(1);
+  VM_STACK_AT(1) = _stack1;
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc152 : {
@@ -7132,7 +7192,7 @@ bc152 : {
 #line 7446 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc153 : {
@@ -7176,12 +7236,12 @@ bc153 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
-    PUSH_OOP(_extra2);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra2);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(2);                                                             \
+    VM_POP_N_OOPS(2);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -7194,8 +7254,8 @@ bc153 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
-  PUSH_OOP(_extra2);
+  VM_PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra2);
 }
 NEXT_BC;
 bc154 : {
@@ -7233,12 +7293,12 @@ bc154 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
-    PUSH_OOP(_extra2);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra2);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(2);                                                             \
+    VM_POP_N_OOPS(2);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -7251,8 +7311,8 @@ bc154 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
-  PUSH_OOP(_extra2);
+  VM_PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra2);
 }
 NEXT_BC;
 bc155 : {
@@ -7285,11 +7345,11 @@ bc155 : {
     int n = 40;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -7303,7 +7363,7 @@ bc155 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc156 : {
@@ -7336,13 +7396,13 @@ bc156 : {
 #line 7680 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
-  PUSH_OOP(_extra2);
+  VM_PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra2);
 }
 NEXT_BC;
 bc157 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -7401,11 +7461,11 @@ bc158 : {
     int n = 0;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -7418,13 +7478,13 @@ bc158 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc159 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -7447,11 +7507,11 @@ bc159 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define op1 _stack0
 #define op2 _extra1
@@ -7474,7 +7534,7 @@ bc159 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc160 : {
@@ -7503,11 +7563,11 @@ bc160 : {
     int n = 0;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -7520,7 +7580,7 @@ bc160 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc161 : {
@@ -7559,12 +7619,12 @@ bc161 : {
     int n = arg & 255;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
-    PUSH_OOP(_extra2);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra2);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(2);                                                             \
+    VM_POP_N_OOPS(2);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -7577,8 +7637,8 @@ bc161 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
-  PUSH_OOP(_extra2);
+  VM_PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra2);
 }
 NEXT_BC;
 bc162 : {
@@ -7616,8 +7676,8 @@ bc162 : {
 #line 8000 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
-  PUSH_OOP(_extra2);
+  VM_PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra2);
 }
 NEXT_BC;
 bc163 : {
@@ -7646,7 +7706,7 @@ bc163 : {
 #line 8037 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc164 : {
@@ -7675,11 +7735,11 @@ bc164 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -7692,12 +7752,12 @@ bc164 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc165 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -7723,7 +7783,7 @@ bc165 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    STACK_AT(0) = _stack0;                                                     \
+    VM_STACK_AT(0) = _stack0;                                                     \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
@@ -7732,7 +7792,7 @@ bc165 : {
 #line 774 "vm.def"
     if UNCOMMON (tos == _gst_false_oop) {
       PREPARE_STACK();
-      POP_N_OOPS(1);
+      VM_POP_N_OOPS(1);
       ip += n;
       FETCH;
     } else if UNCOMMON (tos != _gst_true_oop) {
@@ -7749,12 +7809,12 @@ bc165 : {
 #undef UNDO_PREPARE_STACK
 #undef tos
   } while (0);
-  POP_N_OOPS(1);
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc166 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -7783,7 +7843,7 @@ bc166 : {
 NEXT_BC;
 bc167 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -7816,7 +7876,7 @@ bc167 : {
 #line 8236 "vm.inl"
 #undef tos
   } while (0);
-  POP_N_OOPS(1);
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc168 : {
@@ -7844,11 +7904,11 @@ bc168 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -7862,13 +7922,13 @@ bc168 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc169 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -7891,11 +7951,11 @@ bc169 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define op1 _stack0
 #define op2 _extra1
@@ -7915,14 +7975,14 @@ bc169 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc170 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED, _extra2 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -7974,13 +8034,13 @@ bc170 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    STACK_AT(0) = _stack0;                                                     \
-    PUSH_OOP(_extra1);                                                         \
-    PUSH_OOP(_extra2);                                                         \
+    VM_STACK_AT(0) = _stack0;                                                     \
+    VM_PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra2);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(2);                                                             \
+    VM_POP_N_OOPS(2);                                                             \
   } while (0)
 #define op1 _extra1
 #define op2 _extra2
@@ -8001,8 +8061,8 @@ bc170 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(0) = _stack0;
-  PUSH_OOP(_extra1);
+  VM_STACK_AT(0) = _stack0;
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc171 : {
@@ -8030,11 +8090,11 @@ bc171 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -8047,12 +8107,12 @@ bc171 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc172 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -8085,13 +8145,13 @@ bc172 : {
 #line 8541 "vm.inl"
 #undef tos
   } while (0);
-  POP_N_OOPS(1);
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc173 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -8117,7 +8177,7 @@ bc173 : {
 
 #line 8581 "vm.inl"
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc174 : {
@@ -8154,12 +8214,12 @@ bc174 : {
     int n = 49;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
-    PUSH_OOP(_extra2);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra2);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(2);                                                             \
+    VM_POP_N_OOPS(2);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -8173,13 +8233,13 @@ bc174 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
-  PUSH_OOP(_extra2);
+  VM_PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra2);
 }
 NEXT_BC;
 bc175 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -8206,7 +8266,7 @@ bc175 : {
 #line 8683 "vm.inl"
 #undef tos
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc176 : {
@@ -8239,11 +8299,11 @@ bc176 : {
     int n = 84;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -8257,7 +8317,7 @@ bc176 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc177 : {
@@ -8291,7 +8351,7 @@ bc177 : {
     if (UNCOMMON(IS_INT(tos)) ||
         UNCOMMON(!is_a_kind_of(OOP_CLASS(tos), _gst_association_class))) {
       PREPARE_STACK();
-      PUSH_OOP(tos);
+      VM_PUSH_OOP(tos);
       EXPORT_REGS();
       SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
       IMPORT_REGS();
@@ -8304,7 +8364,7 @@ bc177 : {
 #undef UNDO_PREPARE_STACK
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc178 : {
@@ -8331,11 +8391,11 @@ bc178 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define block _extra1
 #define closure _extra1
@@ -8358,11 +8418,11 @@ bc178 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -8375,7 +8435,7 @@ bc178 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc179 : {
@@ -8404,13 +8464,13 @@ bc179 : {
 #line 8907 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc180 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED, _extra2 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -8445,12 +8505,12 @@ bc180 : {
     int n = 36;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
-    PUSH_OOP(_extra2);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra2);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(2);                                                             \
+    VM_POP_N_OOPS(2);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -8464,8 +8524,8 @@ bc180 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
-  PUSH_OOP(_extra2);
+  VM_PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra2);
 }
 NEXT_BC;
 bc181 : {
@@ -8504,13 +8564,13 @@ bc181 : {
 #line 9023 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc182 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -8533,11 +8593,11 @@ bc182 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define op1 _stack0
 #define op2 _extra1
@@ -8559,7 +8619,7 @@ bc182 : {
 #undef op1
 #undef op2
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc183 : {
@@ -8586,11 +8646,11 @@ bc183 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define block _extra1
 #define closure _extra1
@@ -8612,11 +8672,11 @@ bc183 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -8630,7 +8690,7 @@ bc183 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc184 : {
@@ -8658,11 +8718,11 @@ bc184 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -8676,7 +8736,7 @@ bc184 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc185 : {
@@ -8713,13 +8773,13 @@ bc185 : {
     EXPORT_REGS();
     unwind_context();
     IMPORT_REGS();
-    SET_STACKTOP(val);
+    VM_SET_STACKTOP(val);
     FETCH;
 
 #line 9264 "vm.inl"
 #undef val
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc186 : {
@@ -8748,7 +8808,7 @@ bc186 : {
 #line 9300 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc187 : {
@@ -8775,11 +8835,11 @@ bc187 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define block _extra1
 #define closure _extra1
@@ -8802,11 +8862,11 @@ bc187 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -8819,13 +8879,13 @@ bc187 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc188 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -8848,11 +8908,11 @@ bc188 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define rec _stack0
 #define blk_arg _extra1
@@ -8873,7 +8933,7 @@ bc188 : {
 #undef rec
 #undef blk_arg
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc189 : {
@@ -8904,13 +8964,13 @@ bc189 : {
     EXPORT_REGS();
     unwind_context();
     IMPORT_REGS();
-    SET_STACKTOP(val);
+    VM_SET_STACKTOP(val);
     FETCH;
 
 #line 9479 "vm.inl"
 #undef val
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc190 : {
@@ -8939,11 +8999,11 @@ bc190 : {
     int n = 2;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -8956,7 +9016,7 @@ bc190 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc191 : {
@@ -8993,12 +9053,12 @@ bc191 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
-    PUSH_OOP(_extra2);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra2);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(2);                                                             \
+    VM_POP_N_OOPS(2);                                                             \
   } while (0)
 #define op1 _extra1
 #define op2 _extra2
@@ -9019,7 +9079,7 @@ bc191 : {
 #undef op2
 #undef op
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc192 : {
@@ -9051,8 +9111,8 @@ bc192 : {
 #line 9640 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
-  PUSH_OOP(_extra2);
+  VM_PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra2);
 }
 NEXT_BC;
 bc193 : {
@@ -9081,7 +9141,7 @@ bc193 : {
 #line 9677 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc194 : {
@@ -9119,11 +9179,11 @@ bc194 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -9137,7 +9197,7 @@ bc194 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc195 : {
@@ -9171,11 +9231,11 @@ bc195 : {
     int n = 0;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -9188,7 +9248,7 @@ bc195 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc196 : {
@@ -9227,11 +9287,11 @@ bc196 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -9244,7 +9304,7 @@ bc196 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc197 : {
@@ -9272,11 +9332,11 @@ bc197 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -9290,7 +9350,7 @@ bc197 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc198 : {
@@ -9318,11 +9378,11 @@ bc198 : {
     int n = 41;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -9336,7 +9396,7 @@ bc198 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc199 : {
@@ -9401,8 +9461,8 @@ bc200 : {
 #line 10038 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
-  PUSH_OOP(_extra2);
+  VM_PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra2);
 }
 NEXT_BC;
 bc201 : {
@@ -9428,11 +9488,11 @@ bc201 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define rec _extra1
 #define val _extra1
@@ -9471,7 +9531,7 @@ bc201 : {
 #undef rec
 #undef val
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc202 : {
@@ -9500,11 +9560,11 @@ bc202 : {
     int n = arg & 255;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -9517,7 +9577,7 @@ bc202 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc203 : {
@@ -9555,12 +9615,12 @@ bc203 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
-    PUSH_OOP(_extra2);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra2);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(2);                                                             \
+    VM_POP_N_OOPS(2);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -9573,8 +9633,8 @@ bc203 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
-  PUSH_OOP(_extra2);
+  VM_PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra2);
 }
 NEXT_BC;
 bc204 : {
@@ -9603,11 +9663,11 @@ bc204 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -9620,7 +9680,7 @@ bc204 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc205 : {
@@ -9649,11 +9709,11 @@ bc205 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -9666,7 +9726,7 @@ bc205 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc206 : {
@@ -9693,11 +9753,11 @@ bc206 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define rec _extra1
 #define val _extra1
@@ -9736,7 +9796,7 @@ bc206 : {
 #undef rec
 #undef val
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc207 : {
@@ -9765,11 +9825,11 @@ bc207 : {
     int n = 2;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -9782,7 +9842,7 @@ bc207 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc208 : {
@@ -9821,12 +9881,12 @@ bc208 : {
     int n = 2;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
-    PUSH_OOP(_extra2);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra2);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(2);                                                             \
+    VM_POP_N_OOPS(2);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -9839,14 +9899,14 @@ bc208 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
-  PUSH_OOP(_extra2);
+  VM_PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra2);
 }
 NEXT_BC;
 bc209 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -9903,11 +9963,11 @@ bc210 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define block _extra1
 #define closure _extra1
@@ -9930,11 +9990,11 @@ bc210 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -9947,7 +10007,7 @@ bc210 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc211 : {
@@ -10009,11 +10069,11 @@ bc212 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define block _extra1
 #define closure _extra1
@@ -10036,11 +10096,11 @@ bc212 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -10053,7 +10113,7 @@ bc212 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc213 : {
@@ -10081,11 +10141,11 @@ bc213 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -10099,12 +10159,12 @@ bc213 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc214 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -10141,7 +10201,7 @@ bc214 : {
     EXPORT_REGS();
     unwind_context();
     IMPORT_REGS();
-    SET_STACKTOP(val);
+    VM_SET_STACKTOP(val);
     FETCH;
 
 #line 10868 "vm.inl"
@@ -10151,7 +10211,7 @@ bc214 : {
 NEXT_BC;
 bc215 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -10179,7 +10239,7 @@ bc215 : {
     int n = 37;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -10193,7 +10253,7 @@ bc215 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  POP_N_OOPS(1);
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc216 : {
@@ -10225,11 +10285,11 @@ bc216 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define rec _extra1
 #define val _extra1
@@ -10268,7 +10328,7 @@ bc216 : {
 #undef rec
 #undef val
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc217 : {
@@ -10297,11 +10357,11 @@ bc217 : {
     int n = 0;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -10314,7 +10374,7 @@ bc217 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc218 : {
@@ -10347,11 +10407,11 @@ bc218 : {
     int n = 130;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -10365,7 +10425,7 @@ bc218 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc219 : {
@@ -10393,11 +10453,11 @@ bc219 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -10411,7 +10471,7 @@ bc219 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc220 : {
@@ -10439,11 +10499,11 @@ bc220 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define tos _extra2
 #line 702 "vm.def"
@@ -10451,7 +10511,7 @@ bc220 : {
     if (UNCOMMON(IS_INT(tos)) ||
         UNCOMMON(!is_a_kind_of(OOP_CLASS(tos), _gst_association_class))) {
       PREPARE_STACK();
-      PUSH_OOP(tos);
+      VM_PUSH_OOP(tos);
       EXPORT_REGS();
       SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
       IMPORT_REGS();
@@ -10464,13 +10524,13 @@ bc220 : {
 #undef UNDO_PREPARE_STACK
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
-  PUSH_OOP(_extra2);
+  VM_PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra2);
 }
 NEXT_BC;
 bc221 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -10522,11 +10582,11 @@ bc222 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -10540,7 +10600,7 @@ bc222 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc223 : {
@@ -10574,11 +10634,11 @@ bc223 : {
     int n = 0;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -10591,12 +10651,12 @@ bc223 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc224 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -10629,7 +10689,7 @@ bc224 : {
 #line 11420 "vm.inl"
 #undef tos
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc225 : {
@@ -10656,11 +10716,11 @@ bc225 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define block _extra1
 #define closure _extra1
@@ -10683,11 +10743,11 @@ bc225 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -10700,7 +10760,7 @@ bc225 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc226 : {
@@ -10734,20 +10794,20 @@ bc226 : {
       IMPORT_REGS();
     } else {
       IMPORT_REGS();
-      SET_STACKTOP(val);
+      VM_SET_STACKTOP(val);
     }
     FETCH;
 
 #line 11547 "vm.inl"
 #undef val
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc227 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -10770,11 +10830,11 @@ bc227 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define op1 _stack0
 #define op2 _extra1
@@ -10794,12 +10854,12 @@ bc227 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc228 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -10832,7 +10892,7 @@ bc228 : {
 #line 11652 "vm.inl"
 #undef tos
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc229 : {
@@ -10866,7 +10926,7 @@ bc229 : {
     if (UNCOMMON(IS_INT(tos)) ||
         UNCOMMON(!is_a_kind_of(OOP_CLASS(tos), _gst_association_class))) {
       PREPARE_STACK();
-      PUSH_OOP(tos);
+      VM_PUSH_OOP(tos);
       EXPORT_REGS();
       SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
       IMPORT_REGS();
@@ -10879,7 +10939,7 @@ bc229 : {
 #undef UNDO_PREPARE_STACK
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc230 : {
@@ -10907,11 +10967,11 @@ bc230 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 662 "vm.def"
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
@@ -10925,7 +10985,7 @@ bc230 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc231 : {
@@ -11017,12 +11077,12 @@ bc233 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
-    PUSH_OOP(_extra2);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra2);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(2);                                                             \
+    VM_POP_N_OOPS(2);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -11035,13 +11095,13 @@ bc233 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
-  PUSH_OOP(_extra2);
+  VM_PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra2);
 }
 NEXT_BC;
 bc234 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -11082,19 +11142,19 @@ bc234 : {
     EXPORT_REGS();
     unwind_context();
     IMPORT_REGS();
-    SET_STACKTOP(val);
+    VM_SET_STACKTOP(val);
     FETCH;
 
 #line 11962 "vm.inl"
 #undef val
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc235 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -11127,7 +11187,7 @@ bc235 : {
 #undef op2
 #undef op
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc236 : {
@@ -11154,11 +11214,11 @@ bc236 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define block _extra1
 #define closure _extra1
@@ -11181,11 +11241,11 @@ bc236 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -11198,12 +11258,12 @@ bc236 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc237 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -11236,13 +11296,13 @@ bc237 : {
 #line 12131 "vm.inl"
 #undef tos
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc238 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -11275,7 +11335,7 @@ bc238 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    STACK_AT(0) = _stack0;                                                     \
+    VM_STACK_AT(0) = _stack0;                                                     \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
@@ -11292,13 +11352,13 @@ bc238 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc239 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED, _extra2 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -11331,12 +11391,12 @@ bc239 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
-    PUSH_OOP(_extra2);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra2);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(2);                                                             \
+    VM_POP_N_OOPS(2);                                                             \
   } while (0)
 #define rec _stack0
 #define idx _extra1
@@ -11380,14 +11440,14 @@ bc239 : {
 #undef val
 #undef res
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc240 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED, _extra2 ATTRIBUTE_UNUSED,
       _extra3 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -11431,13 +11491,13 @@ bc240 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
-    PUSH_OOP(_extra2);                                                         \
-    PUSH_OOP(_extra3);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra2);                                                         \
+    VM_PUSH_OOP(_extra3);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(3);                                                             \
+    VM_POP_N_OOPS(3);                                                             \
   } while (0)
 #define op1 _extra2
 #define op2 _extra3
@@ -11458,8 +11518,8 @@ bc240 : {
 #undef op2
 #undef op
   } while (0);
-  PUSH_OOP(_extra1);
-  PUSH_OOP(_extra2);
+  VM_PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra2);
 }
 NEXT_BC;
 bc241 : {
@@ -11488,12 +11548,12 @@ bc241 : {
 #line 12415 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc242 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -11521,7 +11581,7 @@ bc242 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define tos _stack0
 #line 702 "vm.def"
@@ -11529,7 +11589,7 @@ bc242 : {
     if (UNCOMMON(IS_INT(tos)) ||
         UNCOMMON(!is_a_kind_of(OOP_CLASS(tos), _gst_association_class))) {
       PREPARE_STACK();
-      PUSH_OOP(tos);
+      VM_PUSH_OOP(tos);
       EXPORT_REGS();
       SEND_MESSAGE(_gst_builtin_selectors[VALUE_SPECIAL].symbol, 0);
       IMPORT_REGS();
@@ -11542,13 +11602,13 @@ bc242 : {
 #undef UNDO_PREPARE_STACK
 #undef tos
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc243 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED, _extra2 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -11584,12 +11644,12 @@ bc243 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
-    PUSH_OOP(_extra2);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra2);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(2);                                                             \
+    VM_POP_N_OOPS(2);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -11602,14 +11662,14 @@ bc243 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
-  PUSH_OOP(_extra2);
+  VM_PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra2);
 }
 NEXT_BC;
 bc244 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -11636,7 +11696,7 @@ bc244 : {
     int n = 1;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -11649,12 +11709,12 @@ bc244 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  POP_N_OOPS(1);
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc245 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -11695,18 +11755,18 @@ bc245 : {
     EXPORT_REGS();
     unwind_context();
     IMPORT_REGS();
-    SET_STACKTOP(val);
+    VM_SET_STACKTOP(val);
     FETCH;
 
 #line 12662 "vm.inl"
 #undef val
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc246 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -11736,7 +11796,7 @@ NEXT_BC;
 bc247 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -11762,11 +11822,11 @@ bc247 : {
     int n = 0;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -11779,7 +11839,7 @@ bc247 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc248 : {
@@ -11832,11 +11892,11 @@ bc249 : {
     int n = 0;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #line 643 "vm.def"
     PREPARE_STACK();
@@ -11849,13 +11909,13 @@ bc249 : {
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc250 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -11892,18 +11952,18 @@ bc250 : {
     int n = arg;
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    STACK_AT(0) = _stack0;                                                     \
-    PUSH_OOP(_extra1);                                                         \
+    VM_STACK_AT(0) = _stack0;                                                     \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define tos _extra1
 #line 774 "vm.def"
     if UNCOMMON (tos == _gst_false_oop) {
       PREPARE_STACK();
-      POP_N_OOPS(1);
+      VM_POP_N_OOPS(1);
       ip += n;
       FETCH;
     } else if UNCOMMON (tos != _gst_true_oop) {
@@ -11920,13 +11980,13 @@ bc250 : {
 #undef UNDO_PREPARE_STACK
 #undef tos
   } while (0);
-  STACK_AT(0) = _stack0;
+  VM_STACK_AT(0) = _stack0;
 }
 NEXT_BC;
 bc251 : {
   OOP _stack0 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED, _extra2 ATTRIBUTE_UNUSED;
-  _stack0 = STACK_AT(0);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -11956,8 +12016,8 @@ bc251 : {
 #line 12978 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
-  PUSH_OOP(_extra2);
+  VM_PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra2);
 }
 NEXT_BC;
 bc252 : {
@@ -11994,20 +12054,20 @@ bc252 : {
     EXPORT_REGS();
     unwind_context();
     IMPORT_REGS();
-    SET_STACKTOP(val);
+    VM_SET_STACKTOP(val);
     FETCH;
 
 #line 13031 "vm.inl"
 #undef val
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc253 : {
   OOP _stack0 ATTRIBUTE_UNUSED, _stack1 ATTRIBUTE_UNUSED;
   OOP _extra1 ATTRIBUTE_UNUSED;
-  _stack1 = STACK_AT(1);
-  _stack0 = STACK_AT(0);
+  _stack1 = VM_STACK_AT(1);
+  _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
 #line 207 "vm.def"
@@ -12030,11 +12090,11 @@ bc253 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define rec _stack1
 #define idx _stack0
@@ -12078,8 +12138,8 @@ bc253 : {
 #undef val
 #undef res
   } while (0);
-  STACK_AT(1) = _stack1;
-  POP_N_OOPS(1);
+  VM_STACK_AT(1) = _stack1;
+  VM_POP_N_OOPS(1);
 }
 NEXT_BC;
 bc254 : {
@@ -12106,11 +12166,11 @@ bc254 : {
   do {
 #define PREPARE_STACK()                                                        \
   do {                                                                         \
-    PUSH_OOP(_extra1);                                                         \
+    VM_PUSH_OOP(_extra1);                                                         \
   } while (0)
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
-    POP_N_OOPS(1);                                                             \
+    VM_POP_N_OOPS(1);                                                             \
   } while (0)
 #define rec _extra1
 #define val _extra1
@@ -12149,7 +12209,7 @@ bc254 : {
 #undef rec
 #undef val
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 bc255 : {
@@ -12188,7 +12248,7 @@ bc255 : {
 #line 13243 "vm.inl"
 #undef tos
   } while (0);
-  PUSH_OOP(_extra1);
+  VM_PUSH_OOP(_extra1);
 }
 NEXT_BC;
 jump_around:;
