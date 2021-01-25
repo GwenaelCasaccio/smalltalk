@@ -163,7 +163,7 @@ extern thread_local OOP _gst_this_method ATTRIBUTE_HIDDEN;
 /* Physical address of the base of the method temporary variables.
    Typically a small number of bytes (multiple of 4 since it points to
    OOPs) lower than sp.  */
-extern thread_local OOP *_gst_temporaries ATTRIBUTE_HIDDEN;
+extern OOP *_gst_temporaries[100] ATTRIBUTE_HIDDEN;
 
 /* Physical address of the base of the method literals.  */
 extern OOP *_gst_literals[100] ATTRIBUTE_HIDDEN;

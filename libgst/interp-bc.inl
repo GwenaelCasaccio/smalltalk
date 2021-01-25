@@ -447,7 +447,7 @@ OOP _gst_interpret(OOP processOOP) {
 #define _gst_false_oop my_false_oop
 #define IMPORT_REGS()                                                          \
   (sp = _gst_sp, ip = _gst_ip, self_cache = _gst_self[current_thread_id],                         \
-   temp_cache = _gst_temporaries, lit_cache = _gst_literals[current_thread_id])
+   temp_cache = _gst_temporaries[current_thread_id], lit_cache = _gst_literals[current_thread_id])
 
 #else
 #define IMPORT_REGS() (sp = _gst_sp, ip = _gst_ip)
@@ -529,8 +529,8 @@ monitor_byte_codes:
 
   if UNCOMMON (_gst_execution_tracing) {
     if (verbose_exec_tracing) {
-      if (sp >= _gst_temporaries)
-        printf("\t  [%2td] --> %O\n", (ptrdiff_t)(sp - _gst_temporaries),
+      if (sp >= _gst_temporaries[current_thread_id])
+        printf("\t  [%2td] --> %O\n", (ptrdiff_t)(sp - _gst_temporaries[current_thread_id]),
                STACKTOP());
       else
         printf("\t  self --> %O\n", _gst_self[current_thread_id]);
