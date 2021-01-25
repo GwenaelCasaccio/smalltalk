@@ -13,11 +13,11 @@
 #else
 #define RECEIVER_VARIABLE(index) INSTANCE_VARIABLE(_gst_self, index)
 #define METHOD_TEMPORARY(index) _gst_temporaries[index]
-#define METHOD_LITERAL(index) _gst_literals[index]
+#define METHOD_LITERAL(index) _gst_literals[current_thread_id][index]
 #define STORE_RECEIVER_VARIABLE(index, oop)                                    \
   STORE_INSTANCE_VARIABLE(_gst_self, index, oop)
 #define STORE_METHOD_TEMPORARY(index, oop) _gst_temporaries[index] = (oop)
-#define STORE_METHOD_LITERAL(index, oop) _gst_literals[index] = (oop)
+#define STORE_METHOD_LITERAL(index, oop) _gst_literals[current_thread_id][index] = (oop)
 #endif
 
 #ifndef OPEN_CODE_MATH

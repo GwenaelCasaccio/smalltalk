@@ -215,7 +215,7 @@ thread_local OOP *sp = NULL;
 thread_local ip_type ip;
 
 thread_local OOP *_gst_temporaries = NULL;
-thread_local OOP *_gst_literals = NULL;
+OOP *_gst_literals[100] = { NULL };
 thread_local OOP _gst_self = NULL;
 OOP _gst_this_context_oop[100] = { NULL };
 thread_local OOP _gst_this_method = NULL;
