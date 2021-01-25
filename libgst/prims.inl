@@ -5598,7 +5598,7 @@ static intptr_t VMpr_ObjectMemory_gcPrimitives(int id, volatile int numArgs) {
 static intptr_t VMpr_SystemDictionary_rawProfile(int id, volatile int numArgs) {
   OOP oop1 = POP_OOP();
   if (_gst_raw_profile) {
-    _gst_record_profile(_gst_this_method, NULL, -1);
+    _gst_record_profile(_gst_this_method[current_thread_id], NULL, -1);
     SET_STACKTOP(_gst_raw_profile);
     _gst_unregister_oop(_gst_raw_profile);
   } else

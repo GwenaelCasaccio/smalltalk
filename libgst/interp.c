@@ -218,7 +218,7 @@ OOP *_gst_temporaries[100] = { NULL };
 OOP *_gst_literals[100] = { NULL };
 OOP _gst_self[100] = { NULL };
 OOP _gst_this_context_oop[100] = { NULL };
-thread_local OOP _gst_this_method = NULL;
+OOP _gst_this_method[100] = { NULL };
 
 /* Signal this semaphore at the following instruction.  */
 static OOP single_step_semaphore = NULL;
@@ -734,7 +734,7 @@ void empty_context_stack(void) {
   /* When a context gets out of the context stack it must be a fully
      formed Smalltalk object.  These fields were left uninitialized in
      _gst_send_message_internal and send_block_value -- set them here.  */
-  OBJ_METHOD_CONTEXT_SET_METHOD(context, _gst_this_method);
+  OBJ_METHOD_CONTEXT_SET_METHOD(context, _gst_this_method[current_thread_id]);
   OBJ_METHOD_CONTEXT_SET_RECEIVER(context, _gst_self[current_thread_id]);
   OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
       context, FROM_INT(sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)));
@@ -816,7 +816,7 @@ gst_object activate_new_context(int size, int sendArgs) {
   /* leave sp pointing to receiver, which is replaced on return with
      value */
   thisContext = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
-  OBJ_METHOD_CONTEXT_SET_METHOD(thisContext, _gst_this_method);
+  OBJ_METHOD_CONTEXT_SET_METHOD(thisContext, _gst_this_method[current_thread_id]);
   OBJ_METHOD_CONTEXT_SET_RECEIVER(thisContext, _gst_self[current_thread_id]);
   OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
       thisContext,
@@ -2261,12 +2261,12 @@ void _gst_fixup_object_pointers(void) {
     thisContext = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
 #ifdef DEBUG_FIXUP
     fflush(stderr);
-    printf("\nF sp %x %d    ip %x %d	_gst_this_method %x  thisContext %x",
+    printf("\nF sp %x %d    ip %x %d	_gst_this_method[current_thread_id] %x  thisContext %x",
            sp, sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext), ip,
-           ip - method_base, _gst_this_method->object, thisContext);
+           ip - method_base, _gst_this_method[current_thread_id]->object, thisContext);
     fflush(stdout);
 #endif
-    OBJ_METHOD_CONTEXT_SET_METHOD(thisContext, _gst_this_method);
+    OBJ_METHOD_CONTEXT_SET_METHOD(thisContext, _gst_this_method[current_thread_id]);
     OBJ_METHOD_CONTEXT_SET_RECEIVER(thisContext, _gst_self[current_thread_id]);
     OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
         thisContext,
@@ -2290,9 +2290,9 @@ void _gst_restore_object_pointers(void) {
 
 #ifndef OPTIMIZE /* Mon Jul 3 01:21:06 1995 */
     /* these should not be necessary */
-    if (_gst_this_method != OBJ_METHOD_CONTEXT_METHOD(thisContext)) {
+    if (_gst_this_method[current_thread_id] != OBJ_METHOD_CONTEXT_METHOD(thisContext)) {
       printf("$$$$$$$$$$$$$$$$$$$ GOT ONE!!!!\n");
-      printf("this method %O\n", _gst_this_method);
+      printf("this method %O\n", _gst_this_method[current_thread_id]);
       printf("this context %O\n", OBJ_METHOD_CONTEXT_RECEIVER(thisContext));
       abort();
     }
@@ -2304,15 +2304,15 @@ void _gst_restore_object_pointers(void) {
     }
 #endif /* OPTIMIZE Mon Jul 3 01:21:06 1995 */
 
-    SET_THIS_METHOD(_gst_this_method, GET_CONTEXT_IP(thisContext));
+    SET_THIS_METHOD(_gst_this_method[current_thread_id], GET_CONTEXT_IP(thisContext));
     sp = TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(thisContext)) +
          OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
 
 #ifdef DEBUG_FIXUP
     fflush(stderr);
-    printf("\nR sp %x %d    ip %x %d	_gst_this_method %x  thisContext %x\n",
+    printf("\nR sp %x %d    ip %x %d	_gst_this_method[current_thread_id] %x  thisContext %x\n",
            sp, sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext), ip,
-           ip - method_base, _gst_this_method->object, thisContext);
+           ip - method_base, _gst_this_method[current_thread_id]->object, thisContext);
     fflush(stdout);
 #endif
   }

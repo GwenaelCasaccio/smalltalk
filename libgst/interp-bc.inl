@@ -160,9 +160,9 @@
 
 #define SET_THIS_METHOD(method, ipOffset)                                      \
   do {                                                                         \
-    OOP old_method_oop = _gst_this_method;                                     \
+    OOP old_method_oop = _gst_this_method[current_thread_id];                                     \
     gst_compiled_method _method =                                              \
-        (gst_compiled_method)OOP_TO_OBJ(_gst_this_method = (method));          \
+        (gst_compiled_method)OOP_TO_OBJ(_gst_this_method[current_thread_id] = (method));          \
                                                                                \
     method_base = _method->bytecodes;                                          \
     _gst_literals[current_thread_id] = OOP_TO_OBJ(_method->literals)->data;                       \

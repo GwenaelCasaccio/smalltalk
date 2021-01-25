@@ -158,7 +158,7 @@ extern mst_Boolean _gst_non_interactive ATTRIBUTE_HIDDEN;
 
 /* The OOP for a gst_compiled_method or gst_compiled_block that is the
    currently executing method.  */
-extern thread_local OOP _gst_this_method ATTRIBUTE_HIDDEN;
+extern OOP _gst_this_method[100] ATTRIBUTE_HIDDEN;
 
 /* Physical address of the base of the method temporary variables.
    Typically a small number of bytes (multiple of 4 since it points to
