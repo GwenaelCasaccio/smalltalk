@@ -165,7 +165,7 @@
         (gst_compiled_method)OOP_TO_OBJ(_gst_this_method = (method));          \
                                                                                \
     method_base = _method->bytecodes;                                          \
-    _gst_literals = OOP_TO_OBJ(_method->literals)->data;                       \
+    _gst_literals[current_thread_id] = OOP_TO_OBJ(_method->literals)->data;                       \
     ip = method_base + (ipOffset);                                             \
     if UNCOMMON (_gst_raw_profile)                                             \
       _gst_record_profile(old_method_oop, method, ipOffset);                   \
@@ -447,7 +447,7 @@ OOP _gst_interpret(OOP processOOP) {
 #define _gst_false_oop my_false_oop
 #define IMPORT_REGS()                                                          \
   (sp = _gst_sp, ip = _gst_ip, self_cache = _gst_self,                         \
-   temp_cache = _gst_temporaries, lit_cache = _gst_literals)
+   temp_cache = _gst_temporaries, lit_cache = _gst_literals[current_thread_id])
 
 #else
 #define IMPORT_REGS() (sp = _gst_sp, ip = _gst_ip)
@@ -537,7 +537,7 @@ monitor_byte_codes:
     }
 
     printf("%5td:", (ptrdiff_t)(ip - method_base));
-    _gst_print_bytecode_name(ip, ip - method_base, _gst_literals, "");
+    _gst_print_bytecode_name(ip, ip - method_base, _gst_literals[current_thread_id], "");
     SET_EXCEPT_FLAG(true);
   }
 

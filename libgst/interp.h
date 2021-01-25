@@ -166,7 +166,7 @@ extern thread_local OOP _gst_this_method ATTRIBUTE_HIDDEN;
 extern thread_local OOP *_gst_temporaries ATTRIBUTE_HIDDEN;
 
 /* Physical address of the base of the method literals.  */
-extern thread_local OOP *_gst_literals ATTRIBUTE_HIDDEN;
+extern OOP *_gst_literals[100] ATTRIBUTE_HIDDEN;
 
 /* An OOP that is the current receiver of the current message.  */
 extern thread_local OOP _gst_self ATTRIBUTE_HIDDEN;
