@@ -212,7 +212,7 @@ static thread_local ip_type method_base;
 
 /* The virtual machine's stack and instruction pointers.  */
 thread_local OOP *sp = NULL;
-thread_local ip_type ip;
+ip_type ip[100];
 
 OOP *_gst_temporaries[100] = { NULL };
 OOP *_gst_literals[100] = { NULL };
@@ -738,7 +738,7 @@ void empty_context_stack(void) {
   OBJ_METHOD_CONTEXT_SET_RECEIVER(context, _gst_self[current_thread_id]);
   OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
       context, FROM_INT(sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)));
-  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(context, FROM_INT(ip - method_base));
+  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(context, FROM_INT(ip[current_thread_id] - method_base));
 
   /* Even if the JIT is active, the current context might have no
      attached native_ip -- in fact it has one only if we are being
@@ -822,7 +822,7 @@ gst_object activate_new_context(int size, int sendArgs) {
       thisContext,
       FROM_INT((sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext)) -
                sendArgs));
-  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(thisContext, FROM_INT(ip - method_base));
+  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(thisContext, FROM_INT(ip[current_thread_id] - method_base));
 
   _gst_this_context_oop[current_thread_id] = oop;
 
@@ -2046,9 +2046,9 @@ void _gst_init_interpreter(void) {
 
 #ifdef ENABLE_JIT_TRANSLATION
   _gst_init_translator();
-  ip = 0;
+  ip[current_thread_id] = 0;
 #else
-  ip = NULL;
+  ip[current_thread_id] = NULL;
 #endif
 
   _gst_this_context_oop[current_thread_id] = _gst_nil_oop;
@@ -2261,9 +2261,9 @@ void _gst_fixup_object_pointers(void) {
     thisContext = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
 #ifdef DEBUG_FIXUP
     fflush(stderr);
-    printf("\nF sp %x %d    ip %x %d	_gst_this_method[current_thread_id] %x  thisContext %x",
-           sp, sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext), ip,
-           ip - method_base, _gst_this_method[current_thread_id]->object, thisContext);
+    printf("\nF sp %x %d    ip[current_thread_id] %x %d	_gst_this_method[current_thread_id] %x  thisContext %x",
+           sp, sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext), ip[current_thread_id],
+           ip[current_thread_id] - method_base, _gst_this_method[current_thread_id]->object, thisContext);
     fflush(stdout);
 #endif
     OBJ_METHOD_CONTEXT_SET_METHOD(thisContext, _gst_this_method[current_thread_id]);
@@ -2271,7 +2271,7 @@ void _gst_fixup_object_pointers(void) {
     OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
         thisContext,
         FROM_INT(sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext)));
-    OBJ_METHOD_CONTEXT_SET_IP_OFFSET(thisContext, FROM_INT(ip - method_base));
+    OBJ_METHOD_CONTEXT_SET_IP_OFFSET(thisContext, FROM_INT(ip[current_thread_id] - method_base));
   }
 }
 
@@ -2310,9 +2310,9 @@ void _gst_restore_object_pointers(void) {
 
 #ifdef DEBUG_FIXUP
     fflush(stderr);
-    printf("\nR sp %x %d    ip %x %d	_gst_this_method[current_thread_id] %x  thisContext %x\n",
-           sp, sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext), ip,
-           ip - method_base, _gst_this_method[current_thread_id]->object, thisContext);
+    printf("\nR sp %x %d    ip[current_thread_id] %x %d	_gst_this_method[current_thread_id] %x  thisContext %x\n",
+           sp, sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext), ip[current_thread_id],
+           ip[current_thread_id] - method_base, _gst_this_method[current_thread_id]->object, thisContext);
     fflush(stdout);
 #endif
   }
@@ -2337,7 +2337,7 @@ static void backtrace_on_signal_1(mst_Boolean is_serious_error,
   reentering++;
 
   if ((reentrancy_jmp_buf && reentrancy_jmp_buf->interpreter) && !reentering &&
-      ip && !_gst_gc_running)
+      ip[current_thread_id] && !_gst_gc_running)
     _gst_show_backtrace(stderr);
   else {
     if (is_serious_error)
@@ -2402,7 +2402,7 @@ void _gst_show_backtrace(FILE *fp) {
       continue;
 
     /* printf ("(OOP %p)", context->method); */
-    fprintf(fp, "(ip %d)", TO_INT(OBJ_METHOD_CONTEXT_IP_OFFSET(context)));
+    fprintf(fp, "(ip[current_thread_id] %d)", TO_INT(OBJ_METHOD_CONTEXT_IP_OFFSET(context)));
     if ((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) & MCF_IS_METHOD_CONTEXT) {
       OOP receiver, receiverClass;
 

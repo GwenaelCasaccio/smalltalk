@@ -200,7 +200,7 @@ typedef gst_uchar *ip_type;
 #endif
 #define ip _gst_ip
 
-extern thread_local ip_type ip ATTRIBUTE_HIDDEN;
+extern ip_type ip[100] ATTRIBUTE_HIDDEN;
 
 typedef struct async_queue_entry {
   void (*func)(OOP);
