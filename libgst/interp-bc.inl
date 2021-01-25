@@ -300,7 +300,7 @@ void _gst_send_message_internal(OOP sendSelector, int sendArgs, OOP receiver,
   OBJ_METHOD_CONTEXT_SET_FLAGS(newContext, (OOP)MCF_IS_METHOD_CONTEXT);
   /* push args and temps, set sp and _gst_temporaries */
   prepare_context((gst_context_part)newContext, sendArgs, header.numTemps);
-  _gst_self = receiver;
+  _gst_self[current_thread_id] = receiver;
   SET_THIS_METHOD(methodOOP, 0);
 }
 
@@ -380,7 +380,7 @@ void _gst_send_method(OOP methodOOP) {
                                (OOP)MCF_IS_METHOD_CONTEXT);
   /* push args and temps, set sp and _gst_temporaries */
   prepare_context((gst_context_part)newContext, sendArgs, header.numTemps);
-  _gst_self = receiver;
+  _gst_self[current_thread_id] = receiver;
   SET_THIS_METHOD(methodOOP, 0);
 }
 
@@ -410,7 +410,7 @@ static mst_Boolean send_block_value(int numArgs, int cull_up_to) {
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(blockContext, closure->outerContext);
   /* push args and temps */
   prepare_context((gst_context_part)blockContext, numArgs, header.numTemps);
-  _gst_self = closure->receiver;
+  _gst_self[current_thread_id] = closure->receiver;
   SET_THIS_METHOD(closure->block, 0);
 
   return (false);
@@ -446,7 +446,7 @@ OOP _gst_interpret(OOP processOOP) {
 #define _gst_true_oop my_true_oop
 #define _gst_false_oop my_false_oop
 #define IMPORT_REGS()                                                          \
-  (sp = _gst_sp, ip = _gst_ip, self_cache = _gst_self,                         \
+  (sp = _gst_sp, ip = _gst_ip, self_cache = _gst_self[current_thread_id],                         \
    temp_cache = _gst_temporaries, lit_cache = _gst_literals[current_thread_id])
 
 #else
@@ -533,7 +533,7 @@ monitor_byte_codes:
         printf("\t  [%2td] --> %O\n", (ptrdiff_t)(sp - _gst_temporaries),
                STACKTOP());
       else
-        printf("\t  self --> %O\n", _gst_self);
+        printf("\t  self --> %O\n", _gst_self[current_thread_id]);
     }
 
     printf("%5td:", (ptrdiff_t)(ip - method_base));
