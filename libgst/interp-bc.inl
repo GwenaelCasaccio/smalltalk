@@ -166,7 +166,7 @@
                                                                                \
     method_base = _method->bytecodes;                                          \
     _gst_literals[current_thread_id] = OOP_TO_OBJ(_method->literals)->data;                       \
-    ip = method_base + (ipOffset);                                             \
+    ip[current_thread_id] = method_base + (ipOffset);                                             \
     if UNCOMMON (_gst_raw_profile)                                             \
       _gst_record_profile(old_method_oop, method, ipOffset);                   \
   } while (0)
@@ -428,11 +428,11 @@ OOP _gst_interpret(OOP processOOP) {
 
 #if REG_AVAILABILITY == 0
 #define LOCAL_COUNTER _gst_bytecode_counter
-#define EXPORT_REGS() (_gst_sp = sp, _gst_ip = ip)
+#define EXPORT_REGS() (_gst_sp = sp, _gst_ip[current_thread_id] = ip)
 #else
   int LOCAL_COUNTER = 0;
 #define EXPORT_REGS()                                                          \
-  (_gst_sp = sp, _gst_ip = ip, _gst_bytecode_counter += LOCAL_COUNTER,         \
+  (_gst_sp = sp, _gst_ip[current_thread_id] = ip, _gst_bytecode_counter += LOCAL_COUNTER,         \
    LOCAL_COUNTER = 0)
 #endif
 
@@ -446,11 +446,11 @@ OOP _gst_interpret(OOP processOOP) {
 #define _gst_true_oop my_true_oop
 #define _gst_false_oop my_false_oop
 #define IMPORT_REGS()                                                          \
-  (sp = _gst_sp, ip = _gst_ip, self_cache = _gst_self[current_thread_id],                         \
+  (sp = _gst_sp, ip = _gst_ip[current_thread_id], self_cache = _gst_self[current_thread_id],                         \
    temp_cache = _gst_temporaries[current_thread_id], lit_cache = _gst_literals[current_thread_id])
 
 #else
-#define IMPORT_REGS() (sp = _gst_sp, ip = _gst_ip)
+#define IMPORT_REGS() (sp = _gst_sp, ip = _gst_ip[current_thread_id])
 #endif
 
   REGISTER(1, ip_type ip);
