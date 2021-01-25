@@ -216,7 +216,7 @@ thread_local ip_type ip;
 
 thread_local OOP *_gst_temporaries = NULL;
 OOP *_gst_literals[100] = { NULL };
-thread_local OOP _gst_self = NULL;
+OOP _gst_self[100] = { NULL };
 OOP _gst_this_context_oop[100] = { NULL };
 thread_local OOP _gst_this_method = NULL;
 
@@ -735,7 +735,7 @@ void empty_context_stack(void) {
      formed Smalltalk object.  These fields were left uninitialized in
      _gst_send_message_internal and send_block_value -- set them here.  */
   OBJ_METHOD_CONTEXT_SET_METHOD(context, _gst_this_method);
-  OBJ_METHOD_CONTEXT_SET_RECEIVER(context, _gst_self);
+  OBJ_METHOD_CONTEXT_SET_RECEIVER(context, _gst_self[current_thread_id]);
   OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
       context, FROM_INT(sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)));
   OBJ_METHOD_CONTEXT_SET_IP_OFFSET(context, FROM_INT(ip - method_base));
@@ -817,7 +817,7 @@ gst_object activate_new_context(int size, int sendArgs) {
      value */
   thisContext = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
   OBJ_METHOD_CONTEXT_SET_METHOD(thisContext, _gst_this_method);
-  OBJ_METHOD_CONTEXT_SET_RECEIVER(thisContext, _gst_self);
+  OBJ_METHOD_CONTEXT_SET_RECEIVER(thisContext, _gst_self[current_thread_id]);
   OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
       thisContext,
       FROM_INT((sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext)) -
@@ -1033,7 +1033,7 @@ void unwind_context(void) {
   _gst_temporaries = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext);
   sp = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext) +
        TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(newContext));
-  _gst_self = OBJ_METHOD_CONTEXT_RECEIVER(newContext);
+  _gst_self[current_thread_id] = OBJ_METHOD_CONTEXT_RECEIVER(newContext);
 
   SET_THIS_METHOD(OBJ_METHOD_CONTEXT_METHOD(newContext),
                   GET_CONTEXT_IP(newContext));
@@ -1137,7 +1137,7 @@ mst_Boolean unwind_to(OOP returnContextOOP) {
   _gst_temporaries = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext);
   sp = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext) +
        TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(newContext));
-  _gst_self = OBJ_METHOD_CONTEXT_RECEIVER(newContext);
+  _gst_self[current_thread_id] = OBJ_METHOD_CONTEXT_RECEIVER(newContext);
 
   SET_THIS_METHOD(OBJ_METHOD_CONTEXT_METHOD(newContext),
                   GET_CONTEXT_IP(newContext));
@@ -1237,7 +1237,7 @@ OOP _gst_make_block_closure(OOP blockOOP) {
     closure->outerContext = _gst_nil_oop;
 
   closure->block = blockOOP;
-  closure->receiver = _gst_self;
+  closure->receiver = _gst_self[current_thread_id];
   return (closureOOP);
 }
 
@@ -1302,7 +1302,7 @@ void resume_suspended_context(OOP oop) {
   SET_THIS_METHOD(OBJ_METHOD_CONTEXT_METHOD(thisContext),
                   GET_CONTEXT_IP(thisContext));
   _gst_temporaries = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
-  _gst_self = OBJ_METHOD_CONTEXT_RECEIVER(thisContext);
+  _gst_self[current_thread_id] = OBJ_METHOD_CONTEXT_RECEIVER(thisContext);
   free_lifo_context[current_thread_id] = lifo_contexts[current_thread_id];
 }
 
@@ -2267,7 +2267,7 @@ void _gst_fixup_object_pointers(void) {
     fflush(stdout);
 #endif
     OBJ_METHOD_CONTEXT_SET_METHOD(thisContext, _gst_this_method);
-    OBJ_METHOD_CONTEXT_SET_RECEIVER(thisContext, _gst_self);
+    OBJ_METHOD_CONTEXT_SET_RECEIVER(thisContext, _gst_self[current_thread_id]);
     OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
         thisContext,
         FROM_INT(sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext)));
@@ -2296,9 +2296,9 @@ void _gst_restore_object_pointers(void) {
       printf("this context %O\n", OBJ_METHOD_CONTEXT_RECEIVER(thisContext));
       abort();
     }
-    if (_gst_self != OBJ_METHOD_CONTEXT_RECEIVER(thisContext)) {
+    if (_gst_self[current_thread_id] != OBJ_METHOD_CONTEXT_RECEIVER(thisContext)) {
       printf("$$$$$$$$$$$$$$$$$$$ GOT ONE!!!!\n");
-      printf("self %O\n", _gst_self);
+      printf("self %O\n", _gst_self[current_thread_id]);
       printf("this context %O\n", OBJ_METHOD_CONTEXT_RECEIVER(thisContext));
       abort();
     }

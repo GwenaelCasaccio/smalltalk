@@ -5456,7 +5456,7 @@ static intptr_t VMpr_CFuncDescriptor_asyncCall(int id, volatile int numArgs) {
   } else {
     contextOOP = _gst_this_context_oop[current_thread_id];
     context = OOP_TO_OBJ(contextOOP);
-    receiverOOP = _gst_self;
+    receiverOOP = _gst_self[current_thread_id];
   }
 
   cFuncOOP = STACKTOP();
@@ -5499,7 +5499,7 @@ static intptr_t VMpr_CFuncDescriptor_call(int id, volatile int numArgs) {
   } else {
     contextOOP = _gst_this_context_oop[current_thread_id];
     context = OOP_TO_OBJ(contextOOP);
-    receiverOOP = _gst_self;
+    receiverOOP = _gst_self[current_thread_id];
   }
 
   cFuncOOP = POP_OOP();

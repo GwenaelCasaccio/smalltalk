@@ -169,7 +169,7 @@ extern thread_local OOP *_gst_temporaries ATTRIBUTE_HIDDEN;
 extern OOP *_gst_literals[100] ATTRIBUTE_HIDDEN;
 
 /* An OOP that is the current receiver of the current message.  */
-extern thread_local OOP _gst_self ATTRIBUTE_HIDDEN;
+extern OOP _gst_self[100] ATTRIBUTE_HIDDEN;
 
 /* A gst_block_context or gst_method_context that indicates the
    context that the interpreter is currently running in.  */
