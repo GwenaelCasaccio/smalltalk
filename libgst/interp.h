@@ -173,7 +173,7 @@ extern thread_local OOP _gst_self ATTRIBUTE_HIDDEN;
 
 /* A gst_block_context or gst_method_context that indicates the
    context that the interpreter is currently running in.  */
-extern thread_local OOP _gst_this_context_oop ATTRIBUTE_HIDDEN;
+extern OOP _gst_this_context_oop[100] ATTRIBUTE_HIDDEN;
 
 extern pthread_barrier_t interp_sync_barrier;
 

@@ -2380,7 +2380,7 @@ bc33 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop);
+    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -2501,7 +2501,7 @@ bc37 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop);
+    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -3706,7 +3706,7 @@ bc77 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop);
+    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -5653,7 +5653,7 @@ bc121 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop);
+    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -6458,7 +6458,7 @@ bc139 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop);
+    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -7121,7 +7121,7 @@ bc152 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop);
+    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -8493,7 +8493,7 @@ bc181 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop);
+    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -9103,7 +9103,7 @@ bc194 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop);
+    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -9210,7 +9210,7 @@ bc196 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop);
+    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -10122,7 +10122,7 @@ bc214 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop);
+    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -12177,7 +12177,7 @@ bc255 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop);
+    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
