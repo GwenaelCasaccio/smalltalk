@@ -1210,8 +1210,11 @@ mst_Boolean _gst_incremental_gc_step() {
   OOP oop, firstOOP;
   int i;
 
-  if (!incremental_gc_running())
+  pthread_mutex_lock(&global_gc_mutex);
+  if (!incremental_gc_running()) {
+    pthread_mutex_unlock(&global_gc_mutex);
     return true;
+  }
 
   i = 0;
   firstOOP = _gst_mem.last_swept_oop;
@@ -1226,6 +1229,7 @@ mst_Boolean _gst_incremental_gc_step() {
         OOP_PREV(_gst_mem.last_allocated_oop);
       if (++i == INCREMENTAL_SWEEP_STEP) {
         _gst_mem.next_oop_to_sweep = OOP_PREV(oop);
+        pthread_mutex_unlock(&global_gc_mutex);
         return false;
       }
     }
@@ -1233,12 +1237,14 @@ mst_Boolean _gst_incremental_gc_step() {
 
   _gst_mem.next_oop_to_sweep = oop;
   _gst_finished_incremental_gc();
+  pthread_mutex_unlock(&global_gc_mutex);
   return true;
 }
 
 void reset_incremental_gc(OOP firstOOP) {
   OOP oop;
 
+  pthread_mutex_lock(&global_gc_mutex);
   /* This loop is the same as that in alloc_oop.  Skip low OOPs
      that are allocated */
   for (oop = firstOOP; IS_OOP_VALID_GC(oop);) {
@@ -1276,6 +1282,7 @@ void reset_incremental_gc(OOP firstOOP) {
          _gst_mem.last_allocated_oop, _gst_mem.next_oop_to_sweep,
          _gst_mem.last_swept_oop);
 #endif
+  pthread_mutex_unlock(&global_gc_mutex);
 }
 
 void _gst_sweep_oop(OOP oop) {
