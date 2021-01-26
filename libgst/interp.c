@@ -750,6 +750,69 @@ void empty_context_stack(void) {
     OBJ_METHOD_CONTEXT_SET_NATIVE_IP(context, DUMMY_NATIVE_IP);
 }
 
+void empty_context_stack_for_thread(size_t thread_id) {
+  OOP contextOOP, last, oop;
+  gst_object context;
+
+  /* printf("[[[[ Gosh, not lifo anymore! (free = %p, base = %p)\n",
+     free_lifo_context, lifo_contexts); */
+  if COMMON (free_lifo_context[thread_id] != lifo_contexts[thread_id])
+    for (free_lifo_context[thread_id] = contextOOP = lifo_contexts[thread_id],
+        last = _gst_this_context_oop[thread_id], context = OOP_TO_OBJ(contextOOP);
+         ;) {
+      oop =
+          alloc_oop(context, OOP_GET_FLAGS(contextOOP) | _gst_mem.active_flag);
+
+      /* Fill the object's uninitialized fields. */
+      OBJ_SET_CLASS(context, (intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) &
+                                     MCF_IS_METHOD_CONTEXT
+                                 ? _gst_method_context_class
+                                 : _gst_block_context_class);
+
+      /* This field is unused without the JIT compiler, but it must
+         be initialized when a context becomes a fully formed
+         Smalltalk object.  We do that here.  Note that we need the
+         field so that the same image is usable with or without the
+         JIT compiler.  */
+      OBJ_METHOD_CONTEXT_SET_NATIVE_IP(context, DUMMY_NATIVE_IP);
+
+      /* The last context is not referenced anywhere, so we're done
+         with it.  */
+      if (contextOOP++ == last) {
+        _gst_this_context_oop[thread_id] = oop;
+        break;
+      }
+
+      /* Else we redirect its sender field to the main OOP table */
+      context = OOP_TO_OBJ(contextOOP);
+      OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT(context, oop);
+    }
+  else {
+    if (IS_NIL(_gst_this_context_oop[thread_id]))
+      return;
+
+    context = OOP_TO_OBJ(_gst_this_context_oop[thread_id]);
+  }
+
+  /* When a context gets out of the context stack it must be a fully
+     formed Smalltalk object.  These fields were left uninitialized in
+     _gst_send_message_internal and send_block_value -- set them here.  */
+  OBJ_METHOD_CONTEXT_SET_METHOD(context, _gst_this_method[thread_id]);
+  OBJ_METHOD_CONTEXT_SET_RECEIVER(context, _gst_self[thread_id]);
+  OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
+      context, FROM_INT(sp[thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)));
+  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(context, FROM_INT(ip[thread_id] - method_base));
+
+  /* Even if the JIT is active, the current context might have no
+     attached native_ip -- in fact it has one only if we are being
+     called from activate_new_context -- so we have to `invent'
+     one. We test for a valid native_ip first, though; this test must
+     have no false positives, i.e. it won't ever overwrite a valid
+     native_ip, and won't leave a bogus OOP for the native_ip.  */
+  if (!IS_INT(OBJ_METHOD_CONTEXT_NATIVE_IP(context)))
+    OBJ_METHOD_CONTEXT_SET_NATIVE_IP(context, DUMMY_NATIVE_IP);
+}
+
 void alloc_new_chunk(void) {
   if UNCOMMON (++chunk[current_thread_id] >= &chunks[current_thread_id][MAX_CHUNKS_IN_MEMORY]) {
     /* No more chunks available - GC */
@@ -2251,28 +2314,35 @@ void mark_semaphore_oops(void) {
 }
 
 void _gst_fixup_object_pointers(void) {
-  gst_object thisContext;
+  for (size_t i = 0; i < atomic_load(&_gst_interpret_thread_counter); i++) {
+    _gst_fixup_object_pointers_for_thread(i);
+  }
+}
 
-  if (!IS_NIL(_gst_this_context_oop[current_thread_id])) {
+void _gst_fixup_object_pointers_for_thread(size_t thread_id) {
+    gst_object thisContext;
+
+  if (!IS_NIL(_gst_this_context_oop[thread_id])) {
     /* Create real OOPs for the contexts here.  If we do it while copying,
        the newly created OOPs are in to-space and are never scanned! */
-    empty_context_stack();
+    empty_context_stack_for_thread(thread_id);
 
-    thisContext = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
+    thisContext = OOP_TO_OBJ(_gst_this_context_oop[thread_id]);
 #ifdef DEBUG_FIXUP
     fflush(stderr);
-    printf("\nF sp[current_thread_id] %x %d    ip[current_thread_id] %x %d	_gst_this_method[current_thread_id] %x  thisContext %x",
-           sp[current_thread_id], sp[current_thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext), ip[current_thread_id],
-           ip[current_thread_id] - method_base, _gst_this_method[current_thread_id]->object, thisContext);
+    printf("\nF sp[thread_id] %x %d    ip[thread_id] %x %d	_gst_this_method[thread_id] %x  thisContext %x",
+           sp[thread_id], sp[thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext), ip[thread_id],
+           ip[thread_id] - method_base, _gst_this_method[thread_id]->object, thisContext);
     fflush(stdout);
 #endif
-    OBJ_METHOD_CONTEXT_SET_METHOD(thisContext, _gst_this_method[current_thread_id]);
-    OBJ_METHOD_CONTEXT_SET_RECEIVER(thisContext, _gst_self[current_thread_id]);
+    OBJ_METHOD_CONTEXT_SET_METHOD(thisContext, _gst_this_method[thread_id]);
+    OBJ_METHOD_CONTEXT_SET_RECEIVER(thisContext, _gst_self[thread_id]);
     OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
         thisContext,
-        FROM_INT(sp[current_thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext)));
-    OBJ_METHOD_CONTEXT_SET_IP_OFFSET(thisContext, FROM_INT(ip[current_thread_id] - method_base));
+        FROM_INT(sp[thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext)));
+    OBJ_METHOD_CONTEXT_SET_IP_OFFSET(thisContext, FROM_INT(ip[thread_id] - method_base));
   }
+
 }
 
 void _gst_restore_object_pointers(void) {
