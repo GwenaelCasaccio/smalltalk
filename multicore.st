@@ -19,7 +19,7 @@ Process extend [
   setBlock: aBlock [
     suspendedContext := BlockContext allocateFrom: [ 
       aBlock value.
-      1 to: 10 do: [ : i | Object new basicPrint].
+      1 to: 200 do: [ : i | Object new basicPrint].
       ObjectMemory globalGarbageCollect.
       ObjectMemory abort ].
 
@@ -42,4 +42,5 @@ ps instVarAt:4 put: 40.
 ps instVarAt:5 put: Semaphore new. 
 ps newThread: process.
 
+1 to: 200 do: [Object new.  ].
 [ true ] whileTrue.
