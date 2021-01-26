@@ -1,6 +1,0 @@
-started thread
-ProcessorScheduler new "<0x7e8e9726e5e0>"
-Process new "<0x7e8e9726ac90>"
-"Global garbage collection... done"
-gst: Aborted
-(ip 44)[] in Process>>#setBlock:
