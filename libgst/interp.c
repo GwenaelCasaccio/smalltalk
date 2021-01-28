@@ -575,6 +575,12 @@ void global_lock_for_gc(void) {
     __sync_synchronize();                                                      \
   } while (0)
 
+#define SET_EXCEPT_FLAG_FOR_THREAD(x, thread_id)                        \
+  do {                                                                  \
+    dispatch_vec_per_thread[(thread_id)] = (x) ? global_monitored_bytecodes : global_normal_bytecodes; \
+    __sync_synchronize();                                               \
+  } while (0)
+
 /* Answer an hash value for a send of the SENDSELECTOR message, when
    the CompiledMethod is found in class METHODCLASS.  */
 #define METHOD_CACHE_HASH(sendSelector, methodClass)                           \
@@ -2328,13 +2334,6 @@ void _gst_fixup_object_pointers_for_thread(size_t thread_id) {
     empty_context_stack_for_thread(thread_id);
 
     thisContext = OOP_TO_OBJ(_gst_this_context_oop[thread_id]);
-#ifdef DEBUG_FIXUP
-    fflush(stderr);
-    printf("\nF sp[thread_id] %x %d    ip[thread_id] %x %d	_gst_this_method[thread_id] %x  thisContext %x",
-           sp[thread_id], sp[thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext), ip[thread_id],
-           ip[thread_id] - method_base, _gst_this_method[thread_id]->object, thisContext);
-    fflush(stdout);
-#endif
     OBJ_METHOD_CONTEXT_SET_METHOD(thisContext, _gst_this_method[thread_id]);
     OBJ_METHOD_CONTEXT_SET_RECEIVER(thisContext, _gst_self[thread_id]);
     OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
@@ -2346,6 +2345,12 @@ void _gst_fixup_object_pointers_for_thread(size_t thread_id) {
 }
 
 void _gst_restore_object_pointers(void) {
+  for (size_t i = 0; i < atomic_load(&_gst_interpret_thread_counter); i++) {
+    _gst_restore_object_pointers_for_thread(i);
+  }
+}
+
+void _gst_restore_object_pointers_for_thread(size_t thread_id) {
   gst_object thisContext;
 
   /* !!! The objects can move after the growing or compact phase. But,
@@ -2354,40 +2359,16 @@ void _gst_restore_object_pointers(void) {
      and we also pick up the context to adjust sp and the temps
      accordingly.  */
 
-  if (!IS_NIL(_gst_this_context_oop[current_thread_id])) {
-    thisContext = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
-    _gst_temporaries[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
+  if (!IS_NIL(_gst_this_context_oop[thread_id])) {
+    thisContext = OOP_TO_OBJ(_gst_this_context_oop[thread_id]);
+    _gst_temporaries[thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
 
-#ifndef OPTIMIZE /* Mon Jul 3 01:21:06 1995 */
-    /* these should not be necessary */
-    if (_gst_this_method[current_thread_id] != OBJ_METHOD_CONTEXT_METHOD(thisContext)) {
-      printf("$$$$$$$$$$$$$$$$$$$ GOT ONE!!!!\n");
-      printf("this method %O\n", _gst_this_method[current_thread_id]);
-      printf("this context %O\n", OBJ_METHOD_CONTEXT_RECEIVER(thisContext));
-      abort();
-    }
-    if (_gst_self[current_thread_id] != OBJ_METHOD_CONTEXT_RECEIVER(thisContext)) {
-      printf("$$$$$$$$$$$$$$$$$$$ GOT ONE!!!!\n");
-      printf("self %O\n", _gst_self[current_thread_id]);
-      printf("this context %O\n", OBJ_METHOD_CONTEXT_RECEIVER(thisContext));
-      abort();
-    }
-#endif /* OPTIMIZE Mon Jul 3 01:21:06 1995 */
-
-    SET_THIS_METHOD(_gst_this_method[current_thread_id], GET_CONTEXT_IP(thisContext));
-    sp[current_thread_id] = TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(thisContext)) +
+    SET_THIS_METHOD(_gst_this_method[thread_id], GET_CONTEXT_IP(thisContext));
+    sp[thread_id] = TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(thisContext)) +
          OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
-
-#ifdef DEBUG_FIXUP
-    fflush(stderr);
-    printf("\nR sp[current_thread_id] %x %d    ip[current_thread_id] %x %d	_gst_this_method[current_thread_id] %x  thisContext %x\n",
-           sp[current_thread_id], sp[current_thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext), ip[current_thread_id],
-           ip[current_thread_id] - method_base, _gst_this_method[current_thread_id]->object, thisContext);
-    fflush(stdout);
-#endif
   }
 
-  SET_EXCEPT_FLAG(true); /* force to import registers */
+  SET_EXCEPT_FLAG_FOR_THREAD(true, thread_id); /* force to import registers */
 }
 
 static RETSIGTYPE interrupt_on_signal(int sig) {
