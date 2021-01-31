@@ -179,6 +179,8 @@ extern pthread_barrier_t interp_sync_barrier;
 
 extern volatile _Atomic(size_t) _gst_interpret_thread_counter;
 
+extern thread_local size_t current_thread_id;
+
 /* The OOP for an IdentityDictionary that stores the raw profile. */
 extern OOP _gst_raw_profile ATTRIBUTE_HIDDEN;
 
@@ -220,6 +222,7 @@ extern mst_Boolean _gst_except_flag ATTRIBUTE_HIDDEN;
 #endif
 
 extern void global_lock_for_gc(void) ATTRIBUTE_HIDDEN;
+extern void set_except_flag_for_thread(mst_Boolean reset, size_t thread_id) ATTRIBUTE_HIDDEN;
 
 /* Create a new Process on the top of the stack, which is specially
    marked so that it stops the interpreter's execution.  This kind

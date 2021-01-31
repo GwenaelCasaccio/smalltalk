@@ -483,7 +483,11 @@ OOP _gst_interpret(OOP processOOP) {
   global_monitored_bytecodes = monitored_byte_codes;
   global_sync_barrier_bytecodes = sync_barrier_byte_codes;
 
-  dispatch_vec_per_thread[current_thread_id] = normal_byte_codes;
+  pthread_mutex_lock(&dispatch_vec_mutex);
+  if (NULL == dispatch_vec_per_thread[current_thread_id]) {
+    dispatch_vec_per_thread[current_thread_id] = normal_byte_codes;
+  }
+  pthread_mutex_unlock(&dispatch_vec_mutex);
 
   /* Prime the interpreter's registers.  */
   IMPORT_REGS();
@@ -497,7 +501,7 @@ OOP _gst_interpret(OOP processOOP) {
   /* The code blocks that follow are executed in threaded-code style.  */
 
 monitor_byte_codes:
-  SET_EXCEPT_FLAG(false);
+  SET_EXCEPT_FLAG_FOR_THREAD(false, current_thread_id);
 
   /* First, deal with any async signals.  */
   if (async_queue_enabled)
@@ -539,7 +543,7 @@ monitor_byte_codes:
 
     printf("%5td:", (ptrdiff_t)(ip - method_base));
     _gst_print_bytecode_name(ip, ip - method_base, _gst_literals[current_thread_id], "");
-    SET_EXCEPT_FLAG(true);
+    SET_EXCEPT_FLAG_FOR_THREAD(true, current_thread_id);
   }
 
   if UNCOMMON (time_to_preempt)
@@ -548,14 +552,15 @@ monitor_byte_codes:
   FETCH_VEC(normal_byte_codes);
 
 barrier_byte_codes:
+  pthread_mutex_lock(&dispatch_vec_mutex);
+  dispatch_vec_per_thread[current_thread_id] = global_monitored_bytecodes;
+  pthread_mutex_unlock(&dispatch_vec_mutex);
+
   pthread_barrier_wait(&interp_sync_barrier);
-  fprintf(stderr, "ici\n");
-  fflush(stderr);
   pthread_barrier_wait(&end_of_gc_barrier);
-  fprintf(stderr, "ici 2\n");
-  fflush(stderr);
-  abort();
-  SET_EXCEPT_FLAG(false);
+
+  //  SET_EXCEPT_FLAG(false);
+
   FETCH_VEC(normal_byte_codes);
 
   /* Some more routines we need... */

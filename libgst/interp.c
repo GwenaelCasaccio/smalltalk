@@ -552,34 +552,57 @@ static thread_local void *const *global_monitored_bytecodes;
 static thread_local void *const *global_normal_bytecodes;
 // static thread_local void *const *dispatch_vec;
 
-static void *const *dispatch_vec_per_thread[100];
-static thread_local size_t current_thread_id = 0;
+static void *const *dispatch_vec_per_thread[100] = { NULL };
+thread_local size_t current_thread_id = 0;
 
 pthread_barrier_t interp_sync_barrier;
 
 volatile _Atomic(size_t) _gst_interpret_thread_counter = 1;
 
+static pthread_mutex_t dispatch_vec_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 void global_lock_for_gc(void) {
+  pthread_mutex_lock(&dispatch_vec_mutex);
   for (size_t i = 0; i < atomic_load(&_gst_interpret_thread_counter); i++) {
-    if (i == current_thread_id)
-      continue;
-    dispatch_vec_per_thread[i] = global_sync_barrier_bytecodes;
-    __sync_synchronize();
+    if (i == current_thread_id) {
+      dispatch_vec_per_thread[i] = global_normal_bytecodes;
+      __sync_synchronize();
+    } else {
+      dispatch_vec_per_thread[i] = global_sync_barrier_bytecodes;
+      __sync_synchronize();
+    }
   }
+  pthread_mutex_unlock(&dispatch_vec_mutex);
 }
 
+#define SET_EXCEPT_FLAG_FOR_SIGNAL(x)                                   \
+  do {                                                                  \
+    __sync_bool_compare_and_swap(&dispatch_vec_per_thread[current_thread_id], global_normal_bytecodes, global_monitored_bytecodes); \
+    __sync_synchronize();                                               \
+  } while (0)
 
-#define SET_EXCEPT_FLAG(x)                                                     \
-  do {                                                                         \
-    dispatch_vec_per_thread[current_thread_id] = (x) ? global_monitored_bytecodes : global_normal_bytecodes; \
-    __sync_synchronize();                                                      \
+#define SET_EXCEPT_FLAG(x)                                              \
+  do {                                                                  \
+    pthread_mutex_lock(&dispatch_vec_mutex);                            \
+    if (global_sync_barrier_bytecodes != dispatch_vec_per_thread[current_thread_id]) \
+      dispatch_vec_per_thread[current_thread_id] = (x) ? global_monitored_bytecodes : global_normal_bytecodes; \
+    __sync_synchronize();                                               \
+    pthread_mutex_unlock(&dispatch_vec_mutex);                          \
   } while (0)
 
 #define SET_EXCEPT_FLAG_FOR_THREAD(x, thread_id)                        \
   do {                                                                  \
+    pthread_mutex_lock(&dispatch_vec_mutex);                            \
+    if (global_sync_barrier_bytecodes != dispatch_vec_per_thread[current_thread_id]) \
     dispatch_vec_per_thread[(thread_id)] = (x) ? global_monitored_bytecodes : global_normal_bytecodes; \
     __sync_synchronize();                                               \
+    pthread_mutex_unlock(&dispatch_vec_mutex);                          \
   } while (0)
+
+void set_except_flag_for_thread(mst_Boolean reset, size_t thread_id) {
+  SET_EXCEPT_FLAG_FOR_THREAD(reset, thread_id);
+}
+
 
 /* Answer an hash value for a send of the SENDSELECTOR message, when
    the CompiledMethod is found in class METHODCLASS.  */
@@ -1554,7 +1577,7 @@ void _gst_async_call_internal(async_queue_entry *e) {
     if (__sync_val_compare_and_swap(&e->next, NULL, queued_async_signals_sig))
       return;
   while (!__sync_bool_compare_and_swap(&queued_async_signals_sig, e->next, e));
-  SET_EXCEPT_FLAG(true);
+  SET_EXCEPT_FLAG_FOR_SIGNAL(true);
 }
 
 void _gst_async_call(void (*func)(OOP), OOP arg) {
@@ -2368,7 +2391,7 @@ void _gst_restore_object_pointers_for_thread(size_t thread_id) {
          OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
   }
 
-  SET_EXCEPT_FLAG_FOR_THREAD(true, thread_id); /* force to import registers */
+  // SET_EXCEPT_FLAG_FOR_THREAD(true, thread_id); /* force to import registers */
 }
 
 static RETSIGTYPE interrupt_on_signal(int sig) {

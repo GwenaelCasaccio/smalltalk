@@ -87,7 +87,7 @@ OOP _gst_false_oop = NULL;
 
 pthread_mutex_t alloc_oop_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-static pthread_mutex_t alloc_object_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t alloc_object_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutexattr_t alloc_object_mutex_attr;
 
 pthread_mutex_t global_gc_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -709,8 +709,6 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
   OOP *newAllocPtr;
   gst_object p_instance;
 
-  pthread_mutex_lock(&global_gc_mutex);
-  pthread_mutex_lock(&alloc_object_mutex);
 
   size = ROUNDED_BYTES(size);
 
@@ -719,8 +717,6 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
   newAllocPtr = _gst_mem.eden.allocPtr + BYTES_TO_SIZE(size);
 
   if UNCOMMON (size >= _gst_mem.big_object_threshold) {
-    pthread_mutex_unlock(&alloc_object_mutex);
-    pthread_mutex_unlock(&global_gc_mutex);
     return alloc_fixed_obj(size, p_oop);
   }
 
@@ -736,14 +732,32 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
   OBJ_SET_SIZE (p_instance, FROM_INT(BYTES_TO_SIZE(size)));
   OBJ_SET_IDENTITY (p_instance, FROM_INT(0));
 
-  pthread_mutex_unlock(&alloc_object_mutex);
-  pthread_mutex_unlock(&global_gc_mutex);
-
   return p_instance;
 }
 
 gst_object alloc_fixed_obj(size_t size, OOP *p_oop) {
   gst_object p_instance;
+  size_t copy_alloc;
+
+ start:
+  copy_alloc = _gst_mem.num_alloc;
+
+  global_lock_for_gc();
+  pthread_barrier_wait(&interp_sync_barrier);
+
+  set_except_flag_for_thread(false, current_thread_id);
+
+  pthread_mutex_lock(&global_gc_mutex);
+  pthread_mutex_lock(&alloc_object_mutex);
+
+  if (copy_alloc != _gst_mem.num_alloc) {
+    pthread_mutex_unlock(&alloc_object_mutex);
+    pthread_mutex_unlock(&global_gc_mutex);
+
+    pthread_barrier_wait(&end_of_gc_barrier);
+
+    goto start;
+  }
 
   size = ROUNDED_BYTES(size);
 
@@ -769,6 +783,12 @@ ok:
   *p_oop = alloc_oop(p_instance, F_OLD | F_FIXED);
   OBJ_SET_SIZE (p_instance, FROM_INT(BYTES_TO_SIZE(size)));
   OBJ_SET_IDENTITY (p_instance, FROM_INT(0));
+
+  pthread_mutex_unlock(&alloc_object_mutex);
+  pthread_mutex_unlock(&global_gc_mutex);
+
+  pthread_barrier_wait(&end_of_gc_barrier);
+
   return p_instance;
 }
 

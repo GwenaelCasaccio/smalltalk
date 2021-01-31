@@ -182,6 +182,9 @@ struct memory_space {
      table.  num_free_oops is only correct after a GC!  */
   size_t num_free_oops, ot_size;
 
+  /* number of allocation for barrier */
+  size_t num_alloc;
+
   /* The root set of the scavenger.  This includes pages in oldspace that
      were written to, and objects that had to be tenured before they were
      scanned.  */
@@ -245,6 +248,8 @@ struct memory_space {
 extern pthread_mutex_t alloc_oop_mutex;
 
 extern pthread_mutex_t global_gc_mutex;
+
+extern pthread_mutex_t alloc_object_mutex;
 
 extern pthread_barrier_t end_of_gc_barrier;
 
