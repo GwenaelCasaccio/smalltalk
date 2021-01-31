@@ -5583,8 +5583,6 @@ static intptr_t VMpr_ObjectMemory_gcPrimitives(int id, volatile int numArgs) {
   global_lock_for_gc();
   pthread_barrier_wait(&interp_sync_barrier);
 
-  SET_EXCEPT_FLAG_FOR_THREAD(false, current_thread_id);
-
   pthread_mutex_lock(&global_gc_mutex);
   pthread_mutex_lock(&alloc_object_mutex);
 
@@ -5596,6 +5594,8 @@ static intptr_t VMpr_ObjectMemory_gcPrimitives(int id, volatile int numArgs) {
 
     goto start;
   }
+
+  dispatch_vec_per_thread[current_thread_id] = global_monitored_bytecodes;
 
   switch (id) {
   case 0:
