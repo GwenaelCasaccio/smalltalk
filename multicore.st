@@ -18,7 +18,7 @@ BlockContext class extend [
 Process extend [
   setBlock: aBlock [
     suspendedContext := BlockContext allocateFrom: [ 
-      aBlock value.
+      1 to: 1000 do: [ : i | aBlock value ].
       1 to: 200 do: [ : i | Object new basicPrint].
       ObjectMemory globalGarbageCollect.
       ObjectMemory abort ].
@@ -26,21 +26,27 @@ Process extend [
   ]
 ]
 
-processList := Array new: 9.
-1 to: 9 do: [ : i | processList at: i put: Semaphore new ].
+Eval [
+  processList := Array new: 9.
+  1 to: 9 do: [ : i | processList at: i put: Semaphore new ].
 
-process := Process basicNew.
-process instVarAt: 1 put: process.
-process setBlock: [ 'ici' basicPrint ].
-process instVarAt: 3 put: 4.
+  process := Process basicNew.
+  process instVarAt: 1 put: process.
+  process setBlock: [ '2 ' basicPrint. ObjectMemory incrementalGCStep ].
+  process instVarAt: 3 put: 4.
 
-ps := ProcessorScheduler basicNew.
-ps instVarAt:1 put: processList.
-"ps instVarAt:2 put: process. it has no active process "
-ps instVarAt:3 put: OrderedCollection new.
-ps instVarAt:4 put: 40.
-ps instVarAt:5 put: Semaphore new. 
-ps newThread: process.
+  ps := ProcessorScheduler basicNew.
+  ps instVarAt:1 put: processList.
+  "ps instVarAt:2 put: process. it has no active process "
+  ps instVarAt:3 put: OrderedCollection new.
+  ps instVarAt:4 put: 40.
+  ps instVarAt:5 put: Semaphore new. 
+  ps newThread: process.
 
-1 to: 200 do: [Object new.  ].
-[ true ] whileTrue.
+  " GC Protecting the new Processor "
+  Smalltalk at: #Foo put: ps.
+
+  1 to: 1000 do: [ : i | '1 ' basicPrint. ObjectMemory scavenge. ].
+  ObjectMemory abort.
+  [ true ] whileTrue.
+]
