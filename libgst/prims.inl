@@ -2723,7 +2723,7 @@ void *start_vm_thread(void *argument) {
 
   xfree(array);
 
-  switch_to_process = _gst_nil_oop;
+  switch_to_process[current_thread_id] = _gst_nil_oop;
  _gst_this_context_oop[current_thread_id] = _gst_nil_oop;
 
  // fprintf(stderr, "%O\n", _gst_processor_oop);

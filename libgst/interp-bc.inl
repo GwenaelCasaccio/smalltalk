@@ -510,9 +510,9 @@ monitor_byte_codes:
   if UNCOMMON (time_to_preempt)
     ACTIVE_PROCESS_YIELD();
 
-  if UNCOMMON (!IS_NIL(switch_to_process)) {
+  if UNCOMMON (!IS_NIL(switch_to_process[current_thread_id])) {
     EXPORT_REGS();
-    change_process_context(switch_to_process);
+    change_process_context(switch_to_process[current_thread_id]);
     IMPORT_REGS();
 
     if UNCOMMON (single_step_semaphore) {

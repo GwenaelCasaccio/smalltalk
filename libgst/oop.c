@@ -1109,9 +1109,9 @@ void _gst_scavenge(void) {
                    _gst_mem.grow_threshold_percent ||
                _gst_mem.fixed->heap_total * 100.0 / _gst_mem.fixed->heap_limit >
                    _gst_mem.grow_threshold_percent) {
-    _gst_global_gc(0);
-    _gst_incremental_gc_step();
-    return;
+      _gst_global_gc(0);
+      _gst_incremental_gc_step();
+      return;
   }
 
   if (!_gst_gc_running++ && _gst_gc_message && _gst_verbosity > 2 &&
