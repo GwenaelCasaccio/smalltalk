@@ -408,9 +408,9 @@ void _gst_init_oop_table(PTR address, size_t size) {
   pthread_mutexattr_settype(&alloc_object_mutex_attr, PTHREAD_MUTEX_RECURSIVE);
   pthread_mutex_init(&alloc_object_mutex, &alloc_object_mutex_attr);
 
-  pthread_mutexattr_init(&global_gc_mutex_attr);
-  pthread_mutexattr_settype(&global_gc_mutex_attr, PTHREAD_MUTEX_RECURSIVE);
-  pthread_mutex_init(&global_gc_mutex, &global_gc_mutex_attr);
+  //pthread_mutexattr_init(&global_gc_mutex_attr);
+  //pthread_mutexattr_settype(&global_gc_mutex_attr, PTHREAD_MUTEX_RECURSIVE);
+  //pthread_mutex_init(&global_gc_mutex, &global_gc_mutex_attr);
 
   oop_heap = NULL;
   for (i = MAX_OOP_TABLE_SIZE; i && !oop_heap; i >>= 1) {
@@ -662,8 +662,37 @@ void _gst_swap_objects(OOP oop1, OOP oop2) {
 void _gst_make_oop_fixed(OOP oop) {
   gst_object newObj;
   int size;
+  size_t copy_alloc;
+
+ start:
+  copy_alloc = _gst_mem.num_alloc;
+
+  global_lock_for_gc();
+  pthread_barrier_wait(&interp_sync_barrier);
+
+  set_except_flag_for_thread(false, current_thread_id);
+
+  pthread_mutex_lock(&global_gc_mutex);
+  pthread_mutex_lock(&alloc_object_mutex);
+
+  if (copy_alloc != _gst_mem.num_alloc) {
+    pthread_mutex_unlock(&alloc_object_mutex);
+    pthread_mutex_unlock(&global_gc_mutex);
+
+    pthread_barrier_wait(&end_of_gc_barrier);
+
+    goto start;
+  }
+
   if (OOP_GET_FLAGS(oop) & F_FIXED)
-    return;
+    {
+      pthread_mutex_unlock(&alloc_object_mutex);
+      pthread_mutex_unlock(&global_gc_mutex);
+
+      pthread_barrier_wait(&end_of_gc_barrier);
+
+      return;
+    }
 
   if ((OOP_GET_FLAGS(oop) & F_LOADED) == 0) {
     size = SIZE_TO_BYTES(TO_INT(OBJ_SIZE (OOP_TO_OBJ(oop))));
@@ -682,6 +711,11 @@ void _gst_make_oop_fixed(OOP oop) {
 
   OOP_SET_FLAGS(oop, OOP_GET_FLAGS(oop) & ~(F_SPACES | F_POOLED));
   OOP_SET_FLAGS(oop, OOP_GET_FLAGS(oop) | F_OLD | F_FIXED);
+
+  pthread_mutex_unlock(&alloc_object_mutex);
+  pthread_mutex_unlock(&global_gc_mutex);
+
+  pthread_barrier_wait(&end_of_gc_barrier);
 }
 
 void _gst_tenure_oop(OOP oop) {
@@ -739,26 +773,6 @@ gst_object alloc_fixed_obj(size_t size, OOP *p_oop) {
   gst_object p_instance;
   size_t copy_alloc;
 
- start:
-  copy_alloc = _gst_mem.num_alloc;
-
-  global_lock_for_gc();
-  pthread_barrier_wait(&interp_sync_barrier);
-
-  set_except_flag_for_thread(false, current_thread_id);
-
-  pthread_mutex_lock(&global_gc_mutex);
-  pthread_mutex_lock(&alloc_object_mutex);
-
-  if (copy_alloc != _gst_mem.num_alloc) {
-    pthread_mutex_unlock(&alloc_object_mutex);
-    pthread_mutex_unlock(&global_gc_mutex);
-
-    pthread_barrier_wait(&end_of_gc_barrier);
-
-    goto start;
-  }
-
   size = ROUNDED_BYTES(size);
 
   /* If the object is big enough, we put it directly in oldspace.  */
@@ -783,11 +797,6 @@ ok:
   *p_oop = alloc_oop(p_instance, F_OLD | F_FIXED);
   OBJ_SET_SIZE (p_instance, FROM_INT(BYTES_TO_SIZE(size)));
   OBJ_SET_IDENTITY (p_instance, FROM_INT(0));
-
-  pthread_mutex_unlock(&alloc_object_mutex);
-  pthread_mutex_unlock(&global_gc_mutex);
-
-  pthread_barrier_wait(&end_of_gc_barrier);
 
   return p_instance;
 }
@@ -991,8 +1000,6 @@ void _gst_global_gc(int next_allocation) {
   const char *s;
   int old_limit;
 
-  pthread_mutex_lock(&global_gc_mutex);
-
   _gst_mem.numGlobalGCs++;
 
   old_limit = _gst_mem.old->heap_limit;
@@ -1088,7 +1095,6 @@ void _gst_global_gc(int next_allocation) {
 
   _gst_invalidate_croutine_cache();
   mourn_objects();
-  pthread_mutex_unlock(&global_gc_mutex);
 }
 
 void _gst_scavenge(void) {
@@ -1230,9 +1236,7 @@ mst_Boolean _gst_incremental_gc_step() {
   OOP oop, firstOOP;
   int i;
 
-  pthread_mutex_lock(&global_gc_mutex);
   if (!incremental_gc_running()) {
-    pthread_mutex_unlock(&global_gc_mutex);
     return true;
   }
 
@@ -1249,7 +1253,6 @@ mst_Boolean _gst_incremental_gc_step() {
         OOP_PREV(_gst_mem.last_allocated_oop);
       if (++i == INCREMENTAL_SWEEP_STEP) {
         _gst_mem.next_oop_to_sweep = OOP_PREV(oop);
-        pthread_mutex_unlock(&global_gc_mutex);
         return false;
       }
     }
@@ -1257,14 +1260,12 @@ mst_Boolean _gst_incremental_gc_step() {
 
   _gst_mem.next_oop_to_sweep = oop;
   _gst_finished_incremental_gc();
-  pthread_mutex_unlock(&global_gc_mutex);
   return true;
 }
 
 void reset_incremental_gc(OOP firstOOP) {
   OOP oop;
 
-  pthread_mutex_lock(&global_gc_mutex);
   /* This loop is the same as that in alloc_oop.  Skip low OOPs
      that are allocated */
   for (oop = firstOOP; IS_OOP_VALID_GC(oop);) {
@@ -1302,7 +1303,6 @@ void reset_incremental_gc(OOP firstOOP) {
          _gst_mem.last_allocated_oop, _gst_mem.next_oop_to_sweep,
          _gst_mem.last_swept_oop);
 #endif
-  pthread_mutex_unlock(&global_gc_mutex);
 }
 
 void _gst_sweep_oop(OOP oop) {
@@ -1330,6 +1330,25 @@ void _gst_sweep_oop(OOP oop) {
   OOP_SET_FLAGS(oop, 0);
 }
 
+gst_object unsafe_new_instance_with(OOP class_oop, size_t numIndexFields, OOP *p_oop) {
+  size_t numBytes, alignedBytes;
+  intptr_t instanceSpec;
+  gst_object p_instance;
+
+  instanceSpec = CLASS_INSTANCE_SPEC(class_oop);
+  numBytes = sizeof(gst_object_header) +
+             SIZE_TO_BYTES(instanceSpec >> ISP_NUMFIXEDFIELDS) +
+             (numIndexFields << _gst_log2_sizes[instanceSpec & ISP_SHAPE]);
+
+  alignedBytes = ROUNDED_BYTES(numBytes);
+  p_instance = _gst_alloc_obj(alignedBytes, p_oop);
+  INIT_UNALIGNED_OBJECT(*p_oop, alignedBytes - numBytes);
+
+  OBJ_SET_CLASS(p_instance, class_oop);
+
+  return p_instance;
+}
+
 void mourn_objects(void) {
   gst_object array;
   long size;
@@ -1345,7 +1364,7 @@ void mourn_objects(void) {
     _gst_errorf("This is a bug, please report.");
   } else {
     /* Copy the buffer into an Array */
-    array = new_instance_with(_gst_array_class, size, &OBJ_PROCESSOR_SCHEDULER_GET_GC_ARRAY(processor));
+    array = unsafe_new_instance_with(_gst_array_class, size, &OBJ_PROCESSOR_SCHEDULER_GET_GC_ARRAY(processor));
     _gst_copy_buffer(array->data);
     if (!IS_NIL(OBJ_PROCESSOR_SCHEDULER_GET_GC_SEMAPHORE(processor))) {
       static async_queue_entry e;

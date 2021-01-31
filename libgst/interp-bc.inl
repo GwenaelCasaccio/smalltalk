@@ -561,6 +561,9 @@ barrier_byte_codes:
 
   //  SET_EXCEPT_FLAG(false);
 
+  /* Prime the interpreter's registers.  */
+  IMPORT_REGS();
+
   FETCH_VEC(normal_byte_codes);
 
   /* Some more routines we need... */

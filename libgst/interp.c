@@ -2287,10 +2287,11 @@ void _gst_invalidate_method_cache(void) {
 void _gst_copy_processor_registers(void) {
   copy_semaphore_oops();
 
-  /* Get everything into the main OOP table first.  */
-  if (_gst_this_context_oop[current_thread_id])
-    MAYBE_COPY_OOP(_gst_this_context_oop[current_thread_id]);
-
+  for (size_t i = 0; i < _gst_interpret_thread_counter; i++) {
+    /* Get everything into the main OOP table first.  */
+    if (_gst_this_context_oop[i])
+      MAYBE_COPY_OOP(_gst_this_context_oop[i]);
+  }
   /* everything else is pointed to by _gst_this_context_oop, either
      directly or indirectly, or has been copyed when scanning the
      registered roots.  */
