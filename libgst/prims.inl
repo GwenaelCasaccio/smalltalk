@@ -2688,6 +2688,8 @@ static intptr_t VMpr_Process_yield(int id, volatile int numArgs) {
   PRIM_SUCCEEDED;
 }
 
+static pthread_barrier_t temp_sync_barrier;
+
 void *start_vm_thread(void *argument) {
   OOP *array;
   OOP activeProcess;
@@ -2714,7 +2716,7 @@ void *start_vm_thread(void *argument) {
 
   array = (OOP *) argument;
 
-  _gst_execution_tracing = true;
+  // _gst_execution_tracing = true;
 
   _gst_processor_oop = array[0];
   activeProcess = array[1];
@@ -2724,8 +2726,8 @@ void *start_vm_thread(void *argument) {
   switch_to_process = _gst_nil_oop;
  _gst_this_context_oop[current_thread_id] = _gst_nil_oop;
 
-  fprintf(stderr, "%O\n", _gst_processor_oop);
-  fflush(stderr);
+ // fprintf(stderr, "%O\n", _gst_processor_oop);
+ // fflush(stderr);
 
   change_process_context(activeProcess);
 
@@ -2735,9 +2737,11 @@ void *start_vm_thread(void *argument) {
   _gst_sample_counter = 1;
   _gst_invalidate_method_cache();
 
-  fprintf(stderr, "%O\n", activeProcess);
-  fflush(stderr);
+  //  fprintf(stderr, "%O\n", activeProcess);
+  // fflush(stderr);
+  dispatch_vec_per_thread[current_thread_id] = global_normal_bytecodes;
 
+  pthread_barrier_wait(&temp_sync_barrier);
   _gst_interpret(activeProcess);
 
   return NULL;
@@ -2757,6 +2761,10 @@ static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
   array[0] = oop1;
   array[1] = oop2;
 
+  if (pthread_barrier_init(&temp_sync_barrier, NULL, 2)) {
+    abort();
+  }
+
   result = pthread_create(&thread_id, NULL, &start_vm_thread, array);
   if (result != 0) {
     xfree(array);
@@ -2764,6 +2772,8 @@ static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
     PUSH_OOP(oop2);
     PRIM_FAILED;
   }
+
+  pthread_barrier_wait(&temp_sync_barrier);
 
   PRIM_SUCCEEDED;
 }
@@ -5563,10 +5573,29 @@ static intptr_t VMpr_Namespace_setCurrent(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_ObjectMemory_gcPrimitives(int id, volatile int numArgs) {
+  size_t copy_alloc;
+
   _gst_primitives_executed++;
+
+ start:
+  copy_alloc = _gst_mem.num_alloc;
 
   global_lock_for_gc();
   pthread_barrier_wait(&interp_sync_barrier);
+
+  SET_EXCEPT_FLAG_FOR_THREAD(false, current_thread_id);
+
+  pthread_mutex_lock(&global_gc_mutex);
+  pthread_mutex_lock(&alloc_object_mutex);
+
+  if (copy_alloc != _gst_mem.num_alloc) {
+    pthread_mutex_unlock(&alloc_object_mutex);
+    pthread_mutex_unlock(&global_gc_mutex);
+
+    pthread_barrier_wait(&end_of_gc_barrier);
+
+    goto start;
+  }
 
   switch (id) {
   case 0:
@@ -5589,7 +5618,12 @@ static intptr_t VMpr_ObjectMemory_gcPrimitives(int id, volatile int numArgs) {
     _gst_finish_incremental_gc();
     break;
   }
+
+  pthread_mutex_unlock(&alloc_object_mutex);
+  pthread_mutex_unlock(&global_gc_mutex);
+
   pthread_barrier_wait(&end_of_gc_barrier);
+
   PRIM_SUCCEEDED;
 }
 
