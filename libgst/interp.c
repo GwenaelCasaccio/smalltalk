@@ -261,7 +261,7 @@ static async_queue_entry *queued_async_signals_sig = &queued_async_signals_tail;
 const char *_gst_abort_execution = NULL;
 
 /* Set to non-nil if a process must preempt the current one.  */
-static thread_local OOP switch_to_process;
+static OOP switch_to_process[100];
 
 /* Set to true if it is time to switch process in a round-robin
    time-sharing fashion.  */
@@ -704,15 +704,23 @@ static OOP free_lifo_context[100];
 
 #include "interp-bc.inl"
 
+static void _gst_empty_context_pool_for_thread(size_t thread_id);
+
 void _gst_empty_context_pool(void) {
-  if (*chunks[current_thread_id]) {
-    chunk[current_thread_id] = chunks[current_thread_id];
-    cur_chunk_begin[current_thread_id] = *chunk[current_thread_id];
-    cur_chunk_end[current_thread_id] = (gst_context_part)(((char *)cur_chunk_begin[current_thread_id]) +
-                                       SIZE_TO_BYTES(CHUNK_SIZE));
+  for (size_t i = 0; i < atomic_load(&_gst_interpret_thread_counter); i++) {
+    _gst_empty_context_pool_for_thread(i);
+  }
+}
+
+void _gst_empty_context_pool_for_thread(size_t thread_id) {
+  if (*chunks[thread_id]) {
+    chunk[thread_id] = chunks[thread_id];
+    cur_chunk_begin[thread_id] = *chunk[thread_id];
+    cur_chunk_end[thread_id] = (gst_context_part)(((char *)cur_chunk_begin[thread_id]) +
+                                                          SIZE_TO_BYTES(CHUNK_SIZE));
   } else {
-    chunk[current_thread_id] = chunks[current_thread_id] - 1;
-    cur_chunk_begin[current_thread_id] = cur_chunk_end[current_thread_id] = NULL;
+    chunk[thread_id] = chunks[thread_id] - 1;
+    cur_chunk_begin[thread_id] = cur_chunk_end[thread_id] = NULL;
   }
 }
 
@@ -1339,7 +1347,7 @@ void change_process_context(OOP newProcess) {
   gst_object processor;
   mst_Boolean enable_async_queue;
 
-  switch_to_process = _gst_nil_oop;
+  switch_to_process[current_thread_id] = _gst_nil_oop;
 
   /* save old context information */
   if (!IS_NIL(_gst_this_context_oop[current_thread_id])) {
@@ -1399,8 +1407,8 @@ void resume_suspended_context(OOP oop) {
 }
 
 OOP get_active_process(void) {
-  if (!IS_NIL(switch_to_process))
-    return (switch_to_process);
+  if (!IS_NIL(switch_to_process[current_thread_id]))
+    return (switch_to_process[current_thread_id]);
   else
     return (get_scheduled_process());
 }
@@ -1791,7 +1799,7 @@ OOP activate_process(OOP processOOP) {
   }
 
   SET_EXCEPT_FLAG(true);
-  switch_to_process = processOOP;
+  switch_to_process[current_thread_id] = processOOP;
   return processOOP;
 }
 
@@ -1847,7 +1855,7 @@ mst_Boolean would_reschedule_process() {
   gst_object process;
   gst_object processList;
 
-  if (!IS_NIL(switch_to_process))
+  if (!IS_NIL(switch_to_process[current_thread_id]))
     return false;
 
   processOOP = get_scheduled_process();
@@ -2038,7 +2046,7 @@ void _gst_init_process_system(void) {
   /* No process is active -- so highest_priority_process() need not
      worry about discarding an active process.  */
   OBJ_PROCESSOR_SCHEDULER_SET_ACTIVE_PROCESS(processor, _gst_nil_oop);
-  switch_to_process = _gst_nil_oop;
+  switch_to_process[current_thread_id] = _gst_nil_oop;
   activate_process(highest_priority_process());
   set_preemption_timer();
 }
@@ -2240,8 +2248,8 @@ OOP _gst_nvmsg_send(OOP receiver, OOP sendSelector, OOP *args, int sendArgs) {
   if (reentrancy_jmp_buf && !--reentrancy_jmp_buf->suspended &&
       !is_process_terminating(reentrancy_jmp_buf->processOOP)) {
     resume_process(reentrancy_jmp_buf->processOOP, true);
-    if (!IS_NIL(switch_to_process))
-      change_process_context(switch_to_process);
+    if (!IS_NIL(switch_to_process[current_thread_id]))
+      change_process_context(switch_to_process[current_thread_id]);
   }
 
   INC_RESTORE_POINTER(inc);
@@ -2311,8 +2319,10 @@ void copy_semaphore_oops(void) {
   if (single_step_semaphore)
     MAYBE_COPY_OOP(single_step_semaphore);
 
-  /* there does seem to be a window where this is not valid */
-  MAYBE_COPY_OOP(switch_to_process);
+  for (size_t i = 0; i < _gst_interpret_thread_counter; i++) {
+    /* there does seem to be a window where this is not valid */
+    MAYBE_COPY_OOP(switch_to_process[current_thread_id]);
+  }
 }
 
 void _gst_mark_processor_registers(void) {
@@ -2340,7 +2350,7 @@ void mark_semaphore_oops(void) {
     MAYBE_MARK_OOP(single_step_semaphore);
 
   /* there does seem to be a window where this is not valid */
-  MAYBE_MARK_OOP(switch_to_process);
+  MAYBE_MARK_OOP(switch_to_process[current_thread_id]);
 }
 
 void _gst_fixup_object_pointers(void) {
