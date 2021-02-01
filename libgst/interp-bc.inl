@@ -164,9 +164,22 @@
     gst_compiled_method _method =                                              \
         (gst_compiled_method)OOP_TO_OBJ(_gst_this_method[current_thread_id] = (method));          \
                                                                                \
-    method_base = _method->bytecodes;                                          \
+    method_base[current_thread_id] = _method->bytecodes;                                          \
     _gst_literals[current_thread_id] = OOP_TO_OBJ(_method->literals)->data;                       \
-    ip[current_thread_id] = method_base + (ipOffset);                                             \
+    ip[current_thread_id] = method_base[current_thread_id] + (ipOffset);                                             \
+    if UNCOMMON (_gst_raw_profile)                                             \
+      _gst_record_profile(old_method_oop, method, ipOffset);                   \
+  } while (0)
+
+#define SET_THIS_METHOD_FOR_THREAD(thread_id, method, ipOffset)                                      \
+  do {                                                                         \
+    OOP old_method_oop = _gst_this_method[(thread_id)];                                     \
+    gst_compiled_method _method =                                              \
+        (gst_compiled_method)OOP_TO_OBJ(_gst_this_method[(thread_id)] = (method));          \
+                                                                               \
+    method_base[(thread_id)] = _method->bytecodes;                                          \
+    _gst_literals[(thread_id)] = OOP_TO_OBJ(_method->literals)->data;                       \
+    ip[(thread_id)] = method_base[(thread_id)] + (ipOffset);                                             \
     if UNCOMMON (_gst_raw_profile)                                             \
       _gst_record_profile(old_method_oop, method, ipOffset);                   \
   } while (0)
@@ -541,8 +554,8 @@ monitor_byte_codes:
         printf("\t  self --> %O\n", _gst_self[current_thread_id]);
     }
 
-    printf("%5td:", (ptrdiff_t)(ip - method_base));
-    _gst_print_bytecode_name(ip, ip - method_base, _gst_literals[current_thread_id], "");
+    printf("%5td:", (ptrdiff_t)(ip - method_base[current_thread_id]));
+    _gst_print_bytecode_name(ip, ip - method_base[current_thread_id], _gst_literals[current_thread_id], "");
     SET_EXCEPT_FLAG_FOR_THREAD(true, current_thread_id);
   }
 
@@ -564,7 +577,21 @@ barrier_byte_codes:
   /* Prime the interpreter's registers.  */
   IMPORT_REGS();
 
-  FETCH_VEC(normal_byte_codes);
+  if UNCOMMON (1) {
+    if (1) {
+      if (sp >= _gst_temporaries[current_thread_id])
+        printf("\t  [%2td] --> %O\n", (ptrdiff_t)(sp - _gst_temporaries[current_thread_id]),
+               VM_STACKTOP());
+      else
+        printf("\t  self --> %O\n", _gst_self[current_thread_id]);
+    }
+
+    printf("%5td:", (ptrdiff_t)(ip - method_base[current_thread_id]));
+    _gst_print_bytecode_name(ip, ip - method_base[current_thread_id], _gst_literals[current_thread_id], "");
+    SET_EXCEPT_FLAG_FOR_THREAD(true, current_thread_id);
+  }
+
+  FETCH_VEC(monitored_byte_codes);
 
   /* Some more routines we need... */
 lookahead_failed_true:

@@ -18,9 +18,10 @@ BlockContext class extend [
 Process extend [
   setBlock: aBlock [
     suspendedContext := BlockContext allocateFrom: [ 
-      1 to: 1000 do: [ : i | aBlock value ].
+      1 to: 10000 do: [ : i | aBlock value ].
       1 to: 200 do: [ : i | Object new basicPrint].
-      ObjectMemory globalGarbageCollect.
+      ObjectMemory scavenge.
+      'out' basicPrint.
       ObjectMemory abort ].
 
   ]
@@ -32,7 +33,7 @@ Eval [
 
   process := Process basicNew.
   process instVarAt: 1 put: process.
-  process setBlock: [ '2 ' basicPrint. ObjectMemory incrementalGCStep ].
+  process setBlock: [ Object new. ObjectMemory scavenge ].
   process instVarAt: 3 put: 4.
 
   ps := ProcessorScheduler basicNew.
@@ -46,7 +47,7 @@ Eval [
   " GC Protecting the new Processor "
   Smalltalk at: #Foo put: ps.
 
-  1 to: 1000 do: [ : i | '1 ' basicPrint. ObjectMemory scavenge. ].
+  1 to: 10000 do: [ : i | Object new ].
   ObjectMemory abort.
   [ true ] whileTrue.
 ]
