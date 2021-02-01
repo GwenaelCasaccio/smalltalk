@@ -2718,7 +2718,7 @@ void *start_vm_thread(void *argument) {
 
   // _gst_execution_tracing = true;
 
-  _gst_processor_oop = array[0];
+  _gst_processor_oop[current_thread_id] = array[0];
   activeProcess = array[1];
 
   xfree(array);
@@ -2774,7 +2774,9 @@ static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
   }
 
   pthread_barrier_wait(&temp_sync_barrier);
-
+  _gst_execution_tracing= true;
+  verbose_exec_tracing = true;
+    SET_EXCEPT_FLAG_FOR_THREAD(true, current_thread_id);
   PRIM_SUCCEEDED;
 }
 
@@ -2791,7 +2793,7 @@ static intptr_t VMpr_Processor_dispatchEvents(int id, volatile int numArgs) {
   _gst_primitives_executed++;
   processor = OOP_TO_OBJ(oop1);
   if (TO_INT(OBJ_SIZE(processor)) > 8) {
-    processor = OOP_TO_OBJ(_gst_processor_oop);
+    processor = OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
     semaphoreOOP = OBJ_PROCESSOR_SCHEDULER_GET_EVENT_SEMAPHORE(processor);
     INC_ADD_OOP(semaphoreOOP);
   } else
@@ -2811,7 +2813,7 @@ static intptr_t VMpr_Processor_dispatchEvents(int id, volatile int numArgs) {
     /* If there was a context switch in the meanwhile, be sure to
        suspend the process that invoked us!  */
     sync_wait_process(semaphoreOOP, processOOP);
-    processor = OOP_TO_OBJ(_gst_processor_oop);
+    processor = OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
     OBJ_PROCESSOR_SCHEDULER_SET_EVENT_SEMAPHORE(processor, semaphoreOOP);
   }
 
@@ -3692,7 +3694,7 @@ static intptr_t VMpr_Processor_disableEnableInterrupts(int id,
   int count;
 
   _gst_primitives_executed++;
-  processor = OOP_TO_OBJ(_gst_processor_oop);
+  processor = OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
   processOOP = OBJ_PROCESSOR_SCHEDULER_GET_ACTIVE_PROCESS(processor);
   process = OOP_TO_OBJ(processOOP);
 

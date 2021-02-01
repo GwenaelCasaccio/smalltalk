@@ -1198,7 +1198,7 @@ _gst_init_vmproxy (void)
   gst_interpreter_proxy.cObjectClass = _gst_c_object_class;
 
   /* And system objects.  */
-  gst_interpreter_proxy.processorOOP = _gst_processor_oop;
+  gst_interpreter_proxy.processorOOP = _gst_processor_oop[0];
 }
 
 struct VMProxy *
