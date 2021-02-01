@@ -183,7 +183,7 @@ OOP _gst_raw_profile = NULL;
 /* A bytecode counter value used while profiling. */
 unsigned long _gst_saved_bytecode_counter = 0;
 
-static thread_local ip_type method_base;
+static ip_type method_base[100];
 
 /* Global state
    The following variables constitute the interpreter's state:
@@ -775,7 +775,7 @@ void empty_context_stack(void) {
   OBJ_METHOD_CONTEXT_SET_RECEIVER(context, _gst_self[current_thread_id]);
   OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
       context, FROM_INT(sp[current_thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)));
-  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(context, FROM_INT(ip[current_thread_id] - method_base));
+  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(context, FROM_INT(ip[current_thread_id] - method_base[current_thread_id]));
 
   /* Even if the JIT is active, the current context might have no
      attached native_ip -- in fact it has one only if we are being
@@ -838,7 +838,7 @@ void empty_context_stack_for_thread(size_t thread_id) {
   OBJ_METHOD_CONTEXT_SET_RECEIVER(context, _gst_self[thread_id]);
   OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
       context, FROM_INT(sp[thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)));
-  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(context, FROM_INT(ip[thread_id] - method_base));
+  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(context, FROM_INT(ip[thread_id] - method_base[thread_id]));
 
   /* Even if the JIT is active, the current context might have no
      attached native_ip -- in fact it has one only if we are being
@@ -922,7 +922,7 @@ gst_object activate_new_context(int size, int sendArgs) {
       thisContext,
       FROM_INT((sp[current_thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext)) -
                sendArgs));
-  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(thisContext, FROM_INT(ip[current_thread_id] - method_base));
+  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(thisContext, FROM_INT(ip[current_thread_id] - method_base[current_thread_id]));
 
   _gst_this_context_oop[current_thread_id] = oop;
 
@@ -2373,7 +2373,7 @@ void _gst_fixup_object_pointers_for_thread(size_t thread_id) {
     OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
         thisContext,
         FROM_INT(sp[thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext)));
-    OBJ_METHOD_CONTEXT_SET_IP_OFFSET(thisContext, FROM_INT(ip[thread_id] - method_base));
+    OBJ_METHOD_CONTEXT_SET_IP_OFFSET(thisContext, FROM_INT(ip[thread_id] - method_base[thread_id]));
   }
 
 }
@@ -2397,7 +2397,7 @@ void _gst_restore_object_pointers_for_thread(size_t thread_id) {
     thisContext = OOP_TO_OBJ(_gst_this_context_oop[thread_id]);
     _gst_temporaries[thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
 
-    SET_THIS_METHOD(_gst_this_method[thread_id], GET_CONTEXT_IP(thisContext));
+    SET_THIS_METHOD_FOR_THREAD(thread_id, _gst_this_method[thread_id], GET_CONTEXT_IP(thisContext));
     sp[thread_id] = TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(thisContext)) +
          OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
   }
@@ -2470,6 +2470,72 @@ void _gst_init_signals(void) {
   _gst_set_signal_handler(SIGUSR1, user_backtrace_on_signal);
 #endif
 }
+
+void _gst_show_backtrace_for_all_thread(FILE *fp) {
+  OOP contextOOP;
+  gst_object context;
+  gst_compiled_block block;
+  gst_compiled_method method;
+  gst_method_info methodInfo;
+
+  for (size_t thread_id = 0; thread_id < atomic_load(&_gst_interpret_thread_counter); thread_id++) {
+    fprintf(fp, "\n\n THREAD ID:: %d\n\n", thread_id);
+    fflush(fp);
+
+    empty_context_stack_for_thread(thread_id);
+  for (contextOOP = _gst_this_context_oop[thread_id]; !IS_NIL(contextOOP);
+       contextOOP = OBJ_METHOD_CONTEXT_PARENT_CONTEXT(context)) {
+    context = OOP_TO_OBJ(contextOOP);
+    if ((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) ==
+        (MCF_IS_METHOD_CONTEXT | MCF_IS_DISABLED_CONTEXT))
+      continue;
+
+    /* printf ("(OOP %p)", context->method); */
+    fprintf(fp, "(ip[current_thread_id] %d)", TO_INT(OBJ_METHOD_CONTEXT_IP_OFFSET(context)));
+    if ((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) & MCF_IS_METHOD_CONTEXT) {
+      OOP receiver, receiverClass;
+
+      if ((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) &
+          MCF_IS_EXECUTION_ENVIRONMENT) {
+        if (IS_NIL(OBJ_METHOD_CONTEXT_PARENT_CONTEXT(context)))
+          fprintf(fp, "<bottom>\n");
+        else
+          fprintf(fp, "<unwind point>\n");
+        continue;
+      }
+
+      if ((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) & MCF_IS_UNWIND_CONTEXT)
+        fprintf(fp, "<unwind> ");
+
+      /* a method context */
+      method =
+          (gst_compiled_method)OOP_TO_OBJ(OBJ_METHOD_CONTEXT_METHOD(context));
+      methodInfo = (gst_method_info)OOP_TO_OBJ(method->descriptor);
+      receiver = OBJ_METHOD_CONTEXT_RECEIVER(context);
+      if (IS_INT(receiver))
+        receiverClass = gst_small_integer_class;
+
+      else
+        receiverClass = OOP_CLASS(receiver);
+
+      if (receiverClass == methodInfo->class)
+        fprintf(fp, "%O", receiverClass);
+      else
+        fprintf(fp, "%O(%O)", receiverClass, methodInfo->class);
+    } else {
+      /* a block context */
+      block =
+          (gst_compiled_block)OOP_TO_OBJ(OBJ_METHOD_CONTEXT_METHOD(context));
+      method = (gst_compiled_method)OOP_TO_OBJ(block->method);
+      methodInfo = (gst_method_info)OOP_TO_OBJ(method->descriptor);
+
+      fprintf(fp, "[] in %O", methodInfo->class);
+    }
+    fprintf(fp, ">>%O\n", methodInfo->selector);
+  }
+  }
+}
+
 
 void _gst_show_backtrace(FILE *fp) {
   OOP contextOOP;

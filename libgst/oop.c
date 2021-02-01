@@ -1114,18 +1114,21 @@ void _gst_scavenge(void) {
       return;
   }
 
-  if (!_gst_gc_running++ && _gst_gc_message && _gst_verbosity > 2 &&
-      !_gst_regression_testing) {
+  //_gst_print_process_state ();
+  //_gst_show_backtrace_for_all_thread (stdout);
+
+  //  if (!_gst_gc_running++ && _gst_gc_message && _gst_verbosity > 2 &&
+  //    !_gst_regression_testing) {
     /* print the first part of this message before we finish
        scanning oop table for live ones, so that the delay caused by
        this scanning is apparent.  Note the use of stderr for the
        printed message.  The idea here was that generated output
        could be treated as Smalltalk code, HTML or whatever else you
        want without harm.  */
-    fflush(stdout);
-    fprintf(stderr, "\"Scavenging... ");
-    fflush(stderr);
-  }
+ //   fflush(stdout);
+ //   fprintf(stderr, "\"Scavenging... ");
+//    fflush(stderr);
+    // }
 
   oldBytes = (char *)_gst_mem.eden.allocPtr - (char *)_gst_mem.eden.minPtr +
              _gst_mem.active_half->filled;
@@ -1135,9 +1138,29 @@ void _gst_scavenge(void) {
 
   _gst_finish_incremental_gc();
   _gst_fixup_object_pointers();
+
+
+//  _gst_print_process_state ();
+//  _gst_show_backtrace_for_all_thread (stderr);
+
   copy_oops();
+
+
+//  fprintf(stderr, "AFTER COPY OOPS\n\n");
+//  fflush(stderr);
+
+//  _gst_print_process_state ();
+//  _gst_show_backtrace_for_all_thread (stderr);
+
   check_weak_refs();
+
   _gst_restore_object_pointers();
+
+//  fprintf(stderr, "AFTER RESTORE OOPS\n\n");
+//  fflush(stderr);
+//  _gst_print_process_state ();
+//  _gst_show_backtrace_for_all_thread (stderr);
+
   reset_incremental_gc(_gst_mem.ot);
 
   update_stats(&stats.timeOfLastScavenge, NULL, &_gst_mem.timeToScavenge);
@@ -1149,13 +1172,16 @@ void _gst_scavenge(void) {
   tenuredBytes = _gst_mem.active_half->allocated - _gst_mem.active_half->filled;
   reclaimedPercent = 100.0 * reclaimedBytes / oldBytes;
 
-  if (!--_gst_gc_running && _gst_gc_message && _gst_verbosity > 2 &&
-      !_gst_regression_testing) {
-    fprintf(stderr, "%d%% reclaimed, done\"\n", reclaimedPercent);
-    fflush(stderr);
-  }
+  //if (!--_gst_gc_running && _gst_gc_message && _gst_verbosity > 2 &&
+  //    !_gst_regression_testing) {
+ //   fprintf(stderr, "%d%% reclaimed, done\"\n", reclaimedPercent);
+ //   fflush(stderr);
+    // }
 
-  _gst_mem.reclaimedBytesPerScavenge =
+ //   _gst_print_process_state ();
+ //   _gst_show_backtrace (stderr);
+
+ _gst_mem.reclaimedBytesPerScavenge =
       _gst_mem.factor * reclaimedBytes +
       (1 - _gst_mem.factor) * _gst_mem.reclaimedBytesPerScavenge;
 
@@ -1646,10 +1672,10 @@ void scan_grey_pages() {
   OOP *pOOP, oop;
   size_t i, n;
 
-#if defined(MMAN_DEBUG_OUTPUT)
-  printf("Pages on the grey list:\n");
-  _gst_print_grey_list(true);
-#endif
+/* #if defined(MMAN_DEBUG_OUTPUT) */
+/*   printf("Pages on the grey list:\n"); */
+/*   _gst_print_grey_list(true); */
+/* #endif */
 
   for (last = NULL, next = &_gst_mem.grey_pages.head; (node = *next);) {
 #if defined(GC_DEBUG_OUTPUT) || defined(MMAN_DEBUG_OUTPUT)
