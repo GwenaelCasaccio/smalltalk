@@ -543,7 +543,7 @@ static void stop_execution(void);
 /* Answer an OOP for a Smalltalk object of class Array, holding the
    different process lists for each priority.  */
 #define GET_PROCESS_LISTS()                                                    \
-  ((OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_LISTS(OOP_TO_OBJ(_gst_processor_oop))))
+  ((OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_LISTS(OOP_TO_OBJ(_gst_processor_oop[current_thread_id]))))
 
 /* Tell the interpreter that special actions are needed as soon as a
    sequence point is reached.  */
@@ -1358,7 +1358,7 @@ void change_process_context(OOP newProcess) {
     ((gst_process) OOP_TO_OBJ (newProcess))->name,
     ((gst_process) OOP_TO_OBJ (newProcess))->priority); */
 
-  processor = OOP_TO_OBJ(_gst_processor_oop);
+  processor = OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
   processOOP = OBJ_PROCESSOR_SCHEDULER_GET_ACTIVE_PROCESS(processor);
   if (processOOP != newProcess) {
     process = OOP_TO_OBJ(processOOP);
@@ -1416,7 +1416,7 @@ OOP get_active_process(void) {
 OOP get_scheduled_process(void) {
   gst_object processor;
 
-  processor = OOP_TO_OBJ(_gst_processor_oop);
+  processor = OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
 
   return (OBJ_PROCESSOR_SCHEDULER_GET_ACTIVE_PROCESS(processor));
 }
@@ -1922,7 +1922,7 @@ OOP next_scheduled_process(void) {
   if (is_process_ready(get_scheduled_process()))
     return (_gst_nil_oop);
 
-  processor = OOP_TO_OBJ(_gst_processor_oop);
+  processor = OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
   OBJ_PROCESSOR_SCHEDULER_SET_ACTIVE_PROCESS(processor, _gst_nil_oop);
 
   return (_gst_nil_oop);
@@ -2029,7 +2029,7 @@ void _gst_init_process_system(void) {
   gst_object processor;
   int i;
 
-  processor = OOP_TO_OBJ(_gst_processor_oop);
+  processor = OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
   if (IS_NIL(OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_LISTS(processor))) {
     gst_object processLists;
 
@@ -2058,7 +2058,7 @@ OOP create_callin_process(OOP contextOOP) {
   OOP initialProcessOOP, initialProcessListOOP, nameOOP;
   inc_ptr inc = INC_SAVE_POINTER();
 
-  processor = OOP_TO_OBJ(_gst_processor_oop);
+  processor = OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
   processListsOOP = OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_LISTS(processor);
   initialProcessListOOP = ARRAY_AT(processListsOOP, 4);
 
@@ -2261,7 +2261,7 @@ void set_preemption_timer(void) {
   gst_processor_scheduler processor;
   int timeSlice;
 
-  processor = (gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop);
+  processor = (gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
   timeSlice = TO_INT(processor->processTimeslice);
 
   time_to_preempt = false;

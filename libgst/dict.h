@@ -207,7 +207,7 @@ extern OOP _gst_weak_identity_set_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_weak_key_identity_dictionary_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_weak_value_identity_dictionary_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_write_stream_class ATTRIBUTE_HIDDEN;
-extern thread_local OOP _gst_processor_oop ATTRIBUTE_HIDDEN;
+extern OOP _gst_processor_oop[100] ATTRIBUTE_HIDDEN;
 extern OOP _gst_debug_information_class ATTRIBUTE_HIDDEN;
 
 /* The size of the indexed instance variables corresponding to the

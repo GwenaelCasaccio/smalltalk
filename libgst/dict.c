@@ -173,7 +173,7 @@ OOP _gst_weak_identity_set_class = NULL;
 OOP _gst_weak_key_identity_dictionary_class = NULL;
 OOP _gst_weak_value_identity_dictionary_class = NULL;
 OOP _gst_write_stream_class = NULL;
-thread_local OOP _gst_processor_oop = NULL;
+OOP _gst_processor_oop[100] = { NULL };
 OOP _gst_debug_information_class = NULL;
 
 /* Called when a dictionary becomes full, this routine replaces the
@@ -702,7 +702,7 @@ void init_proto_oops() {
   /* ... and finally Processor */
   numWords = 7 + OBJ_HEADER_SIZE_WORDS;
   processorScheduler = _gst_alloc_words(numWords);
-  OOP_SET_OBJECT(_gst_processor_oop, processorScheduler);
+  OOP_SET_OBJECT(_gst_processor_oop[0], processorScheduler);
 
   OBJ_SET_CLASS(processorScheduler, _gst_processor_scheduler_class);
   nil_fill(processorScheduler->data, numWords - OBJ_HEADER_SIZE_WORDS);
@@ -714,7 +714,7 @@ void _gst_init_dictionary(void) {
 
   /* The order of this must match the indices defined in oop.h!! */
   _gst_smalltalk_dictionary = alloc_oop(NULL, _gst_mem.active_flag);
-  _gst_processor_oop = alloc_oop(NULL, _gst_mem.active_flag);
+  _gst_processor_oop[0] = alloc_oop(NULL, _gst_mem.active_flag);
   _gst_symbol_table = alloc_oop(NULL, _gst_mem.active_flag);
 
   _gst_init_symbols_pass1();
@@ -910,7 +910,7 @@ void init_smalltalk_dictionary(void) {
   add_smalltalk("KernelFilePath", _gst_string_new(_gst_kernel_file_path));
   add_smalltalk("KernelInitialized", _gst_false_oop);
   add_smalltalk("SymbolTable", _gst_symbol_table);
-  add_smalltalk("Processor", _gst_processor_oop);
+  add_smalltalk("Processor", _gst_processor_oop[0]);
   add_smalltalk("Features", featuresArrayOOP);
 
   /* Add subspaces */
@@ -1149,10 +1149,10 @@ mst_Boolean _gst_init_dictionary_on_image_load(mst_Boolean prim_table_matches) {
   _gst_true_oop = &_gst_mem.ot[257];
   _gst_false_oop = &_gst_mem.ot[258];
   _gst_smalltalk_dictionary = OOP_AT(SMALLTALK_OOP_INDEX);
-  _gst_processor_oop = OOP_AT(PROCESSOR_OOP_INDEX);
+  _gst_processor_oop[0] = OOP_AT(PROCESSOR_OOP_INDEX);
   _gst_symbol_table = OOP_AT(SYM_TABLE_OOP_INDEX);
 
-  if (IS_NIL(_gst_processor_oop) || IS_NIL(_gst_symbol_table) ||
+  if (IS_NIL(_gst_processor_oop[0]) || IS_NIL(_gst_symbol_table) ||
       IS_NIL(_gst_smalltalk_dictionary))
     return (false);
 

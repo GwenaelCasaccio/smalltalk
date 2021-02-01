@@ -1384,7 +1384,7 @@ void mourn_objects(void) {
   if (!size)
     return;
 
-  processor = OOP_TO_OBJ(_gst_processor_oop);
+  processor = OOP_TO_OBJ(_gst_processor_oop[0]);
   if (!IS_NIL(OBJ_PROCESSOR_SCHEDULER_GET_GC_ARRAY(processor))) {
     _gst_errorf("Too many garbage collections, finalizers missed!");
     _gst_errorf("This is a bug, please report.");

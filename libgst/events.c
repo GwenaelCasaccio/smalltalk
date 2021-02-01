@@ -260,13 +260,13 @@ poll_events (OOP blockingOOP)
     {
       /* Polling told us they have events ready.  If available, signal the
          event semaphore and switch to STATE_DISPATCHING.  */
-      processor = OOP_TO_OBJ (_gst_processor_oop);
+      processor = OOP_TO_OBJ (_gst_processor_oop[current_thread_id]);
       if (TO_INT (OBJ_SIZE (processor)) > 8)
         {
           event_loop_lock ();
           set_event_loop_state (STATE_DISPATCHING);
           event_loop_unlock ();
-          processor = OOP_TO_OBJ (_gst_processor_oop);
+          processor = OOP_TO_OBJ (_gst_processor_oop[current_thread_id]);
           _gst_sync_signal (OBJ_PROCESSOR_SCHEDULER_GET_EVENT_SEMAPHORE(processor), true);
         }
     }
