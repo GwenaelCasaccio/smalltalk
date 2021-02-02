@@ -404,13 +404,13 @@ void _gst_init_oop_table(PTR address, size_t size) {
     abort();
   }
 
-  pthread_mutexattr_init(&alloc_object_mutex_attr);
-  pthread_mutexattr_settype(&alloc_object_mutex_attr, PTHREAD_MUTEX_RECURSIVE);
-  pthread_mutex_init(&alloc_object_mutex, &alloc_object_mutex_attr);
+  /* pthread_mutexattr_init(&alloc_object_mutex_attr); */
+  /* pthread_mutexattr_settype(&alloc_object_mutex_attr, PTHREAD_MUTEX_ERRORCHECK); */
+  /* if (pthread_mutex_init(&alloc_object_mutex, &alloc_object_mutex_attr)) abort(); */
 
-  //pthread_mutexattr_init(&global_gc_mutex_attr);
-  //pthread_mutexattr_settype(&global_gc_mutex_attr, PTHREAD_MUTEX_RECURSIVE);
-  //pthread_mutex_init(&global_gc_mutex, &global_gc_mutex_attr);
+  /* pthread_mutexattr_init(&global_gc_mutex_attr); */
+  /* pthread_mutexattr_settype(&global_gc_mutex_attr, PTHREAD_MUTEX_ERRORCHECK); */
+  /* if (pthread_mutex_init(&global_gc_mutex, &global_gc_mutex_attr)) abort(); */
 
   oop_heap = NULL;
   for (i = MAX_OOP_TABLE_SIZE; i && !oop_heap; i >>= 1) {
@@ -676,6 +676,7 @@ void _gst_make_oop_fixed(OOP oop) {
   pthread_mutex_lock(&alloc_object_mutex);
 
   if (copy_alloc != _gst_mem.num_alloc) {
+    abort();
     pthread_mutex_unlock(&alloc_object_mutex);
     pthread_mutex_unlock(&global_gc_mutex);
 
@@ -711,6 +712,8 @@ void _gst_make_oop_fixed(OOP oop) {
 
   OOP_SET_FLAGS(oop, OOP_GET_FLAGS(oop) & ~(F_SPACES | F_POOLED));
   OOP_SET_FLAGS(oop, OOP_GET_FLAGS(oop) | F_OLD | F_FIXED);
+
+  _gst_mem.num_alloc++;
 
   pthread_mutex_unlock(&alloc_object_mutex);
   pthread_mutex_unlock(&global_gc_mutex);
@@ -771,7 +774,6 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
 
 gst_object alloc_fixed_obj(size_t size, OOP *p_oop) {
   gst_object p_instance;
-  size_t copy_alloc;
 
   size = ROUNDED_BYTES(size);
 
@@ -1103,6 +1105,9 @@ void _gst_scavenge(void) {
   /* Check if oldspace had to be grown in emergency.  */
   size_t prev_heap_limit = _gst_mem.old->heap_limit;
 
+  /* fprintf(stdout, "SCAVENGE %d", current_thread_id); */
+  /* fflush(stdout); */
+
   /* Force a GC as soon as possible if we're low on OOPs or memory.  */
   if UNCOMMON (_gst_mem.num_free_oops < LOW_WATER_OOP_THRESHOLD ||
                _gst_mem.old->heap_total * 100.0 / _gst_mem.old->heap_limit >
@@ -1140,8 +1145,8 @@ void _gst_scavenge(void) {
   _gst_fixup_object_pointers();
 
 
-//  _gst_print_process_state ();
-//  _gst_show_backtrace_for_all_thread (stderr);
+/* _gst_print_process_state (); */
+/* _gst_show_backtrace_for_all_thread (stderr); */
 
   copy_oops();
 
@@ -1196,9 +1201,13 @@ void _gst_scavenge(void) {
   _gst_invalidate_croutine_cache();
   mourn_objects();
 
+  /* _gst_print_process_state (); */
+  /* _gst_show_backtrace_for_all_thread (stderr); */
+
   /* If tenuring had to grow oldspace, do a global garbage collection
      now.  */
   if (_gst_mem.old->heap_limit > prev_heap_limit) {
+    abort();
     _gst_global_gc(0);
     _gst_incremental_gc_step();
     return;

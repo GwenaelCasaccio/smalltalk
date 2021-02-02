@@ -2741,6 +2741,10 @@ void *start_vm_thread(void *argument) {
   // fflush(stderr);
   dispatch_vec_per_thread[current_thread_id] = global_normal_bytecodes;
 
+  /* _gst_execution_tracing= true; */
+  /* verbose_exec_tracing = true; */
+  /* SET_EXCEPT_FLAG_FOR_THREAD(true, current_thread_id); */
+
   pthread_barrier_wait(&temp_sync_barrier);
   _gst_interpret(activeProcess);
 
@@ -2774,9 +2778,11 @@ static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
   }
 
   pthread_barrier_wait(&temp_sync_barrier);
-  _gst_execution_tracing= true;
-  verbose_exec_tracing = true;
-    SET_EXCEPT_FLAG_FOR_THREAD(true, current_thread_id);
+
+  /* _gst_execution_tracing= true; */
+  /* verbose_exec_tracing = true; */
+  /* SET_EXCEPT_FLAG_FOR_THREAD(true, current_thread_id); */
+
   PRIM_SUCCEEDED;
 }
 
