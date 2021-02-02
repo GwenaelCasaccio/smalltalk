@@ -548,13 +548,13 @@ monitor_byte_codes:
   if UNCOMMON (_gst_execution_tracing) {
     if (verbose_exec_tracing) {
       if (sp >= _gst_temporaries[current_thread_id])
-        printf("\t  [%2td] --> %O\n", (ptrdiff_t)(sp - _gst_temporaries[current_thread_id]),
+        printf("\t  ID: %d [%2td] --> %O\n", current_thread_id, (ptrdiff_t)(sp - _gst_temporaries[current_thread_id]),
                VM_STACKTOP());
       else
-        printf("\t  self --> %O\n", _gst_self[current_thread_id]);
+        printf("\t  ID: %d self --> %O\n", current_thread_id, _gst_self[current_thread_id]);
     }
 
-    printf("%5td:", (ptrdiff_t)(ip - method_base[current_thread_id]));
+    printf("ID: %d %5td:", current_thread_id, (ptrdiff_t)(ip - method_base[current_thread_id]));
     _gst_print_bytecode_name(ip, ip - method_base[current_thread_id], _gst_literals[current_thread_id], "");
     SET_EXCEPT_FLAG_FOR_THREAD(true, current_thread_id);
   }
@@ -565,6 +565,8 @@ monitor_byte_codes:
   FETCH_VEC(normal_byte_codes);
 
 barrier_byte_codes:
+  /* fprintf(stdout, "START OF BARRIER %d\n", current_thread_id); */
+
   pthread_mutex_lock(&dispatch_vec_mutex);
   dispatch_vec_per_thread[current_thread_id] = global_monitored_bytecodes;
   pthread_mutex_unlock(&dispatch_vec_mutex);
@@ -577,19 +579,9 @@ barrier_byte_codes:
   /* Prime the interpreter's registers.  */
   IMPORT_REGS();
 
-  if UNCOMMON (1) {
-    if (1) {
-      if (sp >= _gst_temporaries[current_thread_id])
-        printf("\t  [%2td] --> %O\n", (ptrdiff_t)(sp - _gst_temporaries[current_thread_id]),
-               VM_STACKTOP());
-      else
-        printf("\t  self --> %O\n", _gst_self[current_thread_id]);
-    }
 
-    printf("%5td:", (ptrdiff_t)(ip - method_base[current_thread_id]));
-    _gst_print_bytecode_name(ip, ip - method_base[current_thread_id], _gst_literals[current_thread_id], "");
-    SET_EXCEPT_FLAG_FOR_THREAD(true, current_thread_id);
-  }
+  /* fprintf(stdout, "END OF BARRIER %d\n", current_thread_id); */
+  /* fflush(stdout); */
 
   FETCH_VEC(monitored_byte_codes);
 
