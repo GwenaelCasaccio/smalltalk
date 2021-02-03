@@ -616,6 +616,27 @@ void _gst_swap_objects(OOP oop1, OOP oop2) {
   struct oop_s tempOOP;
   inc_ptr incPtr;
   OOP tempId;
+  size_t copy_alloc;
+
+ start:
+  copy_alloc = _gst_mem.num_alloc;
+
+  global_lock_for_gc();
+  pthread_barrier_wait(&interp_sync_barrier);
+
+  set_except_flag_for_thread(false, current_thread_id);
+
+  if (pthread_mutex_lock(&global_gc_mutex)) perror("foo ");
+  if (pthread_mutex_lock(&alloc_object_mutex)) perror("foo ");
+
+  if (copy_alloc != _gst_mem.num_alloc) {
+    pthread_mutex_unlock(&alloc_object_mutex);
+    pthread_mutex_unlock(&global_gc_mutex);
+
+    pthread_barrier_wait(&end_of_gc_barrier);
+
+    goto start;
+  }
 
   incPtr = INC_SAVE_POINTER();
   INC_ADD_OOP(oop1);
@@ -657,6 +678,13 @@ void _gst_swap_objects(OOP oop1, OOP oop2) {
     _gst_make_oop_weak(oop1);
 
   INC_RESTORE_POINTER(incPtr);
+
+  _gst_mem.num_alloc++;
+
+  if (pthread_mutex_unlock(&alloc_object_mutex)) perror("foo ");
+  if (pthread_mutex_unlock(&global_gc_mutex)) perror("foo ");
+
+  pthread_barrier_wait(&end_of_gc_barrier);
 }
 
 void _gst_make_oop_fixed(OOP oop) {
