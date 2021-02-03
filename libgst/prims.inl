@@ -4301,6 +4301,34 @@ static intptr_t VMpr_Object_tenure(int id, volatile int numArgs) {
 
   oop1 = STACKTOP();
   if (IS_OOP(oop1)) {
+    size_t copy_alloc;
+
+  start:
+    copy_alloc = _gst_mem.num_alloc;
+    global_lock_for_gc();
+    pthread_barrier_wait(&interp_sync_barrier);
+
+    set_except_flag_for_thread(false, current_thread_id);
+
+    if (pthread_mutex_lock(&global_gc_mutex)) perror("foo ");
+    if (pthread_mutex_lock(&alloc_object_mutex)) perror("foo ");
+
+    if (copy_alloc != _gst_mem.num_alloc) {
+      pthread_mutex_unlock(&alloc_object_mutex);
+      pthread_mutex_unlock(&global_gc_mutex);
+
+      pthread_barrier_wait(&end_of_gc_barrier);
+
+      _gst_mem.num_alloc++;
+
+      if (pthread_mutex_unlock(&alloc_object_mutex)) perror("foo ");
+      if (pthread_mutex_unlock(&global_gc_mutex)) perror("foo ");
+
+      pthread_barrier_wait(&end_of_gc_barrier);
+
+      goto start;
+    }
+
     _gst_tenure_oop(oop1);
     PRIM_SUCCEEDED;
   }
