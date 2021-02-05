@@ -2739,7 +2739,9 @@ void *start_vm_thread(void *argument) {
 
   //  fprintf(stderr, "%O\n", activeProcess);
   // fflush(stderr);
-  dispatch_vec_per_thread[current_thread_id] = global_normal_bytecodes;
+  pthread_mutex_lock(&dispatch_vec_mutex);
+  atomic_store(&dispatch_vec_per_thread[current_thread_id], global_normal_bytecodes);
+  pthread_mutex_unlock(&dispatch_vec_mutex);
 
   /* _gst_execution_tracing= true; */
   /* verbose_exec_tracing = true; */
@@ -5631,7 +5633,9 @@ static intptr_t VMpr_ObjectMemory_gcPrimitives(int id, volatile int numArgs) {
     goto start;
   }
 
-  dispatch_vec_per_thread[current_thread_id] = global_monitored_bytecodes;
+  pthread_mutex_lock(&dispatch_vec_mutex);
+  atomic_store(&dispatch_vec_per_thread[current_thread_id], global_monitored_bytecodes);
+  pthread_mutex_unlock(&dispatch_vec_mutex);
 
   switch (id) {
   case 0:

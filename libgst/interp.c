@@ -552,7 +552,7 @@ static thread_local void *const *global_monitored_bytecodes;
 static thread_local void *const *global_normal_bytecodes;
 // static thread_local void *const *dispatch_vec;
 
-static void *const *dispatch_vec_per_thread[100] = { NULL };
+static _Atomic(void *const *) dispatch_vec_per_thread[100] = { NULL };
 thread_local size_t current_thread_id = 0;
 
 pthread_barrier_t interp_sync_barrier;
@@ -565,10 +565,10 @@ void global_lock_for_gc(void) {
   pthread_mutex_lock(&dispatch_vec_mutex);
   for (size_t i = 0; i < atomic_load(&_gst_interpret_thread_counter); i++) {
     if (i == current_thread_id) {
-      dispatch_vec_per_thread[i] = global_normal_bytecodes;
+      atomic_store(&dispatch_vec_per_thread[i], global_normal_bytecodes);
       __sync_synchronize();
     } else {
-      dispatch_vec_per_thread[i] = global_sync_barrier_bytecodes;
+      atomic_store(&dispatch_vec_per_thread[i], global_sync_barrier_bytecodes);
       __sync_synchronize();
     }
   }
@@ -585,7 +585,7 @@ void global_lock_for_gc(void) {
   do {                                                                  \
     pthread_mutex_lock(&dispatch_vec_mutex);                            \
     if (global_sync_barrier_bytecodes != dispatch_vec_per_thread[current_thread_id]) \
-      dispatch_vec_per_thread[current_thread_id] = (x) ? global_monitored_bytecodes : global_normal_bytecodes; \
+      atomic_store(&dispatch_vec_per_thread[current_thread_id], (x) ? global_monitored_bytecodes : global_normal_bytecodes); \
     __sync_synchronize();                                               \
     pthread_mutex_unlock(&dispatch_vec_mutex);                          \
   } while (0)
@@ -594,7 +594,7 @@ void global_lock_for_gc(void) {
   do {                                                                  \
     pthread_mutex_lock(&dispatch_vec_mutex);                            \
     if (global_sync_barrier_bytecodes != dispatch_vec_per_thread[current_thread_id]) \
-    dispatch_vec_per_thread[(thread_id)] = (x) ? global_monitored_bytecodes : global_normal_bytecodes; \
+      atomic_store(&dispatch_vec_per_thread[(thread_id)], (x) ? global_monitored_bytecodes : global_normal_bytecodes); \
     __sync_synchronize();                                               \
     pthread_mutex_unlock(&dispatch_vec_mutex);                          \
   } while (0)
