@@ -18,8 +18,8 @@ BlockContext class extend [
 Process extend [
   setBlock: aBlock [
     suspendedContext := BlockContext allocateFrom: [ 
-      1 to: 200 do: [ : i | aBlock value ].
-      1 to: 200 do: [ : i | Object new basicPrint].
+      1 to: 20 do: [ : i | aBlock value ].
+      1 to: 20 do: [ : i | Object new basicPrint].
       ObjectMemory globalGarbageCollect.
       'out' basicPrint.
       ObjectMemory abort ].
@@ -28,12 +28,12 @@ Process extend [
 ]
 
 Eval [
-  processList := Array new: 9.
+ processList := Array new: 9.
   1 to: 9 do: [ : i | processList at: i put: Semaphore new ].
 
   process := Process basicNew.
   process instVarAt: 1 put: process.
-  process setBlock: [ #[ 1 2 3 ] do: [ : i | i + 2 ].1+1. Array new: 10. 2 basicPrint. ObjectMemory scavenge ].
+  process setBlock: [ 100 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 2 ]. ]. 1+1. Array new: 10. 2 basicPrint. ObjectMemory scavenge ].
   process instVarAt: 3 put: 4.
 
   ps := ProcessorScheduler basicNew.
@@ -48,7 +48,7 @@ Eval [
   ps instVarAt:5 put: Semaphore new. 
   ps newThread: process.
 
-  1 to: 200 do: [ : i | #[ 1 2 3 ] do: [ : i | i + 2 ]. 2+2. Array new: 10. 1 basicPrint. ObjectMemory scavenge ].
+  1 to: 20 do: [ : i | 1000 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 2 ] ]. 2+2. Array new: 10. 1 basicPrint. ObjectMemory scavenge ].
   ObjectMemory abort.
   [ true ] whileTrue.
 ]
