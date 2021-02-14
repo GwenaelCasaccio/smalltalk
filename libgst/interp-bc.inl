@@ -517,8 +517,9 @@ monitor_byte_codes:
   SET_EXCEPT_FLAG_FOR_THREAD(false, current_thread_id);
 
   /* First, deal with any async signals.  */
-  if (async_queue_enabled)
+  if (async_queue_enabled[current_thread_id]) {
     empty_async_queue();
+  }
 
   if UNCOMMON (time_to_preempt)
     ACTIVE_PROCESS_YIELD();
@@ -534,8 +535,9 @@ monitor_byte_codes:
     }
   }
 
-  if (is_process_terminating(processOOP))
+  if (is_process_terminating(processOOP)) {
     goto return_value;
+  }
 
   if UNCOMMON (_gst_abort_execution) {
     OOP selectorOOP;
@@ -565,8 +567,6 @@ monitor_byte_codes:
   FETCH_VEC(normal_byte_codes);
 
 barrier_byte_codes:
-  /* fprintf(stdout, "START OF BARRIER %d\n", current_thread_id); */
-
   pthread_mutex_lock(&dispatch_vec_mutex);
   dispatch_vec_per_thread[current_thread_id] = global_monitored_bytecodes;
   pthread_mutex_unlock(&dispatch_vec_mutex);
@@ -574,14 +574,9 @@ barrier_byte_codes:
   pthread_barrier_wait(&interp_sync_barrier);
   pthread_barrier_wait(&end_of_gc_barrier);
 
-  //  SET_EXCEPT_FLAG(false);
-
   /* Prime the interpreter's registers.  */
   IMPORT_REGS();
 
-
-  /* fprintf(stdout, "END OF BARRIER %d\n", current_thread_id); */
-  /* fflush(stdout); */
 
   FETCH_VEC(monitored_byte_codes);
 

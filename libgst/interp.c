@@ -250,10 +250,10 @@ static thread_local int class_cache_prim;
 #endif
 
 /* Queue for async (outside the interpreter) semaphore signals */
-static thread_local mst_Boolean async_queue_enabled = true;
-static async_queue_entry queued_async_signals_tail;
-static async_queue_entry *queued_async_signals = &queued_async_signals_tail;
-static async_queue_entry *queued_async_signals_sig = &queued_async_signals_tail;
+static thread_local mst_Boolean async_queue_enabled[100] = { true };
+static async_queue_entry queued_async_signals_tail[100];
+static async_queue_entry *queued_async_signals[100] = { &queued_async_signals_tail[0] };
+static async_queue_entry *queued_async_signals_sig[100] = { &queued_async_signals_tail[0] };
 
 /* When not NULL, this causes the byte code interpreter to immediately
    send the message whose selector is here to the current stack
@@ -578,6 +578,12 @@ void global_lock_for_gc(void) {
 #define SET_EXCEPT_FLAG_FOR_SIGNAL(x)                                   \
   do {                                                                  \
     __sync_bool_compare_and_swap(&dispatch_vec_per_thread[current_thread_id], global_normal_bytecodes, global_monitored_bytecodes); \
+    __sync_synchronize();                                               \
+  } while (0)
+
+#define SET_EXCEPT_FLAG_FOR_SIGNAL_FOR_THREAD(x, thread_id)             \
+  do {                                                                  \
+    __sync_bool_compare_and_swap(&dispatch_vec_per_thread[thread_id], global_normal_bytecodes, global_monitored_bytecodes); \
     __sync_synchronize();                                               \
   } while (0)
 
@@ -1418,7 +1424,7 @@ void change_process_context(OOP newProcess) {
          section has terminated (see RecursionLock>>#critical: for an
          example).  */
 
-    async_queue_enabled = enable_async_queue;
+    async_queue_enabled[current_thread_id] = enable_async_queue;
   }
 }
 
@@ -1570,7 +1576,6 @@ mst_Boolean _gst_sync_signal(OOP semaphoreOOP, mst_Boolean incr_if_empty) {
 
   sem = OOP_TO_OBJ(semaphoreOOP);
   do {
-    /* printf ("signal %O %O\n", semaphoreOOP, sem->firstLink); */
     if (is_empty(semaphoreOOP)) {
       if (incr_if_empty)
         OBJ_SEMAPHORE_SET_SIGNALS(sem,
@@ -1612,10 +1617,10 @@ void _gst_async_call_internal(async_queue_entry *e) {
      already in the list.  Checking that atomically with CAS is the
      simplest way.  */
   do
-    if (__sync_val_compare_and_swap(&e->next, NULL, queued_async_signals_sig))
+    if (__sync_val_compare_and_swap(&e->next, NULL, queued_async_signals_sig[0]))
       return;
-  while (!__sync_bool_compare_and_swap(&queued_async_signals_sig, e->next, e));
-  SET_EXCEPT_FLAG_FOR_SIGNAL(true);
+  while (!__sync_bool_compare_and_swap(&queued_async_signals_sig[0], e->next, e));
+  SET_EXCEPT_FLAG_FOR_SIGNAL_FOR_THREAD(true, 0);
 }
 
 void _gst_async_call(void (*func)(OOP), OOP arg) {
@@ -1626,15 +1631,15 @@ void _gst_async_call(void (*func)(OOP), OOP arg) {
   sig->data = arg;
 
   do
-    sig->next = queued_async_signals;
-  while (!__sync_bool_compare_and_swap(&queued_async_signals, sig->next, sig));
+    sig->next = queued_async_signals[0];
+  while (!__sync_bool_compare_and_swap(&queued_async_signals[0], sig->next, sig));
   _gst_wakeup();
-  SET_EXCEPT_FLAG(true);
+  SET_EXCEPT_FLAG_FOR_THREAD(true, 0);
 }
 
 mst_Boolean _gst_have_pending_async_calls() {
-  return (queued_async_signals != &queued_async_signals_tail ||
-          queued_async_signals_sig != &queued_async_signals_tail);
+  return (queued_async_signals[current_thread_id] != &queued_async_signals_tail[current_thread_id] ||
+          queued_async_signals_sig[current_thread_id] != &queued_async_signals_tail[current_thread_id]);
 }
 
 void empty_async_queue() {
@@ -1643,9 +1648,9 @@ void empty_async_queue() {
   /* Process a batch of asynchronous requests.  These are pushed
      in LIFO order by _gst_async_call.  By reversing the list
      in place before walking it, we get FIFO order.  */
-  sig = __sync_swap(&queued_async_signals, &queued_async_signals_tail);
-  sig_reversed = &queued_async_signals_tail;
-  while (sig != &queued_async_signals_tail) {
+  sig = __sync_swap(&queued_async_signals[current_thread_id], &queued_async_signals_tail[current_thread_id]);
+  sig_reversed = &queued_async_signals_tail[current_thread_id];
+  while (sig != &queued_async_signals_tail[current_thread_id]) {
     async_queue_entry *next = sig->next;
     sig->next = sig_reversed;
     sig_reversed = sig;
@@ -1653,7 +1658,7 @@ void empty_async_queue() {
   }
 
   sig = sig_reversed;
-  while (sig != &queued_async_signals_tail) {
+  while (sig != &queued_async_signals_tail[current_thread_id]) {
     async_queue_entry *next = sig->next;
     sig->func(sig->data);
     free(sig);
@@ -1663,9 +1668,9 @@ void empty_async_queue() {
   /* For async-signal-safe processing, we need to avoid entering
      the same item twice into the list.  So we use NEXT to mark
      items that have been added...  */
-  sig = __sync_swap(&queued_async_signals_sig, &queued_async_signals_tail);
-  sig_reversed = &queued_async_signals_tail;
-  while (sig != &queued_async_signals_tail) {
+  sig = __sync_swap(&queued_async_signals_sig[current_thread_id], &queued_async_signals_tail[current_thread_id]);
+  sig_reversed = &queued_async_signals_tail[current_thread_id];
+  while (sig != &queued_async_signals_tail[current_thread_id]) {
     async_queue_entry *next = sig->next;
     sig->next = sig_reversed;
     sig_reversed = sig;
@@ -1673,7 +1678,7 @@ void empty_async_queue() {
   }
 
   sig = sig_reversed;
-  while (sig != &queued_async_signals_tail) {
+  while (sig != &queued_async_signals_tail[current_thread_id]) {
     async_queue_entry *next = sig->next;
     void (*func)(OOP) = sig->func;
     OOP data = sig->data;
@@ -2338,10 +2343,10 @@ void _gst_copy_processor_registers(void) {
 void copy_semaphore_oops(void) {
   async_queue_entry *sig;
 
-  for (sig = queued_async_signals; sig != &queued_async_signals_tail;
+  for (sig = queued_async_signals[current_thread_id]; sig != &queued_async_signals_tail[current_thread_id];
        sig = sig->next)
     MAYBE_COPY_OOP(sig->data);
-  for (sig = queued_async_signals_sig; sig != &queued_async_signals_tail;
+  for (sig = queued_async_signals_sig[current_thread_id]; sig != &queued_async_signals_tail[current_thread_id];
        sig = sig->next)
     MAYBE_COPY_OOP(sig->data);
 
@@ -2368,10 +2373,10 @@ void _gst_mark_processor_registers(void) {
 void mark_semaphore_oops(void) {
   async_queue_entry *sig;
 
-  for (sig = queued_async_signals; sig != &queued_async_signals_tail;
+  for (sig = queued_async_signals[current_thread_id]; sig != &queued_async_signals_tail[current_thread_id];
        sig = sig->next)
     MAYBE_MARK_OOP(sig->data);
-  for (sig = queued_async_signals_sig; sig != &queued_async_signals_tail;
+  for (sig = queued_async_signals_sig[current_thread_id]; sig != &queued_async_signals_tail[current_thread_id];
        sig = sig->next)
     MAYBE_MARK_OOP(sig->data);
 

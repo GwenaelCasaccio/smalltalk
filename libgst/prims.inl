@@ -2725,7 +2725,9 @@ void *start_vm_thread(void *argument) {
 
   switch_to_process[current_thread_id] = _gst_nil_oop;
  _gst_this_context_oop[current_thread_id] = _gst_nil_oop;
-
+ async_queue_enabled[current_thread_id] = true;
+ queued_async_signals[current_thread_id] = &queued_async_signals_tail[current_thread_id];
+ queued_async_signals_sig[current_thread_id] = &queued_async_signals_tail[current_thread_id];
  // fprintf(stderr, "%O\n", _gst_processor_oop);
  // fflush(stderr);
 
@@ -2743,9 +2745,9 @@ void *start_vm_thread(void *argument) {
   atomic_store(&dispatch_vec_per_thread[current_thread_id], global_normal_bytecodes);
   pthread_mutex_unlock(&dispatch_vec_mutex);
 
-  /* _gst_execution_tracing= true; */
-  /* verbose_exec_tracing = true; */
-  /* SET_EXCEPT_FLAG_FOR_THREAD(true, current_thread_id); */
+   _gst_execution_tracing= true;
+  verbose_exec_tracing = true;
+  SET_EXCEPT_FLAG_FOR_THREAD(true, current_thread_id);
 
   pthread_barrier_wait(&temp_sync_barrier);
   _gst_interpret(activeProcess);
@@ -2780,6 +2782,13 @@ static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
   }
 
   pthread_barrier_wait(&temp_sync_barrier);
+
+  if (current_thread_id == 0) {
+    _gst_execution_tracing = true;
+    verbose_exec_tracing = true;
+    SET_EXCEPT_FLAG_FOR_THREAD(true, current_thread_id);
+  }
+
 
   /* _gst_execution_tracing= true; */
   /* verbose_exec_tracing = true; */
@@ -3709,9 +3718,9 @@ static intptr_t VMpr_Processor_disableEnableInterrupts(int id,
   count = IS_NIL(OBJ_PROCESS_GET_INTERRUPTS(process)) ? 0 : TO_INT(OBJ_PROCESS_GET_INTERRUPTS(process));
 
   if (id == 0 && count++ == 0)
-    async_queue_enabled = false;
+    async_queue_enabled[current_thread_id] = false;
   else if (id == -1 && --count == 0) {
-    async_queue_enabled = true;
+    async_queue_enabled[current_thread_id] = true;
     SET_EXCEPT_FLAG(true);
   }
 
