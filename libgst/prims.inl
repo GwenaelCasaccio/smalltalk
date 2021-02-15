@@ -2797,6 +2797,61 @@ static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
   PRIM_SUCCEEDED;
 }
 
+static intptr_t VMpr_Processor_killThread(int id, volatile int numArgs) {
+  size_t copy_alloc;
+
+ start:
+  copy_alloc = _gst_mem.num_alloc;
+
+  global_lock_for_gc();
+  pthread_barrier_wait(&interp_sync_barrier);
+
+  set_except_flag_for_thread(false, current_thread_id);
+
+  if (pthread_mutex_lock(&global_gc_mutex)) perror("foo ");
+  if (pthread_mutex_lock(&alloc_object_mutex)) perror("foo ");
+
+  if (copy_alloc != _gst_mem.num_alloc) {
+    pthread_mutex_unlock(&alloc_object_mutex);
+    pthread_mutex_unlock(&global_gc_mutex);
+
+    pthread_barrier_wait(&end_of_gc_barrier);
+
+    goto start;
+  }
+
+  empty_context_stack();
+
+  _gst_mem.num_alloc++;
+
+  atomic_fetch_add(&_gst_interpret_thread_counter, -1);
+
+  if (pthread_mutex_unlock(&alloc_object_mutex)) perror("foo ");
+  if (pthread_mutex_unlock(&global_gc_mutex)) perror("foo ");
+
+  if (pthread_barrier_destroy(&interp_sync_barrier)) {
+    abort();
+  }
+
+  if (pthread_barrier_init(&interp_sync_barrier, NULL, atomic_load(&_gst_interpret_thread_counter))) {
+    abort();
+  }
+
+  pthread_barrier_wait(&end_of_gc_barrier);
+
+  if (pthread_barrier_destroy(&end_of_gc_barrier)) {
+    abort();
+  }
+
+  if (pthread_barrier_init(&end_of_gc_barrier, NULL, atomic_load(&_gst_interpret_thread_counter))) {
+    abort();
+  }
+
+  pthread_exit(NULL);
+
+  PRIM_SUCCEEDED;
+}
+
 /* Processor waitForEvents */
 static intptr_t VMpr_Processor_dispatchEvents(int id, volatile int numArgs) {
   interp_jmp_buf jb;
@@ -6794,8 +6849,12 @@ void _gst_init_primitives() {
   _gst_default_primitive_table[245].id = 0;
   _gst_default_primitive_table[245].func = VMpr_Processor_newThread;
 
+  _gst_default_primitive_table[246].name = "VMpr_Processor_killThread";
+  _gst_default_primitive_table[246].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[246].id = 0;
+  _gst_default_primitive_table[246].func = VMpr_Processor_killThread;
 
-  for (i = 246; i < NUM_PRIMITIVES; i++) {
+  for (i = 247; i < NUM_PRIMITIVES; i++) {
     _gst_default_primitive_table[i].name = NULL;
     _gst_default_primitive_table[i].attributes = PRIM_FAIL;
     _gst_default_primitive_table[i].id = i;

@@ -51,6 +51,12 @@ Object subclass: ProcessorScheduler [
       <primitive: VMpr_Processor_newThread>
     ]
 
+
+    killThread [
+
+      <primitive: VMpr_Processor_killThread>
+    ]
+
     processEnvironment [
 	"Answer another singleton object hosting thread-local variables
 	 for the Smalltalk processes.  This acts like a normal Dictionary

@@ -31,12 +31,12 @@ Eval [
  processList := Array new: 9.
   1 to: 9 do: [ : i | processList at: i put: Semaphore new ].
 
+  ps := ProcessorScheduler basicNew.
+
   process := Process basicNew.
   process instVarAt: 1 put: process.
-  process setBlock: [ 100 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 2 ]. ]. 1+1. Array new: 10. 2 basicPrint. ObjectMemory scavenge ].
+  process setBlock: [ 100 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 2 ]. ]. 1+1. Array new: 10. 2 basicPrint. ObjectMemory scavenge. ps killThread ].
   process instVarAt: 3 put: 4.
-
-  ps := ProcessorScheduler basicNew.
 
   " GC Protecting the new Processor "
   Smalltalk at: #Foo put: ps.
@@ -49,6 +49,6 @@ Eval [
   ps newThread: process.
 
   1 to: 20 do: [ : i | 1000 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 2 ] ]. 2+2. Array new: 10. 1 basicPrint. ObjectMemory scavenge ].
-  ObjectMemory abort.
+  "ObjectMemory abort."
   [ true ] whileTrue.
 ]
