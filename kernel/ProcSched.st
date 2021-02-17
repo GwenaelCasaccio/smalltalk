@@ -377,5 +377,9 @@ Object subclass: ProcessorScheduler [
 	<primitive: VMpr_Processor_signalOnInterrupt>
 	^self primitiveFailed
     ]
+
+    tracing [
+	          <primitive: VMpr_Processor_tracing>
+    ]
 ]
 

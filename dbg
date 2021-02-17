@@ -1,0 +1,6 @@
+b VMpr_Process_resume 
+b VMpr_Object_basicPrint 
+b VMpr_Process_suspend 
+call _gst_print_process_state ()
+
+
