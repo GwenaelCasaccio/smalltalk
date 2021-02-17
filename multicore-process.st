@@ -17,25 +17,22 @@ BlockContext class extend [
 
 Process extend [
   setBlock: aBlock [
-    suspendedContext := BlockContext allocateFrom: [ 
-      1 to: 2 do: [ : i | aBlock value ].
-      ObjectMemory globalGarbageCollect.
-      'out' basicPrint.
-      ObjectMemory abort ].
-
+    suspendedContext := BlockContext allocateFrom: [ aBlock value ].
   ]
 ]
 
 Eval [
- processList := Array new: 9.
+  processList := Array new: 9.
   1 to: 9 do: [ : i | processList at: i put: Semaphore new ].
 
   ps := ProcessorScheduler basicNew.
 
   process := Process basicNew.
-  process instVarAt: 1 put: process.
-  process setBlock: [ 1 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 2 ]. ]. 1+1. Array new: 10. 2 basicPrint. ObjectMemory scavenge. ps killThread ].
-  process instVarAt: 3 put: 4.
+  process setBlock: [ 100 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 2 ] ]. 2+2. Array new: 10. 1 basicPrint.  [100 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 2 ] ]. 2+2. Array new: 10. 1 basicPrint. [100 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 2 ] ]. 2+2. Array new: 10. 1 basicPrint. [1 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 2 ] ]. 2+2. Array new: 10. 1 basicPrint. [1 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 2 ] ]. 2+2. Array new: 10. 1 basicPrint. ] forkWithoutFinalize ] forkWithoutFinalize ] forkWithoutFinalize ] forkWithoutFinalize. ps killThread ].
+  process instVarNamed: #priority put: 4.
+  process instVarNamed: #name put: 'Threaded Process 1'.
+
+  (processList at: 4) addFirst: process.
 
   " GC Protecting the new Processor "
   Smalltalk at: #Foo put: ps.
@@ -47,7 +44,7 @@ Eval [
   ps instVarAt:5 put: Semaphore new. 
   ps newThread: process.
 
-  1 to: 2 do: [ : i | 1 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 2 ] ]. 2+2. Array new: 10. 1 basicPrint. ObjectMemory scavenge ].
-  "ObjectMemory abort."
+  "1 to: 2 do: [ : i | 1 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 2 ] ]. 2+2. Array new: 10. 1 basicPrint. ObjectMemory scavenge ].
+  ObjectMemory abort."
   [ true ] whileTrue.
 ]

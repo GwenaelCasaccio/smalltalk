@@ -2022,9 +2022,9 @@ void _gst_print_process_state(void) {
   processOOP = get_scheduled_process();
   process = OOP_TO_OBJ(processOOP);
   if (processOOP == _gst_nil_oop)
-    printf("No active process\n");
+    fprintf(stderr, "No active process\n");
   else
-    printf("Active process: <Proc %p prio: %td next %p context %p>\n",
+    fprintf(stderr, "Active process: <Proc %p prio: %td next %p context %p>\n",
            processOOP, TO_INT(OBJ_PROCESS_GET_PRIORITY(process)), OBJ_PROCESS_GET_NEXT_LINK(process),
            OBJ_PROCESS_GET_SUSPENDED_CONTEXT(process));
 
@@ -2035,19 +2035,21 @@ void _gst_print_process_state(void) {
     if (IS_NIL(OBJ_SEMAPHORE_GET_FIRST_LINK(processList)))
       continue;
 
-    printf("  Priority %d: First %p last %p ", priority,
+    fprintf(stderr, "  Priority %d: First %p last %p ", priority,
            OBJ_SEMAPHORE_GET_FIRST_LINK(processList),
            OBJ_SEMAPHORE_GET_LAST_LINK(processList));
 
     for (processOOP = OBJ_SEMAPHORE_GET_FIRST_LINK(processList);
          !IS_NIL(processOOP); processOOP = OBJ_PROCESS_GET_NEXT_LINK(process)) {
       process = OOP_TO_OBJ(processOOP);
-      printf("\n    <Proc %p prio: %td context %p> ", processOOP,
+      fprintf(stderr, "\n    <Proc %p prio: %td context %p> ", processOOP,
              TO_INT(OBJ_PROCESS_GET_PRIORITY(process)), OBJ_PROCESS_GET_SUSPENDED_CONTEXT(process));
     }
 
-    printf("\n");
+    fprintf(stderr, "\n");
   }
+
+  fflush(stderr);
 }
 
 OOP semaphore_new(int signals) {

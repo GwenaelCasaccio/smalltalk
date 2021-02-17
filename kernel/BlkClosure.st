@@ -373,6 +373,16 @@ creation of Processes from blocks.'>
 	    suspend: false
     ]
 
+    forkWithoutFinalize [
+	"Create a new process executing the receiver and start it"
+
+	<category: 'multiple process'>
+	^Process 
+	    onWithoutFinalize: self
+	    at: Processor activePriority
+	    suspend: true
+    ]
+
     forkAt: priority [
 	"Create a new process executing the receiver with given priority
 	 and start it"

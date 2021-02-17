@@ -52,6 +52,18 @@ can suspend themselves and resume themselves however they wish.'>
 	    suspend: aBoolean
     ]
 
+    Process class >> onWithoutFinalize: aBlockClosure at: aPriority suspend: aBoolean [
+	"Private - Create a process running aBlockClosure at the given
+	 priority.  The process is suspended immediately after
+	 initialization if aBoolean is true"
+
+	<category: 'private'>
+  | res |
+	res := self basicNew. 
+	res onBlockWithoutFinalize: aBlockClosure at: aPriority suspend: aBoolean.
+  ^ res
+    ]
+
     debugger [
 	"Return the object in charge of debugging the receiver.  This always returns
 	 nil unless the DebugTools package is loaded."
@@ -411,6 +423,27 @@ can suspend themselves and resume themselves however they wish.'>
 	self
 	    addToBeFinalized;
 	    resume
+    ]
+
+    onBlockWithoutFinalize: aBlockClosure at: aPriority suspend: aBoolean [
+	| closure activePriority |
+  name := 'Thread Process undefined id'.
+	activePriority := Processor activePriority.
+	closure :=
+	    [[[
+		priority := aPriority.
+  'SUSPEND' basicPrint.
+  'SUSPEND' basicPrint.
+		aBlockClosure value]
+			on: SystemExceptions.ProcessBeingTerminated
+			do: 
+			    [:sig | sig return]] 
+			ensure: [	suspendedContext := nil.
+	              self suspend ]].
+
+	suspendedContext := closure asContext: nil.
+	priority := Processor unpreemptedPriority.
+	self resume
     ]
 
     isActive [

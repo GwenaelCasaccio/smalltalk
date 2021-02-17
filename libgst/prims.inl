@@ -2783,11 +2783,11 @@ static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
 
   pthread_barrier_wait(&temp_sync_barrier);
 
-  if (current_thread_id == 0) {
-    _gst_execution_tracing = true;
-    verbose_exec_tracing = true;
-    SET_EXCEPT_FLAG_FOR_THREAD(true, current_thread_id);
-  }
+  /* if (current_thread_id == 0) { */
+  /*   _gst_execution_tracing = true; */
+  /*   verbose_exec_tracing = true; */
+  /*   SET_EXCEPT_FLAG_FOR_THREAD(true, current_thread_id); */
+  /* } */
 
 
   /* _gst_execution_tracing= true; */
@@ -2799,6 +2799,8 @@ static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
 
 static intptr_t VMpr_Processor_killThread(int id, volatile int numArgs) {
   size_t copy_alloc;
+
+  _gst_primitives_executed++;
 
  start:
   copy_alloc = _gst_mem.num_alloc;
@@ -2848,6 +2850,18 @@ static intptr_t VMpr_Processor_killThread(int id, volatile int numArgs) {
   }
 
   pthread_exit(NULL);
+
+  PRIM_SUCCEEDED;
+}
+
+
+static intptr_t VMpr_Processor_tracing(int id, volatile int numArgs) {
+
+  _gst_primitives_executed++;
+
+  _gst_execution_tracing = true;
+  verbose_exec_tracing = true;
+  SET_EXCEPT_FLAG_FOR_THREAD(true, current_thread_id);
 
   PRIM_SUCCEEDED;
 }
@@ -6854,7 +6868,12 @@ void _gst_init_primitives() {
   _gst_default_primitive_table[246].id = 0;
   _gst_default_primitive_table[246].func = VMpr_Processor_killThread;
 
-  for (i = 247; i < NUM_PRIMITIVES; i++) {
+  _gst_default_primitive_table[247].name = "VMpr_Processor_tracing";
+  _gst_default_primitive_table[247].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[247].id = 0;
+  _gst_default_primitive_table[247].func = VMpr_Processor_tracing;
+
+  for (i = 248; i < NUM_PRIMITIVES; i++) {
     _gst_default_primitive_table[i].name = NULL;
     _gst_default_primitive_table[i].attributes = PRIM_FAIL;
     _gst_default_primitive_table[i].id = i;
