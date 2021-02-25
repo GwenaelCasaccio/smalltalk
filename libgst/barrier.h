@@ -5,13 +5,13 @@
 extern pthread_mutex_t alloc_oop_mutex;
 
 /* The total number of interpreter theads */
-extern _Atomic(size_t) _gst_count_total_threaded_vm;
+extern volatile _Atomic(size_t) _gst_count_total_threaded_vm;
 
 /* The number of interpreter threads used for the global lock */
-extern _Atomic(size_t) _gst_count_threaded_vm;
+extern volatile _Atomic(size_t) _gst_count_threaded_vm;
 
 /* Count the interpreter threads that reached the barrier */
-extern _Atomic(size_t) _gst_count_locked_vm;
+extern volatile _Atomic(size_t) _gst_count_locked_vm;
 
 extern pthread_cond_t _gst_vm_barrier_cond;
 
@@ -21,7 +21,7 @@ extern pthread_mutex_t _gst_vm_barrier_mutex;
 extern mst_Boolean _gst_vm_barrier_wait(void);
 
 /* Count the interpreter threads that reached the barrier */
-extern _Atomic(size_t) _gst_count_end_locked_vm;
+extern volatile _Atomic(size_t) _gst_count_end_locked_vm;
 
 extern pthread_cond_t _gst_vm_end_barrier_cond;
 
