@@ -85,15 +85,6 @@ OOP _gst_nil_oop = NULL;
 OOP _gst_true_oop = NULL;
 OOP _gst_false_oop = NULL;
 
-pthread_mutex_t alloc_oop_mutex = PTHREAD_MUTEX_INITIALIZER;
-
-pthread_mutex_t alloc_object_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutexattr_t alloc_object_mutex_attr;
-
-pthread_mutex_t global_gc_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutexattr_t global_gc_mutex_attr;
-
-
 /* This is true to show a message whenever a GC happens.  */
 int _gst_gc_message = true;
 
@@ -396,22 +387,6 @@ pthread_barrier_t end_of_gc_barrier;
 void _gst_init_oop_table(PTR address, size_t size) {
   size_t i;
 
-  if (pthread_barrier_init(&interp_sync_barrier, NULL, _gst_interpret_thread_counter)) {
-    abort();
-  }
-
-  if (pthread_barrier_init(&end_of_gc_barrier, NULL, _gst_interpret_thread_counter)) {
-    abort();
-  }
-
-  /* pthread_mutexattr_init(&alloc_object_mutex_attr); */
-  /* pthread_mutexattr_settype(&alloc_object_mutex_attr, PTHREAD_MUTEX_ERRORCHECK); */
-  /* if (pthread_mutex_init(&alloc_object_mutex, &alloc_object_mutex_attr)) abort(); */
-
-  /* pthread_mutexattr_init(&global_gc_mutex_attr); */
-  /* pthread_mutexattr_settype(&global_gc_mutex_attr, PTHREAD_MUTEX_ERRORCHECK); */
-  /* if (pthread_mutex_init(&global_gc_mutex, &global_gc_mutex_attr)) abort(); */
-
   oop_heap = NULL;
   for (i = MAX_OOP_TABLE_SIZE; i && !oop_heap; i >>= 1) {
     oop_heap = _gst_heap_create(address, i * sizeof(struct oop_s));
@@ -616,27 +591,15 @@ void _gst_swap_objects(OOP oop1, OOP oop2) {
   struct oop_s tempOOP;
   inc_ptr incPtr;
   OOP tempId;
-  size_t copy_alloc;
-
- start:
-  copy_alloc = _gst_mem.num_alloc;
 
   global_lock_for_gc();
-  pthread_barrier_wait(&interp_sync_barrier);
+
+  while (!_gst_vm_barrier_wait()) {
+    _gst_vm_end_barrier_wait();
+    global_lock_for_gc();
+  }
 
   set_except_flag_for_thread(false, current_thread_id);
-
-  if (pthread_mutex_lock(&global_gc_mutex)) perror("foo ");
-  if (pthread_mutex_lock(&alloc_object_mutex)) perror("foo ");
-
-  if (copy_alloc != _gst_mem.num_alloc) {
-    pthread_mutex_unlock(&alloc_object_mutex);
-    pthread_mutex_unlock(&global_gc_mutex);
-
-    pthread_barrier_wait(&end_of_gc_barrier);
-
-    goto start;
-  }
 
   incPtr = INC_SAVE_POINTER();
   INC_ADD_OOP(oop1);
@@ -679,46 +642,25 @@ void _gst_swap_objects(OOP oop1, OOP oop2) {
 
   INC_RESTORE_POINTER(incPtr);
 
-  _gst_mem.num_alloc++;
-
-  if (pthread_mutex_unlock(&alloc_object_mutex)) perror("foo ");
-  if (pthread_mutex_unlock(&global_gc_mutex)) perror("foo ");
-
-  pthread_barrier_wait(&end_of_gc_barrier);
+  _gst_vm_end_barrier_wait();
 }
 
 void _gst_make_oop_fixed(OOP oop) {
   gst_object newObj;
   int size;
-  size_t copy_alloc;
-
- start:
-  copy_alloc = _gst_mem.num_alloc;
 
   global_lock_for_gc();
-  pthread_barrier_wait(&interp_sync_barrier);
+
+  while (!_gst_vm_barrier_wait()) {
+    _gst_vm_end_barrier_wait();
+    global_lock_for_gc();
+  }
 
   set_except_flag_for_thread(false, current_thread_id);
 
-  pthread_mutex_lock(&global_gc_mutex);
-  pthread_mutex_lock(&alloc_object_mutex);
-
-  if (copy_alloc != _gst_mem.num_alloc) {
-    abort();
-    pthread_mutex_unlock(&alloc_object_mutex);
-    pthread_mutex_unlock(&global_gc_mutex);
-
-    pthread_barrier_wait(&end_of_gc_barrier);
-
-    goto start;
-  }
-
   if (OOP_GET_FLAGS(oop) & F_FIXED)
     {
-      pthread_mutex_unlock(&alloc_object_mutex);
-      pthread_mutex_unlock(&global_gc_mutex);
-
-      pthread_barrier_wait(&end_of_gc_barrier);
+      _gst_vm_end_barrier_wait();
 
       return;
     }
@@ -741,12 +683,7 @@ void _gst_make_oop_fixed(OOP oop) {
   OOP_SET_FLAGS(oop, OOP_GET_FLAGS(oop) & ~(F_SPACES | F_POOLED));
   OOP_SET_FLAGS(oop, OOP_GET_FLAGS(oop) | F_OLD | F_FIXED);
 
-  _gst_mem.num_alloc++;
-
-  pthread_mutex_unlock(&alloc_object_mutex);
-  pthread_mutex_unlock(&global_gc_mutex);
-
-  pthread_barrier_wait(&end_of_gc_barrier);
+  _gst_vm_end_barrier_wait();
 }
 
 void _gst_tenure_oop(OOP oop) {

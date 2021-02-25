@@ -577,27 +577,15 @@ gst_object new_instance_with(OOP class_oop, size_t numIndexFields, OOP *p_oop) {
   size_t numBytes, alignedBytes;
   intptr_t instanceSpec;
   gst_object p_instance;
-  size_t copy_alloc;
-
- start:
-  copy_alloc = _gst_mem.num_alloc;
 
   global_lock_for_gc();
-  pthread_barrier_wait(&interp_sync_barrier);
+
+  while (!_gst_vm_barrier_wait()) {
+    _gst_vm_end_barrier_wait();
+    global_lock_for_gc();
+  }
 
   set_except_flag_for_thread(false, current_thread_id);
-
-  if (pthread_mutex_lock(&global_gc_mutex)) perror("foo ");
-  if (pthread_mutex_lock(&alloc_object_mutex)) perror("foo ");
-
-  if (copy_alloc != _gst_mem.num_alloc) {
-    pthread_mutex_unlock(&alloc_object_mutex);
-    pthread_mutex_unlock(&global_gc_mutex);
-
-    pthread_barrier_wait(&end_of_gc_barrier);
-
-    goto start;
-  }
 
   instanceSpec = CLASS_INSTANCE_SPEC(class_oop);
   numBytes = sizeof(gst_object_header) +
@@ -610,13 +598,7 @@ gst_object new_instance_with(OOP class_oop, size_t numIndexFields, OOP *p_oop) {
 
   OBJ_SET_CLASS(p_instance, class_oop);
 
-  _gst_mem.num_alloc++;
-
-  if (pthread_mutex_unlock(&alloc_object_mutex)) perror("foo ");
-  if (pthread_mutex_unlock(&global_gc_mutex)) perror("foo ");
-
-  pthread_barrier_wait(&end_of_gc_barrier);
-
+  _gst_vm_end_barrier_wait();
 
   return p_instance;
 }
@@ -625,27 +607,15 @@ gst_object new_instance(OOP class_oop, OOP *p_oop) {
   size_t numBytes;
   intptr_t instanceSpec;
   gst_object p_instance;
-  size_t copy_alloc;
-
- start:
-  copy_alloc = _gst_mem.num_alloc;
 
   global_lock_for_gc();
-  pthread_barrier_wait(&interp_sync_barrier);
+
+  while (!_gst_vm_barrier_wait()) {
+    _gst_vm_end_barrier_wait();
+    global_lock_for_gc();
+  }
 
   set_except_flag_for_thread(false, current_thread_id);
-
-  if (pthread_mutex_lock(&global_gc_mutex)) perror("foo ");
-  if (pthread_mutex_lock(&alloc_object_mutex)) perror("foo ");
-
-  if (copy_alloc != _gst_mem.num_alloc) {
-    pthread_mutex_unlock(&alloc_object_mutex);
-    pthread_mutex_unlock(&global_gc_mutex);
-
-    pthread_barrier_wait(&end_of_gc_barrier);
-
-    goto start;
-  }
 
   instanceSpec = CLASS_INSTANCE_SPEC(class_oop);
   numBytes = sizeof(gst_object_header) +
@@ -654,12 +624,7 @@ gst_object new_instance(OOP class_oop, OOP *p_oop) {
   p_instance = _gst_alloc_obj(numBytes, p_oop);
   OBJ_SET_CLASS(p_instance, class_oop);
 
-  _gst_mem.num_alloc++;
-
-  if (pthread_mutex_unlock(&alloc_object_mutex)) perror("foo ");
-  if (pthread_mutex_unlock(&global_gc_mutex)) perror("foo ");
-
-  pthread_barrier_wait(&end_of_gc_barrier);
+  _gst_vm_end_barrier_wait();
 
   return p_instance;
 }
@@ -708,27 +673,15 @@ gst_object instantiate_with(OOP class_oop, size_t numIndexFields, OOP *p_oop) {
   size_t numBytes, indexedBytes, alignedBytes;
   intptr_t instanceSpec;
   gst_object p_instance;
-  size_t copy_alloc;
-
- start:
-  copy_alloc = _gst_mem.num_alloc;
 
   global_lock_for_gc();
-  pthread_barrier_wait(&interp_sync_barrier);
+
+  while (!_gst_vm_barrier_wait()) {
+    _gst_vm_end_barrier_wait();
+    global_lock_for_gc();
+  }
 
   set_except_flag_for_thread(false, current_thread_id);
-
-  if (pthread_mutex_lock(&global_gc_mutex)) perror("foo ");
-  if (pthread_mutex_lock(&alloc_object_mutex)) perror("foo ");
-
-  if (copy_alloc != _gst_mem.num_alloc) {
-    pthread_mutex_unlock(&alloc_object_mutex);
-    pthread_mutex_unlock(&global_gc_mutex);
-
-    pthread_barrier_wait(&end_of_gc_barrier);
-
-    goto start;
-  }
 
   instanceSpec = CLASS_INSTANCE_SPEC(class_oop);
 #ifndef OPTIMIZE
@@ -755,12 +708,7 @@ gst_object instantiate_with(OOP class_oop, size_t numIndexFields, OOP *p_oop) {
            indexedBytes);
   }
 
-  _gst_mem.num_alloc++;
-
-  if (pthread_mutex_unlock(&alloc_object_mutex)) perror("foo ");
-  if (pthread_mutex_unlock(&global_gc_mutex)) perror("foo ");
-
-  pthread_barrier_wait(&end_of_gc_barrier);
+  _gst_vm_end_barrier_wait();
 
   return p_instance;
 }
@@ -769,39 +717,22 @@ gst_object instantiate(OOP class_oop, OOP *p_oop) {
   size_t numBytes;
   intptr_t instanceSpec;
   gst_object p_instance;
-  size_t copy_alloc;
-
- start:
-  copy_alloc = _gst_mem.num_alloc;
 
   global_lock_for_gc();
-  pthread_barrier_wait(&interp_sync_barrier);
+
+  while (!_gst_vm_barrier_wait()) {
+    _gst_vm_end_barrier_wait();
+    global_lock_for_gc();
+  }
 
   set_except_flag_for_thread(false, current_thread_id);
-
-  if (pthread_mutex_lock(&global_gc_mutex)) perror("foo ");
-  if (pthread_mutex_lock(&alloc_object_mutex)) perror("foo ");
-
-  if (copy_alloc != _gst_mem.num_alloc) {
-    pthread_mutex_unlock(&alloc_object_mutex);
-    pthread_mutex_unlock(&global_gc_mutex);
-
-    pthread_barrier_wait(&end_of_gc_barrier);
-
-    goto start;
-  }
 
   instanceSpec = CLASS_INSTANCE_SPEC(class_oop);
   numBytes = sizeof(gst_object_header) +
              SIZE_TO_BYTES(instanceSpec >> ISP_NUMFIXEDFIELDS);
   p_instance = instantiate_numbytes(class_oop, p_oop, instanceSpec, numBytes);
 
-  _gst_mem.num_alloc++;
-
-  if (pthread_mutex_unlock(&alloc_object_mutex)) perror("foo ");
-  if (pthread_mutex_unlock(&global_gc_mutex)) perror("foo ");
-
-  pthread_barrier_wait(&end_of_gc_barrier);
+  _gst_vm_end_barrier_wait();
 
   return p_instance;
 }

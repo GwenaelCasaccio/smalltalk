@@ -555,8 +555,6 @@ static thread_local void *const *global_normal_bytecodes;
 static _Atomic(void *const *) dispatch_vec_per_thread[100] = { NULL };
 thread_local size_t current_thread_id = 0;
 
-pthread_barrier_t interp_sync_barrier;
-
 volatile _Atomic(size_t) _gst_interpret_thread_counter = 1;
 
 static pthread_mutex_t dispatch_vec_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -857,38 +855,22 @@ void empty_context_stack_for_thread(size_t thread_id) {
 }
 
 void alloc_new_chunk(void) {
-  size_t copy_alloc;
-
- start:
-  copy_alloc = _gst_mem.num_alloc;
   if UNCOMMON (++chunk[current_thread_id] >= &chunks[current_thread_id][MAX_CHUNKS_IN_MEMORY]) {
     /* No more chunks available - GC */
 
       global_lock_for_gc();
-      pthread_barrier_wait(&interp_sync_barrier);
+
+      while (!_gst_vm_barrier_wait()) {
+        _gst_vm_end_barrier_wait();
+
+        global_lock_for_gc();
+      }
 
       set_except_flag_for_thread(false, current_thread_id);
 
-      if (pthread_mutex_lock(&global_gc_mutex)) perror("foo ");
-      if (pthread_mutex_lock(&alloc_object_mutex)) perror("foo ");
+     _gst_scavenge();
 
-      if (copy_alloc != _gst_mem.num_alloc) {
-        pthread_mutex_unlock(&alloc_object_mutex);
-        pthread_mutex_unlock(&global_gc_mutex);
-
-        pthread_barrier_wait(&end_of_gc_barrier);
-
-        goto start;
-      }
-
-      _gst_scavenge();
-
-      _gst_mem.num_alloc++;
-
-      if (pthread_mutex_unlock(&alloc_object_mutex)) perror("foo ");
-      if (pthread_mutex_unlock(&global_gc_mutex)) perror("foo ");
-
-      pthread_barrier_wait(&end_of_gc_barrier);
+     _gst_vm_end_barrier_wait();
 
       return;
   }

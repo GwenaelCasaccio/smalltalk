@@ -571,8 +571,9 @@ barrier_byte_codes:
   dispatch_vec_per_thread[current_thread_id] = global_monitored_bytecodes;
   pthread_mutex_unlock(&dispatch_vec_mutex);
 
-  pthread_barrier_wait(&interp_sync_barrier);
-  pthread_barrier_wait(&end_of_gc_barrier);
+  _gst_vm_barrier_wait();
+
+  _gst_vm_end_barrier_wait();
 
   /* Prime the interpreter's registers.  */
   IMPORT_REGS();

@@ -175,8 +175,6 @@ extern OOP _gst_self[100] ATTRIBUTE_HIDDEN;
    context that the interpreter is currently running in.  */
 extern OOP _gst_this_context_oop[100] ATTRIBUTE_HIDDEN;
 
-extern pthread_barrier_t interp_sync_barrier;
-
 extern volatile _Atomic(size_t) _gst_interpret_thread_counter;
 
 extern thread_local size_t current_thread_id;

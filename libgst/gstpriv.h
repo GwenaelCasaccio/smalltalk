@@ -15,9 +15,9 @@
  *
  * GNU Smalltalk is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2, or (at your option) any later 
+ * Software Foundation; either version 2, or (at your option) any later
  * version.
- * 
+ *
  * Linking GNU Smalltalk statically or dynamically with other modules is
  * making a combined work based on GNU Smalltalk.  Thus, the terms and
  * conditions of the GNU General Public License cover the whole
@@ -41,13 +41,13 @@
  * modified version which carries forward this exception.
  *
  * GNU Smalltalk is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * GNU Smalltalk; see the file COPYING.  If not, write to the Free Software
- * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.  
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  ***********************************************************************/
 
@@ -219,7 +219,7 @@
 #define BEGIN_MACRO ((void) (
 #define END_MACRO ))
 #else
-#define BEGIN_MACRO if (1) 
+#define BEGIN_MACRO if (1)
 #define END_MACRO else (void)0
 #endif
 
@@ -567,6 +567,7 @@ extern OOP _gst_nil_oop
 #include "rbtrees.h"
 
 #include "files.h"
+#include "barrier.h"
 #include "callin.h"
 #include "cint.h"
 #include "dict.h"
