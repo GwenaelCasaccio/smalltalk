@@ -2688,35 +2688,13 @@ static intptr_t VMpr_Process_yield(int id, volatile int numArgs) {
   PRIM_SUCCEEDED;
 }
 
-static pthread_barrier_t temp_sync_barrier;
-
 void *start_vm_thread(void *argument) {
   OOP *array;
   OOP activeProcess;
 
-  fprintf(stderr, "started thread\n");
-
-  current_thread_id = atomic_fetch_add(&_gst_interpret_thread_counter, 1);
-
-  if (pthread_barrier_destroy(&interp_sync_barrier)) {
-    abort();
-  }
-
-  if (pthread_barrier_init(&interp_sync_barrier, NULL, atomic_load(&_gst_interpret_thread_counter))) {
-    abort();
-  }
-
-  if (pthread_barrier_destroy(&end_of_gc_barrier)) {
-    abort();
-  }
-
-  if (pthread_barrier_init(&end_of_gc_barrier, NULL, atomic_load(&_gst_interpret_thread_counter))) {
-    abort();
-  }
+  current_thread_id = atomic_fetch_add(&_gst_count_total_threaded_vm, 1);
 
   array = (OOP *) argument;
-
-  // _gst_execution_tracing = true;
 
   _gst_processor_oop[current_thread_id] = array[0];
   activeProcess = array[1];
@@ -2724,128 +2702,106 @@ void *start_vm_thread(void *argument) {
   xfree(array);
 
   switch_to_process[current_thread_id] = _gst_nil_oop;
- _gst_this_context_oop[current_thread_id] = _gst_nil_oop;
- async_queue_enabled[current_thread_id] = true;
- queued_async_signals[current_thread_id] = &queued_async_signals_tail[current_thread_id];
- queued_async_signals_sig[current_thread_id] = &queued_async_signals_tail[current_thread_id];
- // fprintf(stderr, "%O\n", _gst_processor_oop);
- // fflush(stderr);
+  _gst_this_context_oop[current_thread_id] = _gst_nil_oop;
+  async_queue_enabled[current_thread_id] = true;
+  queued_async_signals[current_thread_id] = &queued_async_signals_tail[current_thread_id];
+  queued_async_signals_sig[current_thread_id] = &queued_async_signals_tail[current_thread_id];
 
   change_process_context(activeProcess);
 
   _gst_init_context();
 
-  // Force cache cleanup and *init*
+  /* Force cache cleanup and *init* */
   _gst_sample_counter = 1;
   _gst_invalidate_method_cache();
 
-  //  fprintf(stderr, "%O\n", activeProcess);
-  // fflush(stderr);
-  pthread_mutex_lock(&dispatch_vec_mutex);
   atomic_store(&dispatch_vec_per_thread[current_thread_id], global_normal_bytecodes);
-  pthread_mutex_unlock(&dispatch_vec_mutex);
 
-   _gst_execution_tracing= true;
-  verbose_exec_tracing = true;
-  SET_EXCEPT_FLAG_FOR_THREAD(true, current_thread_id);
+  /* the current thread can be locked with the global barrier */
+  atomic_fetch_add(&_gst_interpret_thread_counter, 1);
 
-  pthread_barrier_wait(&temp_sync_barrier);
+  _gst_vm_end_barrier_wait();
+
+  /*
+  while (1) {
+    _gst_vm_barrier_wait();
+
+    fprintf(stderr, "ICI\n");
+    fflush(stderr);
+
+    _gst_vm_end_barrier_wait();
+
+    fprintf(stderr, "ICI END\n");
+    fflush(stderr);
+
+  }
+  */
+
   _gst_interpret(activeProcess);
 
   return NULL;
 }
 
 static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
-  int result;
+  int error;
   pthread_t thread_id;
   OOP oop1;
   OOP oop2;
+  OOP *arg_array;
 
-  OOP *array = xcalloc(2, sizeof(*array));
+  arg_array = xcalloc(2, sizeof(*arg_array));
 
   oop2 = POP_OOP();
   oop1 = STACKTOP();
 
-  array[0] = oop1;
-  array[1] = oop2;
+  arg_array[0] = oop1;
+  arg_array[1] = oop2;
 
-  if (pthread_barrier_init(&temp_sync_barrier, NULL, 2)) {
+  global_lock_for_gc();
+
+  while (!_gst_vm_barrier_wait()) {
+    _gst_vm_end_barrier_wait();
+    global_lock_for_gc();
+  }
+
+  atomic_fetch_add(&_gst_count_threaded_vm, 1);
+
+  if ((error = pthread_create(&thread_id, NULL, &start_vm_thread, arg_array))) {
+    fprintf(stderr, "failed to create new thread: %s\n", strerror(error));
+    fflush(stderr);
+
     abort();
   }
 
-  result = pthread_create(&thread_id, NULL, &start_vm_thread, array);
-  if (result != 0) {
-    xfree(array);
-
-    PUSH_OOP(oop2);
-    PRIM_FAILED;
-  }
-
-  pthread_barrier_wait(&temp_sync_barrier);
-
-  /* if (current_thread_id == 0) { */
-  /*   _gst_execution_tracing = true; */
-  /*   verbose_exec_tracing = true; */
-  /*   SET_EXCEPT_FLAG_FOR_THREAD(true, current_thread_id); */
-  /* } */
-
-
-  /* _gst_execution_tracing= true; */
-  /* verbose_exec_tracing = true; */
-  /* SET_EXCEPT_FLAG_FOR_THREAD(true, current_thread_id); */
+  _gst_vm_end_barrier_wait();
 
   PRIM_SUCCEEDED;
 }
 
 static intptr_t VMpr_Processor_killThread(int id, volatile int numArgs) {
-  size_t copy_alloc;
+  int error;
 
   _gst_primitives_executed++;
 
- start:
-  copy_alloc = _gst_mem.num_alloc;
-
   global_lock_for_gc();
-  pthread_barrier_wait(&interp_sync_barrier);
+
+  while (!_gst_vm_barrier_wait()) {
+    _gst_vm_end_barrier_wait();
+    global_lock_for_gc();
+  }
 
   set_except_flag_for_thread(false, current_thread_id);
 
-  if (pthread_mutex_lock(&global_gc_mutex)) perror("foo ");
-  if (pthread_mutex_lock(&alloc_object_mutex)) perror("foo ");
-
-  if (copy_alloc != _gst_mem.num_alloc) {
-    pthread_mutex_unlock(&alloc_object_mutex);
-    pthread_mutex_unlock(&global_gc_mutex);
-
-    pthread_barrier_wait(&end_of_gc_barrier);
-
-    goto start;
-  }
-
   empty_context_stack();
-
-  _gst_mem.num_alloc++;
 
   atomic_fetch_add(&_gst_interpret_thread_counter, -1);
 
-  if (pthread_mutex_unlock(&alloc_object_mutex)) perror("foo ");
-  if (pthread_mutex_unlock(&global_gc_mutex)) perror("foo ");
+  atomic_fetch_add(&_gst_count_threaded_vm, -1);
 
-  if (pthread_barrier_destroy(&interp_sync_barrier)) {
-    abort();
-  }
+  if ((error = pthread_cond_signal(&_gst_vm_end_barrier_cond))) {
+    fprintf(stderr, "error while signaling: %s", strerror(error));
+    fflush(stderr);
 
-  if (pthread_barrier_init(&interp_sync_barrier, NULL, atomic_load(&_gst_interpret_thread_counter))) {
-    abort();
-  }
-
-  pthread_barrier_wait(&end_of_gc_barrier);
-
-  if (pthread_barrier_destroy(&end_of_gc_barrier)) {
-    abort();
-  }
-
-  if (pthread_barrier_init(&end_of_gc_barrier, NULL, atomic_load(&_gst_interpret_thread_counter))) {
     abort();
   }
 
@@ -4381,35 +4337,20 @@ static intptr_t VMpr_Object_tenure(int id, volatile int numArgs) {
 
   oop1 = STACKTOP();
   if (IS_OOP(oop1)) {
-    size_t copy_alloc;
 
-  start:
-    copy_alloc = _gst_mem.num_alloc;
     global_lock_for_gc();
-    pthread_barrier_wait(&interp_sync_barrier);
+
+    while (!_gst_vm_barrier_wait()) {
+      _gst_vm_end_barrier_wait();
+      global_lock_for_gc();
+    }
 
     set_except_flag_for_thread(false, current_thread_id);
 
-    if (pthread_mutex_lock(&global_gc_mutex)) perror("foo ");
-    if (pthread_mutex_lock(&alloc_object_mutex)) perror("foo ");
-
-    if (copy_alloc != _gst_mem.num_alloc) {
-      pthread_mutex_unlock(&alloc_object_mutex);
-      pthread_mutex_unlock(&global_gc_mutex);
-
-      pthread_barrier_wait(&end_of_gc_barrier);
-
-      _gst_mem.num_alloc++;
-
-      if (pthread_mutex_unlock(&alloc_object_mutex)) perror("foo ");
-      if (pthread_mutex_unlock(&global_gc_mutex)) perror("foo ");
-
-      pthread_barrier_wait(&end_of_gc_barrier);
-
-      goto start;
-    }
-
     _gst_tenure_oop(oop1);
+
+    _gst_vm_end_barrier_wait();
+
     PRIM_SUCCEEDED;
   }
 
@@ -5689,31 +5630,16 @@ static intptr_t VMpr_Namespace_setCurrent(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_ObjectMemory_gcPrimitives(int id, volatile int numArgs) {
-  size_t copy_alloc;
-
   _gst_primitives_executed++;
 
- start:
-  copy_alloc = _gst_mem.num_alloc;
-
   global_lock_for_gc();
-  pthread_barrier_wait(&interp_sync_barrier);
 
-  pthread_mutex_lock(&global_gc_mutex);
-  pthread_mutex_lock(&alloc_object_mutex);
-
-  if (copy_alloc != _gst_mem.num_alloc) {
-    pthread_mutex_unlock(&alloc_object_mutex);
-    pthread_mutex_unlock(&global_gc_mutex);
-
-    pthread_barrier_wait(&end_of_gc_barrier);
-
-    goto start;
+  while (!_gst_vm_barrier_wait()) {
+    _gst_vm_end_barrier_wait();
+    global_lock_for_gc();
   }
 
-  pthread_mutex_lock(&dispatch_vec_mutex);
-  atomic_store(&dispatch_vec_per_thread[current_thread_id], global_monitored_bytecodes);
-  pthread_mutex_unlock(&dispatch_vec_mutex);
+  set_except_flag_for_thread(false, current_thread_id);
 
   switch (id) {
   case 0:
@@ -5737,10 +5663,7 @@ static intptr_t VMpr_ObjectMemory_gcPrimitives(int id, volatile int numArgs) {
     break;
   }
 
-  pthread_mutex_unlock(&alloc_object_mutex);
-  pthread_mutex_unlock(&global_gc_mutex);
-
-  pthread_barrier_wait(&end_of_gc_barrier);
+  _gst_vm_end_barrier_wait();
 
   PRIM_SUCCEEDED;
 }
