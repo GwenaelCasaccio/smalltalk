@@ -2757,12 +2757,7 @@ static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
   arg_array[0] = oop1;
   arg_array[1] = oop2;
 
-  global_lock_for_gc();
-
-  while (!_gst_vm_barrier_wait()) {
-    _gst_vm_end_barrier_wait();
-    global_lock_for_gc();
-  }
+  _gst_vm_global_barrier_wait();
 
   atomic_fetch_add(&_gst_count_threaded_vm, 1);
 
@@ -2783,18 +2778,14 @@ static intptr_t VMpr_Processor_killThread(int id, volatile int numArgs) {
 
   _gst_primitives_executed++;
 
-  global_lock_for_gc();
-
-  while (!_gst_vm_barrier_wait()) {
-    _gst_vm_end_barrier_wait();
-    global_lock_for_gc();
-  }
+  _gst_vm_global_barrier_wait();
 
   set_except_flag_for_thread(false, current_thread_id);
 
   empty_context_stack();
 
-  atomic_fetch_add(&_gst_interpret_thread_counter, -1);
+  // FIXME since its an array we cannot decrease we've hole on it
+  // atomic_fetch_add(&_gst_interpret_thread_counter, -1);
 
   atomic_fetch_add(&_gst_count_threaded_vm, -1);
 

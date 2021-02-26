@@ -30,4 +30,6 @@ extern pthread_mutex_t _gst_vm_end_barrier_mutex;
 /* return true if I am the first you acquired the lock */
 extern mst_Boolean _gst_vm_end_barrier_wait(void);
 
+extern void _gst_vm_global_barrier_wait(void);
+
 #endif /* GST_BARRIER_H */

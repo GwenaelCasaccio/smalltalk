@@ -27,6 +27,8 @@ Process extend [
 ]
 
 Eval [
+[
+| ps ps2 ps3 ps4 process process2 process3 process4 |
  processList := Array new: 9.
   1 to: 9 do: [ : i | processList at: i put: Semaphore new ].
 
@@ -34,7 +36,7 @@ Eval [
 
   process := Process basicNew.
   process instVarAt: 1 put: process.
-  process setBlock: [ 100 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 2 ]. 1+1. Array new: 10. 2 basicPrint. "ObjectMemory scavenge."].  ps killThread ].
+  process setBlock: [ 100 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 2 ]. 1+1. Array new: 10. 2 basicPrint. "ObjectMemory scavenge."]."[ true ] whileTrue." ps killThread ].
   process instVarAt: 3 put: 4.
 
   " GC Protecting the new Processor "
@@ -55,7 +57,7 @@ Eval [
 
   process2 := Process basicNew.
   process2 instVarAt: 1 put: process2.
-  process2 setBlock: [ 100 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 2 ]. 1+1. Array new: 10. 3 basicPrint. "ObjectMemory scavenge."].  ps killThread ].
+  process2 setBlock: [ 100 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 1 ]. 1+1. Array new: 10. 3 basicPrint. "ObjectMemory scavenge."]."[ true ] whileTrue." ps killThread ].
   process2 instVarAt: 3 put: 4.
 
   " GC Protecting the new Processor "
@@ -75,7 +77,7 @@ Eval [
 
   process3 := Process basicNew.
   process3 instVarAt: 1 put: process3.
-  process3 setBlock: [ 100 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 2 ]. 1+1. Array new: 10. 4 basicPrint. "ObjectMemory scavenge."].  ps killThread ].
+  process3 setBlock: [ 100 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 1 ]. 1+1. Array new: 10. 4 basicPrint. "ObjectMemory scavenge."]."[ true ] whileTrue." ps killThread ].
   process3 instVarAt: 3 put: 4.
 
   " GC Protecting the new Processor "
@@ -102,7 +104,7 @@ Eval [
 
   process4 := Process basicNew.
   process4 instVarAt: 1 put: process4.
-  process4 setBlock: [ 100 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 2 ]. 1+1. Array new: 10. 5 basicPrint. "ObjectMemory scavenge."].  ps killThread ].
+  process4 setBlock: [ 100 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 1 ]. 1+1. Array new: 10. 5 basicPrint. "ObjectMemory scavenge."].[ true ] whileTrue. "ps killThread" ].
   process3 instVarAt: 3 put: 4.
 
   " GC Protecting the new Processor "
@@ -116,6 +118,10 @@ Eval [
 
 
 
+  Smalltalk at: #t1 put: ps.
+  Smalltalk at: #t2 put: ps2.
+  Smalltalk at: #t3 put: ps23.
+  Smalltalk at: #t4 put: ps24.
 
   ps newThread: process.
   ps2 newThread: process2.
@@ -123,7 +129,8 @@ Eval [
   ps4 newThread: process4.
   "Processor tracing."
 
-  1 to: 200 do: [ : i | 100 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 2 ] ]. 2+2. Array new: 10. 1 basicPrint. "ObjectMemory scavenge" ].
+  1 to: 200 do: [ : i | 100 timesRepeat: [ #[ 1 2 3 ] do: [ : i | i + 1 ] ]. 2+2. Array new: 10. 1 basicPrint. "ObjectMemory scavenge" ].
   "ObjectMemory abort."
   [ true ] whileTrue.
+  ] value
 ]
