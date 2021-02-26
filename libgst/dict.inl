@@ -578,12 +578,7 @@ gst_object new_instance_with(OOP class_oop, size_t numIndexFields, OOP *p_oop) {
   intptr_t instanceSpec;
   gst_object p_instance;
 
-  global_lock_for_gc();
-
-  while (!_gst_vm_barrier_wait()) {
-    _gst_vm_end_barrier_wait();
-    global_lock_for_gc();
-  }
+  _gst_vm_global_barrier_wait();
 
   set_except_flag_for_thread(false, current_thread_id);
 
@@ -608,12 +603,7 @@ gst_object new_instance(OOP class_oop, OOP *p_oop) {
   intptr_t instanceSpec;
   gst_object p_instance;
 
-  global_lock_for_gc();
-
-  while (!_gst_vm_barrier_wait()) {
-    _gst_vm_end_barrier_wait();
-    global_lock_for_gc();
-  }
+  _gst_vm_global_barrier_wait();
 
   set_except_flag_for_thread(false, current_thread_id);
 
@@ -674,12 +664,7 @@ gst_object instantiate_with(OOP class_oop, size_t numIndexFields, OOP *p_oop) {
   intptr_t instanceSpec;
   gst_object p_instance;
 
-  global_lock_for_gc();
-
-  while (!_gst_vm_barrier_wait()) {
-    _gst_vm_end_barrier_wait();
-    global_lock_for_gc();
-  }
+  _gst_vm_global_barrier_wait();
 
   set_except_flag_for_thread(false, current_thread_id);
 
@@ -718,12 +703,7 @@ gst_object instantiate(OOP class_oop, OOP *p_oop) {
   intptr_t instanceSpec;
   gst_object p_instance;
 
-  global_lock_for_gc();
-
-  while (!_gst_vm_barrier_wait()) {
-    _gst_vm_end_barrier_wait();
-    global_lock_for_gc();
-  }
+  _gst_vm_global_barrier_wait();
 
   set_except_flag_for_thread(false, current_thread_id);
 

@@ -561,6 +561,7 @@ static pthread_mutex_t dispatch_vec_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void global_lock_for_gc(void) {
   pthread_mutex_lock(&dispatch_vec_mutex);
+  // FIXME the array implementation is not a good idea because we can remove an item list is better ?
   for (size_t i = 0; i < atomic_load(&_gst_interpret_thread_counter); i++) {
     if (i == current_thread_id) {
       atomic_store(&dispatch_vec_per_thread[i], global_normal_bytecodes);
@@ -858,13 +859,7 @@ void alloc_new_chunk(void) {
   if UNCOMMON (++chunk[current_thread_id] >= &chunks[current_thread_id][MAX_CHUNKS_IN_MEMORY]) {
     /* No more chunks available - GC */
 
-      global_lock_for_gc();
-
-      while (!_gst_vm_barrier_wait()) {
-        _gst_vm_end_barrier_wait();
-
-        global_lock_for_gc();
-      }
+      _gst_vm_global_barrier_wait();
 
       set_except_flag_for_thread(false, current_thread_id);
 

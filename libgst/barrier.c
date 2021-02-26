@@ -44,7 +44,6 @@ mst_Boolean _gst_vm_barrier_wait(void) {
     abort();
   }
 
-  fprintf(stderr, "start of wait: %d %d\n", _gst_count_locked_vm, cpy);
   while (atomic_load(&_gst_count_locked_vm) < cpy) {
     if ((error = pthread_cond_wait(&_gst_vm_barrier_cond, &_gst_vm_barrier_mutex))) {
       fprintf(stderr, "error while cond wait: %s", strerror(error));
@@ -56,7 +55,6 @@ mst_Boolean _gst_vm_barrier_wait(void) {
 
   _gst_count_released_locked_vm++;
 
-  fprintf(stderr, "end of wait: %d\n", _gst_count_released_locked_vm);
   if (_gst_count_released_locked_vm == cpy) {
     _gst_count_released_locked_vm = 0;
     atomic_store(&_gst_count_locked_vm, 0);
@@ -129,4 +127,14 @@ mst_Boolean _gst_vm_end_barrier_wait(void) {
   }
 
   return count == 0;
+}
+
+void _gst_vm_global_barrier_wait(void) {
+  global_lock_for_gc();
+
+  while (!_gst_vm_barrier_wait()) {
+    _gst_vm_end_barrier_wait();
+
+    global_lock_for_gc();
+  }
 }

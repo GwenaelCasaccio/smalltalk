@@ -592,12 +592,7 @@ void _gst_swap_objects(OOP oop1, OOP oop2) {
   inc_ptr incPtr;
   OOP tempId;
 
-  global_lock_for_gc();
-
-  while (!_gst_vm_barrier_wait()) {
-    _gst_vm_end_barrier_wait();
-    global_lock_for_gc();
-  }
+  _gst_vm_global_barrier_wait();
 
   set_except_flag_for_thread(false, current_thread_id);
 
@@ -649,12 +644,7 @@ void _gst_make_oop_fixed(OOP oop) {
   gst_object newObj;
   int size;
 
-  global_lock_for_gc();
-
-  while (!_gst_vm_barrier_wait()) {
-    _gst_vm_end_barrier_wait();
-    global_lock_for_gc();
-  }
+  _gst_vm_global_barrier_wait();
 
   set_except_flag_for_thread(false, current_thread_id);
 
