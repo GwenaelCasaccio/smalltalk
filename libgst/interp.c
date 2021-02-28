@@ -547,7 +547,6 @@ static void stop_execution(void);
 
 /* Tell the interpreter that special actions are needed as soon as a
    sequence point is reached.  */
-static thread_local void *const *global_sync_barrier_bytecodes;
 static thread_local void *const *global_monitored_bytecodes;
 static thread_local void *const *global_normal_bytecodes;
 // static thread_local void *const *dispatch_vec;
@@ -557,6 +556,8 @@ thread_local size_t current_thread_id = 0;
 
 volatile _Atomic(size_t) _gst_interpret_thread_counter = 1;
 
+static mst_Boolean _gst_interp_need_to_wait[100] = { false };
+
 static pthread_mutex_t dispatch_vec_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void global_lock_for_gc(void) {
@@ -565,9 +566,11 @@ void global_lock_for_gc(void) {
   for (size_t i = 0; i < atomic_load(&_gst_interpret_thread_counter); i++) {
     if (i == current_thread_id) {
       atomic_store(&dispatch_vec_per_thread[i], global_normal_bytecodes);
+      _gst_interp_need_to_wait[i] = false;
       __sync_synchronize();
     } else {
-      atomic_store(&dispatch_vec_per_thread[i], global_sync_barrier_bytecodes);
+      atomic_store(&dispatch_vec_per_thread[i], global_monitored_bytecodes);
+      _gst_interp_need_to_wait[i] = true;
       __sync_synchronize();
     }
   }
@@ -589,19 +592,15 @@ void global_lock_for_gc(void) {
 #define SET_EXCEPT_FLAG(x)                                              \
   do {                                                                  \
     pthread_mutex_lock(&dispatch_vec_mutex);                            \
-    if (global_sync_barrier_bytecodes != dispatch_vec_per_thread[current_thread_id]) \
-      atomic_store(&dispatch_vec_per_thread[current_thread_id], (x) ? global_monitored_bytecodes : global_normal_bytecodes); \
+    atomic_store(&dispatch_vec_per_thread[current_thread_id], (x) ? global_monitored_bytecodes : global_normal_bytecodes); \
     __sync_synchronize();                                               \
     pthread_mutex_unlock(&dispatch_vec_mutex);                          \
   } while (0)
 
 #define SET_EXCEPT_FLAG_FOR_THREAD(x, thread_id)                        \
   do {                                                                  \
-    pthread_mutex_lock(&dispatch_vec_mutex);                            \
-    if (global_sync_barrier_bytecodes != dispatch_vec_per_thread[current_thread_id]) \
-      atomic_store(&dispatch_vec_per_thread[(thread_id)], (x) ? global_monitored_bytecodes : global_normal_bytecodes); \
+    atomic_store(&dispatch_vec_per_thread[(thread_id)], (x) ? global_monitored_bytecodes : global_normal_bytecodes); \
     __sync_synchronize();                                               \
-    pthread_mutex_unlock(&dispatch_vec_mutex);                          \
   } while (0)
 
 void set_except_flag_for_thread(mst_Boolean reset, size_t thread_id) {
