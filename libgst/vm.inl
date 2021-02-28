@@ -82,16 +82,16 @@
 
 #ifdef PIPELINING
 #define FETCH                                                                  \
-  goto *(t = dispatch_vec_per_thread[current_thread_id][*ip], b2 = ip[2], b4 = ip[4], arg = ip[1],           \
-         arg2 = ip[3], t2 = dispatch_vec_per_thread[current_thread_id][b2], t)
+  goto *(t = dispatch_vec_per_thread[local_cpy_current_thread_id][*ip], b2 = ip[2], b4 = ip[4], arg = ip[1],           \
+         arg2 = ip[3], t2 = dispatch_vec_per_thread[local_cpy_current_thread_id][b2], t)
 #define FETCH_VEC(v)                                                           \
   goto *(t = (v)[*ip], b2 = ip[2], b4 = ip[4], arg = ip[1], arg2 = ip[3],      \
-         t2 = dispatch_vec_per_thread[current_thread_id][b2], t)
+         t2 = dispatch_vec_per_thread[local_cpy_current_thread_id][b2], t)
 
 #define PREFETCH                                                               \
-  (t = t2, t2 = dispatch_vec_per_thread[current_thread_id][b4], arg2 = ip[3], b2 = b4, b4 = ip[6], ip += 2)
+  (t = t2, t2 = dispatch_vec_per_thread[local_cpy_current_thread_id][b4], arg2 = ip[3], b2 = b4, b4 = ip[6], ip += 2)
 #define PREFETCH_VEC(v)                                                        \
-  (t = (v)[b2], t2 = dispatch_vec_per_thread[current_thread_id][b4], arg2 = ip[3], b2 = b4, b4 = ip[6],      \
+  (t = (v)[b2], t2 = dispatch_vec_per_thread[local_cpy_current_thread_id][b4], arg2 = ip[3], b2 = b4, b4 = ip[6],      \
    ip += 2)
 
 #define NEXT_BC goto *(arg = GET_ARG, t)
@@ -100,9 +100,9 @@
 #define GET_ARG arg2
 
 #elif REG_AVAILABILITY >= 1
-#define FETCH goto *(arg = GET_ARG, dispatch_vec_per_thread[current_thread_id][*ip])
+#define FETCH goto *(arg = GET_ARG, dispatch_vec_per_thread[local_cpy_current_thread_id][*ip])
 #define FETCH_VEC(v) goto *(arg = GET_ARG, (v)[*ip])
-#define PREFETCH (ip += 2, prefetch = dispatch_vec_per_thread[current_thread_id][*ip])
+#define PREFETCH (ip += 2, prefetch = dispatch_vec_per_thread[local_cpy_current_thread_id][*ip])
 #define PREFETCH_VEC(v) (ip += 2, prefetch = (v)[*ip])
 #define NEXT_BC goto *(arg = GET_ARG, prefetch)
 #define NEXT_BC_VEC(v) goto *(arg = GET_ARG, prefetch)
@@ -114,7 +114,7 @@
 #define FETCH_VEC(v) NEXT_BC_VEC(v)
 #define PREFETCH (ip += 2)
 #define PREFETCH_VEC(v) (ip += 2)
-#define NEXT_BC goto *(arg = GET_ARG, dispatch_vec_per_thread[current_thread_id][*ip])
+#define NEXT_BC goto *(arg = GET_ARG, dispatch_vec_per_thread[local_cpy_current_thread_id][*ip])
 #define NEXT_BC_VEC(v) goto *(arg = GET_ARG, (v)[*ip])
 #define NEXT_BC_NO_ARG(v) goto *(v)[*ip]
 #define GET_ARG (ip[1])
@@ -2249,7 +2249,7 @@ bc33 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
+    context = OOP_TO_OBJ(_gst_this_context_oop[local_cpy_current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -2370,7 +2370,7 @@ bc37 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
+    context = OOP_TO_OBJ(_gst_this_context_oop[local_cpy_current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -2449,11 +2449,11 @@ bc39 : {
 
 #define tos _stack0
 #line 758 "vm.def"
-    if (COMMON (!IS_OOP_READONLY (_gst_self[current_thread_id]))) {
+    if (COMMON (!IS_OOP_READONLY (_gst_self[local_cpy_current_thread_id]))) {
       STORE_RECEIVER_VARIABLE(n, tos);
     } else {
       PREPARE_STACK();
-      VM_SET_STACKTOP(_gst_self[current_thread_id]);
+      VM_SET_STACKTOP(_gst_self[local_cpy_current_thread_id]);
       VM_PUSH_OOP(FROM_INT(n + 1));
       VM_PUSH_OOP(tos);
       EXPORT_REGS();
@@ -2943,7 +2943,7 @@ bc56 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 2731 "vm.inl"
 #undef tos
@@ -3162,7 +3162,7 @@ bc66 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 2996 "vm.inl"
 #undef tos
@@ -3204,7 +3204,7 @@ bc67 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 3047 "vm.inl"
 #undef tos
@@ -3443,7 +3443,7 @@ bc74 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 3325 "vm.inl"
 #undef tos
@@ -3525,7 +3525,7 @@ bc76 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 3419 "vm.inl"
 #undef tos
@@ -3575,7 +3575,7 @@ bc77 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
+    context = OOP_TO_OBJ(_gst_this_context_oop[local_cpy_current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -3635,7 +3635,7 @@ bc79 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 3548 "vm.inl"
 #undef tos
@@ -4091,7 +4091,7 @@ bc90 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 4104 "vm.inl"
 #undef tos
@@ -4338,7 +4338,7 @@ bc95 : {
   do {
 #define tos _stack0
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 4386 "vm.inl"
 #undef tos
@@ -4800,7 +4800,7 @@ bc105 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 4911 "vm.inl"
 #undef tos
@@ -5522,7 +5522,7 @@ bc121 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
+    context = OOP_TO_OBJ(_gst_this_context_oop[local_cpy_current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -5746,7 +5746,7 @@ bc127 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 6023 "vm.inl"
 #undef tos
@@ -5816,7 +5816,7 @@ bc129 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 6107 "vm.inl"
 #undef tos
@@ -6327,7 +6327,7 @@ bc139 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
+    context = OOP_TO_OBJ(_gst_this_context_oop[local_cpy_current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -6990,7 +6990,7 @@ bc152 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
+    context = OOP_TO_OBJ(_gst_this_context_oop[local_cpy_current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -7024,7 +7024,7 @@ bc153 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 7481 "vm.inl"
 #undef tos
@@ -7081,7 +7081,7 @@ bc154 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 7545 "vm.inl"
 #undef tos
@@ -7144,7 +7144,7 @@ bc155 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 7617 "vm.inl"
 #undef tos
@@ -7470,7 +7470,7 @@ bc162 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 7988 "vm.inl"
 #undef tos
@@ -7888,7 +7888,7 @@ bc171 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 8471 "vm.inl"
 #undef tos
@@ -8003,7 +8003,7 @@ bc174 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 8607 "vm.inl"
 #undef tos
@@ -8098,7 +8098,7 @@ bc176 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 8718 "vm.inl"
 #undef tos
@@ -8362,7 +8362,7 @@ bc181 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
+    context = OOP_TO_OBJ(_gst_this_context_oop[local_cpy_current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -8905,7 +8905,7 @@ bc192 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 9628 "vm.inl"
 #undef tos
@@ -8972,7 +8972,7 @@ bc194 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
+    context = OOP_TO_OBJ(_gst_this_context_oop[local_cpy_current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -9029,7 +9029,7 @@ bc195 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 9775 "vm.inl"
 #undef tos
@@ -9079,7 +9079,7 @@ bc196 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
+    context = OOP_TO_OBJ(_gst_this_context_oop[local_cpy_current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -9288,7 +9288,7 @@ bc201 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 10066 "vm.inl"
 #undef tos
@@ -9403,7 +9403,7 @@ bc203 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 10194 "vm.inl"
 #undef tos
@@ -9991,7 +9991,7 @@ bc214 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
+    context = OOP_TO_OBJ(_gst_this_context_oop[local_cpy_current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -10085,7 +10085,7 @@ bc216 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 10957 "vm.inl"
 #undef tos
@@ -10206,7 +10206,7 @@ bc218 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 11093 "vm.inl"
 #undef tos
@@ -10432,7 +10432,7 @@ bc223 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 11350 "vm.inl"
 #undef tos
@@ -10865,7 +10865,7 @@ bc233 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 11862 "vm.inl"
 #undef tos
@@ -11690,7 +11690,7 @@ bc249 : {
   do {
 #define tos _extra1
 #line 897 "vm.def"
-    tos = _gst_self[current_thread_id];
+    tos = _gst_self[local_cpy_current_thread_id];
 
 #line 12831 "vm.inl"
 #undef tos
@@ -12046,7 +12046,7 @@ bc255 : {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
+    context = OOP_TO_OBJ(_gst_this_context_oop[local_cpy_current_thread_id]);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
