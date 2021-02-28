@@ -434,6 +434,7 @@ void _gst_validate_method_cache_entries(void) {}
 OOP _gst_interpret(OOP processOOP) {
   interp_jmp_buf jb;
   gst_object process;
+  const size_t local_cpy_current_thread_id = current_thread_id;
 
 #ifdef LOCAL_REGS
 #undef sp
@@ -441,11 +442,11 @@ OOP _gst_interpret(OOP processOOP) {
 
 #if REG_AVAILABILITY == 0
 #define LOCAL_COUNTER _gst_bytecode_counter
-#define EXPORT_REGS() (_gst_sp[current_thread_id] = sp, _gst_ip[current_thread_id] = ip)
+#define EXPORT_REGS() (_gst_sp[local_cpy_current_thread_id] = sp, _gst_ip[local_cpy_current_thread_id] = ip)
 #else
   int LOCAL_COUNTER = 0;
 #define EXPORT_REGS()                                                          \
-  (_gst_sp[current_thread_id] = sp, _gst_ip[current_thread_id] = ip, _gst_bytecode_counter += LOCAL_COUNTER, \
+  (_gst_sp[local_cpy_current_thread_id] = sp, _gst_ip[local_cpy_current_thread_id] = ip, _gst_bytecode_counter += LOCAL_COUNTER, \
    LOCAL_COUNTER = 0)
 #endif
 
@@ -459,11 +460,11 @@ OOP _gst_interpret(OOP processOOP) {
 #define _gst_true_oop my_true_oop
 #define _gst_false_oop my_false_oop
 #define IMPORT_REGS()                                                          \
-  (sp = _gst_sp[current_thread_id], ip = _gst_ip[current_thread_id], self_cache = _gst_self[current_thread_id], \
-   temp_cache = _gst_temporaries[current_thread_id], lit_cache = _gst_literals[current_thread_id])
+  (sp = _gst_sp[local_cpy_current_thread_id], ip = _gst_ip[local_cpy_current_thread_id], self_cache = _gst_self[local_cpy_current_thread_id], \
+   temp_cache = _gst_temporaries[local_cpy_current_thread_id], lit_cache = _gst_literals[local_cpy_current_thread_id])
 
 #else
-#define IMPORT_REGS() (sp = _gst_sp[current_thread_id], ip = _gst_ip[current_thread_id])
+#define IMPORT_REGS() (sp = _gst_sp[local_cpy_current_thread_id], ip = _gst_ip[local_cpy_current_thread_id])
 #endif
 
   REGISTER(1, ip_type ip);
@@ -497,8 +498,8 @@ OOP _gst_interpret(OOP processOOP) {
   global_sync_barrier_bytecodes = sync_barrier_byte_codes;
 
   pthread_mutex_lock(&dispatch_vec_mutex);
-  if (NULL == dispatch_vec_per_thread[current_thread_id]) {
-    dispatch_vec_per_thread[current_thread_id] = normal_byte_codes;
+  if (NULL == dispatch_vec_per_thread[local_cpy_current_thread_id]) {
+    dispatch_vec_per_thread[local_cpy_current_thread_id] = normal_byte_codes;
   }
   pthread_mutex_unlock(&dispatch_vec_mutex);
 
@@ -514,19 +515,19 @@ OOP _gst_interpret(OOP processOOP) {
   /* The code blocks that follow are executed in threaded-code style.  */
 
 monitor_byte_codes:
-  SET_EXCEPT_FLAG_FOR_THREAD(false, current_thread_id);
+  SET_EXCEPT_FLAG_FOR_THREAD(false, local_cpy_current_thread_id);
 
   /* First, deal with any async signals.  */
-  if (async_queue_enabled[current_thread_id]) {
+  if (async_queue_enabled[local_cpy_current_thread_id]) {
     empty_async_queue();
   }
 
   if UNCOMMON (time_to_preempt)
     ACTIVE_PROCESS_YIELD();
 
-  if UNCOMMON (!IS_NIL(switch_to_process[current_thread_id])) {
+  if UNCOMMON (!IS_NIL(switch_to_process[local_cpy_current_thread_id])) {
     EXPORT_REGS();
-    change_process_context(switch_to_process[current_thread_id]);
+    change_process_context(switch_to_process[local_cpy_current_thread_id]);
     IMPORT_REGS();
 
     if UNCOMMON (single_step_semaphore) {
@@ -568,7 +569,7 @@ monitor_byte_codes:
 
 barrier_byte_codes:
   pthread_mutex_lock(&dispatch_vec_mutex);
-  dispatch_vec_per_thread[current_thread_id] = global_monitored_bytecodes;
+  dispatch_vec_per_thread[local_cpy_current_thread_id] = global_monitored_bytecodes;
   pthread_mutex_unlock(&dispatch_vec_mutex);
 
   _gst_vm_barrier_wait();
