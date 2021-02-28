@@ -250,7 +250,7 @@ static thread_local int class_cache_prim;
 #endif
 
 /* Queue for async (outside the interpreter) semaphore signals */
-static thread_local mst_Boolean async_queue_enabled[100] = { true };
+static mst_Boolean async_queue_enabled[100] = { true };
 static async_queue_entry queued_async_signals_tail[100];
 static async_queue_entry *queued_async_signals[100] = { &queued_async_signals_tail[0] };
 static async_queue_entry *queued_async_signals_sig[100] = { &queued_async_signals_tail[0] };
