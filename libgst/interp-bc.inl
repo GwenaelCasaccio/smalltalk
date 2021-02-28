@@ -495,7 +495,6 @@ OOP _gst_interpret(OOP processOOP) {
      monitor_byte_codes.  */
   global_normal_bytecodes = normal_byte_codes;
   global_monitored_bytecodes = monitored_byte_codes;
-  global_sync_barrier_bytecodes = sync_barrier_byte_codes;
 
   pthread_mutex_lock(&dispatch_vec_mutex);
   if (NULL == dispatch_vec_per_thread[local_cpy_current_thread_id]) {
@@ -516,6 +515,17 @@ OOP _gst_interpret(OOP processOOP) {
 
 monitor_byte_codes:
   SET_EXCEPT_FLAG_FOR_THREAD(false, local_cpy_current_thread_id);
+
+  if (_gst_interp_need_to_wait[local_cpy_current_thread_id]) {
+    _gst_vm_barrier_wait();
+
+    _gst_interp_need_to_wait[local_cpy_current_thread_id] = false;
+
+    _gst_vm_end_barrier_wait();
+
+    /* Prime the interpreter's registers.  */
+    IMPORT_REGS();
+  }
 
   /* First, deal with any async signals.  */
   if (async_queue_enabled[local_cpy_current_thread_id]) {
@@ -566,21 +576,6 @@ monitor_byte_codes:
     set_preemption_timer();
 
   FETCH_VEC(normal_byte_codes);
-
-barrier_byte_codes:
-  pthread_mutex_lock(&dispatch_vec_mutex);
-  dispatch_vec_per_thread[local_cpy_current_thread_id] = global_monitored_bytecodes;
-  pthread_mutex_unlock(&dispatch_vec_mutex);
-
-  _gst_vm_barrier_wait();
-
-  _gst_vm_end_barrier_wait();
-
-  /* Prime the interpreter's registers.  */
-  IMPORT_REGS();
-
-
-  FETCH_VEC(monitored_byte_codes);
 
   /* Some more routines we need... */
 lookahead_failed_true:
