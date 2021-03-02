@@ -23,7 +23,6 @@ Eval [
           ].
           ps2 key killThread ].
 
-  " GC Protecting the new Processor "
   Smalltalk at: #Foo2 put: ps2 key.
 
   ps3 := ProcessorScheduler newFromClosure: [
@@ -35,7 +34,6 @@ Eval [
           ].
           ps3 key killThread ].
 
-  " GC Protecting the new Processor "
   Smalltalk at: #Foo3 put: ps3 key.
 
   ps4 := ProcessorScheduler newFromClosure: [
@@ -47,15 +45,12 @@ Eval [
           ].
           ps4 key killThread ].
 
-  " GC Protecting the new Processor "
   Smalltalk at: #Foo4 put: ps4 key.
 
   ps1 key newThread: ps1 value.
   ps2 key newThread: ps2 value.
   ps3 key newThread: ps3 value.
   ps4 key newThread: ps4 value.
-
-  "Processor tracing."
 
   1 to: 200 do: [ : i |
     100 timesRepeat: [
@@ -65,7 +60,6 @@ Eval [
     Array new: 10.
     0 basicPrint.
   ].
-  "ObjectMemory abort."
   [ true ] whileTrue.
   ] value
 ]
