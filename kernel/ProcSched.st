@@ -54,9 +54,12 @@ Object subclass: ProcessorScheduler [
         1 to: 9 do: [ : i | processList at: i put: Semaphore new ].
 
         process := Process basicNew.
-        process instVarAt: 1 put: process.
+        process instVarAt: 1 put: nil.
         process setBlock: aBlockClosure.
         process instVarAt: 3 put: 4.
+        process instVarAt: 4 put: (processList at: 4).
+
+        (processList at: 4) addFirst: process.
 
         scheduler := self basicNew instVarAt:1 put: processList;
                                    instVarAt:2 put: nil; " it has no active process "
@@ -64,10 +67,10 @@ Object subclass: ProcessorScheduler [
                                    instVarAt:4 put: 40;
                                    instVarAt:5 put: Semaphore new;
                                    yourself.
-        ^ scheduler -> process
+        ^ scheduler
     ]
 
-    newThread: aProcess [
+    newThread [
 
       <primitive: VMpr_Processor_newThread>
     ]

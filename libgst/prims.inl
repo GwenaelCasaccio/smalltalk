@@ -2689,17 +2689,12 @@ static intptr_t VMpr_Process_yield(int id, volatile int numArgs) {
 }
 
 void *start_vm_thread(void *argument) {
-  OOP *array;
   OOP activeProcess;
 
+  /* The other VM threads are stopped so we are safe! */
   current_thread_id = atomic_fetch_add(&_gst_count_total_threaded_vm, 1);
 
-  array = (OOP *) argument;
-
-  _gst_processor_oop[current_thread_id] = array[0];
-  activeProcess = array[1];
-
-  xfree(array);
+  _gst_processor_oop[current_thread_id] = (OOP) argument;
 
   switch_to_process[current_thread_id] = _gst_nil_oop;
   _gst_this_context_oop[current_thread_id] = _gst_nil_oop;
@@ -2707,13 +2702,21 @@ void *start_vm_thread(void *argument) {
   queued_async_signals[current_thread_id] = &queued_async_signals_tail[current_thread_id];
   queued_async_signals_sig[current_thread_id] = &queued_async_signals_tail[current_thread_id];
 
-  change_process_context(activeProcess);
+ _gst_init_context();
 
-  _gst_init_context();
+ /* Force cache cleanup and *init* */
+ _gst_sample_counter = 1;
+ _gst_invalidate_method_cache();
 
-  /* Force cache cleanup and *init* */
-  _gst_sample_counter = 1;
-  _gst_invalidate_method_cache();
+ _gst_check_process_state();
+
+ activeProcess = highest_priority_process();
+
+ if (IS_NIL(activeProcess)) {
+   abort();
+ }
+
+ change_process_context(activeProcess);
 
   atomic_store(&dispatch_vec_per_thread[current_thread_id], global_normal_bytecodes);
   _gst_interp_need_to_wait[current_thread_id] = false;
@@ -2732,16 +2735,8 @@ static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
   int error;
   pthread_t thread_id;
   OOP oop1;
-  OOP oop2;
-  OOP *arg_array;
 
-  arg_array = xcalloc(2, sizeof(*arg_array));
-
-  oop2 = POP_OOP();
   oop1 = STACKTOP();
-
-  arg_array[0] = oop1;
-  arg_array[1] = oop2;
 
   _gst_vm_global_barrier_wait();
 
@@ -2749,7 +2744,7 @@ static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
 
   atomic_fetch_add(&_gst_count_threaded_vm, 1);
 
-  if ((error = pthread_create(&thread_id, NULL, &start_vm_thread, arg_array))) {
+  if ((error = pthread_create(&thread_id, NULL, &start_vm_thread, oop1))) {
     fprintf(stderr, "failed to create new thread: %s\n", strerror(error));
     fflush(stderr);
 
