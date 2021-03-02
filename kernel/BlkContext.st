@@ -47,7 +47,7 @@ and also provide some methods that can be used in inspection or debugging.'>
     BlockContext class >> fromClosure: aBlockClosure [
         <category: 'instance creation'>
 
-        ^ (self basicNew: 100) initializeFromClosure: aBlockClosure;
+        ^ (self basicNew: aBlockClosure block stackDepth) initializeFromClosure: aBlockClosure;
                                yourself
     ]
 
