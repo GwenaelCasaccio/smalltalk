@@ -55,7 +55,8 @@ Object subclass: ProcessorScheduler [
 
         process := Process basicNew.
         process instVarAt: 1 put: nil.
-        process setBlock: aBlockClosure.
+        process setBlock: [ [ aBlockClosure on: SystemExceptions.ProcessBeingTerminated
+                                            do: [ : aSignal | aSignal return ] ] ensure: [ process primTerminate ] ].
         process instVarAt: 3 put: 4.
         process instVarAt: 4 put: (processList at: 4).
 
