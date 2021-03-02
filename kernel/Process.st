@@ -512,6 +512,12 @@ can suspend themselves and resume themselves however they wish.'>
 	
     ]
 
+    setBlock: aBlockClosure [
+        <category: 'accessing'>
+
+        suspendedContext := BlockContext fromClosure: aBlockClosure.
+    ]
+
     detach [
         "Do nothing, instances of Process are already detached."
 

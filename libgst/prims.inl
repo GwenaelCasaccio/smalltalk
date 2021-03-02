@@ -2716,26 +2716,12 @@ void *start_vm_thread(void *argument) {
   _gst_invalidate_method_cache();
 
   atomic_store(&dispatch_vec_per_thread[current_thread_id], global_normal_bytecodes);
+  _gst_interp_need_to_wait[current_thread_id] = false;
 
   /* the current thread can be locked with the global barrier */
   atomic_fetch_add(&_gst_interpret_thread_counter, 1);
 
   _gst_vm_end_barrier_wait();
-
-  /*
-  while (1) {
-    _gst_vm_barrier_wait();
-
-    fprintf(stderr, "ICI\n");
-    fflush(stderr);
-
-    _gst_vm_end_barrier_wait();
-
-    fprintf(stderr, "ICI END\n");
-    fflush(stderr);
-
-  }
-  */
 
   _gst_interpret(activeProcess);
 
@@ -2758,6 +2744,8 @@ static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
   arg_array[1] = oop2;
 
   _gst_vm_global_barrier_wait();
+
+  _gst_interp_need_to_wait[current_thread_id] = false;
 
   atomic_fetch_add(&_gst_count_threaded_vm, 1);
 
@@ -4328,13 +4316,7 @@ static intptr_t VMpr_Object_tenure(int id, volatile int numArgs) {
 
   oop1 = STACKTOP();
   if (IS_OOP(oop1)) {
-
-    global_lock_for_gc();
-
-    while (!_gst_vm_barrier_wait()) {
-      _gst_vm_end_barrier_wait();
-      global_lock_for_gc();
-    }
+    _gst_vm_global_barrier_wait();
 
     set_except_flag_for_thread(false, current_thread_id);
 
@@ -5623,12 +5605,7 @@ static intptr_t VMpr_Namespace_setCurrent(int id, volatile int numArgs) {
 static intptr_t VMpr_ObjectMemory_gcPrimitives(int id, volatile int numArgs) {
   _gst_primitives_executed++;
 
-  global_lock_for_gc();
-
-  while (!_gst_vm_barrier_wait()) {
-    _gst_vm_end_barrier_wait();
-    global_lock_for_gc();
-  }
+  _gst_vm_global_barrier_wait();
 
   set_except_flag_for_thread(false, current_thread_id);
 

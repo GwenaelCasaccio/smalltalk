@@ -46,6 +46,27 @@ Object subclass: ProcessorScheduler [
 	self shouldNotImplement
     ]
 
+    ProcessorScheduler class >> newFromClosure: aBlockClosure [
+	      <category: 'instance creation'>
+
+        | processList process scheduler |
+        processList := Array new: 9.
+        1 to: 9 do: [ : i | processList at: i put: Semaphore new ].
+
+        process := Process basicNew.
+        process instVarAt: 1 put: process.
+        process setBlock: aBlockClosure.
+        process instVarAt: 3 put: 4.
+
+        scheduler := self basicNew instVarAt:1 put: processList;
+                                   instVarAt:2 put: nil; " it has no active process "
+                                   instVarAt:3 put: OrderedCollection new;
+                                   instVarAt:4 put: 40;
+                                   instVarAt:5 put: Semaphore new;
+                                   yourself.
+        ^ scheduler -> process
+    ]
+
     newThread: aProcess [
 
       <primitive: VMpr_Processor_newThread>
