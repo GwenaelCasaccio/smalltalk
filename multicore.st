@@ -1,14 +1,3 @@
-"Process extend [
-  setBlock: aBlock [
-    suspendedContext := BlockContext allocateFrom: [ 
-      1 to: 200 do: [ : i | aBlock value ].
-      ObjectMemory globalGarbageCollect.
-      'out' basicPrint.
-      ObjectMemory abort ].
-
-  ]
-]"
-
 Eval [
 [
   | ps1 ps2 ps3 ps4 |
