@@ -9,10 +9,10 @@ Eval [
           Array new: 10.
           1 basicPrint.
           ].
-          ps1 key killThread ].
+          ps1 killThread ].
 
   " GC Protecting the new Processor "
-  Smalltalk at: #Foo1 put: ps1 key.
+  Smalltalk at: #Foo1 put: ps1.
 
   ps2 := ProcessorScheduler newFromClosure: [
       100 timesRepeat: [
@@ -21,9 +21,9 @@ Eval [
           Array new: 10.
           2 basicPrint.
           ].
-          ps2 key killThread ].
+          ps2 killThread ].
 
-  Smalltalk at: #Foo2 put: ps2 key.
+  Smalltalk at: #Foo2 put: ps2.
 
   ps3 := ProcessorScheduler newFromClosure: [
       100 timesRepeat: [
@@ -32,9 +32,9 @@ Eval [
           Array new: 10.
           3 basicPrint.
           ].
-          ps3 key killThread ].
+          ps3 killThread ].
 
-  Smalltalk at: #Foo3 put: ps3 key.
+  Smalltalk at: #Foo3 put: ps3.
 
   ps4 := ProcessorScheduler newFromClosure: [
       100 timesRepeat: [
@@ -43,14 +43,14 @@ Eval [
           Array new: 10.
           4 basicPrint.
           ].
-          ps4 key killThread ].
+          ps4 killThread ].
 
-  Smalltalk at: #Foo4 put: ps4 key.
+  Smalltalk at: #Foo4 put: ps4.
 
-  ps1 key newThread: ps1 value.
-  ps2 key newThread: ps2 value.
-  ps3 key newThread: ps3 value.
-  ps4 key newThread: ps4 value.
+  ps1 newThread.
+  ps2 newThread.
+  ps3 newThread.
+  ps4 newThread.
 
   1 to: 200 do: [ : i |
     100 timesRepeat: [
