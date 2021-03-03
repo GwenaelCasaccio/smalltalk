@@ -73,6 +73,7 @@ int test_barrier_wait_without_thread() {
 
 static pthread_barrier_t thread_barrier_wait;
 static volatile _Atomic(size_t) count_barrier_access = 0;
+static volatile _Atomic(size_t) count_nb_of_first_barrier_item = 0;
 
 void *thread_barrier_test(void *argument) {
   int error;
@@ -86,8 +87,9 @@ void *thread_barrier_test(void *argument) {
     abort();
   }
 
-
-  _gst_vm_barrier_wait();
+  if (_gst_vm_barrier_wait()) {
+    atomic_fetch_add(&count_nb_of_first_barrier_item, 1);
+  }
 
   // Check barrier state
   atomic_fetch_add(&count_barrier_access, 1);
@@ -136,6 +138,14 @@ int test_barrier_wait_with_threads() {
     abort();
   }
 
+  if (atomic_load(&count_nb_of_first_barrier_item) != 1) {
+    return 1;
+  }
+
+  if (atomic_load(&_gst_count_locked_vm) != 0) {
+    return 1;
+  }
+
   return atomic_load(&count_barrier_access) != 10;
 }
 
@@ -156,6 +166,5 @@ int main() {
     return res;
   }
 
-  printf ("YES ");
   return 0;
 }
