@@ -64,6 +64,7 @@ tests/testsuite.dir/
 tests/testsuite.log
 tests/from_int
 tests/grey_list
+tests/barrier
 tests/*.log
 tests/*.trs
 gst.im.SandstoneDb/
