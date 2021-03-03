@@ -41,7 +41,7 @@ AC_DEFUN([GST_LOCK],
     osf*) CPPFLAGS="$CPPFLAGS -D_REENTRANT" ;;
     aix*) CPPFLAGS="$CPPFLAGS -D_THREAD_SAFE" ;;
     freebsd*) CPPFLAGS="$CPPFLAGS -D_THREAD_SAFE" LIBTHREAD=-pthread ;;
-    solaris*) CPPFLAGS="$CPPFLAGS -D_REENTRANT" LIBTHREAD=-lpthread ;;
+    solaris* | linux*) CPPFLAGS="$CPPFLAGS -D_REENTRANT" LIBTHREAD=-lpthread ;;
     hpux*) LIBTHREAD=-lpthread ;;
   esac
 
