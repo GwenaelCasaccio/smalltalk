@@ -122,14 +122,19 @@ int test_barrier_wait_with_threads() {
 
   for (int i = 0; i < 10; i++) {
     if ((error = pthread_join(thread_id[i], NULL))) {
-      perror("failed to join thread");
       fprintf(stderr, "failed to join thread: %s\n", strerror(error));
       fflush(stderr);
 
       abort();
     }
   }
-  pthread_barrier_destroy(&thread_barrier_wait);
+
+  if ((error = pthread_barrier_destroy(&thread_barrier_wait))) {
+    fprintf(stderr, "failed to destroy barrier: %s\n", strerror(error));
+    fflush(stderr);
+
+    abort();
+  }
 
   return atomic_load(&count_barrier_access) != 10;
 }
