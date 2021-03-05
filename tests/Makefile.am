@@ -19,7 +19,7 @@ quit.st random-bench.ok random-bench.st sets.ok \
 sets.st sieve.ok sieve.st strcat.ok strcat.st strings.ok strings.st \
 pools.ok pools.st Ansi.st AnsiDB.st AnsiInit.st AnsiLoad.st AnsiRun.st \
 stcompiler.st stcompiler.ok shape.st shape.ok streams.st streams.ok \
-xlat.st xlat.ok
+xlat.st xlat.ok multithread.st multithread.ok
 
 CLEANFILES = gst.im
 DISTCLEANFILES = atconfig
