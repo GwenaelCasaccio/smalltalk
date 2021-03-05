@@ -33,3 +33,26 @@ Eval [
 
   (Delay forSeconds: 10) wait.
 ]
+
+Eval [
+  | ps1 processLists process |
+
+  ps1 := ProcessorScheduler newFromClosure: [
+         'ok' basicPrint.
+         ps1 killThread ].
+
+  processLists := ps1 instVarNamed: #processLists.
+  (processLists class = Array) basicPrint.
+  (processLists size = 9) basicPrint.
+  (processLists allSatisfy: [ : aSemaphore | aSemaphore class = Semaphore ]) basicPrint.
+  (ps1 instVarNamed: #activeProcess) isNil basicPrint.
+  (ps1 instVarNamed: #idleTasks) isEmpty basicPrint.
+  ((ps1 instVarNamed: #processTimeslice) = 40) basicPrint.
+  ((ps1 instVarNamed: #gcSemaphore) class = Semaphore) basicPrint.
+
+  process := (processLists at: 4) first.
+  (process instVarNamed: #suspendedContext) isNil not basicPrint.
+  ((process instVarNamed: #priority) = 4) basicPrint.
+  ((process instVarNamed: #myList) = (processLists at: 4)) basicPrint.
+]
+
