@@ -487,6 +487,7 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
 
     _gst_regression_testing = false;
     _gst_init_oop_table(NULL, INITIAL_OOP_TABLE_SIZE);
+    _gst_init_context();
     _gst_init_mem_default();
     _gst_init_basic_objects();
     _gst_init_dictionary();

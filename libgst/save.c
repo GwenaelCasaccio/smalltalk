@@ -461,6 +461,8 @@ mst_Boolean load_snapshot(int imageFd) {
 
   load_oop_table(imageFd);
 
+  _gst_init_context();
+
 #ifdef SNAPSHOT_TRACE
   printf("After loading OOP table: %lld\n", file_pos + buf_pos);
 #endif /* SNAPSHOT_TRACE */

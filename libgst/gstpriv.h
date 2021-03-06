@@ -15,9 +15,9 @@
  *
  * GNU Smalltalk is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2, or (at your option) any later 
+ * Software Foundation; either version 2, or (at your option) any later
  * version.
- * 
+ *
  * Linking GNU Smalltalk statically or dynamically with other modules is
  * making a combined work based on GNU Smalltalk.  Thus, the terms and
  * conditions of the GNU General Public License cover the whole
@@ -41,13 +41,13 @@
  * modified version which carries forward this exception.
  *
  * GNU Smalltalk is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * GNU Smalltalk; see the file COPYING.  If not, write to the Free Software
- * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.  
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  ***********************************************************************/
 
@@ -77,6 +77,9 @@
 #include <dirent.h>
 #include <sys/time.h>
 #include <time.h>
+#include <threads.h>
+#include <pthread.h>
+#include <stdatomic.h>
 
 #ifdef HAVE_CRT_EXTERNS_H
 #include <crt_externs.h>
@@ -216,7 +219,7 @@
 #define BEGIN_MACRO ((void) (
 #define END_MACRO ))
 #else
-#define BEGIN_MACRO if (1) 
+#define BEGIN_MACRO if (1)
 #define END_MACRO else (void)0
 #endif
 
@@ -372,7 +375,7 @@ enum {
 #endif
 
 /* The VM's stack pointer */
-extern OOP *sp 
+extern OOP *sp[100] 
   ATTRIBUTE_HIDDEN;
 
 /* Some useful constants */
@@ -383,10 +386,10 @@ extern OOP _gst_nil_oop
 
 /* Some stack operations */
 #define UNCHECKED_PUSH_OOP(oop) \
-  (*++sp = (oop))
+  (*++sp[current_thread_id] = (oop))
 
 #define UNCHECKED_SET_TOP(oop) \
-  (*sp = (oop))
+  (*sp[current_thread_id] = (oop))
 
 #ifndef OPTIMIZE
 #define PUSH_OOP(oop) \
@@ -405,16 +408,16 @@ extern OOP _gst_nil_oop
 #endif
 
 #define POP_OOP() \
-  (*sp--)
+  (*sp[current_thread_id]--)
 
 #define POP_N_OOPS(n) \
-  (sp -= (n))
+  (sp[current_thread_id] -= (n))
 
 #define UNPOP(n) \
-  (sp += (n))
+  (sp[current_thread_id] += (n))
 
 #define STACKTOP() \
-  (*sp)
+  (*sp[current_thread_id])
 
 #ifndef OPTIMIZE
 #define SET_STACKTOP(oop) \
@@ -439,7 +442,7 @@ extern OOP _gst_nil_oop
   UNCHECKED_SET_TOP((exp) ? _gst_true_oop : _gst_false_oop)
 
 #define STACK_AT(i) \
-  (sp[-(i)])
+  (sp[current_thread_id][-(i)])
 
 #define PUSH_INT(i) \
   UNCHECKED_PUSH_OOP(FROM_INT(i))
@@ -564,6 +567,7 @@ extern OOP _gst_nil_oop
 #include "rbtrees.h"
 
 #include "files.h"
+#include "barrier.h"
 #include "callin.h"
 #include "cint.h"
 #include "dict.h"

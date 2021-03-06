@@ -19,7 +19,7 @@ quit.st random-bench.ok random-bench.st sets.ok \
 sets.st sieve.ok sieve.st strcat.ok strcat.st strings.ok strings.st \
 pools.ok pools.st Ansi.st AnsiDB.st AnsiInit.st AnsiLoad.st AnsiRun.st \
 stcompiler.st stcompiler.ok shape.st shape.ok streams.st streams.ok \
-xlat.st xlat.ok
+xlat.st xlat.ok multithread.st multithread.ok
 
 CLEANFILES = gst.im
 DISTCLEANFILES = atconfig
@@ -62,8 +62,8 @@ $(TESTSUITE): $(srcdir)/testsuite.at $(srcdir)/package.m4 $(srcdir)/local.at
 	$(AUTOTEST) -I '$(srcdir)' -o $@.tmp $@.at
 	mv $@.tmp $@
 
-TESTS = from_int grey_list
-check_PROGRAMS = from_int grey_list
+TESTS = from_int grey_list barrier
+check_PROGRAMS = from_int grey_list barrier
 from_int_SOURCES = vm/from_int.c
 from_int_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV)
 from_int_LDADD = $(top_builddir)/libgst/libgst.la $(LIBSIGSEGV) $(LIBSNPRINTFV) $(top_builddir)/lib-src/library.la @ICON@
@@ -75,3 +75,9 @@ grey_list_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV)
 grey_list_LDADD = $(top_builddir)/libgst/libgst.la $(LIBSNPRINTFV) $(top_builddir)/lib-src/library.la @ICON@
 grey_list_DEPENDENCIES = $(top_builddir)/libgst/libgst.la $(top_builddir)/lib-src/library.la @ICON@
 grey_list_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS)
+
+barrier_SOURCES = vm/barrier.c
+barrier_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV)
+barrier_LDADD = $(top_builddir)/libgst/libgst.la $(LIBSNPRINTFV) $(LIBTHREAD) $(top_builddir)/lib-src/library.la @ICON@
+barrier_DEPENDENCIES = $(top_builddir)/libgst/libgst.la $(top_builddir)/lib-src/library.la @ICON@
+barrier_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS)

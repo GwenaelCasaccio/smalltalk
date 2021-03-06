@@ -129,7 +129,7 @@ static input_stream push_new_stream(stream_type type);
 
 /* The topmost stream in the stack, and the head of the linked list
    that implements the stack.  */
-static input_stream in_stream = NULL;
+static thread_local input_stream in_stream = NULL;
 
 /* Poll FD until it is available for input (or until it returns
    POLLHUP) and then perform a read system call.  */

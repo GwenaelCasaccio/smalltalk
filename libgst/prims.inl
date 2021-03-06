@@ -2370,7 +2370,7 @@ static intptr_t VMpr_Object_allOwners(int id, volatile int numArgs) {
 static intptr_t VMpr_ContextPart_thisContext(int id, volatile int numArgs) {
   _gst_primitives_executed++;
   empty_context_stack();
-  SET_STACKTOP(_gst_this_context_oop);
+  SET_STACKTOP(_gst_this_context_oop[current_thread_id]);
   PRIM_SUCCEEDED;
 }
 
@@ -2445,7 +2445,7 @@ static intptr_t VMpr_BlockClosure_valueAndResumeOnUnwind(int id,
 
   _gst_primitives_executed++;
 
-  context = OOP_TO_OBJ(_gst_this_context_oop);
+  context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
   OBJ_METHOD_CONTEXT_SET_FLAGS(
       context, (OOP)((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) |
                      MCF_IS_UNWIND_CONTEXT));
@@ -2688,6 +2688,114 @@ static intptr_t VMpr_Process_yield(int id, volatile int numArgs) {
   PRIM_SUCCEEDED;
 }
 
+void *start_vm_thread(void *argument) {
+  OOP activeProcess;
+
+  /* The other VM threads are stopped so we are safe! */
+  current_thread_id = atomic_fetch_add(&_gst_count_total_threaded_vm, 1);
+
+  _gst_processor_oop[current_thread_id] = (OOP) argument;
+
+  switch_to_process[current_thread_id] = _gst_nil_oop;
+  _gst_this_context_oop[current_thread_id] = _gst_nil_oop;
+  async_queue_enabled[current_thread_id] = true;
+  queued_async_signals[current_thread_id] = &queued_async_signals_tail[current_thread_id];
+  queued_async_signals_sig[current_thread_id] = &queued_async_signals_tail[current_thread_id];
+
+ _gst_init_context();
+
+ /* Force cache cleanup and *init* */
+ _gst_sample_counter = 1;
+ _gst_invalidate_method_cache();
+
+ _gst_check_process_state();
+
+ activeProcess = highest_priority_process();
+
+ if (IS_NIL(activeProcess)) {
+   abort();
+ }
+
+ change_process_context(activeProcess);
+
+  atomic_store(&dispatch_vec_per_thread[current_thread_id], global_normal_bytecodes);
+  _gst_interp_need_to_wait[current_thread_id] = false;
+
+  /* the current thread can be locked with the global barrier */
+  atomic_fetch_add(&_gst_interpret_thread_counter, 1);
+
+  _gst_vm_end_barrier_wait();
+
+  _gst_interpret(activeProcess);
+
+  return NULL;
+}
+
+static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
+  int error;
+  pthread_t thread_id;
+  OOP oop1;
+
+  oop1 = STACKTOP();
+
+  _gst_vm_global_barrier_wait();
+
+  _gst_interp_need_to_wait[current_thread_id] = false;
+
+  atomic_fetch_add(&_gst_count_threaded_vm, 1);
+
+  if ((error = pthread_create(&thread_id, NULL, &start_vm_thread, oop1))) {
+    fprintf(stderr, "failed to create new thread: %s\n", strerror(error));
+    fflush(stderr);
+
+    abort();
+  }
+
+  _gst_vm_end_barrier_wait();
+
+  PRIM_SUCCEEDED;
+}
+
+static intptr_t VMpr_Processor_killThread(int id, volatile int numArgs) {
+  int error;
+
+  _gst_primitives_executed++;
+
+  _gst_vm_global_barrier_wait();
+
+  set_except_flag_for_thread(false, current_thread_id);
+
+  empty_context_stack();
+
+  // FIXME since its an array we cannot decrease we've hole on it
+  // atomic_fetch_add(&_gst_interpret_thread_counter, -1);
+
+  atomic_fetch_add(&_gst_count_threaded_vm, -1);
+
+  if ((error = pthread_cond_signal(&_gst_vm_end_barrier_cond))) {
+    fprintf(stderr, "error while signaling: %s", strerror(error));
+    fflush(stderr);
+
+    abort();
+  }
+
+  pthread_exit(NULL);
+
+  PRIM_SUCCEEDED;
+}
+
+
+static intptr_t VMpr_Processor_tracing(int id, volatile int numArgs) {
+
+  _gst_primitives_executed++;
+
+  _gst_execution_tracing = true;
+  verbose_exec_tracing = true;
+  SET_EXCEPT_FLAG_FOR_THREAD(true, current_thread_id);
+
+  PRIM_SUCCEEDED;
+}
+
 /* Processor waitForEvents */
 static intptr_t VMpr_Processor_dispatchEvents(int id, volatile int numArgs) {
   interp_jmp_buf jb;
@@ -2701,7 +2809,7 @@ static intptr_t VMpr_Processor_dispatchEvents(int id, volatile int numArgs) {
   _gst_primitives_executed++;
   processor = OOP_TO_OBJ(oop1);
   if (TO_INT(OBJ_SIZE(processor)) > 8) {
-    processor = OOP_TO_OBJ(_gst_processor_oop);
+    processor = OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
     semaphoreOOP = OBJ_PROCESSOR_SCHEDULER_GET_EVENT_SEMAPHORE(processor);
     INC_ADD_OOP(semaphoreOOP);
   } else
@@ -2721,7 +2829,7 @@ static intptr_t VMpr_Processor_dispatchEvents(int id, volatile int numArgs) {
     /* If there was a context switch in the meanwhile, be sure to
        suspend the process that invoked us!  */
     sync_wait_process(semaphoreOOP, processOOP);
-    processor = OOP_TO_OBJ(_gst_processor_oop);
+    processor = OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
     OBJ_PROCESSOR_SCHEDULER_SET_EVENT_SEMAPHORE(processor, semaphoreOOP);
   }
 
@@ -3602,16 +3710,16 @@ static intptr_t VMpr_Processor_disableEnableInterrupts(int id,
   int count;
 
   _gst_primitives_executed++;
-  processor = OOP_TO_OBJ(_gst_processor_oop);
+  processor = OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
   processOOP = OBJ_PROCESSOR_SCHEDULER_GET_ACTIVE_PROCESS(processor);
   process = OOP_TO_OBJ(processOOP);
 
   count = IS_NIL(OBJ_PROCESS_GET_INTERRUPTS(process)) ? 0 : TO_INT(OBJ_PROCESS_GET_INTERRUPTS(process));
 
   if (id == 0 && count++ == 0)
-    async_queue_enabled = false;
+    async_queue_enabled[current_thread_id] = false;
   else if (id == -1 && --count == 0) {
-    async_queue_enabled = true;
+    async_queue_enabled[current_thread_id] = true;
     SET_EXCEPT_FLAG(true);
   }
 
@@ -4203,7 +4311,14 @@ static intptr_t VMpr_Object_tenure(int id, volatile int numArgs) {
 
   oop1 = STACKTOP();
   if (IS_OOP(oop1)) {
+    _gst_vm_global_barrier_wait();
+
+    set_except_flag_for_thread(false, current_thread_id);
+
     _gst_tenure_oop(oop1);
+
+    _gst_vm_end_barrier_wait();
+
     PRIM_SUCCEEDED;
   }
 
@@ -5374,9 +5489,9 @@ static intptr_t VMpr_CFuncDescriptor_asyncCall(int id, volatile int numArgs) {
     context = OOP_TO_OBJ(contextOOP);
     receiverOOP = OBJ_METHOD_CONTEXT_RECEIVER(context);
   } else {
-    contextOOP = _gst_this_context_oop;
+    contextOOP = _gst_this_context_oop[current_thread_id];
     context = OOP_TO_OBJ(contextOOP);
-    receiverOOP = _gst_self;
+    receiverOOP = _gst_self[current_thread_id];
   }
 
   cFuncOOP = STACKTOP();
@@ -5417,9 +5532,9 @@ static intptr_t VMpr_CFuncDescriptor_call(int id, volatile int numArgs) {
     context = OOP_TO_OBJ(contextOOP);
     receiverOOP = OBJ_METHOD_CONTEXT_RECEIVER(context);
   } else {
-    contextOOP = _gst_this_context_oop;
+    contextOOP = _gst_this_context_oop[current_thread_id];
     context = OOP_TO_OBJ(contextOOP);
-    receiverOOP = _gst_self;
+    receiverOOP = _gst_self[current_thread_id];
   }
 
   cFuncOOP = POP_OOP();
@@ -5484,6 +5599,11 @@ static intptr_t VMpr_Namespace_setCurrent(int id, volatile int numArgs) {
 
 static intptr_t VMpr_ObjectMemory_gcPrimitives(int id, volatile int numArgs) {
   _gst_primitives_executed++;
+
+  _gst_vm_global_barrier_wait();
+
+  set_except_flag_for_thread(false, current_thread_id);
+
   switch (id) {
   case 0:
     _gst_scavenge();
@@ -5505,6 +5625,9 @@ static intptr_t VMpr_ObjectMemory_gcPrimitives(int id, volatile int numArgs) {
     _gst_finish_incremental_gc();
     break;
   }
+
+  _gst_vm_end_barrier_wait();
+
   PRIM_SUCCEEDED;
 }
 
@@ -5513,7 +5636,7 @@ static intptr_t VMpr_ObjectMemory_gcPrimitives(int id, volatile int numArgs) {
 static intptr_t VMpr_SystemDictionary_rawProfile(int id, volatile int numArgs) {
   OOP oop1 = POP_OOP();
   if (_gst_raw_profile) {
-    _gst_record_profile(_gst_this_method, NULL, -1);
+    _gst_record_profile(_gst_this_method[current_thread_id], NULL, -1);
     SET_STACKTOP(_gst_raw_profile);
     _gst_unregister_oop(_gst_raw_profile);
   } else
@@ -6621,8 +6744,22 @@ void _gst_init_primitives() {
   _gst_default_primitive_table[244].attributes = PRIM_SUCCEED | PRIM_FAIL;
   _gst_default_primitive_table[244].id = 0;
   _gst_default_primitive_table[244].func = VMpr_Object_asOop;
+  _gst_default_primitive_table[245].name = "VMpr_Processor_newThread";
+  _gst_default_primitive_table[245].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[245].id = 0;
+  _gst_default_primitive_table[245].func = VMpr_Processor_newThread;
 
-  for (i = 245; i < NUM_PRIMITIVES; i++) {
+  _gst_default_primitive_table[246].name = "VMpr_Processor_killThread";
+  _gst_default_primitive_table[246].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[246].id = 0;
+  _gst_default_primitive_table[246].func = VMpr_Processor_killThread;
+
+  _gst_default_primitive_table[247].name = "VMpr_Processor_tracing";
+  _gst_default_primitive_table[247].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[247].id = 0;
+  _gst_default_primitive_table[247].func = VMpr_Processor_tracing;
+
+  for (i = 248; i < NUM_PRIMITIVES; i++) {
     _gst_default_primitive_table[i].name = NULL;
     _gst_default_primitive_table[i].attributes = PRIM_FAIL;
     _gst_default_primitive_table[i].id = i;

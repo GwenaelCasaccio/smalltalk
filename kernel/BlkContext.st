@@ -44,6 +44,13 @@ executed by methods outside the current class.  Block contexts are
 created by messages sent to compute a closure''s value.  They contain a stack
 and also provide some methods that can be used in inspection or debugging.'>
 
+    BlockContext class >> fromClosure: aBlockClosure [
+        <category: 'instance creation'>
+
+        ^ (self basicNew: aBlockClosure block stackDepth) initializeFromClosure: aBlockClosure;
+                               yourself
+    ]
+
     BlockContext class >> fromClosure: aBlockClosure parent: parentContext [
 	"Private - Make a real block context from the given BlockClosure."
 
@@ -66,6 +73,18 @@ and also provide some methods that can be used in inspection or debugging.'>
 	 #value.  Effectively, we are returning a continuation."
 	cloneTheContextAndFoolTheVM value.
 	^aBlockClosure value
+    ]
+
+    initializeFromClosure: aBlockClosure [
+        <category: 'initialization'>
+
+        outerContext := aBlockClosure outerContext.
+        parent       := nil.
+        nativeIP     := 0.
+        ip           := 0.
+        sp           := -1.
+        receiver     := aBlockClosure receiver.
+        method       := aBlockClosure block.
     ]
 
     printOn: aStream [

@@ -46,6 +46,42 @@ Object subclass: ProcessorScheduler [
 	self shouldNotImplement
     ]
 
+    ProcessorScheduler class >> newFromClosure: aBlockClosure [
+	      <category: 'instance creation'>
+
+        | processList process scheduler |
+        processList := Array new: 9.
+        1 to: 9 do: [ : i | processList at: i put: Semaphore new ].
+
+        process := Process basicNew.
+        process instVarAt: 1 put: nil.
+        process setBlock: [ [ aBlockClosure on: SystemExceptions.ProcessBeingTerminated
+                                            do: [ : aSignal | aSignal return ] ] ensure: [ process primTerminate ] ].
+        process instVarAt: 3 put: 4.
+        process instVarAt: 4 put: (processList at: 4).
+
+        (processList at: 4) addFirst: process.
+
+        scheduler := self basicNew instVarAt:1 put: processList;
+                                   instVarAt:2 put: nil; " it has no active process "
+                                   instVarAt:3 put: OrderedCollection new;
+                                   instVarAt:4 put: 40;
+                                   instVarAt:5 put: Semaphore new;
+                                   yourself.
+        ^ scheduler
+    ]
+
+    newThread [
+
+      <primitive: VMpr_Processor_newThread>
+    ]
+
+
+    killThread [
+
+      <primitive: VMpr_Processor_killThread>
+    ]
+
     processEnvironment [
 	"Answer another singleton object hosting thread-local variables
 	 for the Smalltalk processes.  This acts like a normal Dictionary
@@ -365,6 +401,10 @@ Object subclass: ProcessorScheduler [
 	<category: 'timed invocation'>
 	<primitive: VMpr_Processor_signalOnInterrupt>
 	^self primitiveFailed
+    ]
+
+    tracing [
+	          <primitive: VMpr_Processor_tracing>
     ]
 ]
 

@@ -144,7 +144,7 @@ typedef struct interp_jmp_buf {
 /* If this is true, for each byte code that is executed, we print on
    stdout the byte index within the current gst_compiled_method and a
    decoded interpretation of the byte code.  */
-int _gst_execution_tracing = 0;
+thread_local int _gst_execution_tracing = 0;
 
 /* When this is true, and an interrupt occurs (such as SIGABRT),
    Smalltalk will terminate itself by making a core dump (normally it
@@ -161,21 +161,21 @@ prim_table_entry _gst_default_primitive_table[NUM_PRIMITIVES];
 
 /* Some performance counters from the interpreter: these
    count the number of special returns.  */
-unsigned long _gst_literal_returns = 0;
-unsigned long _gst_inst_var_returns = 0;
-unsigned long _gst_self_returns = 0;
+thread_local unsigned long _gst_literal_returns = 0;
+thread_local unsigned long _gst_inst_var_returns = 0;
+thread_local unsigned long _gst_self_returns = 0;
 
 /* The number of primitives executed.  */
-unsigned long _gst_primitives_executed = 0;
+thread_local unsigned long _gst_primitives_executed = 0;
 
 /* The number of bytecodes executed.  */
-unsigned long _gst_bytecode_counter = 0;
+thread_local unsigned long _gst_bytecode_counter = 0;
 
 /* The number of method cache misses */
-unsigned long _gst_cache_misses = 0;
+thread_local unsigned long _gst_cache_misses = 0;
 
 /* The number of cache lookups - either hits or misses */
-unsigned long _gst_sample_counter = 0;
+thread_local unsigned long _gst_sample_counter = 0;
 
 /* The OOP for an IdentityDictionary that stores the raw profile.  */
 OOP _gst_raw_profile = NULL;
@@ -183,7 +183,7 @@ OOP _gst_raw_profile = NULL;
 /* A bytecode counter value used while profiling. */
 unsigned long _gst_saved_bytecode_counter = 0;
 
-static ip_type method_base;
+static ip_type method_base[100];
 
 /* Global state
    The following variables constitute the interpreter's state:
@@ -211,24 +211,24 @@ static ip_type method_base;
    message.  */
 
 /* The virtual machine's stack and instruction pointers.  */
-OOP *sp = NULL;
-ip_type ip;
+OOP *sp[100] = { NULL };
+ip_type ip[100];
 
-OOP *_gst_temporaries = NULL;
-OOP *_gst_literals = NULL;
-OOP _gst_self = NULL;
-OOP _gst_this_context_oop = NULL;
-OOP _gst_this_method = NULL;
+OOP *_gst_temporaries[100] = { NULL };
+OOP *_gst_literals[100] = { NULL };
+OOP _gst_self[100] = { NULL };
+OOP _gst_this_context_oop[100] = { NULL };
+OOP _gst_this_method[100] = { NULL };
 
 /* Signal this semaphore at the following instruction.  */
 static OOP single_step_semaphore = NULL;
 
 /* CompiledMethod cache which memoizes the methods and some more
    information for each class->selector pairs.  */
-static method_cache_entry method_cache[METHOD_CACHE_SIZE] CACHELINE_ALIGNED;
+static thread_local method_cache_entry method_cache[METHOD_CACHE_SIZE] CACHELINE_ALIGNED;
 
 /* The number of the last primitive called.  */
-static int last_primitive;
+static thread_local int last_primitive;
 
 /* A special cache that tries to skip method lookup when #at:, #at:put
    and #size are implemented by a class through a primitive, and is
@@ -236,24 +236,24 @@ static int last_primitive;
    mini-inline cache it makes no sense when JIT translation is
    enabled.  */
 #ifndef ENABLE_JIT_TRANSLATION
-static OOP at_cache_class;
-static intptr_t at_cache_spec;
+static thread_local OOP at_cache_class;
+static thread_local intptr_t at_cache_spec;
 
-static OOP at_put_cache_class;
-static intptr_t at_put_cache_spec;
+static thread_local OOP at_put_cache_class;
+static thread_local intptr_t at_put_cache_spec;
 
-static OOP size_cache_class;
-static int size_cache_prim;
+static thread_local OOP size_cache_class;
+static thread_local int size_cache_prim;
 
-static OOP class_cache_class;
-static int class_cache_prim;
+static thread_local OOP class_cache_class;
+static thread_local int class_cache_prim;
 #endif
 
 /* Queue for async (outside the interpreter) semaphore signals */
-static mst_Boolean async_queue_enabled = true;
-static async_queue_entry queued_async_signals_tail;
-static async_queue_entry *queued_async_signals = &queued_async_signals_tail;
-static async_queue_entry *queued_async_signals_sig = &queued_async_signals_tail;
+static mst_Boolean async_queue_enabled[100] = { true };
+static async_queue_entry queued_async_signals_tail[100];
+static async_queue_entry *queued_async_signals[100] = { &queued_async_signals_tail[0] };
+static async_queue_entry *queued_async_signals_sig[100] = { &queued_async_signals_tail[0] };
 
 /* When not NULL, this causes the byte code interpreter to immediately
    send the message whose selector is here to the current stack
@@ -261,14 +261,14 @@ static async_queue_entry *queued_async_signals_sig = &queued_async_signals_tail;
 const char *_gst_abort_execution = NULL;
 
 /* Set to non-nil if a process must preempt the current one.  */
-static OOP switch_to_process;
+static OOP switch_to_process[100];
 
 /* Set to true if it is time to switch process in a round-robin
    time-sharing fashion.  */
 static mst_Boolean time_to_preempt;
 
 /* Used to bail out of a C callout and back to the interpreter.  */
-static interp_jmp_buf *reentrancy_jmp_buf = NULL;
+static thread_local interp_jmp_buf *reentrancy_jmp_buf = NULL;
 
 /* when this flag is on and execution tracing is in effect, the top of
    the stack is printed as well as the byte code */
@@ -543,19 +543,69 @@ static void stop_execution(void);
 /* Answer an OOP for a Smalltalk object of class Array, holding the
    different process lists for each priority.  */
 #define GET_PROCESS_LISTS()                                                    \
-  ((OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_LISTS(OOP_TO_OBJ(_gst_processor_oop))))
+  ((OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_LISTS(OOP_TO_OBJ(_gst_processor_oop[current_thread_id]))))
 
 /* Tell the interpreter that special actions are needed as soon as a
    sequence point is reached.  */
-static void *const *global_monitored_bytecodes;
-static void *const *global_normal_bytecodes;
-static void *const *dispatch_vec;
+static thread_local void *const *global_monitored_bytecodes;
+static thread_local void *const *global_normal_bytecodes;
 
-#define SET_EXCEPT_FLAG(x)                                                     \
-  do {                                                                         \
-    dispatch_vec = (x) ? global_monitored_bytecodes : global_normal_bytecodes; \
-    __sync_synchronize();                                                      \
+static _Atomic(void *const *) dispatch_vec_per_thread[100] = { NULL };
+thread_local size_t current_thread_id = 0;
+
+volatile _Atomic(size_t) _gst_interpret_thread_counter = 1;
+
+static mst_Boolean _gst_interp_need_to_wait[100] = { false };
+
+static pthread_mutex_t dispatch_vec_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+void global_lock_for_gc(void) {
+  pthread_mutex_lock(&dispatch_vec_mutex);
+  // FIXME the array implementation is not a good idea because we can remove an item list is better ?
+  for (size_t i = 0; i < atomic_load(&_gst_interpret_thread_counter); i++) {
+    if (i == current_thread_id) {
+      atomic_store(&dispatch_vec_per_thread[i], global_normal_bytecodes);
+      _gst_interp_need_to_wait[i] = false;
+      __sync_synchronize();
+    } else {
+      atomic_store(&dispatch_vec_per_thread[i], global_monitored_bytecodes);
+      _gst_interp_need_to_wait[i] = true;
+      __sync_synchronize();
+    }
+  }
+  pthread_mutex_unlock(&dispatch_vec_mutex);
+}
+
+#define SET_EXCEPT_FLAG_FOR_SIGNAL(x)                                   \
+  do {                                                                  \
+    __sync_bool_compare_and_swap(&dispatch_vec_per_thread[current_thread_id], global_normal_bytecodes, global_monitored_bytecodes); \
+    __sync_synchronize();                                               \
   } while (0)
+
+#define SET_EXCEPT_FLAG_FOR_SIGNAL_FOR_THREAD(x, thread_id)             \
+  do {                                                                  \
+    __sync_bool_compare_and_swap(&dispatch_vec_per_thread[thread_id], global_normal_bytecodes, global_monitored_bytecodes); \
+    __sync_synchronize();                                               \
+  } while (0)
+
+#define SET_EXCEPT_FLAG(x)                                              \
+  do {                                                                  \
+    pthread_mutex_lock(&dispatch_vec_mutex);                            \
+    atomic_store(&dispatch_vec_per_thread[current_thread_id], (x) ? global_monitored_bytecodes : global_normal_bytecodes); \
+    __sync_synchronize();                                               \
+    pthread_mutex_unlock(&dispatch_vec_mutex);                          \
+  } while (0)
+
+#define SET_EXCEPT_FLAG_FOR_THREAD(x, thread_id)                        \
+  do {                                                                  \
+    atomic_store(&dispatch_vec_per_thread[(thread_id)], (x) ? global_monitored_bytecodes : global_normal_bytecodes); \
+    __sync_synchronize();                                               \
+  } while (0)
+
+void set_except_flag_for_thread(mst_Boolean reset, size_t thread_id) {
+  SET_EXCEPT_FLAG_FOR_THREAD(reset, thread_id);
+}
+
 
 /* Answer an hash value for a send of the SENDSELECTOR message, when
    the CompiledMethod is found in class METHODCLASS.  */
@@ -624,9 +674,9 @@ static void *const *dispatch_vec;
 /* CHUNK points to an item of CHUNKS.  CUR_CHUNK_BEGIN is equal
    to *CHUNK (i.e. points to the base of the current chunk) and
    CUR_CHUNK_END is equal to CUR_CHUNK_BEGIN + CHUNK_SIZE.  */
-static gst_context_part cur_chunk_begin = NULL, cur_chunk_end = NULL;
-static gst_context_part chunks[MAX_CHUNKS_IN_MEMORY] CACHELINE_ALIGNED;
-static gst_context_part *chunk = chunks - 1;
+static gst_context_part cur_chunk_begin[100] = { NULL }, cur_chunk_end[100] = { NULL };
+static gst_context_part chunks[100][MAX_CHUNKS_IN_MEMORY] CACHELINE_ALIGNED;
+static gst_context_part *chunk[100];
 
 /* These are used for OOP's allocated in a LIFO manner.  A context is
    kept on this stack as long as it generates only clean blocks, as
@@ -634,8 +684,8 @@ static gst_context_part *chunk = chunks - 1;
    and as long as no context switches happen since the time the
    process was created.  FREE_LIFO_CONTEXT points to just after the
    top of the stack.  */
-static struct oop_s lifo_contexts[MAX_LIFO_DEPTH] CACHELINE_ALIGNED;
-static OOP free_lifo_context = lifo_contexts;
+static struct oop_s lifo_contexts[100][MAX_LIFO_DEPTH] CACHELINE_ALIGNED;
+static OOP free_lifo_context[100];
 
 /* Include `plug-in' modules for the appropriate interpreter.
 
@@ -657,15 +707,23 @@ static OOP free_lifo_context = lifo_contexts;
 
 #include "interp-bc.inl"
 
+static void _gst_empty_context_pool_for_thread(size_t thread_id);
+
 void _gst_empty_context_pool(void) {
-  if (*chunks) {
-    chunk = chunks;
-    cur_chunk_begin = *chunk;
-    cur_chunk_end = (gst_context_part)(((char *)cur_chunk_begin) +
-                                       SIZE_TO_BYTES(CHUNK_SIZE));
+  for (size_t i = 0; i < atomic_load(&_gst_interpret_thread_counter); i++) {
+    _gst_empty_context_pool_for_thread(i);
+  }
+}
+
+void _gst_empty_context_pool_for_thread(size_t thread_id) {
+  if (*chunks[thread_id]) {
+    chunk[thread_id] = chunks[thread_id];
+    cur_chunk_begin[thread_id] = *chunk[thread_id];
+    cur_chunk_end[thread_id] = (gst_context_part)(((char *)cur_chunk_begin[thread_id]) +
+                                                          SIZE_TO_BYTES(CHUNK_SIZE));
   } else {
-    chunk = chunks - 1;
-    cur_chunk_begin = cur_chunk_end = NULL;
+    chunk[thread_id] = chunks[thread_id] - 1;
+    cur_chunk_begin[thread_id] = cur_chunk_end[thread_id] = NULL;
   }
 }
 
@@ -675,9 +733,9 @@ void empty_context_stack(void) {
 
   /* printf("[[[[ Gosh, not lifo anymore! (free = %p, base = %p)\n",
      free_lifo_context, lifo_contexts); */
-  if COMMON (free_lifo_context != lifo_contexts)
-    for (free_lifo_context = contextOOP = lifo_contexts,
-        last = _gst_this_context_oop, context = OOP_TO_OBJ(contextOOP);
+  if COMMON (free_lifo_context[current_thread_id] != lifo_contexts[current_thread_id])
+    for (free_lifo_context[current_thread_id] = contextOOP = lifo_contexts[current_thread_id],
+        last = _gst_this_context_oop[current_thread_id], context = OOP_TO_OBJ(contextOOP);
          ;) {
       oop =
           alloc_oop(context, OOP_GET_FLAGS(contextOOP) | _gst_mem.active_flag);
@@ -698,7 +756,7 @@ void empty_context_stack(void) {
       /* The last context is not referenced anywhere, so we're done
          with it.  */
       if (contextOOP++ == last) {
-        _gst_this_context_oop = oop;
+        _gst_this_context_oop[current_thread_id] = oop;
         break;
       }
 
@@ -707,20 +765,83 @@ void empty_context_stack(void) {
       OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT(context, oop);
     }
   else {
-    if (IS_NIL(_gst_this_context_oop))
+    if (IS_NIL(_gst_this_context_oop[current_thread_id]))
       return;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop);
+    context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
   }
 
   /* When a context gets out of the context stack it must be a fully
      formed Smalltalk object.  These fields were left uninitialized in
      _gst_send_message_internal and send_block_value -- set them here.  */
-  OBJ_METHOD_CONTEXT_SET_METHOD(context, _gst_this_method);
-  OBJ_METHOD_CONTEXT_SET_RECEIVER(context, _gst_self);
+  OBJ_METHOD_CONTEXT_SET_METHOD(context, _gst_this_method[current_thread_id]);
+  OBJ_METHOD_CONTEXT_SET_RECEIVER(context, _gst_self[current_thread_id]);
   OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
-      context, FROM_INT(sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)));
-  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(context, FROM_INT(ip - method_base));
+      context, FROM_INT(sp[current_thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)));
+  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(context, FROM_INT(ip[current_thread_id] - method_base[current_thread_id]));
+
+  /* Even if the JIT is active, the current context might have no
+     attached native_ip -- in fact it has one only if we are being
+     called from activate_new_context -- so we have to `invent'
+     one. We test for a valid native_ip first, though; this test must
+     have no false positives, i.e. it won't ever overwrite a valid
+     native_ip, and won't leave a bogus OOP for the native_ip.  */
+  if (!IS_INT(OBJ_METHOD_CONTEXT_NATIVE_IP(context)))
+    OBJ_METHOD_CONTEXT_SET_NATIVE_IP(context, DUMMY_NATIVE_IP);
+}
+
+void empty_context_stack_for_thread(size_t thread_id) {
+  OOP contextOOP, last, oop;
+  gst_object context;
+
+  /* printf("[[[[ Gosh, not lifo anymore! (free = %p, base = %p)\n",
+     free_lifo_context, lifo_contexts); */
+  if COMMON (free_lifo_context[thread_id] != lifo_contexts[thread_id])
+    for (free_lifo_context[thread_id] = contextOOP = lifo_contexts[thread_id],
+        last = _gst_this_context_oop[thread_id], context = OOP_TO_OBJ(contextOOP);
+         ;) {
+      oop =
+          alloc_oop(context, OOP_GET_FLAGS(contextOOP) | _gst_mem.active_flag);
+
+      /* Fill the object's uninitialized fields. */
+      OBJ_SET_CLASS(context, (intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) &
+                                     MCF_IS_METHOD_CONTEXT
+                                 ? _gst_method_context_class
+                                 : _gst_block_context_class);
+
+      /* This field is unused without the JIT compiler, but it must
+         be initialized when a context becomes a fully formed
+         Smalltalk object.  We do that here.  Note that we need the
+         field so that the same image is usable with or without the
+         JIT compiler.  */
+      OBJ_METHOD_CONTEXT_SET_NATIVE_IP(context, DUMMY_NATIVE_IP);
+
+      /* The last context is not referenced anywhere, so we're done
+         with it.  */
+      if (contextOOP++ == last) {
+        _gst_this_context_oop[thread_id] = oop;
+        break;
+      }
+
+      /* Else we redirect its sender field to the main OOP table */
+      context = OOP_TO_OBJ(contextOOP);
+      OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT(context, oop);
+    }
+  else {
+    if (IS_NIL(_gst_this_context_oop[thread_id]))
+      return;
+
+    context = OOP_TO_OBJ(_gst_this_context_oop[thread_id]);
+  }
+
+  /* When a context gets out of the context stack it must be a fully
+     formed Smalltalk object.  These fields were left uninitialized in
+     _gst_send_message_internal and send_block_value -- set them here.  */
+  OBJ_METHOD_CONTEXT_SET_METHOD(context, _gst_this_method[thread_id]);
+  OBJ_METHOD_CONTEXT_SET_RECEIVER(context, _gst_self[thread_id]);
+  OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
+      context, FROM_INT(sp[thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)));
+  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(context, FROM_INT(ip[thread_id] - method_base[thread_id]));
 
   /* Even if the JIT is active, the current context might have no
      attached native_ip -- in fact it has one only if we are being
@@ -733,10 +854,18 @@ void empty_context_stack(void) {
 }
 
 void alloc_new_chunk(void) {
-  if UNCOMMON (++chunk >= &chunks[MAX_CHUNKS_IN_MEMORY]) {
+  if UNCOMMON (++chunk[current_thread_id] >= &chunks[current_thread_id][MAX_CHUNKS_IN_MEMORY]) {
     /* No more chunks available - GC */
-    _gst_scavenge();
-    return;
+
+      _gst_vm_global_barrier_wait();
+
+      set_except_flag_for_thread(false, current_thread_id);
+
+     _gst_scavenge();
+
+     _gst_vm_end_barrier_wait();
+
+      return;
   }
 
   empty_context_stack();
@@ -744,12 +873,12 @@ void alloc_new_chunk(void) {
   /* Allocate memory only the first time we're using the chunk.
      _gst_empty_context_pool resets the status but doesn't free
      the memory.  */
-  if UNCOMMON (!*chunk)
-    *chunk = (gst_context_part)xcalloc(1, SIZE_TO_BYTES(CHUNK_SIZE));
+  if UNCOMMON (!*chunk[current_thread_id])
+    *chunk[current_thread_id] = (gst_context_part)xcalloc(1, SIZE_TO_BYTES(CHUNK_SIZE));
 
-  cur_chunk_begin = *chunk;
-  cur_chunk_end =
-      (gst_context_part)(((char *)cur_chunk_begin) + SIZE_TO_BYTES(CHUNK_SIZE));
+  cur_chunk_begin[current_thread_id] = *chunk[current_thread_id];
+  cur_chunk_end[current_thread_id] =
+      (gst_context_part)(((char *)cur_chunk_begin[current_thread_id]) + SIZE_TO_BYTES(CHUNK_SIZE));
 }
 
 gst_object alloc_stack_context(int size) {
@@ -757,9 +886,9 @@ gst_object alloc_stack_context(int size) {
 
   size = CTX_SIZE(size);
   for (;;) {
-    newContext = (gst_object)cur_chunk_begin;
-    cur_chunk_begin += size;
-    if COMMON (cur_chunk_begin < cur_chunk_end) {
+    newContext = (gst_object)cur_chunk_begin[current_thread_id];
+    cur_chunk_begin[current_thread_id] += size;
+    if COMMON (cur_chunk_begin[current_thread_id] < cur_chunk_end[current_thread_id]) {
       OBJ_SET_SIZE(newContext, FROM_INT(size));
       OBJ_SET_IDENTITY (newContext, FROM_INT(0));
       return (newContext);
@@ -776,7 +905,7 @@ gst_object activate_new_context(int size, int sendArgs) {
   gst_object thisContext;
 
 #ifndef OPTIMIZE
-  if (IS_NIL(_gst_this_context_oop)) {
+  if (IS_NIL(_gst_this_context_oop[current_thread_id])) {
     printf("Somebody forgot _gst_prepare_execution_environment!\n");
     abort();
   }
@@ -786,51 +915,51 @@ gst_object activate_new_context(int size, int sendArgs) {
      contain all of the contexts in a chunk, and we empty lifo_contexts
      when we exhaust a chunk.  So we can get the oop the easy way.  */
   newContext = alloc_stack_context(size);
-  oop = free_lifo_context++;
+  oop = free_lifo_context[current_thread_id]++;
 
   /* printf("[[[[ Context (size %d) allocated at %p (oop = %p)\n",
      size, newContext, oop); */
   OOP_SET_OBJECT(oop, newContext);
 
-  OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT(newContext, _gst_this_context_oop);
+  OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT(newContext, _gst_this_context_oop[current_thread_id]);
 
   /* save old context information */
   /* leave sp pointing to receiver, which is replaced on return with
      value */
-  thisContext = OOP_TO_OBJ(_gst_this_context_oop);
-  OBJ_METHOD_CONTEXT_SET_METHOD(thisContext, _gst_this_method);
-  OBJ_METHOD_CONTEXT_SET_RECEIVER(thisContext, _gst_self);
+  thisContext = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
+  OBJ_METHOD_CONTEXT_SET_METHOD(thisContext, _gst_this_method[current_thread_id]);
+  OBJ_METHOD_CONTEXT_SET_RECEIVER(thisContext, _gst_self[current_thread_id]);
   OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
       thisContext,
-      FROM_INT((sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext)) -
+      FROM_INT((sp[current_thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext)) -
                sendArgs));
-  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(thisContext, FROM_INT(ip - method_base));
+  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(thisContext, FROM_INT(ip[current_thread_id] - method_base[current_thread_id]));
 
-  _gst_this_context_oop = oop;
+  _gst_this_context_oop[current_thread_id] = oop;
 
   return (newContext);
 }
 
 void dealloc_stack_context(gst_context_part context) {
 #ifndef OPTIMIZE
-  if (free_lifo_context == lifo_contexts ||
-      (OOP_TO_OBJ(free_lifo_context - 1) != (gst_object)context)) {
+  if (free_lifo_context[current_thread_id] == lifo_contexts[current_thread_id] ||
+      (OOP_TO_OBJ(free_lifo_context[current_thread_id] - 1) != (gst_object)context)) {
     _gst_errorf("Deallocating a non-LIFO context!!!");
     abort();
   }
 #endif
 
-  cur_chunk_begin = context;
-  free_lifo_context--;
+  cur_chunk_begin[current_thread_id] = context;
+  free_lifo_context[current_thread_id]--;
 }
 
 void prepare_context(gst_context_part context, int args, int temps) {
   REGISTER(1, OOP * stackBase);
-  _gst_temporaries = stackBase =
+  _gst_temporaries[current_thread_id] = stackBase =
       OBJ_METHOD_CONTEXT_CONTEXT_STACK((gst_object)context);
   if (args) {
     REGISTER(2, OOP * src);
-    src = &sp[1 - args];
+    src = &sp[current_thread_id][1 - args];
     stackBase[0] = src[0];
     if (args > 1) {
       stackBase[1] = src[1];
@@ -857,7 +986,7 @@ void prepare_context(gst_context_part context, int args, int temps) {
     }
     stackBase += temps;
   }
-  sp = stackBase - 1;
+  sp[current_thread_id] = stackBase - 1;
 }
 
 mst_Boolean _gst_send_cannot_interpret_message(OOP sendSelector, method_cache_entry *methodData,
@@ -968,7 +1097,7 @@ void unwind_context(void) {
   gst_object oldContext, newContext;
   OOP newContextOOP;
 
-  newContextOOP = _gst_this_context_oop;
+  newContextOOP = _gst_this_context_oop[current_thread_id];
   newContext = OOP_TO_OBJ(newContextOOP);
 
   do {
@@ -977,7 +1106,7 @@ void unwind_context(void) {
     /* Descend in the chain...  */
     newContextOOP = OBJ_METHOD_CONTEXT_PARENT_CONTEXT(oldContext);
 
-    if COMMON (free_lifo_context > lifo_contexts)
+    if COMMON (free_lifo_context[current_thread_id] > lifo_contexts[current_thread_id])
       dealloc_stack_context((gst_context_part)oldContext);
 
     /* This context cannot be deallocated in a LIFO way.  We must
@@ -1011,11 +1140,11 @@ void unwind_context(void) {
       newContext, (OOP)((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(newContext) &
                         (~(MCF_IS_DISABLED_CONTEXT | MCF_IS_UNWIND_CONTEXT))));
 
-  _gst_this_context_oop = newContextOOP;
-  _gst_temporaries = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext);
-  sp = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext) +
+  _gst_this_context_oop[current_thread_id] = newContextOOP;
+  _gst_temporaries[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext);
+  sp[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext) +
        TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(newContext));
-  _gst_self = OBJ_METHOD_CONTEXT_RECEIVER(newContext);
+  _gst_self[current_thread_id] = OBJ_METHOD_CONTEXT_RECEIVER(newContext);
 
   SET_THIS_METHOD(OBJ_METHOD_CONTEXT_METHOD(newContext),
                   GET_CONTEXT_IP(newContext));
@@ -1031,7 +1160,7 @@ mst_Boolean unwind_method(void) {
      levels of message sending are between where we currently are and
      our parent method context.  */
 
-  newBlockContext = OOP_TO_OBJ(_gst_this_context_oop);
+  newBlockContext = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
   do {
     newContextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(newBlockContext);
     newBlockContext = OOP_TO_OBJ(newContextOOP);
@@ -1043,7 +1172,7 @@ mst_Boolean unwind_method(void) {
     /* We are to create a reference to thisContext, so empty the
        stack.  */
     empty_context_stack();
-    oldContextOOP = _gst_this_context_oop;
+    oldContextOOP = _gst_this_context_oop[current_thread_id];
 
     /* Just unwind to the caller, and prepare to send a message to
        the context */
@@ -1062,7 +1191,7 @@ mst_Boolean unwind_to(OOP returnContextOOP) {
 
   empty_context_stack();
 
-  newContextOOP = _gst_this_context_oop;
+  newContextOOP = _gst_this_context_oop[current_thread_id];
   newContext = OOP_TO_OBJ(newContextOOP);
 
   while (newContextOOP != returnContextOOP) {
@@ -1077,7 +1206,7 @@ mst_Boolean unwind_to(OOP returnContextOOP) {
     if UNCOMMON ((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(newContext) &
                  MCF_IS_UNWIND_CONTEXT) {
       mst_Boolean result;
-      _gst_this_context_oop = oldContextOOP;
+      _gst_this_context_oop[current_thread_id] = oldContextOOP;
 
       /* _gst_this_context_oop is the context above the
          one we return to.   We only unwind up to the #ensure:
@@ -1115,11 +1244,11 @@ mst_Boolean unwind_to(OOP returnContextOOP) {
       newContext, (OOP)(((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(newContext)) &
                         (~(MCF_IS_DISABLED_CONTEXT | MCF_IS_UNWIND_CONTEXT))));
 
-  _gst_this_context_oop = newContextOOP;
-  _gst_temporaries = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext);
-  sp = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext) +
+  _gst_this_context_oop[current_thread_id] = newContextOOP;
+  _gst_temporaries[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext);
+  sp[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext) +
        TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(newContext));
-  _gst_self = OBJ_METHOD_CONTEXT_RECEIVER(newContext);
+  _gst_self[current_thread_id] = OBJ_METHOD_CONTEXT_RECEIVER(newContext);
 
   SET_THIS_METHOD(OBJ_METHOD_CONTEXT_METHOD(newContext),
                   GET_CONTEXT_IP(newContext));
@@ -1130,7 +1259,7 @@ mst_Boolean disable_non_unwind_contexts(OOP returnContextOOP) {
   OOP newContextOOP, *chain;
   gst_object oldContext, newContext;
 
-  newContextOOP = _gst_this_context_oop;
+  newContextOOP = _gst_this_context_oop[current_thread_id];
   newContext = OOP_TO_OBJ(newContextOOP);
   chain = &OBJ_METHOD_CONTEXT_PARENT_CONTEXT(newContext);
 
@@ -1214,12 +1343,12 @@ OOP _gst_make_block_closure(OOP blockOOP) {
 
   if (block->header.clean > 1) {
     empty_context_stack();
-    closure->outerContext = _gst_this_context_oop;
+    closure->outerContext = _gst_this_context_oop[current_thread_id];
   } else
     closure->outerContext = _gst_nil_oop;
 
   closure->block = blockOOP;
-  closure->receiver = _gst_self;
+  closure->receiver = _gst_self[current_thread_id];
   return (closureOOP);
 }
 
@@ -1229,10 +1358,10 @@ void change_process_context(OOP newProcess) {
   gst_object processor;
   mst_Boolean enable_async_queue;
 
-  switch_to_process = _gst_nil_oop;
+  switch_to_process[current_thread_id] = _gst_nil_oop;
 
   /* save old context information */
-  if (!IS_NIL(_gst_this_context_oop)) {
+  if (!IS_NIL(_gst_this_context_oop[current_thread_id])) {
     empty_context_stack();
   }
 
@@ -1240,13 +1369,13 @@ void change_process_context(OOP newProcess) {
     ((gst_process) OOP_TO_OBJ (newProcess))->name,
     ((gst_process) OOP_TO_OBJ (newProcess))->priority); */
 
-  processor = OOP_TO_OBJ(_gst_processor_oop);
+  processor = OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
   processOOP = OBJ_PROCESSOR_SCHEDULER_GET_ACTIVE_PROCESS(processor);
   if (processOOP != newProcess) {
     process = OOP_TO_OBJ(processOOP);
 
     if (!IS_NIL(processOOP) && !is_process_terminating(processOOP))
-      OBJ_PROCESS_SET_SUSPENDED_CONTEXT(process, _gst_this_context_oop);
+      OBJ_PROCESS_SET_SUSPENDED_CONTEXT(process, _gst_this_context_oop[current_thread_id]);
 
     OBJ_PROCESSOR_SCHEDULER_SET_ACTIVE_PROCESS(processor, newProcess);
     process = OOP_TO_OBJ(newProcess);
@@ -1270,27 +1399,27 @@ void change_process_context(OOP newProcess) {
          section has terminated (see RecursionLock>>#critical: for an
          example).  */
 
-    async_queue_enabled = enable_async_queue;
+    async_queue_enabled[current_thread_id] = enable_async_queue;
   }
 }
 
 void resume_suspended_context(OOP oop) {
   gst_object thisContext;
 
-  _gst_this_context_oop = oop;
+  _gst_this_context_oop[current_thread_id] = oop;
   thisContext = OOP_TO_OBJ(oop);
-  sp = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext) +
+  sp[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext) +
        TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(thisContext));
   SET_THIS_METHOD(OBJ_METHOD_CONTEXT_METHOD(thisContext),
                   GET_CONTEXT_IP(thisContext));
-  _gst_temporaries = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
-  _gst_self = OBJ_METHOD_CONTEXT_RECEIVER(thisContext);
-  free_lifo_context = lifo_contexts;
+  _gst_temporaries[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
+  _gst_self[current_thread_id] = OBJ_METHOD_CONTEXT_RECEIVER(thisContext);
+  free_lifo_context[current_thread_id] = lifo_contexts[current_thread_id];
 }
 
 OOP get_active_process(void) {
-  if (!IS_NIL(switch_to_process))
-    return (switch_to_process);
+  if (!IS_NIL(switch_to_process[current_thread_id]))
+    return (switch_to_process[current_thread_id]);
   else
     return (get_scheduled_process());
 }
@@ -1298,7 +1427,7 @@ OOP get_active_process(void) {
 OOP get_scheduled_process(void) {
   gst_object processor;
 
-  processor = OOP_TO_OBJ(_gst_processor_oop);
+  processor = OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
 
   return (OBJ_PROCESSOR_SCHEDULER_GET_ACTIVE_PROCESS(processor));
 }
@@ -1422,7 +1551,6 @@ mst_Boolean _gst_sync_signal(OOP semaphoreOOP, mst_Boolean incr_if_empty) {
 
   sem = OOP_TO_OBJ(semaphoreOOP);
   do {
-    /* printf ("signal %O %O\n", semaphoreOOP, sem->firstLink); */
     if (is_empty(semaphoreOOP)) {
       if (incr_if_empty)
         OBJ_SEMAPHORE_SET_SIGNALS(sem,
@@ -1464,10 +1592,10 @@ void _gst_async_call_internal(async_queue_entry *e) {
      already in the list.  Checking that atomically with CAS is the
      simplest way.  */
   do
-    if (__sync_val_compare_and_swap(&e->next, NULL, queued_async_signals_sig))
+    if (__sync_val_compare_and_swap(&e->next, NULL, queued_async_signals_sig[0]))
       return;
-  while (!__sync_bool_compare_and_swap(&queued_async_signals_sig, e->next, e));
-  SET_EXCEPT_FLAG(true);
+  while (!__sync_bool_compare_and_swap(&queued_async_signals_sig[0], e->next, e));
+  SET_EXCEPT_FLAG_FOR_SIGNAL_FOR_THREAD(true, 0);
 }
 
 void _gst_async_call(void (*func)(OOP), OOP arg) {
@@ -1478,15 +1606,15 @@ void _gst_async_call(void (*func)(OOP), OOP arg) {
   sig->data = arg;
 
   do
-    sig->next = queued_async_signals;
-  while (!__sync_bool_compare_and_swap(&queued_async_signals, sig->next, sig));
+    sig->next = queued_async_signals[0];
+  while (!__sync_bool_compare_and_swap(&queued_async_signals[0], sig->next, sig));
   _gst_wakeup();
-  SET_EXCEPT_FLAG(true);
+  SET_EXCEPT_FLAG_FOR_THREAD(true, 0);
 }
 
 mst_Boolean _gst_have_pending_async_calls() {
-  return (queued_async_signals != &queued_async_signals_tail ||
-          queued_async_signals_sig != &queued_async_signals_tail);
+  return (queued_async_signals[current_thread_id] != &queued_async_signals_tail[current_thread_id] ||
+          queued_async_signals_sig[current_thread_id] != &queued_async_signals_tail[current_thread_id]);
 }
 
 void empty_async_queue() {
@@ -1495,9 +1623,9 @@ void empty_async_queue() {
   /* Process a batch of asynchronous requests.  These are pushed
      in LIFO order by _gst_async_call.  By reversing the list
      in place before walking it, we get FIFO order.  */
-  sig = __sync_swap(&queued_async_signals, &queued_async_signals_tail);
-  sig_reversed = &queued_async_signals_tail;
-  while (sig != &queued_async_signals_tail) {
+  sig = __sync_swap(&queued_async_signals[current_thread_id], &queued_async_signals_tail[current_thread_id]);
+  sig_reversed = &queued_async_signals_tail[current_thread_id];
+  while (sig != &queued_async_signals_tail[current_thread_id]) {
     async_queue_entry *next = sig->next;
     sig->next = sig_reversed;
     sig_reversed = sig;
@@ -1505,7 +1633,7 @@ void empty_async_queue() {
   }
 
   sig = sig_reversed;
-  while (sig != &queued_async_signals_tail) {
+  while (sig != &queued_async_signals_tail[current_thread_id]) {
     async_queue_entry *next = sig->next;
     sig->func(sig->data);
     free(sig);
@@ -1515,9 +1643,9 @@ void empty_async_queue() {
   /* For async-signal-safe processing, we need to avoid entering
      the same item twice into the list.  So we use NEXT to mark
      items that have been added...  */
-  sig = __sync_swap(&queued_async_signals_sig, &queued_async_signals_tail);
-  sig_reversed = &queued_async_signals_tail;
-  while (sig != &queued_async_signals_tail) {
+  sig = __sync_swap(&queued_async_signals_sig[current_thread_id], &queued_async_signals_tail[current_thread_id]);
+  sig_reversed = &queued_async_signals_tail[current_thread_id];
+  while (sig != &queued_async_signals_tail[current_thread_id]) {
     async_queue_entry *next = sig->next;
     sig->next = sig_reversed;
     sig_reversed = sig;
@@ -1525,7 +1653,7 @@ void empty_async_queue() {
   }
 
   sig = sig_reversed;
-  while (sig != &queued_async_signals_tail) {
+  while (sig != &queued_async_signals_tail[current_thread_id]) {
     async_queue_entry *next = sig->next;
     void (*func)(OOP) = sig->func;
     OOP data = sig->data;
@@ -1681,7 +1809,7 @@ OOP activate_process(OOP processOOP) {
   }
 
   SET_EXCEPT_FLAG(true);
-  switch_to_process = processOOP;
+  switch_to_process[current_thread_id] = processOOP;
   return processOOP;
 }
 
@@ -1737,7 +1865,7 @@ mst_Boolean would_reschedule_process() {
   gst_object process;
   gst_object processList;
 
-  if (!IS_NIL(switch_to_process))
+  if (!IS_NIL(switch_to_process[current_thread_id]))
     return false;
 
   processOOP = get_scheduled_process();
@@ -1804,7 +1932,7 @@ OOP next_scheduled_process(void) {
   if (is_process_ready(get_scheduled_process()))
     return (_gst_nil_oop);
 
-  processor = OOP_TO_OBJ(_gst_processor_oop);
+  processor = OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
   OBJ_PROCESSOR_SCHEDULER_SET_ACTIVE_PROCESS(processor, _gst_nil_oop);
 
   return (_gst_nil_oop);
@@ -1869,9 +1997,9 @@ void _gst_print_process_state(void) {
   processOOP = get_scheduled_process();
   process = OOP_TO_OBJ(processOOP);
   if (processOOP == _gst_nil_oop)
-    printf("No active process\n");
+    fprintf(stderr, "No active process\n");
   else
-    printf("Active process: <Proc %p prio: %td next %p context %p>\n",
+    fprintf(stderr, "Active process: <Proc %p prio: %td next %p context %p>\n",
            processOOP, TO_INT(OBJ_PROCESS_GET_PRIORITY(process)), OBJ_PROCESS_GET_NEXT_LINK(process),
            OBJ_PROCESS_GET_SUSPENDED_CONTEXT(process));
 
@@ -1882,19 +2010,21 @@ void _gst_print_process_state(void) {
     if (IS_NIL(OBJ_SEMAPHORE_GET_FIRST_LINK(processList)))
       continue;
 
-    printf("  Priority %d: First %p last %p ", priority,
+    fprintf(stderr, "  Priority %d: First %p last %p ", priority,
            OBJ_SEMAPHORE_GET_FIRST_LINK(processList),
            OBJ_SEMAPHORE_GET_LAST_LINK(processList));
 
     for (processOOP = OBJ_SEMAPHORE_GET_FIRST_LINK(processList);
          !IS_NIL(processOOP); processOOP = OBJ_PROCESS_GET_NEXT_LINK(process)) {
       process = OOP_TO_OBJ(processOOP);
-      printf("\n    <Proc %p prio: %td context %p> ", processOOP,
+      fprintf(stderr, "\n    <Proc %p prio: %td context %p> ", processOOP,
              TO_INT(OBJ_PROCESS_GET_PRIORITY(process)), OBJ_PROCESS_GET_SUSPENDED_CONTEXT(process));
     }
 
-    printf("\n");
+    fprintf(stderr, "\n");
   }
+
+  fflush(stderr);
 }
 
 OOP semaphore_new(int signals) {
@@ -1911,7 +2041,7 @@ void _gst_init_process_system(void) {
   gst_object processor;
   int i;
 
-  processor = OOP_TO_OBJ(_gst_processor_oop);
+  processor = OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
   if (IS_NIL(OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_LISTS(processor))) {
     gst_object processLists;
 
@@ -1928,7 +2058,7 @@ void _gst_init_process_system(void) {
   /* No process is active -- so highest_priority_process() need not
      worry about discarding an active process.  */
   OBJ_PROCESSOR_SCHEDULER_SET_ACTIVE_PROCESS(processor, _gst_nil_oop);
-  switch_to_process = _gst_nil_oop;
+  switch_to_process[current_thread_id] = _gst_nil_oop;
   activate_process(highest_priority_process());
   set_preemption_timer();
 }
@@ -1940,7 +2070,7 @@ OOP create_callin_process(OOP contextOOP) {
   OOP initialProcessOOP, initialProcessListOOP, nameOOP;
   inc_ptr inc = INC_SAVE_POINTER();
 
-  processor = OOP_TO_OBJ(_gst_processor_oop);
+  processor = OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
   processListsOOP = OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_LISTS(processor);
   initialProcessListOOP = ARRAY_AT(processListsOOP, 4);
 
@@ -2028,17 +2158,27 @@ void _gst_init_interpreter(void) {
 
 #ifdef ENABLE_JIT_TRANSLATION
   _gst_init_translator();
-  ip = 0;
+  ip[current_thread_id] = 0;
 #else
-  ip = NULL;
+  ip[current_thread_id] = NULL;
 #endif
 
-  _gst_this_context_oop = _gst_nil_oop;
+  _gst_this_context_oop[current_thread_id] = _gst_nil_oop;
   for (i = 0; i < MAX_LIFO_DEPTH; i++)
-    lifo_contexts[i].flags = F_POOLED | F_CONTEXT;
+    lifo_contexts[current_thread_id][i].flags = F_POOLED | F_CONTEXT;
 
   _gst_init_async_events();
   _gst_init_process_system();
+}
+
+void _gst_init_context(void) {
+
+  chunk[current_thread_id] = chunks[current_thread_id] - 1;
+  free_lifo_context[current_thread_id] = lifo_contexts[current_thread_id];
+
+  for (size_t i = 0; i < MAX_LIFO_DEPTH; i++) {
+    lifo_contexts[current_thread_id][i].flags = F_POOLED | F_CONTEXT;
+  }
 }
 
 OOP _gst_prepare_execution_environment(void) {
@@ -2120,8 +2260,8 @@ OOP _gst_nvmsg_send(OOP receiver, OOP sendSelector, OOP *args, int sendArgs) {
   if (reentrancy_jmp_buf && !--reentrancy_jmp_buf->suspended &&
       !is_process_terminating(reentrancy_jmp_buf->processOOP)) {
     resume_process(reentrancy_jmp_buf->processOOP, true);
-    if (!IS_NIL(switch_to_process))
-      change_process_context(switch_to_process);
+    if (!IS_NIL(switch_to_process[current_thread_id]))
+      change_process_context(switch_to_process[current_thread_id]);
   }
 
   INC_RESTORE_POINTER(inc);
@@ -2133,7 +2273,7 @@ void set_preemption_timer(void) {
   gst_processor_scheduler processor;
   int timeSlice;
 
-  processor = (gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop);
+  processor = (gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
   timeSlice = TO_INT(processor->processTimeslice);
 
   time_to_preempt = false;
@@ -2167,10 +2307,11 @@ void _gst_invalidate_method_cache(void) {
 void _gst_copy_processor_registers(void) {
   copy_semaphore_oops();
 
-  /* Get everything into the main OOP table first.  */
-  if (_gst_this_context_oop)
-    MAYBE_COPY_OOP(_gst_this_context_oop);
-
+  for (size_t i = 0; i < _gst_interpret_thread_counter; i++) {
+    /* Get everything into the main OOP table first.  */
+    if (_gst_this_context_oop[i])
+      MAYBE_COPY_OOP(_gst_this_context_oop[i]);
+  }
   /* everything else is pointed to by _gst_this_context_oop, either
      directly or indirectly, or has been copyed when scanning the
      registered roots.  */
@@ -2179,10 +2320,10 @@ void _gst_copy_processor_registers(void) {
 void copy_semaphore_oops(void) {
   async_queue_entry *sig;
 
-  for (sig = queued_async_signals; sig != &queued_async_signals_tail;
+  for (sig = queued_async_signals[current_thread_id]; sig != &queued_async_signals_tail[current_thread_id];
        sig = sig->next)
     MAYBE_COPY_OOP(sig->data);
-  for (sig = queued_async_signals_sig; sig != &queued_async_signals_tail;
+  for (sig = queued_async_signals_sig[current_thread_id]; sig != &queued_async_signals_tail[current_thread_id];
        sig = sig->next)
     MAYBE_COPY_OOP(sig->data);
 
@@ -2190,14 +2331,16 @@ void copy_semaphore_oops(void) {
   if (single_step_semaphore)
     MAYBE_COPY_OOP(single_step_semaphore);
 
-  /* there does seem to be a window where this is not valid */
-  MAYBE_COPY_OOP(switch_to_process);
+  for (size_t i = 0; i < _gst_interpret_thread_counter; i++) {
+    /* there does seem to be a window where this is not valid */
+    MAYBE_COPY_OOP(switch_to_process[current_thread_id]);
+  }
 }
 
 void _gst_mark_processor_registers(void) {
   mark_semaphore_oops();
-  if (_gst_this_context_oop)
-    MAYBE_MARK_OOP(_gst_this_context_oop);
+  if (_gst_this_context_oop[current_thread_id])
+    MAYBE_MARK_OOP(_gst_this_context_oop[current_thread_id]);
 
   /* everything else is pointed to by _gst_this_context_oop, either
      directly or indirectly, or has been marked when scanning the
@@ -2207,10 +2350,10 @@ void _gst_mark_processor_registers(void) {
 void mark_semaphore_oops(void) {
   async_queue_entry *sig;
 
-  for (sig = queued_async_signals; sig != &queued_async_signals_tail;
+  for (sig = queued_async_signals[current_thread_id]; sig != &queued_async_signals_tail[current_thread_id];
        sig = sig->next)
     MAYBE_MARK_OOP(sig->data);
-  for (sig = queued_async_signals_sig; sig != &queued_async_signals_tail;
+  for (sig = queued_async_signals_sig[current_thread_id]; sig != &queued_async_signals_tail[current_thread_id];
        sig = sig->next)
     MAYBE_MARK_OOP(sig->data);
 
@@ -2219,35 +2362,41 @@ void mark_semaphore_oops(void) {
     MAYBE_MARK_OOP(single_step_semaphore);
 
   /* there does seem to be a window where this is not valid */
-  MAYBE_MARK_OOP(switch_to_process);
+  MAYBE_MARK_OOP(switch_to_process[current_thread_id]);
 }
 
 void _gst_fixup_object_pointers(void) {
-  gst_object thisContext;
-
-  if (!IS_NIL(_gst_this_context_oop)) {
-    /* Create real OOPs for the contexts here.  If we do it while copying,
-       the newly created OOPs are in to-space and are never scanned! */
-    empty_context_stack();
-
-    thisContext = OOP_TO_OBJ(_gst_this_context_oop);
-#ifdef DEBUG_FIXUP
-    fflush(stderr);
-    printf("\nF sp %x %d    ip %x %d	_gst_this_method %x  thisContext %x",
-           sp, sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext), ip,
-           ip - method_base, _gst_this_method->object, thisContext);
-    fflush(stdout);
-#endif
-    OBJ_METHOD_CONTEXT_SET_METHOD(thisContext, _gst_this_method);
-    OBJ_METHOD_CONTEXT_SET_RECEIVER(thisContext, _gst_self);
-    OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
-        thisContext,
-        FROM_INT(sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext)));
-    OBJ_METHOD_CONTEXT_SET_IP_OFFSET(thisContext, FROM_INT(ip - method_base));
+  for (size_t i = 0; i < atomic_load(&_gst_interpret_thread_counter); i++) {
+    _gst_fixup_object_pointers_for_thread(i);
   }
 }
 
+void _gst_fixup_object_pointers_for_thread(size_t thread_id) {
+    gst_object thisContext;
+
+  if (!IS_NIL(_gst_this_context_oop[thread_id])) {
+    /* Create real OOPs for the contexts here.  If we do it while copying,
+       the newly created OOPs are in to-space and are never scanned! */
+    empty_context_stack_for_thread(thread_id);
+
+    thisContext = OOP_TO_OBJ(_gst_this_context_oop[thread_id]);
+    OBJ_METHOD_CONTEXT_SET_METHOD(thisContext, _gst_this_method[thread_id]);
+    OBJ_METHOD_CONTEXT_SET_RECEIVER(thisContext, _gst_self[thread_id]);
+    OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
+        thisContext,
+        FROM_INT(sp[thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext)));
+    OBJ_METHOD_CONTEXT_SET_IP_OFFSET(thisContext, FROM_INT(ip[thread_id] - method_base[thread_id]));
+  }
+
+}
+
 void _gst_restore_object_pointers(void) {
+  for (size_t i = 0; i < atomic_load(&_gst_interpret_thread_counter); i++) {
+    _gst_restore_object_pointers_for_thread(i);
+  }
+}
+
+void _gst_restore_object_pointers_for_thread(size_t thread_id) {
   gst_object thisContext;
 
   /* !!! The objects can move after the growing or compact phase. But,
@@ -2256,40 +2405,14 @@ void _gst_restore_object_pointers(void) {
      and we also pick up the context to adjust sp and the temps
      accordingly.  */
 
-  if (!IS_NIL(_gst_this_context_oop)) {
-    thisContext = OOP_TO_OBJ(_gst_this_context_oop);
-    _gst_temporaries = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
+  if (!IS_NIL(_gst_this_context_oop[thread_id])) {
+    thisContext = OOP_TO_OBJ(_gst_this_context_oop[thread_id]);
+    _gst_temporaries[thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
 
-#ifndef OPTIMIZE /* Mon Jul 3 01:21:06 1995 */
-    /* these should not be necessary */
-    if (_gst_this_method != OBJ_METHOD_CONTEXT_METHOD(thisContext)) {
-      printf("$$$$$$$$$$$$$$$$$$$ GOT ONE!!!!\n");
-      printf("this method %O\n", _gst_this_method);
-      printf("this context %O\n", OBJ_METHOD_CONTEXT_RECEIVER(thisContext));
-      abort();
-    }
-    if (_gst_self != OBJ_METHOD_CONTEXT_RECEIVER(thisContext)) {
-      printf("$$$$$$$$$$$$$$$$$$$ GOT ONE!!!!\n");
-      printf("self %O\n", _gst_self);
-      printf("this context %O\n", OBJ_METHOD_CONTEXT_RECEIVER(thisContext));
-      abort();
-    }
-#endif /* OPTIMIZE Mon Jul 3 01:21:06 1995 */
-
-    SET_THIS_METHOD(_gst_this_method, GET_CONTEXT_IP(thisContext));
-    sp = TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(thisContext)) +
+    SET_THIS_METHOD_FOR_THREAD(thread_id, _gst_this_method[thread_id], GET_CONTEXT_IP(thisContext));
+    sp[thread_id] = TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(thisContext)) +
          OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
-
-#ifdef DEBUG_FIXUP
-    fflush(stderr);
-    printf("\nR sp %x %d    ip %x %d	_gst_this_method %x  thisContext %x\n",
-           sp, sp - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext), ip,
-           ip - method_base, _gst_this_method->object, thisContext);
-    fflush(stdout);
-#endif
   }
-
-  SET_EXCEPT_FLAG(true); /* force to import registers */
 }
 
 static RETSIGTYPE interrupt_on_signal(int sig) {
@@ -2309,7 +2432,7 @@ static void backtrace_on_signal_1(mst_Boolean is_serious_error,
   reentering++;
 
   if ((reentrancy_jmp_buf && reentrancy_jmp_buf->interpreter) && !reentering &&
-      ip && !_gst_gc_running)
+      ip[current_thread_id] && !_gst_gc_running)
     _gst_show_backtrace(stderr);
   else {
     if (is_serious_error)
@@ -2366,7 +2489,7 @@ void _gst_show_backtrace(FILE *fp) {
   gst_method_info methodInfo;
 
   empty_context_stack();
-  for (contextOOP = _gst_this_context_oop; !IS_NIL(contextOOP);
+  for (contextOOP = _gst_this_context_oop[current_thread_id]; !IS_NIL(contextOOP);
        contextOOP = OBJ_METHOD_CONTEXT_PARENT_CONTEXT(context)) {
     context = OOP_TO_OBJ(contextOOP);
     if ((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) ==
@@ -2374,7 +2497,7 @@ void _gst_show_backtrace(FILE *fp) {
       continue;
 
     /* printf ("(OOP %p)", context->method); */
-    fprintf(fp, "(ip %d)", TO_INT(OBJ_METHOD_CONTEXT_IP_OFFSET(context)));
+    fprintf(fp, "(ip[current_thread_id] %d)", TO_INT(OBJ_METHOD_CONTEXT_IP_OFFSET(context)));
     if ((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) & MCF_IS_METHOD_CONTEXT) {
       OOP receiver, receiverClass;
 
@@ -2423,12 +2546,12 @@ void _gst_show_stack_contents(void) {
   OOP *walk;
   mst_Boolean first;
 
-  if (IS_NIL(_gst_this_context_oop))
+  if (IS_NIL(_gst_this_context_oop[current_thread_id]))
     return;
 
-  context = OOP_TO_OBJ(_gst_this_context_oop);
+  context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
   for (first = true, walk = OBJ_METHOD_CONTEXT_CONTEXT_STACK(context);
-       walk <= sp; first = false, walk++) {
+       walk <= sp[current_thread_id]; first = false, walk++) {
     if (!first)
       printf(", ");
 

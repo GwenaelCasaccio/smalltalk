@@ -140,6 +140,9 @@ static inline void maybe_release_xlat(OOP oop) {}
 static inline OOP alloc_oop(PTR objData, intptr_t flags) {
   REGISTER(1, OOP oop);
   REGISTER(2, OOP lastOOP);
+
+  pthread_mutex_lock(&alloc_oop_mutex);
+
   oop = _gst_mem.last_swept_oop + 1;
   lastOOP = _gst_mem.next_oop_to_sweep;
   if (COMMON(oop <= lastOOP)) {
@@ -172,5 +175,6 @@ static inline OOP alloc_oop(PTR objData, intptr_t flags) {
 
   OOP_SET_OBJECT(oop, (gst_object)objData);
   OOP_SET_FLAGS(oop, flags);
+  pthread_mutex_unlock(&alloc_oop_mutex);
   return (oop);
 }

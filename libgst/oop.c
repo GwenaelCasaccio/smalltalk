@@ -590,6 +590,10 @@ void _gst_swap_objects(OOP oop1, OOP oop2) {
   inc_ptr incPtr;
   OOP tempId;
 
+  _gst_vm_global_barrier_wait();
+
+  set_except_flag_for_thread(false, current_thread_id);
+
   incPtr = INC_SAVE_POINTER();
   INC_ADD_OOP(oop1);
   INC_ADD_OOP(oop2);
@@ -630,13 +634,24 @@ void _gst_swap_objects(OOP oop1, OOP oop2) {
     _gst_make_oop_weak(oop1);
 
   INC_RESTORE_POINTER(incPtr);
+
+  _gst_vm_end_barrier_wait();
 }
 
 void _gst_make_oop_fixed(OOP oop) {
   gst_object newObj;
   int size;
+
+  _gst_vm_global_barrier_wait();
+
+  set_except_flag_for_thread(false, current_thread_id);
+
   if (OOP_GET_FLAGS(oop) & F_FIXED)
-    return;
+    {
+      _gst_vm_end_barrier_wait();
+
+      return;
+    }
 
   if ((OOP_GET_FLAGS(oop) & F_LOADED) == 0) {
     size = SIZE_TO_BYTES(TO_INT(OBJ_SIZE (OOP_TO_OBJ(oop))));
@@ -655,6 +670,8 @@ void _gst_make_oop_fixed(OOP oop) {
 
   OOP_SET_FLAGS(oop, OOP_GET_FLAGS(oop) & ~(F_SPACES | F_POOLED));
   OOP_SET_FLAGS(oop, OOP_GET_FLAGS(oop) | F_OLD | F_FIXED);
+
+  _gst_vm_end_barrier_wait();
 }
 
 void _gst_tenure_oop(OOP oop) {
@@ -682,16 +699,19 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
   OOP *newAllocPtr;
   gst_object p_instance;
 
+
   size = ROUNDED_BYTES(size);
 
   /* We don't want to have allocPtr pointing to the wrong thing during
      GC, so we use a local var to hold its new value */
   newAllocPtr = _gst_mem.eden.allocPtr + BYTES_TO_SIZE(size);
 
-  if UNCOMMON (size >= _gst_mem.big_object_threshold)
+  if UNCOMMON (size >= _gst_mem.big_object_threshold) {
     return alloc_fixed_obj(size, p_oop);
+  }
 
   if UNCOMMON (newAllocPtr >= _gst_mem.eden.maxPtr) {
+    // Will allocate new object with mourn_objects
     _gst_scavenge();
     newAllocPtr = _gst_mem.eden.allocPtr + size;
   }
@@ -701,6 +721,7 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
   *p_oop = alloc_oop(p_instance, _gst_mem.active_flag);
   OBJ_SET_SIZE (p_instance, FROM_INT(BYTES_TO_SIZE(size)));
   OBJ_SET_IDENTITY (p_instance, FROM_INT(0));
+
   return p_instance;
 }
 
@@ -731,6 +752,7 @@ ok:
   *p_oop = alloc_oop(p_instance, F_OLD | F_FIXED);
   OBJ_SET_SIZE (p_instance, FROM_INT(BYTES_TO_SIZE(size)));
   OBJ_SET_IDENTITY (p_instance, FROM_INT(0));
+
   return p_instance;
 }
 
@@ -1042,9 +1064,9 @@ void _gst_scavenge(void) {
                    _gst_mem.grow_threshold_percent ||
                _gst_mem.fixed->heap_total * 100.0 / _gst_mem.fixed->heap_limit >
                    _gst_mem.grow_threshold_percent) {
-    _gst_global_gc(0);
-    _gst_incremental_gc_step();
-    return;
+      _gst_global_gc(0);
+      _gst_incremental_gc_step();
+      return;
   }
 
   if (!_gst_gc_running++ && _gst_gc_message && _gst_verbosity > 2 &&
@@ -1068,9 +1090,13 @@ void _gst_scavenge(void) {
 
   _gst_finish_incremental_gc();
   _gst_fixup_object_pointers();
+
   copy_oops();
+
   check_weak_refs();
+
   _gst_restore_object_pointers();
+
   reset_incremental_gc(_gst_mem.ot);
 
   update_stats(&stats.timeOfLastScavenge, NULL, &_gst_mem.timeToScavenge);
@@ -1088,7 +1114,7 @@ void _gst_scavenge(void) {
     fflush(stderr);
   }
 
-  _gst_mem.reclaimedBytesPerScavenge =
+ _gst_mem.reclaimedBytesPerScavenge =
       _gst_mem.factor * reclaimedBytes +
       (1 - _gst_mem.factor) * _gst_mem.reclaimedBytesPerScavenge;
 
@@ -1169,8 +1195,9 @@ mst_Boolean _gst_incremental_gc_step() {
   OOP oop, firstOOP;
   int i;
 
-  if (!incremental_gc_running())
+  if (!incremental_gc_running()) {
     return true;
+  }
 
   i = 0;
   firstOOP = _gst_mem.last_swept_oop;
@@ -1262,6 +1289,25 @@ void _gst_sweep_oop(OOP oop) {
   OOP_SET_FLAGS(oop, 0);
 }
 
+gst_object unsafe_new_instance_with(OOP class_oop, size_t numIndexFields, OOP *p_oop) {
+  size_t numBytes, alignedBytes;
+  intptr_t instanceSpec;
+  gst_object p_instance;
+
+  instanceSpec = CLASS_INSTANCE_SPEC(class_oop);
+  numBytes = sizeof(gst_object_header) +
+             SIZE_TO_BYTES(instanceSpec >> ISP_NUMFIXEDFIELDS) +
+             (numIndexFields << _gst_log2_sizes[instanceSpec & ISP_SHAPE]);
+
+  alignedBytes = ROUNDED_BYTES(numBytes);
+  p_instance = _gst_alloc_obj(alignedBytes, p_oop);
+  INIT_UNALIGNED_OBJECT(*p_oop, alignedBytes - numBytes);
+
+  OBJ_SET_CLASS(p_instance, class_oop);
+
+  return p_instance;
+}
+
 void mourn_objects(void) {
   gst_object array;
   long size;
@@ -1271,13 +1317,13 @@ void mourn_objects(void) {
   if (!size)
     return;
 
-  processor = OOP_TO_OBJ(_gst_processor_oop);
+  processor = OOP_TO_OBJ(_gst_processor_oop[0]);
   if (!IS_NIL(OBJ_PROCESSOR_SCHEDULER_GET_GC_ARRAY(processor))) {
     _gst_errorf("Too many garbage collections, finalizers missed!");
     _gst_errorf("This is a bug, please report.");
   } else {
     /* Copy the buffer into an Array */
-    array = new_instance_with(_gst_array_class, size, &OBJ_PROCESSOR_SCHEDULER_GET_GC_ARRAY(processor));
+    array = unsafe_new_instance_with(_gst_array_class, size, &OBJ_PROCESSOR_SCHEDULER_GET_GC_ARRAY(processor));
     _gst_copy_buffer(array->data);
     if (!IS_NIL(OBJ_PROCESSOR_SCHEDULER_GET_GC_SEMAPHORE(processor))) {
       static async_queue_entry e;

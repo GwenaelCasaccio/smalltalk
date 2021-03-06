@@ -160,13 +160,26 @@
 
 #define SET_THIS_METHOD(method, ipOffset)                                      \
   do {                                                                         \
-    OOP old_method_oop = _gst_this_method;                                     \
+    OOP old_method_oop = _gst_this_method[current_thread_id];                                     \
     gst_compiled_method _method =                                              \
-        (gst_compiled_method)OOP_TO_OBJ(_gst_this_method = (method));          \
+        (gst_compiled_method)OOP_TO_OBJ(_gst_this_method[current_thread_id] = (method));          \
                                                                                \
-    method_base = _method->bytecodes;                                          \
-    _gst_literals = OOP_TO_OBJ(_method->literals)->data;                       \
-    ip = method_base + (ipOffset);                                             \
+    method_base[current_thread_id] = _method->bytecodes;                                          \
+    _gst_literals[current_thread_id] = OOP_TO_OBJ(_method->literals)->data;                       \
+    ip[current_thread_id] = method_base[current_thread_id] + (ipOffset);                                             \
+    if UNCOMMON (_gst_raw_profile)                                             \
+      _gst_record_profile(old_method_oop, method, ipOffset);                   \
+  } while (0)
+
+#define SET_THIS_METHOD_FOR_THREAD(thread_id, method, ipOffset)                                      \
+  do {                                                                         \
+    OOP old_method_oop = _gst_this_method[(thread_id)];                                     \
+    gst_compiled_method _method =                                              \
+        (gst_compiled_method)OOP_TO_OBJ(_gst_this_method[(thread_id)] = (method));          \
+                                                                               \
+    method_base[(thread_id)] = _method->bytecodes;                                          \
+    _gst_literals[(thread_id)] = OOP_TO_OBJ(_method->literals)->data;                       \
+    ip[(thread_id)] = method_base[(thread_id)] + (ipOffset);                                             \
     if UNCOMMON (_gst_raw_profile)                                             \
       _gst_record_profile(old_method_oop, method, ipOffset);                   \
   } while (0)
@@ -300,7 +313,7 @@ void _gst_send_message_internal(OOP sendSelector, int sendArgs, OOP receiver,
   OBJ_METHOD_CONTEXT_SET_FLAGS(newContext, (OOP)MCF_IS_METHOD_CONTEXT);
   /* push args and temps, set sp and _gst_temporaries */
   prepare_context((gst_context_part)newContext, sendArgs, header.numTemps);
-  _gst_self = receiver;
+  _gst_self[current_thread_id] = receiver;
   SET_THIS_METHOD(methodOOP, 0);
 }
 
@@ -380,7 +393,7 @@ void _gst_send_method(OOP methodOOP) {
                                (OOP)MCF_IS_METHOD_CONTEXT);
   /* push args and temps, set sp and _gst_temporaries */
   prepare_context((gst_context_part)newContext, sendArgs, header.numTemps);
-  _gst_self = receiver;
+  _gst_self[current_thread_id] = receiver;
   SET_THIS_METHOD(methodOOP, 0);
 }
 
@@ -410,7 +423,7 @@ static mst_Boolean send_block_value(int numArgs, int cull_up_to) {
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(blockContext, closure->outerContext);
   /* push args and temps */
   prepare_context((gst_context_part)blockContext, numArgs, header.numTemps);
-  _gst_self = closure->receiver;
+  _gst_self[current_thread_id] = closure->receiver;
   SET_THIS_METHOD(closure->block, 0);
 
   return (false);
@@ -421,6 +434,7 @@ void _gst_validate_method_cache_entries(void) {}
 OOP _gst_interpret(OOP processOOP) {
   interp_jmp_buf jb;
   gst_object process;
+  const size_t local_cpy_current_thread_id = current_thread_id;
 
 #ifdef LOCAL_REGS
 #undef sp
@@ -428,11 +442,11 @@ OOP _gst_interpret(OOP processOOP) {
 
 #if REG_AVAILABILITY == 0
 #define LOCAL_COUNTER _gst_bytecode_counter
-#define EXPORT_REGS() (_gst_sp = sp, _gst_ip = ip)
+#define EXPORT_REGS() (_gst_sp[local_cpy_current_thread_id] = sp, _gst_ip[local_cpy_current_thread_id] = ip)
 #else
   int LOCAL_COUNTER = 0;
 #define EXPORT_REGS()                                                          \
-  (_gst_sp = sp, _gst_ip = ip, _gst_bytecode_counter += LOCAL_COUNTER,         \
+  (_gst_sp[local_cpy_current_thread_id] = sp, _gst_ip[local_cpy_current_thread_id] = ip, _gst_bytecode_counter += LOCAL_COUNTER, \
    LOCAL_COUNTER = 0)
 #endif
 
@@ -446,11 +460,11 @@ OOP _gst_interpret(OOP processOOP) {
 #define _gst_true_oop my_true_oop
 #define _gst_false_oop my_false_oop
 #define IMPORT_REGS()                                                          \
-  (sp = _gst_sp, ip = _gst_ip, self_cache = _gst_self,                         \
-   temp_cache = _gst_temporaries, lit_cache = _gst_literals)
+  (sp = _gst_sp[local_cpy_current_thread_id], ip = _gst_ip[local_cpy_current_thread_id], self_cache = _gst_self[local_cpy_current_thread_id], \
+   temp_cache = _gst_temporaries[local_cpy_current_thread_id], lit_cache = _gst_literals[local_cpy_current_thread_id])
 
 #else
-#define IMPORT_REGS() (sp = _gst_sp, ip = _gst_ip)
+#define IMPORT_REGS() (sp = _gst_sp[local_cpy_current_thread_id], ip = _gst_ip[local_cpy_current_thread_id])
 #endif
 
   REGISTER(1, ip_type ip);
@@ -473,6 +487,7 @@ OOP _gst_interpret(OOP processOOP) {
 #endif
 #endif /* !PIPELINING */
 
+#include "stack.inl"
 #include "vm.inl"
 
   /* Global pointers to the bytecode routines are used to interrupt the
@@ -480,7 +495,12 @@ OOP _gst_interpret(OOP processOOP) {
      monitor_byte_codes.  */
   global_normal_bytecodes = normal_byte_codes;
   global_monitored_bytecodes = monitored_byte_codes;
-  dispatch_vec = normal_byte_codes;
+
+  pthread_mutex_lock(&dispatch_vec_mutex);
+  if (NULL == dispatch_vec_per_thread[local_cpy_current_thread_id]) {
+    dispatch_vec_per_thread[local_cpy_current_thread_id] = normal_byte_codes;
+  }
+  pthread_mutex_unlock(&dispatch_vec_mutex);
 
   /* Prime the interpreter's registers.  */
   IMPORT_REGS();
@@ -494,18 +514,30 @@ OOP _gst_interpret(OOP processOOP) {
   /* The code blocks that follow are executed in threaded-code style.  */
 
 monitor_byte_codes:
-  SET_EXCEPT_FLAG(false);
+  SET_EXCEPT_FLAG_FOR_THREAD(false, local_cpy_current_thread_id);
+
+  if (_gst_interp_need_to_wait[local_cpy_current_thread_id]) {
+    _gst_vm_barrier_wait();
+
+    _gst_interp_need_to_wait[local_cpy_current_thread_id] = false;
+
+    _gst_vm_end_barrier_wait();
+
+    /* Prime the interpreter's registers.  */
+    IMPORT_REGS();
+  }
 
   /* First, deal with any async signals.  */
-  if (async_queue_enabled)
+  if (async_queue_enabled[local_cpy_current_thread_id]) {
     empty_async_queue();
+  }
 
   if UNCOMMON (time_to_preempt)
     ACTIVE_PROCESS_YIELD();
 
-  if UNCOMMON (!IS_NIL(switch_to_process)) {
+  if UNCOMMON (!IS_NIL(switch_to_process[local_cpy_current_thread_id])) {
     EXPORT_REGS();
-    change_process_context(switch_to_process);
+    change_process_context(switch_to_process[local_cpy_current_thread_id]);
     IMPORT_REGS();
 
     if UNCOMMON (single_step_semaphore) {
@@ -514,29 +546,30 @@ monitor_byte_codes:
     }
   }
 
-  if (is_process_terminating(processOOP))
+  if (is_process_terminating(processOOP)) {
     goto return_value;
+  }
 
   if UNCOMMON (_gst_abort_execution) {
     OOP selectorOOP;
     selectorOOP = _gst_intern_string((char *)_gst_abort_execution);
     _gst_abort_execution = NULL;
-    SEND_MESSAGE(selectorOOP, 0);
+    VM_SEND_MESSAGE(selectorOOP, 0);
     IMPORT_REGS();
   }
 
   if UNCOMMON (_gst_execution_tracing) {
     if (verbose_exec_tracing) {
-      if (sp >= _gst_temporaries)
-        printf("\t  [%2td] --> %O\n", (ptrdiff_t)(sp - _gst_temporaries),
-               STACKTOP());
+      if (sp >= _gst_temporaries[current_thread_id])
+        printf("\t  ID: %d [%2td] --> %O\n", current_thread_id, (ptrdiff_t)(sp - _gst_temporaries[current_thread_id]),
+               VM_STACKTOP());
       else
-        printf("\t  self --> %O\n", _gst_self);
+        printf("\t  ID: %d self --> %O\n", current_thread_id, _gst_self[current_thread_id]);
     }
 
-    printf("%5td:", (ptrdiff_t)(ip - method_base));
-    _gst_print_bytecode_name(ip, ip - method_base, _gst_literals, "");
-    SET_EXCEPT_FLAG(true);
+    printf("ID: %d %5td:", current_thread_id, (ptrdiff_t)(ip - method_base[current_thread_id]));
+    _gst_print_bytecode_name(ip, ip - method_base[current_thread_id], _gst_literals[current_thread_id], "");
+    SET_EXCEPT_FLAG_FOR_THREAD(true, current_thread_id);
   }
 
   if UNCOMMON (time_to_preempt)
@@ -546,21 +579,21 @@ monitor_byte_codes:
 
   /* Some more routines we need... */
 lookahead_failed_true:
-  PUSH_OOP(_gst_true_oop);
+  VM_PUSH_OOP(_gst_true_oop);
   DISPATCH(normal_byte_codes);
 
 lookahead_dup_true:
   PREFETCH_VEC(true_byte_codes);
-  PUSH_OOP(_gst_true_oop);
+  VM_PUSH_OOP(_gst_true_oop);
   NEXT_BC_VEC(true_byte_codes);
 
 lookahead_failed_false:
-  PUSH_OOP(_gst_false_oop);
+  VM_PUSH_OOP(_gst_false_oop);
   DISPATCH(normal_byte_codes);
 
 lookahead_dup_false:
   PREFETCH_VEC(false_byte_codes);
-  PUSH_OOP(_gst_false_oop);
+  VM_PUSH_OOP(_gst_false_oop);
   NEXT_BC_VEC(false_byte_codes);
 
 return_value:

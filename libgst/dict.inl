@@ -578,6 +578,10 @@ gst_object new_instance_with(OOP class_oop, size_t numIndexFields, OOP *p_oop) {
   intptr_t instanceSpec;
   gst_object p_instance;
 
+  _gst_vm_global_barrier_wait();
+
+  set_except_flag_for_thread(false, current_thread_id);
+
   instanceSpec = CLASS_INSTANCE_SPEC(class_oop);
   numBytes = sizeof(gst_object_header) +
              SIZE_TO_BYTES(instanceSpec >> ISP_NUMFIXEDFIELDS) +
@@ -589,6 +593,8 @@ gst_object new_instance_with(OOP class_oop, size_t numIndexFields, OOP *p_oop) {
 
   OBJ_SET_CLASS(p_instance, class_oop);
 
+  _gst_vm_end_barrier_wait();
+
   return p_instance;
 }
 
@@ -597,12 +603,18 @@ gst_object new_instance(OOP class_oop, OOP *p_oop) {
   intptr_t instanceSpec;
   gst_object p_instance;
 
+  _gst_vm_global_barrier_wait();
+
+  set_except_flag_for_thread(false, current_thread_id);
+
   instanceSpec = CLASS_INSTANCE_SPEC(class_oop);
   numBytes = sizeof(gst_object_header) +
              SIZE_TO_BYTES(instanceSpec >> ISP_NUMFIXEDFIELDS);
 
   p_instance = _gst_alloc_obj(numBytes, p_oop);
   OBJ_SET_CLASS(p_instance, class_oop);
+
+  _gst_vm_end_barrier_wait();
 
   return p_instance;
 }
@@ -617,28 +629,33 @@ gst_object instantiate_numbytes(OOP class_oop, OOP *p_oop,
   OBJ_SET_CLASS(p_instance, class_oop);
 
   n = instanceSpec >> ISP_NUMFIXEDFIELDS;
-  if UNCOMMON (n == 0)
+  if UNCOMMON (n == 0) {
     return p_instance;
+    }
 
   src = _gst_nil_oop;
   dest = p_instance->data;
   dest[0] = src;
-  if UNCOMMON (n == 1)
+  if UNCOMMON (n == 1) {
     return p_instance;
+    }
 
   dest[1] = src;
-  if UNCOMMON (n == 2)
-    return p_instance;
+  if UNCOMMON (n == 2) {
+      return p_instance;
+    }
 
   dest[2] = src;
-  if UNCOMMON (n == 3)
-    return p_instance;
+  if UNCOMMON (n == 3) {
+      return p_instance;
+    }
 
   dest += 3;
   n -= 3;
-  do
+  do {
     *(dest++) = src;
-  while (--n > 0);
+  } while (--n > 0);
+
   return p_instance;
 }
 
@@ -646,6 +663,10 @@ gst_object instantiate_with(OOP class_oop, size_t numIndexFields, OOP *p_oop) {
   size_t numBytes, indexedBytes, alignedBytes;
   intptr_t instanceSpec;
   gst_object p_instance;
+
+  _gst_vm_global_barrier_wait();
+
+  set_except_flag_for_thread(false, current_thread_id);
 
   instanceSpec = CLASS_INSTANCE_SPEC(class_oop);
 #ifndef OPTIMIZE
@@ -672,17 +693,28 @@ gst_object instantiate_with(OOP class_oop, size_t numIndexFields, OOP *p_oop) {
            indexedBytes);
   }
 
+  _gst_vm_end_barrier_wait();
+
   return p_instance;
 }
 
 gst_object instantiate(OOP class_oop, OOP *p_oop) {
   size_t numBytes;
   intptr_t instanceSpec;
+  gst_object p_instance;
+
+  _gst_vm_global_barrier_wait();
+
+  set_except_flag_for_thread(false, current_thread_id);
 
   instanceSpec = CLASS_INSTANCE_SPEC(class_oop);
   numBytes = sizeof(gst_object_header) +
              SIZE_TO_BYTES(instanceSpec >> ISP_NUMFIXEDFIELDS);
-  return instantiate_numbytes(class_oop, p_oop, instanceSpec, numBytes);
+  p_instance = instantiate_numbytes(class_oop, p_oop, instanceSpec, numBytes);
+
+  _gst_vm_end_barrier_wait();
+
+  return p_instance;
 }
 
 OOP dictionary_association_at(OOP dictionaryOOP, OOP keyOOP) {
