@@ -56,3 +56,17 @@ Eval [
   ((process instVarNamed: #myList) = (processLists at: 4)) basicPrint.
 ]
 
+Eval [
+  | context closure |
+
+  closure := [ ].
+  context := BlockContext fromClosure: closure.
+  (context  instVarNamed: #parent) isNil basicPrint.
+  ((context  instVarNamed: #nativeIP) = 0) basicPrint.
+  ((context instVarNamed: #outerContext) = closure outerContext) basicPrint.
+  ((context instVarNamed: #ip) = 0) basicPrint.
+  ((context  instVarNamed: #sp) = -1) basicPrint.
+  ((context  instVarNamed: #receiver) = closure receiver) basicPrint.
+  ((context  instVarNamed: #method) = closure block) basicPrint.
+  (context  basicSize = closure block stackDepth) basicPrint.
+]
