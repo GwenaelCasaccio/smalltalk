@@ -1129,13 +1129,9 @@ void _gst_scavenge(void) {
   _gst_invalidate_croutine_cache();
   mourn_objects();
 
-  /* _gst_print_process_state (); */
-  /* _gst_show_backtrace_for_all_thread (stderr); */
-
   /* If tenuring had to grow oldspace, do a global garbage collection
      now.  */
   if (_gst_mem.old->heap_limit > prev_heap_limit) {
-    abort();
     _gst_global_gc(0);
     _gst_incremental_gc_step();
     return;
