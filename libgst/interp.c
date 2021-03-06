@@ -549,7 +549,6 @@ static void stop_execution(void);
    sequence point is reached.  */
 static thread_local void *const *global_monitored_bytecodes;
 static thread_local void *const *global_normal_bytecodes;
-// static thread_local void *const *dispatch_vec;
 
 static _Atomic(void *const *) dispatch_vec_per_thread[100] = { NULL };
 thread_local size_t current_thread_id = 0;
@@ -2414,8 +2413,6 @@ void _gst_restore_object_pointers_for_thread(size_t thread_id) {
     sp[thread_id] = TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(thisContext)) +
          OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
   }
-
-  // SET_EXCEPT_FLAG_FOR_THREAD(true, thread_id); /* force to import registers */
 }
 
 static RETSIGTYPE interrupt_on_signal(int sig) {
@@ -2483,72 +2480,6 @@ void _gst_init_signals(void) {
   _gst_set_signal_handler(SIGUSR1, user_backtrace_on_signal);
 #endif
 }
-
-void _gst_show_backtrace_for_all_thread(FILE *fp) {
-  OOP contextOOP;
-  gst_object context;
-  gst_compiled_block block;
-  gst_compiled_method method;
-  gst_method_info methodInfo;
-
-  for (size_t thread_id = 0; thread_id < atomic_load(&_gst_interpret_thread_counter); thread_id++) {
-    fprintf(fp, "\n\n THREAD ID:: %d\n\n", thread_id);
-    fflush(fp);
-
-    empty_context_stack_for_thread(thread_id);
-  for (contextOOP = _gst_this_context_oop[thread_id]; !IS_NIL(contextOOP);
-       contextOOP = OBJ_METHOD_CONTEXT_PARENT_CONTEXT(context)) {
-    context = OOP_TO_OBJ(contextOOP);
-    if ((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) ==
-        (MCF_IS_METHOD_CONTEXT | MCF_IS_DISABLED_CONTEXT))
-      continue;
-
-    /* printf ("(OOP %p)", context->method); */
-    fprintf(fp, "(ip[current_thread_id] %d)", TO_INT(OBJ_METHOD_CONTEXT_IP_OFFSET(context)));
-    if ((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) & MCF_IS_METHOD_CONTEXT) {
-      OOP receiver, receiverClass;
-
-      if ((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) &
-          MCF_IS_EXECUTION_ENVIRONMENT) {
-        if (IS_NIL(OBJ_METHOD_CONTEXT_PARENT_CONTEXT(context)))
-          fprintf(fp, "<bottom>\n");
-        else
-          fprintf(fp, "<unwind point>\n");
-        continue;
-      }
-
-      if ((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) & MCF_IS_UNWIND_CONTEXT)
-        fprintf(fp, "<unwind> ");
-
-      /* a method context */
-      method =
-          (gst_compiled_method)OOP_TO_OBJ(OBJ_METHOD_CONTEXT_METHOD(context));
-      methodInfo = (gst_method_info)OOP_TO_OBJ(method->descriptor);
-      receiver = OBJ_METHOD_CONTEXT_RECEIVER(context);
-      if (IS_INT(receiver))
-        receiverClass = gst_small_integer_class;
-
-      else
-        receiverClass = OOP_CLASS(receiver);
-
-      if (receiverClass == methodInfo->class)
-        fprintf(fp, "%O", receiverClass);
-      else
-        fprintf(fp, "%O(%O)", receiverClass, methodInfo->class);
-    } else {
-      /* a block context */
-      block =
-          (gst_compiled_block)OOP_TO_OBJ(OBJ_METHOD_CONTEXT_METHOD(context));
-      method = (gst_compiled_method)OOP_TO_OBJ(block->method);
-      methodInfo = (gst_method_info)OOP_TO_OBJ(method->descriptor);
-
-      fprintf(fp, "[] in %O", methodInfo->class);
-    }
-    fprintf(fp, ">>%O\n", methodInfo->selector);
-  }
-  }
-}
-
 
 void _gst_show_backtrace(FILE *fp) {
   OOP contextOOP;
