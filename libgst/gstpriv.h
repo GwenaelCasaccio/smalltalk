@@ -577,6 +577,7 @@ extern OOP _gst_nil_oop
 #include "sym.h"
 #include "gst-parse.h"
 #include "input.h"
+#include "forward_object.h"
 #include "oop.h"
 #include "byte.h"
 #include "comp.h"

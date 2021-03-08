@@ -65,6 +65,7 @@ tests/testsuite.log
 tests/from_int
 tests/grey_list
 tests/barrier
+tests/forward_object
 tests/*.log
 tests/*.trs
 gst.im.SandstoneDb/

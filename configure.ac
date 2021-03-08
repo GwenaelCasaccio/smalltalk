@@ -107,6 +107,10 @@ AM_MISSING_PROG(AUTOM4TE, autom4te, $missing_dir)
 dnl 
 dnl ------------------------------ SUBDIRS --------------------
 
+PKG_CHECK_MODULES(CMOCKA, cmocka,
+                  [gst_cv_cmocka=yes],
+                  [gst_cv_cmocka=no])
+
 PKG_CHECK_MODULES(GNUTLS, gnutls,
                   [ac_cv_lib_gnutls_gnutls_global_init=yes],
                   [GST_HAVE_LIB(gnutls, gnutls_global_init)])

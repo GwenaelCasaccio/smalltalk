@@ -25,7 +25,8 @@ libgst_la_SOURCES = \
        save.c      cint.c    	   heap.c	         input.c      		\
        sysdep.c    callin.c      mpz.c           barrier.c    		\
        print.c	   alloc.c	     re.c	           interp.c      		\
-       real.c	     sockets.c	   events.c        object_pointer.c
+       real.c	     sockets.c	   events.c        object_pointer.c \
+			 forward_object.c
 
 dist_noinst_DATA = valgrind.supp builtins.gperf
 
