@@ -38,9 +38,10 @@ void _gst_alloc_oop_table(size_t size) {
 mst_Boolean _gst_realloc_oop_table(size_t newSize) {
   size_t bytes;
 
-  bytes = (newSize - _gst_mem.ot_size) * sizeof(struct oop_s);
-  if (bytes < 0)
+  if (newSize <= _gst_mem.ot_size)
     return (true);
+
+  bytes = (newSize - _gst_mem.ot_size) * sizeof(struct oop_s);
 
   if (!_gst_heap_sbrk(oop_heap, bytes)) {
     /* try to recover. Note that we cannot move
