@@ -19,6 +19,7 @@ jobs:
       run: tar -xf cmocka-1.1.5.tar.xz
     - name: Build CMOCKA
       run: |
+        sudo apt install wget
         cd cmocka-1.1.5/
         mkdir build
         cd build/
