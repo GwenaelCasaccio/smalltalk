@@ -158,6 +158,7 @@ static inline OOP alloc_oop(PTR objData, intptr_t flags) {
       OOP_NEXT(oop);
     }
     _gst_sweep_oop(oop);
+    _gst_mem.num_free_oops++;
     if (oop >= lastOOP)
       _gst_finished_incremental_gc();
   } else
