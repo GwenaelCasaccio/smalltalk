@@ -302,7 +302,7 @@ static void test_alloc_oop_with_allocated_objects(void **state) {
   assert_true(_gst_mem.last_allocated_oop == result);
 
   /* Skip firsts allocated and test if the others are still free */
-  for (size_t i = 1; i < 500; i++) {
+  for (size_t i = 0; i < 500; i++) {
     assert_true(OOP_GET_FLAGS(&_gst_mem.ot[i]) == _gst_mem.live_flags);
   }
 
@@ -311,6 +311,48 @@ static void test_alloc_oop_with_allocated_objects(void **state) {
   for (size_t i = 501; i < 1000; i++) {
     assert_true(OOP_GET_FLAGS(&_gst_mem.ot[i]) == 0);
   }
+
+  free(_gst_mem.ot);
+}
+
+static void test_alloc_oop_with_no_more_slots_available(void **state) {
+  OOP result;
+
+  (void) state;
+
+  _gst_mem.live_flags = 0x2;
+
+  _gst_mem.ot = calloc(1001, sizeof(struct oop_s));
+  if (!_gst_mem.ot) { abort(); }
+
+  for (size_t i = 0; i < 1000; i++) {
+    OOP_SET_FLAGS(&_gst_mem.ot[i], _gst_mem.live_flags);
+  }
+
+  _gst_mem.num_free_oops = 0;
+  _gst_mem.ot_size = 1000;
+  _gst_mem.last_allocated_oop = &_gst_mem.ot[999];
+  _gst_mem.next_oop_to_sweep = _gst_mem.last_swept_oop = _gst_mem.ot - 1;
+
+  expect_value(__wrap_pthread_mutex_lock, mutex, &alloc_oop_mutex);
+  will_return(__wrap_pthread_mutex_lock, 0);
+
+  expect_value(__wrap_pthread_mutex_unlock, mutex, &alloc_oop_mutex);
+  will_return(__wrap_pthread_mutex_unlock, 0);
+
+  result = alloc_oop((PTR) 0xBABA, 0x1234);
+
+  assert_true(result == NULL);
+  assert_true(_gst_mem.last_swept_oop == (_gst_mem.ot - 1));
+  assert_true(_gst_mem.num_free_oops == 0);
+  assert_true(_gst_mem.last_allocated_oop == &_gst_mem.ot[999]);
+
+  /* Skip firsts allocated and test if the others are still free */
+  for (size_t i = 0; i < 1000; i++) {
+    assert_true(OOP_GET_FLAGS(&_gst_mem.ot[i]) == _gst_mem.live_flags);
+  }
+
+  assert_true(OOP_GET_FLAGS(&_gst_mem.ot[1000]) == 0);
 
   free(_gst_mem.ot);
 }
@@ -328,6 +370,7 @@ int main(void) {
      cmocka_unit_test(realloc_oop_table_sbrk_fail),
      cmocka_unit_test(test_alloc_oop),
      cmocka_unit_test(test_alloc_oop_with_allocated_objects),
+     cmocka_unit_test(test_alloc_oop_with_no_more_slots_available),
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);

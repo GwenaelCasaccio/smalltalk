@@ -140,11 +140,13 @@ static inline void maybe_release_xlat(OOP oop) {}
 static inline OOP alloc_oop(PTR objData, intptr_t flags) {
   REGISTER(1, OOP oop);
   REGISTER(2, OOP lastOOP);
+  REGISTER(3, OOP endOfTableOOP);
 
   pthread_mutex_lock(&alloc_oop_mutex);
 
   oop = _gst_mem.last_swept_oop + 1;
   lastOOP = _gst_mem.next_oop_to_sweep;
+  endOfTableOOP = &_gst_mem.ot[_gst_mem.ot_size];
   if (COMMON(oop <= lastOOP)) {
     while (IS_OOP_VALID_GC(oop)) {
       maybe_release_xlat(oop);
@@ -159,17 +161,26 @@ static inline OOP alloc_oop(PTR objData, intptr_t flags) {
     if (oop >= lastOOP)
       _gst_finished_incremental_gc();
   } else
-    while (IS_OOP_VALID_GC(oop)) {
+    while (IS_OOP_VALID_GC(oop) && oop < endOfTableOOP) {
     fast:
       OOP_NEXT(oop);
     }
+
+  /* Force a GC there no more OOPs.  */
+  if (UNCOMMON (!_gst_mem.num_free_oops)) {
+    pthread_mutex_unlock(&alloc_oop_mutex);
+    _gst_mem.eden.maxPtr = _gst_mem.eden.allocPtr;
+    return NULL;
+  }
 
   _gst_mem.last_swept_oop = oop;
   PREFETCH_LOOP(oop, PREF_READ);
 
   /* Force a GC as soon as possible if we're low on OOPs.  */
-  if UNCOMMON (_gst_mem.num_free_oops-- < LOW_WATER_OOP_THRESHOLD)
+  if (UNCOMMON (_gst_mem.num_free_oops-- < LOW_WATER_OOP_THRESHOLD)) {
     _gst_mem.eden.maxPtr = _gst_mem.eden.allocPtr;
+  }
+
   if (oop > _gst_mem.last_allocated_oop)
     _gst_mem.last_allocated_oop = oop;
 
