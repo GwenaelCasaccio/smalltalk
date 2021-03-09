@@ -30,7 +30,7 @@ jobs:
     - name: configure
       run: |
         export PKG_CONFIG_PATH=/usr/lib/pkgconfig
-        ./configure
+        PKG_CONFIG_PATH=/usr/lib/pkgconfig ./configure
     - name: make
       run: make
       shell: bash
