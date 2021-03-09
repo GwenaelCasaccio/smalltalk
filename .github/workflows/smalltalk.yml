@@ -13,13 +13,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Download CMOCKA
-      run: wgdet https://cmocka.org/files/1.1/cmocka-1.1.5.tar.xz
-    - name: Decompress CMOCKA
-      run: tar -xf cmocka-1.1.5.tar.xz
     - name: Build CMOCKA
       run: |
         sudo apt install wget
+        wgdet https://cmocka.org/files/1.1/cmocka-1.1.5.tar.xz
+        tar -xf cmocka-1.1.5.tar.xz
         cd cmocka-1.1.5/
         mkdir build
         cd build/
