@@ -15,8 +15,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build CMOCKA
       run: |
-        sudo apt install wget
-        wgdet https://cmocka.org/files/1.1/cmocka-1.1.5.tar.xz
+        wget https://cmocka.org/files/1.1/cmocka-1.1.5.tar.xz
         tar -xf cmocka-1.1.5.tar.xz
         cd cmocka-1.1.5/
         mkdir build
