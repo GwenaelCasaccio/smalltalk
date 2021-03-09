@@ -28,7 +28,9 @@ jobs:
     - name: Update generated configuration files
       run: autoreconf -vi
     - name: configure
-      run: ./configure
+      run: |
+        export PKG_CONFIG_PATH=/usr/lib/pkgconfig
+        ./configure
     - name: make
       run: make
       shell: bash
