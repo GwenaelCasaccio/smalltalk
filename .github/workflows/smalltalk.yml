@@ -29,8 +29,8 @@ jobs:
       run: autoreconf -vi
     - name: configure
       run: |
-        export PKG_CONFIG_PATH=/usr/lib/pkgconfig
-        PKG_CONFIG_PATH=/usr/lib/pkgconfig ./configure
+        export PKG_CONFIG_PATH=/user/lib/pkgconfig
+        ./configure
     - name: make
       run: make
       shell: bash
