@@ -8,6 +8,8 @@
 
 static int nomemory_called = 0;
 
+static int sweep_called = 0;
+
 heap __wrap__gst_heap_create(PTR address, size_t size);
 
 void __wrap_nomemory(int fatal);
@@ -75,11 +77,13 @@ int __wrap_pthread_mutex_unlock(pthread_mutex_t *mutex) {
 }
 
 void __wrap__gst_finished_incremental_gc(void) {
-
+  function_called();
 }
 
 void __wrap__gst_sweep_oop(OOP oop) {
   check_expected(oop);
+
+  sweep_called++;
 }
 
 static void init_oop_table_with_null_heap(void **state) {
@@ -413,6 +417,70 @@ static void test_alloc_oop_with_lazy_sweep(void **state) {
   free(_gst_mem.ot);
 }
 
+static void test_alloc_oop_with_lazy_sweep_and_overflow_last_oop(void **state) {
+  OOP result;
+
+  (void) state;
+
+  sweep_called = 0;
+
+  _gst_mem.live_flags = 0x2;
+
+  _gst_mem.ot = calloc(1000, sizeof(struct oop_s));
+  if (!_gst_mem.ot) { abort(); }
+
+  /* Skip first allocated and test if the others are still free */
+  for (size_t i = 0; i < 500; i++) {
+    OOP_SET_FLAGS(&_gst_mem.ot[i], _gst_mem.live_flags | F_REACHABLE);
+  }
+
+  _gst_mem.num_free_oops = 500;
+  _gst_mem.ot_size = 1000;
+  _gst_mem.last_allocated_oop = &_gst_mem.ot[499];
+  _gst_mem.last_swept_oop = &_gst_mem.ot[300];
+  _gst_mem.next_oop_to_sweep = &_gst_mem.ot[400];
+
+  expect_value(__wrap_pthread_mutex_lock, mutex, &alloc_oop_mutex);
+  will_return(__wrap_pthread_mutex_lock, 0);
+
+  expect_value(__wrap_pthread_mutex_unlock, mutex, &alloc_oop_mutex);
+  will_return(__wrap_pthread_mutex_unlock, 0);
+
+  expect_function_call(__wrap__gst_finished_incremental_gc);
+
+  result = alloc_oop((PTR) 0xBABA, 0x1234);
+
+  assert_true(result == &_gst_mem.ot[500]);
+  assert_true(OOP_GET_FLAGS(result) == 0x1234);
+  assert_true(OOP_TO_OBJ(result) == (gst_object) 0xBABA);
+  assert_true(_gst_mem.last_swept_oop == result);
+  assert_true(_gst_mem.num_free_oops == 499);
+  assert_true(_gst_mem.last_allocated_oop == result);
+
+  /* Skip firsts allocated and test if the others are still free */
+  for (size_t i = 0; i <= 300; i++) {
+    assert_true(OOP_GET_FLAGS(&_gst_mem.ot[i]) == (_gst_mem.live_flags | F_REACHABLE));
+  }
+
+  for (size_t i = 301; i <= 400; i++) {
+    assert_true(OOP_GET_FLAGS(&_gst_mem.ot[i]) == _gst_mem.live_flags);
+  }
+
+  for (size_t i = 401; i < 500; i++) {
+    assert_true(OOP_GET_FLAGS(&_gst_mem.ot[i]) == (_gst_mem.live_flags | F_REACHABLE));
+  }
+
+  assert_true(OOP_GET_FLAGS(&_gst_mem.ot[500]) == 0x1234);
+
+  for (size_t i = 501; i < 1000; i++) {
+    assert_true(OOP_GET_FLAGS(&_gst_mem.ot[i]) == 0);
+  }
+
+  assert_true(sweep_called == 0);
+
+  free(_gst_mem.ot);
+}
+
 int main(void) {
   const struct CMUnitTest tests[] =
     {
@@ -428,6 +496,7 @@ int main(void) {
      cmocka_unit_test(test_alloc_oop_with_allocated_objects),
      cmocka_unit_test(test_alloc_oop_with_no_more_slots_available),
      cmocka_unit_test(test_alloc_oop_with_lazy_sweep),
+     cmocka_unit_test(test_alloc_oop_with_lazy_sweep_and_overflow_last_oop),
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
