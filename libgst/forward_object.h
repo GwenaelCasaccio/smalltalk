@@ -46,4 +46,29 @@ _Static_assert(sizeof(struct oop_s) == 0x10, "Be carrefull with padding needed b
 #define OOP_PREV(oop) \
   (oop)--
 
+typedef struct forward_object_allocator_s {
+  size_t free_oops;
+} forward_object_allocator_t;
+
+/* Initialize an OOP table of SIZE bytes, trying at the given address if
+   possible.  Initially, all the OOPs are on the free list so that's
+   just how we initialize them.  We do as much initialization as we can,
+   but we're called before classses are defined, so things that have
+   definite classes must wait until the classes are defined.  */
+extern void _gst_init_oop_table(PTR address, size_t size);
+
+/* Allocates a table for OOPs of SIZE bytes, and store pointers to the
+   builtin OOPs into _gst_nil_oop et al.  */
+extern void _gst_alloc_oop_table(size_t size);
+
+/* Grow the OOP table to NEWSIZE pointers and initialize the newly
+   created pointers.  */
+extern mst_Boolean _gst_realloc_oop_table(size_t newSize);
+
+/* Dump the entire contents of the OOP table.  Mainly for debugging
+   purposes.  */
+extern void _gst_dump_oop_table();
+
+extern void _gst_dump_owners(OOP oop);
+
 #endif /* GST_FORWARD_OBJECT_H */
