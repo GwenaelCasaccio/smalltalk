@@ -556,6 +556,31 @@ static void test_alloc_oop_arena_entry_no_memory(void **state) {
   free(_gst_mem.ot_arena);
 }
 
+static void test_detach_oop_arena_entry(void **state) {
+  (void) state;
+
+  nomemory_called = 0;
+
+  expect_value(__wrap_xcalloc, nb, 15);
+  expect_value(__wrap_xcalloc, size, 4);
+
+  _gst_alloc_oop_arena(32768 * 14);
+
+  for(size_t i = 0; i < 5; i++) {
+    _gst_mem.ot_arena[i].thread_id = 1;
+  }
+
+  for(size_t i = 5; i < 10; i++) {
+    _gst_mem.ot_arena[i].free_oops = 0;
+  }
+
+  _gst_alloc_oop_arena_entry(2);
+
+  _gst_detach_oop_arena_entry(10);
+
+  free(_gst_mem.ot_arena);
+}
+
 int main(void) {
   const struct CMUnitTest tests[] =
     {
@@ -574,6 +599,7 @@ int main(void) {
      cmocka_unit_test(test_alloc_oop_with_lazy_sweep_and_overflow_last_oop),
      cmocka_unit_test(test_alloc_oop_arena_entry),
      cmocka_unit_test(test_alloc_oop_arena_entry_no_memory),
+     cmocka_unit_test(test_detach_oop_arena_entry),
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
