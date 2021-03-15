@@ -9,7 +9,7 @@ dnl 2.63 needed by testsuite, actually
 AC_PREREQ(2.63)
 AC_INIT([GST], 3.2.92, https://github.com/GwenaelCasaccio/smalltalk/discussions, smalltalk,
         [https://github.com/GwenaelCasaccio/smalltalk/])
-MAINTAINER="bonzini@gnu.org"
+MAINTAINER="gwenael.casaccio@gmail.com"
 
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
