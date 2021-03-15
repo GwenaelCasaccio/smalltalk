@@ -148,12 +148,19 @@ static void init_oop_table_with_heap(void **state) {
   assert_true(_gst_mem.ot_size == 0x1234);
 
   assert_true(_gst_mem.ot_arena_size == 524289);
-  for (size_t i = 0; i < 524289; i++) {
-    assert_true(_gst_mem.ot_arena[i].thread_id == 0);
+
+  assert_true(_gst_mem.ot_arena[0].thread_id == 0);
+  assert_true(_gst_mem.ot_arena[0].free_oops == 32768);
+
+  for (size_t i = 1; i < 524289; i++) {
+    assert_true(_gst_mem.ot_arena[i].thread_id == UINT16_MAX);
     assert_true(_gst_mem.ot_arena[i].free_oops == 32768);
   }
 
+  assert_true(&_gst_mem.ot_arena[0] == _gst_mem.current_arena[0]);
+
   free(_gst_mem.ot_arena);
+  _gst_mem.current_arena[0] = NULL;
 }
 
 static void init_oop_table_with_heap_smaller_than_requested_size(void **state) {
@@ -207,6 +214,7 @@ static void init_oop_table_with_heap_but_null_sbrk(void **state) {
   assert_true(_gst_mem.ot_size == 0x1234);
 
   free(_gst_mem.ot_arena);
+  _gst_mem.current_arena[0] = NULL;
 }
 
 static void realloc_oop_table(void **state) {
@@ -296,6 +304,7 @@ static void test_alloc_oop(void **state) {
   }
 
   free(_gst_mem.ot);
+  _gst_mem.current_arena[0] = NULL;
 }
 
 static void test_alloc_oop_with_allocated_objects(void **state) {
@@ -345,6 +354,7 @@ static void test_alloc_oop_with_allocated_objects(void **state) {
   }
 
   free(_gst_mem.ot);
+  _gst_mem.current_arena[0] = NULL;
 }
 
 static void test_alloc_oop_with_no_more_slots_available(void **state) {
@@ -387,6 +397,7 @@ static void test_alloc_oop_with_no_more_slots_available(void **state) {
   assert_true(OOP_GET_FLAGS(&_gst_mem.ot[1000]) == 0);
 
   free(_gst_mem.ot);
+  _gst_mem.current_arena[0] = NULL;
 }
 
 static void test_alloc_oop_with_lazy_sweep(void **state) {
@@ -443,6 +454,7 @@ static void test_alloc_oop_with_lazy_sweep(void **state) {
   }
 
   free(_gst_mem.ot);
+  _gst_mem.current_arena[0] = NULL;
 }
 
 static void test_alloc_oop_with_lazy_sweep_and_overflow_last_oop(void **state) {
@@ -507,6 +519,7 @@ static void test_alloc_oop_with_lazy_sweep_and_overflow_last_oop(void **state) {
   assert_true(sweep_called == 0);
 
   free(_gst_mem.ot);
+  _gst_mem.current_arena[0] = NULL;
 }
 
 static void test_alloc_oop_arena_entry(void **state) {
@@ -519,7 +532,11 @@ static void test_alloc_oop_arena_entry(void **state) {
 
   _gst_alloc_oop_arena(32768 * 14);
 
-  for(size_t i = 0; i < 5; i++) {
+  _gst_alloc_oop_arena_entry_init(0);
+
+  _gst_mem.ot_arena[0].free_oops = 0;
+
+  for(size_t i = 1; i < 5; i++) {
     _gst_mem.ot_arena[i].thread_id = 1;
   }
 
@@ -527,10 +544,11 @@ static void test_alloc_oop_arena_entry(void **state) {
     _gst_mem.ot_arena[i].free_oops = 0;
   }
 
-  assert_true(_gst_alloc_oop_arena_entry(2) == 10);
+  assert_true(_gst_alloc_oop_arena_entry(0) == 10);
   assert_true(nomemory_called == 0);
 
   free(_gst_mem.ot_arena);
+  _gst_mem.current_arena[0] = NULL;
 }
 
 static void test_alloc_oop_arena_entry_no_memory(void **state) {
@@ -541,8 +559,13 @@ static void test_alloc_oop_arena_entry_no_memory(void **state) {
 
   _gst_alloc_oop_arena(32768 * 14);
 
-  for(size_t i = 0; i < 5; i++) {
+  _gst_alloc_oop_arena_entry_init(0);
+
+  _gst_mem.ot_arena[0].free_oops = 0;
+
+  for(size_t i = 1; i < 5; i++) {
     _gst_mem.ot_arena[i].thread_id = 1;
+    _gst_mem.ot_arena[i].free_oops = 0;
   }
 
   for(size_t i = 5; i < _gst_mem.ot_arena_size; i++) {
@@ -551,9 +574,10 @@ static void test_alloc_oop_arena_entry_no_memory(void **state) {
 
   expect_function_calls(__wrap_nomemory, 1);
 
-  assert_true(_gst_alloc_oop_arena_entry(2) == 0);
+  assert_true(_gst_alloc_oop_arena_entry(0) == 0);
 
   free(_gst_mem.ot_arena);
+  _gst_mem.current_arena[0] = NULL;
 }
 
 static void test_detach_oop_arena_entry(void **state) {
@@ -566,6 +590,8 @@ static void test_detach_oop_arena_entry(void **state) {
 
   _gst_alloc_oop_arena(32768 * 14);
 
+  _gst_alloc_oop_arena_entry_init(0);
+
   for(size_t i = 0; i < 5; i++) {
     _gst_mem.ot_arena[i].thread_id = 1;
   }
@@ -574,10 +600,93 @@ static void test_detach_oop_arena_entry(void **state) {
     _gst_mem.ot_arena[i].free_oops = 0;
   }
 
-  _gst_alloc_oop_arena_entry(2);
+  _gst_alloc_oop_arena_entry(0);
 
   _gst_detach_oop_arena_entry(10);
 
+  free(_gst_mem.ot_arena);
+  _gst_mem.current_arena[0] = NULL;
+}
+
+static void test_detach_oop_arena_entry_overflow(void **state) {
+  (void) state;
+
+  nomemory_called = 0;
+
+  expect_value(__wrap_xcalloc, nb, 15);
+  expect_value(__wrap_xcalloc, size, 4);
+
+  _gst_alloc_oop_arena(32768 * 14);
+
+  _gst_alloc_oop_arena_entry_init(0);
+
+  for(size_t i = 0; i < 5; i++) {
+    _gst_mem.ot_arena[i].thread_id = 1;
+  }
+
+  for(size_t i = 5; i < 10; i++) {
+    _gst_mem.ot_arena[i].free_oops = 0;
+  }
+
+  _gst_alloc_oop_arena_entry(0);
+
+  _gst_detach_oop_arena_entry(100);
+
+  for(size_t i = 0; i < 5; i++) {
+    assert_int_equal(_gst_mem.ot_arena[i].thread_id, 1);
+  }
+
+  for(size_t i = 5; i < 10; i++) {
+    assert_int_equal(_gst_mem.ot_arena[i].free_oops, 0);
+  }
+
+  free(_gst_mem.ot_arena);
+  _gst_mem.current_arena[0] = NULL;
+}
+
+static void test_alloc_oop_arena_entry_init_reach_thread_limit(void **state) {
+  (void) state;
+
+  assert_int_equal(_gst_alloc_oop_arena_entry_init(UINT16_MAX), 0);
+}
+
+static void test_alloc_oop_arena_entry_init_thread_already_initialized(void **state) {
+  (void) state;
+
+  expect_value(__wrap_xcalloc, nb, 151);
+  expect_value(__wrap_xcalloc, size, 4);
+
+  _gst_alloc_oop_arena(150 * 32768);
+
+  _gst_mem.current_arena[0] = &_gst_mem.ot_arena[100];
+
+  assert_int_equal(_gst_alloc_oop_arena_entry_init(0), 100);
+  assert_ptr_equal(_gst_mem.current_arena[0], &_gst_mem.ot_arena[100]);
+
+  _gst_mem.current_arena[0] = NULL;
+  free(_gst_mem.ot_arena);
+}
+
+static void test_alloc_oop_arena_entry_reach_thread_limit(void **state) {
+  (void) state;
+
+  assert_int_equal(_gst_alloc_oop_arena_entry(UINT16_MAX), 0);
+}
+
+static void test_alloc_oop_arena_entry_thread_already_initialized(void **state) {
+  (void) state;
+
+  expect_value(__wrap_xcalloc, nb, 151);
+  expect_value(__wrap_xcalloc, size, 4);
+
+  _gst_alloc_oop_arena(150 * 32768);
+
+  _gst_mem.current_arena[0] = &_gst_mem.ot_arena[100];
+
+  assert_int_equal(_gst_alloc_oop_arena_entry(0), 100);
+  assert_ptr_equal(_gst_mem.current_arena[0], &_gst_mem.ot_arena[100]);
+
+  _gst_mem.current_arena[0] = NULL;
   free(_gst_mem.ot_arena);
 }
 
@@ -600,6 +709,11 @@ int main(void) {
      cmocka_unit_test(test_alloc_oop_arena_entry),
      cmocka_unit_test(test_alloc_oop_arena_entry_no_memory),
      cmocka_unit_test(test_detach_oop_arena_entry),
+     cmocka_unit_test(test_detach_oop_arena_entry_overflow),
+     cmocka_unit_test(test_alloc_oop_arena_entry_init_reach_thread_limit),
+     cmocka_unit_test(test_alloc_oop_arena_entry_init_thread_already_initialized),
+     cmocka_unit_test(test_alloc_oop_arena_entry_reach_thread_limit),
+     cmocka_unit_test(test_alloc_oop_arena_entry_thread_already_initialized),
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);

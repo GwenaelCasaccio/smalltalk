@@ -187,6 +187,9 @@ struct memory_space {
   /* The number of arena entries */
   size_t ot_arena_size;
 
+  /* These are the arena used for each VM threads. */
+  _gst_forward_object_allocator_t *current_arena[100];
+
   /* The number of OOPs in the free list and in the full OOP
      table.  num_free_oops is only correct after a GC!  */
   size_t num_free_oops, ot_size;

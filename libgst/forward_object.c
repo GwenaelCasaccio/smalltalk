@@ -18,6 +18,7 @@ void _gst_init_oop_table(PTR address, size_t size) {
 
   _gst_alloc_oop_table(size);
   _gst_alloc_oop_arena(i);
+  _gst_alloc_oop_arena_entry_init(0);
 }
 
 void _gst_alloc_oop_table(size_t size) {
@@ -43,15 +44,41 @@ void _gst_alloc_oop_arena(size_t size) {
   _gst_mem.ot_arena_size = arena_size;
 
   for (size_t i = 0; i < arena_size; i++) {
+    _gst_mem.ot_arena[i].thread_id = UINT16_MAX;
     _gst_mem.ot_arena[i].free_oops = 32768;
   }
 }
 
 size_t _gst_alloc_oop_arena_entry(uint16_t thread_id) {
+  if (thread_id == UINT16_MAX) {
+    return 0;
+  }
+
+  if (UNCOMMON (_gst_mem.current_arena[thread_id]->free_oops > 0)) {
+    return _gst_mem.current_arena[thread_id] - &_gst_mem.ot_arena[0];
+  }
+
+  return _gst_alloc_oop_arena_entry_unchecked(thread_id);
+}
+
+size_t _gst_alloc_oop_arena_entry_init(uint16_t thread_id) {
+  if (thread_id == UINT16_MAX) {
+    return 0;
+  }
+
+  if (UNCOMMON (_gst_mem.current_arena[thread_id])) {
+    return _gst_mem.current_arena[thread_id] - &_gst_mem.ot_arena[0];
+  }
+
+  return _gst_alloc_oop_arena_entry_unchecked(thread_id);
+}
+
+size_t _gst_alloc_oop_arena_entry_unchecked(uint16_t thread_id) {
   for (size_t i = 0; i < _gst_mem.ot_arena_size; i++) {
-    uint16_t expected_thread_id = 0;
+    uint16_t expected_thread_id = UINT16_MAX;
     if (atomic_compare_exchange_strong(&_gst_mem.ot_arena[i].thread_id, &expected_thread_id, thread_id)) {
       if (atomic_load(&_gst_mem.ot_arena[i].free_oops) > 0) {
+        _gst_mem.current_arena[thread_id] = &_gst_mem.ot_arena[i];
         return i;
       }
 
