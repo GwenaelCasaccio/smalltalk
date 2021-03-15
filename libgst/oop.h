@@ -178,6 +178,12 @@ struct memory_space {
      byte objects may not be an even multiple of sizeof(PTR).  */
   struct oop_s *ot;
 
+  /* This is the object table allocation arena. The object table is divided in small
+     arena of 32768 entries. Each threaded vm is allowed to take one of the area to
+     allocate OOP in a lock free maner.
+   */
+  _gst_forward_object_allocator_t *ot_arena;
+
   /* The number of OOPs in the free list and in the full OOP
      table.  num_free_oops is only correct after a GC!  */
   size_t num_free_oops, ot_size;

@@ -10,6 +10,8 @@ static int nomemory_called = 0;
 
 static int sweep_called = 0;
 
+void *__wrap_xcalloc(size_t nb, size_t size);
+
 heap __wrap__gst_heap_create(PTR address, size_t size);
 
 void __wrap_nomemory(int fatal);
@@ -30,6 +32,14 @@ void __wrap__gst_sweep_oop(OOP oop);
 
 static void null_test_success(void **state) {
   (void) state;
+}
+
+void *__wrap_xcalloc(size_t nb, size_t size) {
+
+  check_expected(nb);
+  check_expected(size);
+
+  return calloc(nb, size);
 }
 
 heap __wrap__gst_heap_create(PTR address, size_t size) {
@@ -126,11 +136,21 @@ static void init_oop_table_with_heap(void **state) {
   expect_value(__wrap__gst_heap_sbrk, size, 0x1234 * sizeof(struct oop_s));
   will_return(__wrap__gst_heap_sbrk, 0x2000);
 
+  expect_value(__wrap_xcalloc, nb, 524289);
+  expect_value(__wrap_xcalloc, size, 4);
+
   _gst_init_oop_table(NULL, 0x1234);
 
   assert_true(nomemory_called == 0);
   assert_true(_gst_mem.num_free_oops == 0x1234);
   assert_true(_gst_mem.ot_size == 0x1234);
+
+  for (size_t i = 0; i < 524289; i++) {
+    assert_true(_gst_mem.ot_arena[i].thread_id == 0);
+    assert_true(_gst_mem.ot_arena[i].free_oops == 32768);
+  }
+
+  free(_gst_mem.ot_arena);
 }
 
 static void init_oop_table_with_heap_smaller_than_requested_size(void **state) {
@@ -173,6 +193,9 @@ static void init_oop_table_with_heap_but_null_sbrk(void **state) {
   expect_value(__wrap__gst_heap_sbrk, hd, 0x1000);
   expect_value(__wrap__gst_heap_sbrk, size, 0x1234 * sizeof(struct oop_s));
   will_return(__wrap__gst_heap_sbrk, NULL);
+
+  expect_value(__wrap_xcalloc, nb, 524289);
+  expect_value(__wrap_xcalloc, size, 4);
 
   _gst_init_oop_table(NULL, 0x1234);
 

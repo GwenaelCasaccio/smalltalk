@@ -17,6 +17,7 @@ void _gst_init_oop_table(PTR address, size_t size) {
   }
 
   _gst_alloc_oop_table(size);
+  _gst_alloc_oop_arena(i);
 }
 
 void _gst_alloc_oop_table(size_t size) {
@@ -33,6 +34,16 @@ void _gst_alloc_oop_table(size_t size) {
   _gst_mem.num_free_oops = size;
   _gst_mem.last_allocated_oop = _gst_mem.last_swept_oop = _gst_mem.ot - 1;
   _gst_mem.next_oop_to_sweep = _gst_mem.ot - 1;
+}
+
+void _gst_alloc_oop_arena(size_t size) {
+  size_t nb_of_entries = (size / 32768) + 1;
+
+  _gst_mem.ot_arena = xcalloc(nb_of_entries, sizeof(*_gst_mem.ot_arena));
+
+  for (size_t i = 0; i < nb_of_entries; i++) {
+    _gst_mem.ot_arena[i].free_oops = 32768;
+  }
 }
 
 mst_Boolean _gst_realloc_oop_table(size_t newSize) {
