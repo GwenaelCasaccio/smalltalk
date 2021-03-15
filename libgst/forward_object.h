@@ -60,6 +60,10 @@ extern void _gst_init_oop_table(PTR address, size_t size);
 
 extern void _gst_alloc_oop_arena(size_t size);
 
+extern size_t _gst_alloc_oop_arena_entry(uint16_t thread_id);
+
+extern void _gst_detach_oop_arena_entry(size_t area_index);
+
 /* Allocates a table for OOPs of SIZE bytes, and store pointers to the
    builtin OOPs into _gst_nil_oop et al.  */
 extern void _gst_alloc_oop_table(size_t size);

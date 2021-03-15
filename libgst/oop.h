@@ -184,6 +184,9 @@ struct memory_space {
    */
   _gst_forward_object_allocator_t *ot_arena;
 
+  /* The number of arena entries */
+  size_t ot_arena_size;
+
   /* The number of OOPs in the free list and in the full OOP
      table.  num_free_oops is only correct after a GC!  */
   size_t num_free_oops, ot_size;

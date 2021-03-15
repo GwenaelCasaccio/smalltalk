@@ -37,13 +37,38 @@ void _gst_alloc_oop_table(size_t size) {
 }
 
 void _gst_alloc_oop_arena(size_t size) {
-  size_t nb_of_entries = (size / 32768) + 1;
+  size_t arena_size = (size / 32768) + 1;
 
-  _gst_mem.ot_arena = xcalloc(nb_of_entries, sizeof(*_gst_mem.ot_arena));
+  _gst_mem.ot_arena = xcalloc(arena_size, sizeof(*_gst_mem.ot_arena));
+  _gst_mem.ot_arena_size = arena_size;
 
-  for (size_t i = 0; i < nb_of_entries; i++) {
+  for (size_t i = 0; i < arena_size; i++) {
     _gst_mem.ot_arena[i].free_oops = 32768;
   }
+}
+
+size_t _gst_alloc_oop_arena_entry(uint16_t thread_id) {
+  for (size_t i = 0; i < _gst_mem.ot_arena_size; i++) {
+    uint16_t expected_thread_id = 0;
+    if (atomic_compare_exchange_strong(&_gst_mem.ot_arena[i].thread_id, &expected_thread_id, thread_id)) {
+      if (atomic_load(&_gst_mem.ot_arena[i].free_oops) > 0) {
+        return i;
+      }
+
+      atomic_store(&_gst_mem.ot_arena[i].thread_id, 0);
+    }
+  }
+
+  nomemory(true);
+  return 0;
+}
+
+void _gst_detach_oop_arena_entry(size_t area_index) {
+  if (area_index >= _gst_mem.ot_arena_size) {
+    return ;
+  }
+
+  atomic_store(&_gst_mem.ot_arena[area_index].thread_id, 0);
 }
 
 mst_Boolean _gst_realloc_oop_table(size_t newSize) {
