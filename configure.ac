@@ -23,7 +23,7 @@ AC_CONFIG_SRCDIR([main.c])
 AC_CONFIG_TESTDIR(tests)
 AC_CONFIG_HEADERS([config.h])
 GST_PROG_GAWK
-AM_INIT_AUTOMAKE([subdir-objects])
+AM_INIT_AUTOMAKE([subdir-objects foreign])
 AC_CANONICAL_HOST
 
 if test -d $srcdir/.git; then

@@ -42,5 +42,3 @@ jobs:
       with:
         name: tests
         path: tests
-    - name: make distcheck
-      run: make distcheck
