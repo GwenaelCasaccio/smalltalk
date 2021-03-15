@@ -53,6 +53,8 @@ heap __wrap__gst_heap_create(PTR address, size_t size) {
 void __wrap_nomemory(int fatal) {
   nomemory_called++;
 
+  function_called();
+
   return ;
 }
 
@@ -99,7 +101,6 @@ void __wrap__gst_sweep_oop(OOP oop) {
 static void init_oop_table_with_null_heap(void **state) {
   (void) state;
 
-  nomemory_called = 0;
   _gst_mem.num_free_oops = 0;
   _gst_mem.ot_size = 0;
 
@@ -110,9 +111,10 @@ static void init_oop_table_with_null_heap(void **state) {
 
   will_return_always(__wrap__gst_heap_create, NULL);
 
+  expect_function_calls(__wrap_nomemory, 1);
+
   _gst_init_oop_table(NULL, 0x1234);
 
-  assert_true(nomemory_called == 1);
   assert_true(_gst_mem.num_free_oops == 0);
   assert_true(_gst_mem.ot_size == 0);
 }
@@ -145,6 +147,7 @@ static void init_oop_table_with_heap(void **state) {
   assert_true(_gst_mem.num_free_oops == 0x1234);
   assert_true(_gst_mem.ot_size == 0x1234);
 
+  assert_true(_gst_mem.ot_arena_size == 524289);
   for (size_t i = 0; i < 524289; i++) {
     assert_true(_gst_mem.ot_arena[i].thread_id == 0);
     assert_true(_gst_mem.ot_arena[i].free_oops == 32768);
@@ -156,7 +159,6 @@ static void init_oop_table_with_heap(void **state) {
 static void init_oop_table_with_heap_smaller_than_requested_size(void **state) {
   (void) state;
 
-  nomemory_called = 0;
   _gst_mem.num_free_oops = 0;
   _gst_mem.ot_size = 0;
 
@@ -168,9 +170,10 @@ static void init_oop_table_with_heap_smaller_than_requested_size(void **state) {
   expect_value(__wrap__gst_heap_create, size, (sizeof(struct oop_s) * (MAX_OOP_TABLE_SIZE >> 1)));
   will_return(__wrap__gst_heap_create, 0x1000);
 
+  expect_function_calls(__wrap_nomemory, 1);
+
   _gst_init_oop_table(NULL, MAX_OOP_TABLE_SIZE);
 
-  assert_true(nomemory_called == 1);
   assert_true(_gst_mem.num_free_oops == 0);
   assert_true(_gst_mem.ot_size == 0);
 }
@@ -178,7 +181,6 @@ static void init_oop_table_with_heap_smaller_than_requested_size(void **state) {
 static void init_oop_table_with_heap_but_null_sbrk(void **state) {
   (void) state;
 
-  nomemory_called = 0;
   _gst_mem.num_free_oops = 0;
   _gst_mem.ot_size = 0;
 
@@ -197,11 +199,14 @@ static void init_oop_table_with_heap_but_null_sbrk(void **state) {
   expect_value(__wrap_xcalloc, nb, 524289);
   expect_value(__wrap_xcalloc, size, 4);
 
+  expect_function_calls(__wrap_nomemory, 1);
+
   _gst_init_oop_table(NULL, 0x1234);
 
-  assert_true(nomemory_called == 1);
   assert_true(_gst_mem.num_free_oops == 0);
   assert_true(_gst_mem.ot_size == 0x1234);
+
+  free(_gst_mem.ot_arena);
 }
 
 static void realloc_oop_table(void **state) {
@@ -242,7 +247,6 @@ static void realloc_oop_table_sbrk_fail(void **state) {
   (void) state;
 
   oop_heap = (char *)0xABAB;
-  nomemory_called = 0;
   _gst_mem.num_free_oops = 0;
   _gst_mem.ot_size = 0x1000;
 
@@ -250,9 +254,10 @@ static void realloc_oop_table_sbrk_fail(void **state) {
   expect_value(__wrap__gst_heap_sbrk, size, 0x100 * sizeof(struct oop_s));
   will_return(__wrap__gst_heap_sbrk, NULL);
 
+  expect_function_calls(__wrap_nomemory, 1);
+
   assert_false(_gst_realloc_oop_table(0x1100));
 
-  assert_true(nomemory_called == 1);
   assert_true(_gst_mem.num_free_oops == 0x0);
   assert_true(_gst_mem.ot_size == 0x1000);
 }
@@ -504,6 +509,53 @@ static void test_alloc_oop_with_lazy_sweep_and_overflow_last_oop(void **state) {
   free(_gst_mem.ot);
 }
 
+static void test_alloc_oop_arena_entry(void **state) {
+  (void) state;
+
+  nomemory_called = 0;
+
+  expect_value(__wrap_xcalloc, nb, 15);
+  expect_value(__wrap_xcalloc, size, 4);
+
+  _gst_alloc_oop_arena(32768 * 14);
+
+  for(size_t i = 0; i < 5; i++) {
+    _gst_mem.ot_arena[i].thread_id = 1;
+  }
+
+  for(size_t i = 5; i < 10; i++) {
+    _gst_mem.ot_arena[i].free_oops = 0;
+  }
+
+  assert_true(_gst_alloc_oop_arena_entry(2) == 10);
+  assert_true(nomemory_called == 0);
+
+  free(_gst_mem.ot_arena);
+}
+
+static void test_alloc_oop_arena_entry_no_memory(void **state) {
+  (void) state;
+
+  expect_value(__wrap_xcalloc, nb, 15);
+  expect_value(__wrap_xcalloc, size, 4);
+
+  _gst_alloc_oop_arena(32768 * 14);
+
+  for(size_t i = 0; i < 5; i++) {
+    _gst_mem.ot_arena[i].thread_id = 1;
+  }
+
+  for(size_t i = 5; i < _gst_mem.ot_arena_size; i++) {
+    _gst_mem.ot_arena[i].free_oops = 0;
+  }
+
+  expect_function_calls(__wrap_nomemory, 1);
+
+  assert_true(_gst_alloc_oop_arena_entry(2) == 0);
+
+  free(_gst_mem.ot_arena);
+}
+
 int main(void) {
   const struct CMUnitTest tests[] =
     {
@@ -520,6 +572,8 @@ int main(void) {
      cmocka_unit_test(test_alloc_oop_with_no_more_slots_available),
      cmocka_unit_test(test_alloc_oop_with_lazy_sweep),
      cmocka_unit_test(test_alloc_oop_with_lazy_sweep_and_overflow_last_oop),
+     cmocka_unit_test(test_alloc_oop_arena_entry),
+     cmocka_unit_test(test_alloc_oop_arena_entry_no_memory),
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
