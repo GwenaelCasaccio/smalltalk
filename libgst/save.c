@@ -567,6 +567,8 @@ char *load_normal_oops(int imageFd) {
     if (IS_OOP_FREE(oop))
       continue;
 
+    _gst_mem.ot_arena[(oop - _gst_mem.ot) / 32768].free_oops--;
+
     /* FIXME: a small amount of garbage is saved that is produced
        by mourning the ephemerons right before GC.  We should probably
        put the objects to be mourned into a global list and walk it

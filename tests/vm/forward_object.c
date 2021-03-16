@@ -275,6 +275,15 @@ static void test_alloc_oop(void **state) {
 
   (void) state;
 
+  current_thread_id = 0;
+
+  expect_value(__wrap_xcalloc, nb, 151);
+  expect_value(__wrap_xcalloc, size, 4);
+
+  _gst_alloc_oop_arena(150 * 32768);
+
+  _gst_mem.current_arena[0] = &_gst_mem.ot_arena[0];
+
   _gst_mem.ot = calloc(1000, sizeof(struct oop_s));
   if (!_gst_mem.ot) { abort(); }
 
@@ -304,6 +313,9 @@ static void test_alloc_oop(void **state) {
   }
 
   free(_gst_mem.ot);
+  free(_gst_mem.ot_arena);
+
+  _gst_mem.ot_arena = NULL;
   _gst_mem.current_arena[0] = NULL;
 }
 
@@ -311,6 +323,15 @@ static void test_alloc_oop_with_allocated_objects(void **state) {
   OOP result;
 
   (void) state;
+
+  current_thread_id = 0;
+
+  expect_value(__wrap_xcalloc, nb, 151);
+  expect_value(__wrap_xcalloc, size, 4);
+
+  _gst_alloc_oop_arena(150 * 32768);
+
+  _gst_mem.current_arena[0] = &_gst_mem.ot_arena[0];
 
   _gst_mem.live_flags = 0x2;
 
@@ -354,6 +375,9 @@ static void test_alloc_oop_with_allocated_objects(void **state) {
   }
 
   free(_gst_mem.ot);
+  free(_gst_mem.ot_arena);
+
+  _gst_mem.ot_arena = NULL;
   _gst_mem.current_arena[0] = NULL;
 }
 
@@ -405,6 +429,15 @@ static void test_alloc_oop_with_lazy_sweep(void **state) {
 
   (void) state;
 
+  current_thread_id = 0;
+
+  expect_value(__wrap_xcalloc, nb, 151);
+  expect_value(__wrap_xcalloc, size, 4);
+
+  _gst_alloc_oop_arena(150 * 32768);
+
+  _gst_mem.current_arena[0] = &_gst_mem.ot_arena[0];
+
   _gst_mem.live_flags = 0x2;
 
   _gst_mem.ot = calloc(1000, sizeof(struct oop_s));
@@ -454,6 +487,9 @@ static void test_alloc_oop_with_lazy_sweep(void **state) {
   }
 
   free(_gst_mem.ot);
+  free(_gst_mem.ot_arena);
+
+  _gst_mem.ot_arena = NULL;
   _gst_mem.current_arena[0] = NULL;
 }
 
@@ -463,6 +499,15 @@ static void test_alloc_oop_with_lazy_sweep_and_overflow_last_oop(void **state) {
   (void) state;
 
   sweep_called = 0;
+
+  current_thread_id = 0;
+
+  expect_value(__wrap_xcalloc, nb, 151);
+  expect_value(__wrap_xcalloc, size, 4);
+
+  _gst_alloc_oop_arena(150 * 32768);
+
+  _gst_mem.current_arena[0] = &_gst_mem.ot_arena[0];
 
   _gst_mem.live_flags = 0x2;
 
@@ -519,6 +564,9 @@ static void test_alloc_oop_with_lazy_sweep_and_overflow_last_oop(void **state) {
   assert_true(sweep_called == 0);
 
   free(_gst_mem.ot);
+  free(_gst_mem.ot_arena);
+
+  _gst_mem.ot_arena = NULL;
   _gst_mem.current_arena[0] = NULL;
 }
 

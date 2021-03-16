@@ -188,5 +188,16 @@ static inline OOP alloc_oop(PTR objData, intptr_t flags) {
   OOP_SET_OBJECT(oop, (gst_object)objData);
   OOP_SET_FLAGS(oop, flags);
   pthread_mutex_unlock(&alloc_oop_mutex);
+
+  if (COMMON (_gst_mem.current_arena[current_thread_id]->free_oops > 0)) {
+    _gst_mem.current_arena[current_thread_id]->free_oops--;
+  } else {
+    if (UNCOMMON(!_gst_alloc_oop_arena_entry(current_thread_id))) {
+      abort();
+    } else {
+      _gst_mem.current_arena[current_thread_id]->free_oops--;
+    }
+  }
+
   return (oop);
 }
