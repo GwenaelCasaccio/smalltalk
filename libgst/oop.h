@@ -64,19 +64,6 @@
 #define NO_SIGSEGV_HANDLING
 #endif
 
-/* The number of OOPs in the system.  This is exclusive of Character,
-   True, False, and UndefinedObject (nil) oops, which are
-   built-ins.  */
-#define INITIAL_OOP_TABLE_SIZE (1024 * 128 + 1024)
-
-#if SIZEOF_OOP == 4
-#define MAX_OOP_TABLE_SIZE (1 << 23)
-#endif
-
-#if SIZEOF_OOP == 8
-#define MAX_OOP_TABLE_SIZE (1UL << 36)
-#endif
-
 /* The number of free OOPs under which we trigger GCs.  0 is not
    enough because _gst_scavenge might still need some oops in
    empty_context_stack!!! */
@@ -162,6 +149,9 @@ struct mark_queue {
 };
 
 struct memory_space {
+  /* This is the memory area which holds the object table.  */
+  heap oop_heap;
+
   heap_data *old, *fixed;
   struct new_space eden;
   struct surv_space surv[2], tenuring_queue;

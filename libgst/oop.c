@@ -1146,10 +1146,9 @@ void reset_incremental_gc(OOP firstOOP) {
       _gst_mem.ot_size - (_gst_mem.last_allocated_oop - _gst_mem.ot);
 
   /* Check if it's time to grow the OOP table.  */
-  if (_gst_mem.num_free_oops * 100.0 / _gst_mem.ot_size <
-      100 - _gst_mem.grow_threshold_percent)
-    _gst_realloc_oop_table(_gst_mem.ot_size * (100 + _gst_mem.space_grow_rate) /
-                           100);
+  if (_gst_mem.num_free_oops * 100.0 / _gst_mem.ot_size < 100 - _gst_mem.grow_threshold_percent) {
+    _gst_realloc_oop_table(((_gst_mem.ot_size * (100 + _gst_mem.space_grow_rate) / 100) + 0x8000) & ~0x7FFF);
+  }
 
 #if defined(GC_DEBUG_OUTPUT)
   printf("Last allocated OOP %p\n"

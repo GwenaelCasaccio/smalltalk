@@ -3,6 +3,21 @@
 
 #include <stdint.h>
 
+/* The number of OOPs in the system.  This is exclusive of Character,
+   True, False, and UndefinedObject (nil) oops, which are
+   built-ins.  */
+#define INITIAL_OOP_TABLE_SIZE (1024 * 160)
+
+_Static_assert((INITIAL_OOP_TABLE_SIZE & 0x7FFF) == 0, "Forward object table should be aligned to 0x8000 !");
+
+#if SIZEOF_OOP == 4
+#define MAX_OOP_TABLE_SIZE (1 << 23)
+#endif
+
+#if SIZEOF_OOP == 8
+#define MAX_OOP_TABLE_SIZE (1UL << 36)
+#endif
+
 /* An indirect pointer to object data.  */
 typedef struct oop_s *OOP;
 
@@ -56,7 +71,7 @@ typedef struct _gst_forward_object_allocator_s {
    just how we initialize them.  We do as much initialization as we can,
    but we're called before classses are defined, so things that have
    definite classes must wait until the classes are defined.  */
-extern void _gst_init_oop_table(PTR address, size_t size);
+extern void _gst_init_oop_table(PTR address, size_t number_of_forwarding_objects);
 
 extern void _gst_alloc_oop_arena(size_t size);
 
@@ -74,7 +89,7 @@ extern void _gst_alloc_oop_table(size_t size);
 
 /* Grow the OOP table to NEWSIZE pointers and initialize the newly
    created pointers.  */
-extern mst_Boolean _gst_realloc_oop_table(size_t newSize);
+extern mst_Boolean _gst_realloc_oop_table(size_t number_of_forwarding_objects);
 
 /* Dump the entire contents of the OOP table.  Mainly for debugging
    purposes.  */

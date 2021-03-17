@@ -453,7 +453,7 @@ mst_Boolean load_snapshot(int imageFd) {
   _gst_mem.fixed->nomemory = abort_nomemory;
 
   _gst_init_oop_table((PTR)header.ot_base,
-                      MAX(header.oopTableSize * 2, INITIAL_OOP_TABLE_SIZE));
+                      MAX((header.oopTableSize * 2) & ~0x7FFF, INITIAL_OOP_TABLE_SIZE));
 
   ot_delta = (intptr_t)(_gst_mem.ot) - header.ot_base;
   num_used_oops = header.oopTableSize;
