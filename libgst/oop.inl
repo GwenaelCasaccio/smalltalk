@@ -167,10 +167,10 @@ static inline OOP alloc_oop(PTR objData, intptr_t flags) {
       OOP_NEXT(oop);
     }
 
-  /* Force a GC there no more OOPs.  */
+  /* there are no free OOP.  */
   if (UNCOMMON (!_gst_mem.num_free_oops)) {
     pthread_mutex_unlock(&alloc_oop_mutex);
-    _gst_mem.eden.maxPtr = _gst_mem.eden.allocPtr;
+    nomemory(true);
     return NULL;
   }
 

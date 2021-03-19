@@ -408,6 +408,9 @@ static void test_alloc_oop_with_no_more_slots_available(void **state) {
   expect_value(__wrap_pthread_mutex_unlock, mutex, &alloc_oop_mutex);
   will_return(__wrap_pthread_mutex_unlock, 0);
 
+  expect_value(__wrap_nomemory, fatal, 1);
+  expect_function_calls(__wrap_nomemory, 1);
+
   result = alloc_oop((PTR) 0xBABA, 0x1234);
 
   assert_true(result == NULL);
