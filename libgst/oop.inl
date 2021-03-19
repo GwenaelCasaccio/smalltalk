@@ -177,8 +177,10 @@ static inline OOP alloc_oop(PTR objData, intptr_t flags) {
   _gst_mem.last_swept_oop = oop;
   PREFETCH_LOOP(oop, PREF_READ);
 
+  _gst_mem.num_free_oops--;
+
   /* Force a GC as soon as possible if we're low on OOPs.  */
-  if (UNCOMMON (_gst_mem.num_free_oops-- < LOW_WATER_OOP_THRESHOLD)) {
+  if (UNCOMMON (_gst_mem.num_free_oops < LOW_WATER_OOP_THRESHOLD)) {
     _gst_mem.eden.maxPtr = _gst_mem.eden.allocPtr;
   }
 
@@ -189,7 +191,8 @@ static inline OOP alloc_oop(PTR objData, intptr_t flags) {
   OOP_SET_FLAGS(oop, flags);
   pthread_mutex_unlock(&alloc_oop_mutex);
 
-  if (COMMON (_gst_mem.current_arena[current_thread_id]->free_oops > 0)) {
+  _gst_mem.ot_arena[(oop - _gst_mem.ot) / 32768].free_oops--;
+  /*if (COMMON (_gst_mem.current_arena[current_thread_id]->free_oops > 0)) {
     _gst_mem.current_arena[current_thread_id]->free_oops--;
   } else {
     if (UNCOMMON(!_gst_alloc_oop_arena_entry(current_thread_id))) {
@@ -197,7 +200,7 @@ static inline OOP alloc_oop(PTR objData, intptr_t flags) {
     } else {
       _gst_mem.current_arena[current_thread_id]->free_oops--;
     }
-  }
+  }*/
 
   return (oop);
 }

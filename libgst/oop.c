@@ -1182,10 +1182,7 @@ void _gst_sweep_oop(OOP oop) {
 
   OOP_SET_FLAGS(oop, 0);
 
-  if (UNCOMMON (_gst_mem.current_arena[current_thread_id]->free_oops == 32768)) {
-    _gst_mem.current_arena[current_thread_id]--;
-  }
-  _gst_mem.current_arena[current_thread_id]->free_oops++;
+  _gst_mem.ot_arena[(oop - _gst_mem.ot) / 32768].free_oops++;
 }
 
 gst_object unsafe_new_instance_with(OOP class_oop, size_t numIndexFields, OOP *p_oop) {
