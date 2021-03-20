@@ -140,32 +140,24 @@ static inline void maybe_release_xlat(OOP oop) {}
 static inline OOP alloc_oop(PTR objData, intptr_t flags) {
   REGISTER(1, OOP oop);
   REGISTER(2, OOP lastOOP);
-  REGISTER(3, OOP endOfTableOOP);
 
   pthread_mutex_lock(&alloc_oop_mutex);
 
-  oop = _gst_mem.last_swept_oop + 1;
-  lastOOP = _gst_mem.next_oop_to_sweep;
-  endOfTableOOP = &_gst_mem.ot[_gst_mem.ot_size];
-  if (COMMON(oop <= lastOOP)) {
-    while (IS_OOP_VALID_GC(oop)) {
-      maybe_release_xlat(oop);
-      OOP_SET_FLAGS(oop, OOP_GET_FLAGS(oop) & ~F_REACHABLE);
-      if (oop >= lastOOP) {
-        _gst_finished_incremental_gc();
-        goto fast;
-      }
-      OOP_NEXT(oop);
-    }
-    _gst_sweep_oop(oop);
-    _gst_mem.num_free_oops++;
-    if (oop >= lastOOP)
-      _gst_finished_incremental_gc();
-  } else
-    while (IS_OOP_VALID_GC(oop) && oop < endOfTableOOP) {
-    fast:
-      OOP_NEXT(oop);
-    }
+  /* Slow path find a new arena */
+  if (UNCOMMON(_gst_mem.current_arena[current_thread_id]->free_oops == 0)) {
+    /* Release current arena */
+    _gst_detach_oop_arena_entry(_gst_mem.current_arena[current_thread_id] - _gst_mem.ot_arena);
+    _gst_alloc_oop_arena_entry(current_thread_id);
+  }
+
+  oop = &_gst_mem.ot[(_gst_mem.current_arena[current_thread_id] - _gst_mem.ot_arena) * 32768];
+  lastOOP = oop + 32768;
+
+  while (IS_OOP_VALID_GC(oop) && oop < lastOOP) {
+    OOP_NEXT(oop);
+  }
+
+  _gst_mem.current_arena[current_thread_id]->free_oops--;
 
   /* there are no free OOP.  */
   if (UNCOMMON (!_gst_mem.num_free_oops)) {
@@ -175,7 +167,6 @@ static inline OOP alloc_oop(PTR objData, intptr_t flags) {
   }
 
   _gst_mem.last_swept_oop = oop;
-  PREFETCH_LOOP(oop, PREF_READ);
 
   _gst_mem.num_free_oops--;
 
@@ -184,23 +175,13 @@ static inline OOP alloc_oop(PTR objData, intptr_t flags) {
     _gst_mem.eden.maxPtr = _gst_mem.eden.allocPtr;
   }
 
-  if (oop > _gst_mem.last_allocated_oop)
+  if (oop > _gst_mem.last_allocated_oop) {
     _gst_mem.last_allocated_oop = oop;
+  }
 
   OOP_SET_OBJECT(oop, (gst_object)objData);
   OOP_SET_FLAGS(oop, flags);
   pthread_mutex_unlock(&alloc_oop_mutex);
-
-  _gst_mem.ot_arena[(oop - _gst_mem.ot) / 32768].free_oops--;
-  /*if (COMMON (_gst_mem.current_arena[current_thread_id]->free_oops > 0)) {
-    _gst_mem.current_arena[current_thread_id]->free_oops--;
-  } else {
-    if (UNCOMMON(!_gst_alloc_oop_arena_entry(current_thread_id))) {
-      abort();
-    } else {
-      _gst_mem.current_arena[current_thread_id]->free_oops--;
-    }
-  }*/
 
   return (oop);
 }

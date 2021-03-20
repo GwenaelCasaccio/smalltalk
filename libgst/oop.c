@@ -66,9 +66,6 @@
 /* Define this flag to turn on debugging code for OOP table management */
 /* #define GC_DEBUGGING */
 
-/* Define this flag to disable incremental garbage collection */
-/* #define NO_INCREMENTAL_GC */
-
 /* Define this flag to turn on debugging code for oldspace management */
 /* #define MMAN_DEBUG_OUTPUT */
 
@@ -1131,16 +1128,7 @@ void reset_incremental_gc(OOP firstOOP) {
   _gst_mem.next_oop_to_sweep = _gst_mem.last_allocated_oop;
   _gst_mem.last_swept_oop = oop - 1;
 
-#ifdef NO_INCREMENTAL_GC
   _gst_finish_incremental_gc();
-#else
-  /* Skip high OOPs that are unallocated.  */
-  for (oop = _gst_mem.last_allocated_oop; !IS_OOP_VALID(oop); OOP_PREV(oop))
-    _gst_sweep_oop(oop);
-
-  _gst_mem.last_allocated_oop = oop;
-  _gst_mem.next_oop_to_sweep = oop;
-#endif
 
   _gst_mem.num_free_oops =
       _gst_mem.ot_size - (_gst_mem.last_allocated_oop - _gst_mem.ot);

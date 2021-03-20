@@ -60,7 +60,7 @@ size_t _gst_alloc_oop_arena_entry(uint16_t thread_id) {
     return 0;
   }
 
-  if (UNCOMMON (_gst_mem.current_arena[thread_id]->free_oops > 0)) {
+  if (UNCOMMON (_gst_mem.current_arena[thread_id]->thread_id == thread_id && _gst_mem.current_arena[thread_id]->free_oops > 0)) {
     return _gst_mem.current_arena[thread_id] - &_gst_mem.ot_arena[0];
   }
 
