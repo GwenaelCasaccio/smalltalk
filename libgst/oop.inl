@@ -139,8 +139,6 @@ static inline OOP alloc_oop(PTR objData, intptr_t flags) {
   REGISTER(1, OOP oop);
   REGISTER(2, OOP lastOOP);
 
-  pthread_mutex_lock(&alloc_oop_mutex);
-
   /* Slow path find a new arena */
   if (UNCOMMON(_gst_mem.current_arena[current_thread_id]->free_oops == 0)) {
     /* Release current arena */
@@ -159,28 +157,26 @@ static inline OOP alloc_oop(PTR objData, intptr_t flags) {
   _gst_mem.current_arena[current_thread_id]->free_oops--;
 
   /* there are no free OOP.  */
-  if (UNCOMMON (!_gst_mem.num_free_oops)) {
-    pthread_mutex_unlock(&alloc_oop_mutex);
+  if (UNCOMMON (!atomic_load(&_gst_mem.num_free_oops))) {
     nomemory(true);
     return NULL;
   }
 
   _gst_mem.last_swept_oop = oop;
 
-  _gst_mem.num_free_oops--;
+  atomic_fetch_sub(&_gst_mem.num_free_oops, 1);
 
   /* Force a GC as soon as possible if we're low on OOPs.  */
-  if (UNCOMMON (_gst_mem.num_free_oops < LOW_WATER_OOP_THRESHOLD)) {
-    _gst_mem.eden.maxPtr = _gst_mem.eden.allocPtr;
+  if (UNCOMMON (atomic_load(&_gst_mem.num_free_oops) < LOW_WATER_OOP_THRESHOLD)) {
+    atomic_store(&_gst_mem.eden.maxPtr, _gst_mem.eden.allocPtr);
   }
 
-  if (oop > _gst_mem.last_allocated_oop) {
-    _gst_mem.last_allocated_oop = oop;
+  while (oop > atomic_load(&_gst_mem.last_allocated_oop)) {
+    atomic_store(&_gst_mem.last_allocated_oop, oop);
   }
 
   OOP_SET_OBJECT(oop, (gst_object)objData);
   OOP_SET_FLAGS(oop, flags);
-  pthread_mutex_unlock(&alloc_oop_mutex);
 
   return (oop);
 }

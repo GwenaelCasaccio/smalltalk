@@ -1,9 +1,6 @@
 #ifndef GST_BARRIER_H
 #define GST_BARRIER_H
 
-/* only used for the oop allocation */
-extern pthread_mutex_t alloc_oop_mutex;
-
 /* The total number of interpreter theads */
 extern volatile _Atomic(size_t) _gst_count_total_threaded_vm;
 

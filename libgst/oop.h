@@ -110,10 +110,10 @@ typedef struct weak_area_tree {
 } weak_area_tree;
 
 typedef struct new_space {
-  OOP *minPtr;             /* points to lowest addr in heap */
-  OOP *maxPtr;             /* points to highest addr in heap */
-  OOP *allocPtr;           /* new space ptr, starts low, goes up */
-  unsigned long totalSize; /* allocated size */
+  OOP           *minPtr;    /* points to lowest addr in heap */
+  _Atomic(OOP *) maxPtr;    /* points to highest addr in heap */
+  OOP           *allocPtr;  /* new space ptr, starts low, goes up */
+  unsigned long  totalSize; /* allocated size */
 } new_space;
 
 typedef struct surv_space {
@@ -182,7 +182,7 @@ struct memory_space {
 
   /* The number of OOPs in the free list and in the full OOP
      table.  num_free_oops is only correct after a GC!  */
-  size_t num_free_oops, ot_size;
+  _Atomic(size_t) num_free_oops, ot_size;
 
   /* The root set of the scavenger.  This includes pages in oldspace that
      were written to, and objects that had to be tenured before they were

@@ -1,7 +1,5 @@
 #include "gstpriv.h"
 
-pthread_mutex_t alloc_oop_mutex = PTHREAD_MUTEX_INITIALIZER;
-
 volatile _Atomic(size_t) _gst_count_total_threaded_vm = 1;
 
 volatile _Atomic(size_t) _gst_count_threaded_vm = 1;
