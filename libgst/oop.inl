@@ -150,13 +150,14 @@ static inline OOP alloc_oop(PTR objData, intptr_t flags) {
     _gst_alloc_oop_arena_entry(current_thread_id);
   }
 
-  oop = &_gst_mem.ot[(_gst_mem.current_arena[current_thread_id] - _gst_mem.ot_arena) * 32768];
-  lastOOP = oop + 32768;
+  oop = _gst_mem.current_arena[current_thread_id]->first_free_oop;
+  lastOOP = &_gst_mem.ot[((_gst_mem.current_arena[current_thread_id] - _gst_mem.ot_arena) * 32768) + 32768];
 
   while (IS_OOP_VALID_GC(oop) && oop < lastOOP) {
     OOP_NEXT(oop);
   }
 
+  _gst_mem.current_arena[current_thread_id]->first_free_oop = oop;
   _gst_mem.current_arena[current_thread_id]->free_oops--;
 
   /* there are no free OOP.  */

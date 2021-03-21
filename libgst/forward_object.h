@@ -64,6 +64,7 @@ _Static_assert(sizeof(struct oop_s) == 0x10, "Be carrefull with padding needed b
 typedef struct _gst_forward_object_allocator_s {
   _Atomic(uint16_t) free_oops;
   _Atomic(uint16_t) thread_id;
+  OOP first_free_oop;
 } _gst_forward_object_allocator_t;
 
 /* Initialize an OOP table of SIZE bytes, trying at the given address if

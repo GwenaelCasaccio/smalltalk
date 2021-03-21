@@ -52,6 +52,7 @@ void _gst_alloc_oop_arena(size_t size) {
   for (size_t i = 0; i < arena_size; i++) {
     _gst_mem.ot_arena[i].thread_id = UINT16_MAX;
     _gst_mem.ot_arena[i].free_oops = 32768;
+    _gst_mem.ot_arena[i].first_free_oop = &_gst_mem.ot[i * 32768];
   }
 }
 
