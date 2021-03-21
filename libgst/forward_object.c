@@ -81,7 +81,9 @@ size_t _gst_alloc_oop_arena_entry_init(uint16_t thread_id) {
 }
 
 size_t _gst_alloc_oop_arena_entry_unchecked(uint16_t thread_id) {
-  for (size_t i = 0; i < _gst_mem.ot_arena_size; i++) {
+  const size_t ot_size_as_arena_entries = _gst_mem.ot_size / 32768;
+
+  for (size_t i = 0; i < _gst_mem.ot_arena_size && i < ot_size_as_arena_entries; i++) {
     uint16_t expected_thread_id = UINT16_MAX;
     if (atomic_compare_exchange_strong(&_gst_mem.ot_arena[i].thread_id, &expected_thread_id, thread_id)) {
       if (atomic_load(&_gst_mem.ot_arena[i].free_oops) > 0) {

@@ -564,8 +564,18 @@ char *load_normal_oops(int imageFd) {
 
     PREFETCH_LOOP(oop, PREF_WRITE | PREF_NTA);
     flags = OOP_GET_FLAGS(oop);
-    if (IS_OOP_FREE(oop))
+
+    if (((oop - _gst_mem.ot) % 32768) == 0) {
+      _gst_mem.ot_arena[(oop - _gst_mem.ot) / 32768].first_free_oop = NULL;
+    }
+
+    if (IS_OOP_FREE(oop)) {
+      if (NULL == _gst_mem.ot_arena[(oop - _gst_mem.ot) / 32768].first_free_oop) {
+        _gst_mem.ot_arena[(oop - _gst_mem.ot) / 32768].first_free_oop = oop;
+      }
+
       continue;
+    }
 
     _gst_mem.ot_arena[(oop - _gst_mem.ot) / 32768].free_oops--;
 
