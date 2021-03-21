@@ -131,8 +131,6 @@ static inline OOP alloc_oop(PTR obj, intptr_t flags);
 
 static inline intptr_t inc_current_depth(void) { return _gst_mem.inc_depth; }
 
-static inline void maybe_release_xlat(OOP oop) {}
-
 /* Given an object OBJ, allocate an OOP table slot for it and returns
    it.  It marks the OOP so that it indicates the object is in new
    space, and that the oop has been referenced on this pass (to keep

@@ -1049,7 +1049,6 @@ void _gst_finish_incremental_gc() {
        oop > firstOOP; OOP_PREV(oop)) {
     PREFETCH_LOOP(oop, PREF_BACKWARDS | PREF_READ | PREF_NTA);
     if (IS_OOP_VALID_GC(oop)) {
-      maybe_release_xlat(oop);
       OOP_SET_FLAGS(oop, OOP_GET_FLAGS(oop) & ~F_REACHABLE);
     } else {
       _gst_sweep_oop(oop);
@@ -1095,7 +1094,6 @@ mst_Boolean _gst_incremental_gc_step() {
   firstOOP = _gst_mem.last_swept_oop;
   for (oop = _gst_mem.next_oop_to_sweep; oop > firstOOP; OOP_PREV(oop)) {
     if (IS_OOP_VALID_GC(oop)) {
-      maybe_release_xlat(oop);
       OOP_SET_FLAGS(oop, OOP_GET_FLAGS(oop) & ~F_REACHABLE);
     } else {
       _gst_sweep_oop(oop);
