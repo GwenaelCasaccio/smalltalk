@@ -322,122 +322,6 @@ static void realloc_oop_table_not_aligned(void **state) {
   assert_false(_gst_realloc_oop_table(0x123));
 }
 
-static void test_alloc_oop(void **state) {
-  OOP result;
-
-  (void) state;
-
-  /* current_thread_id = 0; */
-
-  /* expect_value(__wrap_xcalloc, nb, 151); */
-  /* expect_value(__wrap_xcalloc, size, 4); */
-
-  /* _gst_alloc_oop_arena(150 * 32768); */
-
-  /* _gst_mem.current_arena[0] = &_gst_mem.ot_arena[0]; */
-
-  /* _gst_mem.ot = calloc(1000, sizeof(struct oop_s)); */
-  /* if (!_gst_mem.ot) { abort(); } */
-
-  /* _gst_mem.num_free_oops = 1000; */
-  /* _gst_mem.ot_size = 1000; */
-  /* _gst_mem.next_oop_to_sweep = _gst_mem.last_allocated_oop = _gst_mem.last_swept_oop = _gst_mem.ot - 1; */
-  /* _gst_mem.live_flags = 0x2; */
-
-  /* expect_value(__wrap_pthread_mutex_lock, mutex, &alloc_oop_mutex); */
-  /* will_return(__wrap_pthread_mutex_lock, 0); */
-
-  /* expect_value(__wrap_pthread_mutex_unlock, mutex, &alloc_oop_mutex); */
-  /* will_return(__wrap_pthread_mutex_unlock, 0); */
-
-  /* result = alloc_oop((PTR) 0xBABA, 0x1234); */
-
-  /* assert_true(result == _gst_mem.ot); */
-  /* assert_true(OOP_GET_FLAGS(result) == 0x1234); */
-  /* assert_true(OOP_TO_OBJ(result) == (gst_object) 0xBABA); */
-  /* assert_true(_gst_mem.last_swept_oop == result); */
-  /* assert_true(_gst_mem.num_free_oops == 999); */
-  /* assert_true(_gst_mem.last_allocated_oop == result); */
-
-  /* /\* Skip first allocated and test if the others are still free *\/ */
-  /* for (size_t i = 1; i < 1000; i++) { */
-  /*   assert_true(OOP_GET_FLAGS(&_gst_mem.ot[i]) == 0); */
-  /* } */
-
-  /* free(_gst_mem.ot); */
-  /* free(_gst_mem.ot_arena); */
-
-  /* _gst_mem.ot_arena = NULL; */
-  /* _gst_mem.current_arena[0] = NULL; */
-}
-
-static void test_alloc_oop_with_allocated_objects(void **state) {
-  OOP result;
-
-  (void) state;
-
-  /* current_thread_id = 0; */
-
-  /* expect_value(__wrap_xcalloc, nb, 151); */
-  /* expect_value(__wrap_xcalloc, size, 4); */
-
-  /* _gst_alloc_oop_arena(150 * 32768); */
-
-  /* _gst_mem.current_arena[0] = &_gst_mem.ot_arena[0]; */
-
-  /* _gst_mem.live_flags = 0x2; */
-
-  /* _gst_mem.ot = calloc(1000, sizeof(struct oop_s)); */
-  /* if (!_gst_mem.ot) { abort(); } */
-
-  /* /\* Skip first allocated and test if the others are still free *\/ */
-  /* for (size_t i = 0; i < 500; i++) { */
-  /*   OOP_SET_FLAGS(&_gst_mem.ot[i], _gst_mem.live_flags); */
-  /* } */
-
-  /* _gst_mem.num_free_oops = 500; */
-  /* _gst_mem.ot_size = 1000; */
-  /* _gst_mem.last_allocated_oop = &_gst_mem.ot[499]; */
-  /* _gst_mem.next_oop_to_sweep = _gst_mem.last_swept_oop = _gst_mem.ot - 1; */
-
-  /* expect_value(__wrap_pthread_mutex_lock, mutex, &alloc_oop_mutex); */
-  /* will_return(__wrap_pthread_mutex_lock, 0); */
-
-  /* expect_value(__wrap_pthread_mutex_unlock, mutex, &alloc_oop_mutex); */
-  /* will_return(__wrap_pthread_mutex_unlock, 0); */
-
-  /* result = alloc_oop((PTR) 0xBABA, 0x1234); */
-
-  /* assert_true(result == &_gst_mem.ot[500]); */
-  /* assert_true(OOP_GET_FLAGS(result) == 0x1234); */
-  /* assert_true(OOP_TO_OBJ(result) == (gst_object) 0xBABA); */
-  /* assert_true(_gst_mem.last_swept_oop == result); */
-  /* assert_true(_gst_mem.num_free_oops == 499); */
-  /* assert_true(_gst_mem.last_allocated_oop == result); */
-
-  /* /\* Skip firsts allocated and test if the others are still free *\/ */
-  /* for (size_t i = 0; i < 500; i++) { */
-  /*   assert_true(OOP_GET_FLAGS(&_gst_mem.ot[i]) == _gst_mem.live_flags); */
-  /* } */
-
-  /* assert_true(OOP_GET_FLAGS(&_gst_mem.ot[500]) == 0x1234); */
-
-  /* for (size_t i = 501; i < 1000; i++) { */
-  /*   assert_true(OOP_GET_FLAGS(&_gst_mem.ot[i]) == 0); */
-  /* } */
-
-  /* free(_gst_mem.ot); */
-  /* free(_gst_mem.ot_arena); */
-
-  /* _gst_mem.ot_arena = NULL; */
-  /* _gst_mem.current_arena[0] = NULL; */
-}
-
-static void test_alloc_oop_with_no_more_slots_available(void **state) {
-  (void) state;
-
-}
-
 static void test_alloc_oop_arena_entry(void **state) {
   (void) state;
 
@@ -570,6 +454,22 @@ static void test_detach_oop_arena_entry_overflow(void **state) {
   _gst_mem.current_arena[0] = NULL;
 }
 
+static void test_detach_oop_arena_entry_already_initialized(void **state) {
+  _gst_forward_object_allocator_t arena_entry =
+    {
+     .free_oops = 32768,
+     .thread_id = 1
+    };
+
+  (void) state;
+
+  _gst_mem.current_arena[0] = &arena_entry;
+
+  assert_int_equal(_gst_alloc_oop_arena_entry(UINT16_MAX), 0);
+
+  _gst_mem.current_arena[0] = NULL;
+}
+
 static void test_detach_oop_arena_entry_invalid_thread_id(void **state) {
   (void) state;
 
@@ -586,37 +486,13 @@ static void test_alloc_oop_arena_entry_init_thread_already_initialized(void **st
   (void) state;
 
   expect_value(__wrap_xcalloc, nb, 151);
-  expect_value(__wrap_xcalloc, size, 4);
+  expect_value(__wrap_xcalloc, size, sizeof(*_gst_mem.ot_arena));
 
   _gst_alloc_oop_arena(150 * 32768);
 
   _gst_mem.current_arena[0] = &_gst_mem.ot_arena[100];
 
   assert_int_equal(_gst_alloc_oop_arena_entry_init(0), 100);
-  assert_ptr_equal(_gst_mem.current_arena[0], &_gst_mem.ot_arena[100]);
-
-  _gst_mem.current_arena[0] = NULL;
-  free(_gst_mem.ot_arena);
-}
-
-static void test_alloc_oop_arena_entry_reach_thread_limit(void **state) {
-  (void) state;
-
-  assert_int_equal(_gst_alloc_oop_arena_entry(UINT16_MAX), 0);
-}
-
-static void test_alloc_oop_arena_entry_thread_already_initialized(void **state) {
-  (void) state;
-
-  expect_value(__wrap_xcalloc, nb, 151);
-  expect_value(__wrap_xcalloc, size, 4);
-
-  _gst_alloc_oop_arena(150 * 32768);
-
-  _gst_mem.current_arena[0] = &_gst_mem.ot_arena[100];
-  _gst_mem.current_arena[0]->thread_id = 0;
-
-  assert_int_equal(_gst_alloc_oop_arena_entry(0), 100);
   assert_ptr_equal(_gst_mem.current_arena[0], &_gst_mem.ot_arena[100]);
 
   _gst_mem.current_arena[0] = NULL;
@@ -642,14 +518,10 @@ int main(void) {
      cmocka_unit_test(test_alloc_oop_arena_entry_no_memory),
      cmocka_unit_test(test_detach_oop_arena_entry),
      cmocka_unit_test(test_detach_oop_arena_entry_overflow),
+     cmocka_unit_test(test_detach_oop_arena_entry_already_initialized),
      cmocka_unit_test(test_detach_oop_arena_entry_invalid_thread_id),
-     /* cmocka_unit_test(test_alloc_oop_arena_entry_init_reach_thread_limit), */
-     /* cmocka_unit_test(test_alloc_oop_arena_entry_init_thread_already_initialized), */
-     /* cmocka_unit_test(test_alloc_oop_arena_entry_reach_thread_limit), */
-     /* cmocka_unit_test(test_alloc_oop_arena_entry_thread_already_initialized), */
-     /* cmocka_unit_test(test_alloc_oop), */
-     /* cmocka_unit_test(test_alloc_oop_with_allocated_objects), */
-     /* cmocka_unit_test(test_alloc_oop_with_no_more_slots_available), */
+     cmocka_unit_test(test_alloc_oop_arena_entry_init_reach_thread_limit),
+     cmocka_unit_test(test_alloc_oop_arena_entry_init_thread_already_initialized),
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
