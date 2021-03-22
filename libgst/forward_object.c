@@ -111,6 +111,7 @@ mst_Boolean _gst_realloc_oop_table(size_t number_of_forwarding_objects) {
   size_t bytes;
 
   if (!_gst_mem.oop_heap) {
+    nomemory(true);
     return false;
   }
 

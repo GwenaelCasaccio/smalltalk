@@ -118,9 +118,32 @@ static void init_oop_table_with_null_heap(void **state) {
   expect_function_calls(__wrap_nomemory, 1);
 
   _gst_init_oop_table(NULL, 0x8000);
+}
 
-  assert_true(_gst_mem.num_free_oops == 0);
-  assert_true(_gst_mem.ot_size == 0);
+static void init_oop_table_already_initialized(void **state) {
+  (void) state;
+
+  _gst_mem.oop_heap = (void *)0x1234;
+  _gst_mem.num_free_oops = 0;
+  _gst_mem.ot_size = 0;
+
+  expect_value(__wrap_nomemory, fatal, 1);
+  expect_function_calls(__wrap_nomemory, 1);
+
+  _gst_init_oop_table(NULL, 0x8000);
+}
+
+static void init_oop_table_not_aligned(void **state) {
+  (void) state;
+
+  _gst_mem.oop_heap = NULL;
+  _gst_mem.num_free_oops = 0;
+  _gst_mem.ot_size = 0;
+
+  expect_value(__wrap_nomemory, fatal, 1);
+  expect_function_calls(__wrap_nomemory, 1);
+
+  _gst_init_oop_table(NULL, 0x123);
 }
 
 static void init_oop_table_with_heap(void **state) {
@@ -159,6 +182,7 @@ static void init_oop_table_with_heap(void **state) {
   for (size_t i = 1; i < 0x80001; i++) {
     assert_true(_gst_mem.ot_arena[i].thread_id == UINT16_MAX);
     assert_true(_gst_mem.ot_arena[i].free_oops == 32768);
+    assert_true(_gst_mem.ot_arena[i].first_free_oop == &_gst_mem.ot[i * 32768]);
   }
 
   assert_true(&_gst_mem.ot_arena[0] == _gst_mem.current_arena[0]);
@@ -270,6 +294,32 @@ static void realloc_oop_table_sbrk_fail(void **state) {
 
   assert_true(_gst_mem.num_free_oops == 0x0);
   assert_true(_gst_mem.ot_size == 0x1000);
+}
+
+static void realloc_oop_table_not_initialized(void **state) {
+  (void) state;
+
+  _gst_mem.oop_heap = NULL;
+  _gst_mem.num_free_oops = 0;
+  _gst_mem.ot_size = 0x1000;
+
+  expect_value(__wrap_nomemory, fatal, 1);
+  expect_function_calls(__wrap_nomemory, 1);
+
+  assert_false(_gst_realloc_oop_table(0x8000));
+}
+
+static void realloc_oop_table_not_aligned(void **state) {
+  (void) state;
+
+  _gst_mem.oop_heap = (char *)0xABAB;
+  _gst_mem.num_free_oops = 0;
+  _gst_mem.ot_size = 0x1000;
+
+  expect_value(__wrap_nomemory, fatal, 1);
+  expect_function_calls(__wrap_nomemory, 1);
+
+  assert_false(_gst_realloc_oop_table(0x123));
 }
 
 static void test_alloc_oop(void **state) {
@@ -393,8 +443,11 @@ static void test_alloc_oop_arena_entry(void **state) {
 
   nomemory_called = 0;
 
+  _gst_mem.ot_size = 32768 * 14;
+  _gst_mem.current_arena[0] = NULL;
+
   expect_value(__wrap_xcalloc, nb, 15);
-  expect_value(__wrap_xcalloc, size, 4);
+  expect_value(__wrap_xcalloc, size, sizeof(*_gst_mem.ot_arena));
 
   _gst_alloc_oop_arena(32768 * 14);
 
@@ -420,8 +473,10 @@ static void test_alloc_oop_arena_entry(void **state) {
 static void test_alloc_oop_arena_entry_no_memory(void **state) {
   (void) state;
 
+  _gst_mem.ot_size = 32768 * 14;
+
   expect_value(__wrap_xcalloc, nb, 15);
-  expect_value(__wrap_xcalloc, size, 4);
+  expect_value(__wrap_xcalloc, size, sizeof(*_gst_mem.ot_arena));
 
   _gst_alloc_oop_arena(32768 * 14);
 
@@ -452,8 +507,10 @@ static void test_detach_oop_arena_entry(void **state) {
 
   nomemory_called = 0;
 
+  _gst_mem.ot_size = 32768 * 14;
+
   expect_value(__wrap_xcalloc, nb, 15);
-  expect_value(__wrap_xcalloc, size, 4);
+  expect_value(__wrap_xcalloc, size, sizeof(*_gst_mem.ot_arena));
 
   _gst_alloc_oop_arena(32768 * 14);
 
@@ -480,8 +537,10 @@ static void test_detach_oop_arena_entry_overflow(void **state) {
 
   nomemory_called = 0;
 
+  _gst_mem.ot_size = 32768 * 14;
+
   expect_value(__wrap_xcalloc, nb, 15);
-  expect_value(__wrap_xcalloc, size, 4);
+  expect_value(__wrap_xcalloc, size, sizeof(*_gst_mem.ot_arena));
 
   _gst_alloc_oop_arena(32768 * 14);
 
@@ -509,6 +568,12 @@ static void test_detach_oop_arena_entry_overflow(void **state) {
 
   free(_gst_mem.ot_arena);
   _gst_mem.current_arena[0] = NULL;
+}
+
+static void test_detach_oop_arena_entry_invalid_thread_id(void **state) {
+  (void) state;
+
+  assert_int_equal(_gst_alloc_oop_arena_entry(UINT16_MAX), 0);
 }
 
 static void test_alloc_oop_arena_entry_init_reach_thread_limit(void **state) {
@@ -562,24 +627,29 @@ int main(void) {
   const struct CMUnitTest tests[] =
     {
      cmocka_unit_test(null_test_success),
-     /* cmocka_unit_test(init_oop_table_with_heap), */
-     /* cmocka_unit_test(init_oop_table_with_null_heap), */
-     /* cmocka_unit_test(init_oop_table_with_heap_smaller_than_requested_size), */
-     /* cmocka_unit_test(init_oop_table_with_heap_but_null_sbrk), */
-     /* cmocka_unit_test(realloc_oop_table), */
-     /* cmocka_unit_test(realloc_oop_table_with_smaller_new_number_of_oop), */
-     /* cmocka_unit_test(realloc_oop_table_sbrk_fail), */
-     /* cmocka_unit_test(test_alloc_oop), */
-     /* cmocka_unit_test(test_alloc_oop_with_allocated_objects), */
-     /* cmocka_unit_test(test_alloc_oop_with_no_more_slots_available), */
-     /* cmocka_unit_test(test_alloc_oop_arena_entry), */
-     /* cmocka_unit_test(test_alloc_oop_arena_entry_no_memory), */
-     /* cmocka_unit_test(test_detach_oop_arena_entry), */
-     /* cmocka_unit_test(test_detach_oop_arena_entry_overflow), */
+     cmocka_unit_test(init_oop_table_with_heap),
+     cmocka_unit_test(init_oop_table_with_null_heap),
+     cmocka_unit_test(init_oop_table_already_initialized),
+     cmocka_unit_test(init_oop_table_not_aligned),
+     cmocka_unit_test(init_oop_table_with_heap_smaller_than_requested_size),
+     cmocka_unit_test(init_oop_table_with_heap_but_null_sbrk),
+     cmocka_unit_test(realloc_oop_table),
+     cmocka_unit_test(realloc_oop_table_with_smaller_new_number_of_oop),
+     cmocka_unit_test(realloc_oop_table_sbrk_fail),
+     cmocka_unit_test(realloc_oop_table_not_initialized),
+     cmocka_unit_test(realloc_oop_table_not_aligned),
+     cmocka_unit_test(test_alloc_oop_arena_entry),
+     cmocka_unit_test(test_alloc_oop_arena_entry_no_memory),
+     cmocka_unit_test(test_detach_oop_arena_entry),
+     cmocka_unit_test(test_detach_oop_arena_entry_overflow),
+     cmocka_unit_test(test_detach_oop_arena_entry_invalid_thread_id),
      /* cmocka_unit_test(test_alloc_oop_arena_entry_init_reach_thread_limit), */
      /* cmocka_unit_test(test_alloc_oop_arena_entry_init_thread_already_initialized), */
      /* cmocka_unit_test(test_alloc_oop_arena_entry_reach_thread_limit), */
      /* cmocka_unit_test(test_alloc_oop_arena_entry_thread_already_initialized), */
+     /* cmocka_unit_test(test_alloc_oop), */
+     /* cmocka_unit_test(test_alloc_oop_with_allocated_objects), */
+     /* cmocka_unit_test(test_alloc_oop_with_no_more_slots_available), */
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
