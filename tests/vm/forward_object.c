@@ -22,10 +22,6 @@ void __wrap__gst_display_oop(OOP oop);
 
 void __wrap__gst_display_oop_short(OOP oop);
 
-int __wrap_pthread_mutex_lock(pthread_mutex_t *mutex);
-
-int __wrap_pthread_mutex_unlock(pthread_mutex_t *mutex);
-
 void __wrap__gst_finished_incremental_gc(void);
 
 void __wrap__gst_sweep_oop(OOP oop);
@@ -76,18 +72,6 @@ void __wrap__gst_display_oop(OOP oop) {
 void __wrap__gst_display_oop_short(OOP oop) {
   abort();
   return ;
-}
-
-int __wrap_pthread_mutex_lock(pthread_mutex_t *mutex) {
-  check_expected(mutex);
-
-  return mock_type(int);
-}
-
-int __wrap_pthread_mutex_unlock(pthread_mutex_t *mutex) {
-  check_expected(mutex);
-
-  return mock_type(int);
 }
 
 void __wrap__gst_finished_incremental_gc(void) {

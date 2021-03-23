@@ -99,12 +99,12 @@ size_t _gst_alloc_oop_arena_entry_unchecked(uint16_t thread_id) {
   return 0;
 }
 
-void _gst_detach_oop_arena_entry(size_t area_index) {
-  if (area_index >= _gst_mem.ot_arena_size) {
+void _gst_detach_oop_arena_entry(size_t arena_index) {
+  if (arena_index >= _gst_mem.ot_arena_size) {
     return ;
   }
 
-  atomic_store(&_gst_mem.ot_arena[area_index].thread_id, UINT16_MAX);
+  atomic_store(&_gst_mem.ot_arena[arena_index].thread_id, UINT16_MAX);
 }
 
 mst_Boolean _gst_realloc_oop_table(size_t number_of_forwarding_objects) {

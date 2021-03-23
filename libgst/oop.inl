@@ -153,6 +153,11 @@ static inline OOP alloc_oop(PTR objData, intptr_t flags) {
     OOP_NEXT(oop);
   }
 
+  if (UNCOMMON (oop == lastOOP)) {
+    nomemory(true);
+    return NULL;
+  }
+
   _gst_mem.current_arena[current_thread_id]->first_free_oop = oop;
   _gst_mem.current_arena[current_thread_id]->free_oops--;
 

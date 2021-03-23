@@ -82,7 +82,7 @@ extern size_t _gst_alloc_oop_arena_entry_init(uint16_t thread_id);
 
 extern size_t _gst_alloc_oop_arena_entry_unchecked(uint16_t thread_id);
 
-extern void _gst_detach_oop_arena_entry(size_t area_index);
+extern void _gst_detach_oop_arena_entry(size_t arena_index);
 
 /* Allocates a table for OOPs of SIZE bytes, and store pointers to the
    builtin OOPs into _gst_nil_oop et al.  */
