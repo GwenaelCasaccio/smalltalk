@@ -64,19 +64,6 @@
 #define NO_SIGSEGV_HANDLING
 #endif
 
-/* The number of OOPs in the system.  This is exclusive of Character,
-   True, False, and UndefinedObject (nil) oops, which are
-   built-ins.  */
-#define INITIAL_OOP_TABLE_SIZE (1024 * 128 + 1024)
-
-#if SIZEOF_OOP == 4
-#define MAX_OOP_TABLE_SIZE (1 << 23)
-#endif
-
-#if SIZEOF_OOP == 8
-#define MAX_OOP_TABLE_SIZE (1UL << 36)
-#endif
-
 /* The number of free OOPs under which we trigger GCs.  0 is not
    enough because _gst_scavenge might still need some oops in
    empty_context_stack!!! */
@@ -123,10 +110,10 @@ typedef struct weak_area_tree {
 } weak_area_tree;
 
 typedef struct new_space {
-  OOP *minPtr;             /* points to lowest addr in heap */
-  OOP *maxPtr;             /* points to highest addr in heap */
-  OOP *allocPtr;           /* new space ptr, starts low, goes up */
-  unsigned long totalSize; /* allocated size */
+  OOP           *minPtr;    /* points to lowest addr in heap */
+  _Atomic(OOP *) maxPtr;    /* points to highest addr in heap */
+  OOP           *allocPtr;  /* new space ptr, starts low, goes up */
+  unsigned long  totalSize; /* allocated size */
 } new_space;
 
 typedef struct surv_space {
@@ -162,6 +149,9 @@ struct mark_queue {
 };
 
 struct memory_space {
+  /* This is the memory area which holds the object table.  */
+  heap oop_heap;
+
   heap_data *old, *fixed;
   struct new_space eden;
   struct surv_space surv[2], tenuring_queue;
@@ -178,9 +168,21 @@ struct memory_space {
      byte objects may not be an even multiple of sizeof(PTR).  */
   struct oop_s *ot;
 
+  /* This is the object table allocation arena. The object table is divided in small
+     arena of 32768 entries. Each threaded vm is allowed to take one of the area to
+     allocate OOP in a lock free maner.
+   */
+  _gst_forward_object_allocator_t *ot_arena;
+
+  /* The number of arena entries */
+  size_t ot_arena_size;
+
+  /* These are the arena used for each VM threads. */
+  _gst_forward_object_allocator_t *current_arena[100];
+
   /* The number of OOPs in the free list and in the full OOP
      table.  num_free_oops is only correct after a GC!  */
-  size_t num_free_oops, ot_size;
+  _Atomic(size_t) num_free_oops, ot_size;
 
   /* The root set of the scavenger.  This includes pages in oldspace that
      were written to, and objects that had to be tenured before they were

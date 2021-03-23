@@ -66,9 +66,6 @@
 /* Define this flag to turn on debugging code for OOP table management */
 /* #define GC_DEBUGGING */
 
-/* Define this flag to disable incremental garbage collection */
-/* #define NO_INCREMENTAL_GC */
-
 /* Define this flag to turn on debugging code for oldspace management */
 /* #define MMAN_DEBUG_OUTPUT */
 
@@ -1052,7 +1049,6 @@ void _gst_finish_incremental_gc() {
        oop > firstOOP; OOP_PREV(oop)) {
     PREFETCH_LOOP(oop, PREF_BACKWARDS | PREF_READ | PREF_NTA);
     if (IS_OOP_VALID_GC(oop)) {
-      maybe_release_xlat(oop);
       OOP_SET_FLAGS(oop, OOP_GET_FLAGS(oop) & ~F_REACHABLE);
     } else {
       _gst_sweep_oop(oop);
@@ -1098,7 +1094,6 @@ mst_Boolean _gst_incremental_gc_step() {
   firstOOP = _gst_mem.last_swept_oop;
   for (oop = _gst_mem.next_oop_to_sweep; oop > firstOOP; OOP_PREV(oop)) {
     if (IS_OOP_VALID_GC(oop)) {
-      maybe_release_xlat(oop);
       OOP_SET_FLAGS(oop, OOP_GET_FLAGS(oop) & ~F_REACHABLE);
     } else {
       _gst_sweep_oop(oop);
@@ -1131,25 +1126,15 @@ void reset_incremental_gc(OOP firstOOP) {
   _gst_mem.next_oop_to_sweep = _gst_mem.last_allocated_oop;
   _gst_mem.last_swept_oop = oop - 1;
 
-#ifdef NO_INCREMENTAL_GC
   _gst_finish_incremental_gc();
-#else
-  /* Skip high OOPs that are unallocated.  */
-  for (oop = _gst_mem.last_allocated_oop; !IS_OOP_VALID(oop); OOP_PREV(oop))
-    _gst_sweep_oop(oop);
-
-  _gst_mem.last_allocated_oop = oop;
-  _gst_mem.next_oop_to_sweep = oop;
-#endif
 
   _gst_mem.num_free_oops =
       _gst_mem.ot_size - (_gst_mem.last_allocated_oop - _gst_mem.ot);
 
   /* Check if it's time to grow the OOP table.  */
-  if (_gst_mem.num_free_oops * 100.0 / _gst_mem.ot_size <
-      100 - _gst_mem.grow_threshold_percent)
-    _gst_realloc_oop_table(_gst_mem.ot_size * (100 + _gst_mem.space_grow_rate) /
-                           100);
+  if (_gst_mem.num_free_oops * 100.0 / _gst_mem.ot_size < 100 - _gst_mem.grow_threshold_percent) {
+    _gst_realloc_oop_table(((_gst_mem.ot_size * (100 + _gst_mem.space_grow_rate) / 100) + 0x8000) & ~0x7FFF);
+  }
 
 #if defined(GC_DEBUG_OUTPUT)
   printf("Last allocated OOP %p\n"
@@ -1182,6 +1167,12 @@ void _gst_sweep_oop(OOP oop) {
   }
 
   OOP_SET_FLAGS(oop, 0);
+
+  _gst_mem.ot_arena[(oop - _gst_mem.ot) / 32768].free_oops++;
+
+  if (oop < _gst_mem.ot_arena[(oop - _gst_mem.ot) / 32768].first_free_oop) {
+    _gst_mem.ot_arena[(oop - _gst_mem.ot) / 32768].first_free_oop = oop;
+  }
 }
 
 gst_object unsafe_new_instance_with(OOP class_oop, size_t numIndexFields, OOP *p_oop) {

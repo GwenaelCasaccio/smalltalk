@@ -2694,6 +2694,8 @@ void *start_vm_thread(void *argument) {
   /* The other VM threads are stopped so we are safe! */
   current_thread_id = atomic_fetch_add(&_gst_count_total_threaded_vm, 1);
 
+  _gst_alloc_oop_arena_entry_init(current_thread_id);
+
   _gst_processor_oop[current_thread_id] = (OOP) argument;
 
   switch_to_process[current_thread_id] = _gst_nil_oop;

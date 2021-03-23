@@ -453,7 +453,7 @@ mst_Boolean load_snapshot(int imageFd) {
   _gst_mem.fixed->nomemory = abort_nomemory;
 
   _gst_init_oop_table((PTR)header.ot_base,
-                      MAX(header.oopTableSize * 2, INITIAL_OOP_TABLE_SIZE));
+                      MAX((header.oopTableSize * 2) & ~0x7FFF, INITIAL_OOP_TABLE_SIZE));
 
   ot_delta = (intptr_t)(_gst_mem.ot) - header.ot_base;
   num_used_oops = header.oopTableSize;
@@ -564,8 +564,20 @@ char *load_normal_oops(int imageFd) {
 
     PREFETCH_LOOP(oop, PREF_WRITE | PREF_NTA);
     flags = OOP_GET_FLAGS(oop);
-    if (IS_OOP_FREE(oop))
+
+    if (((oop - _gst_mem.ot) % 32768) == 0) {
+      _gst_mem.ot_arena[(oop - _gst_mem.ot) / 32768].first_free_oop = NULL;
+    }
+
+    if (IS_OOP_FREE(oop)) {
+      if (NULL == _gst_mem.ot_arena[(oop - _gst_mem.ot) / 32768].first_free_oop) {
+        _gst_mem.ot_arena[(oop - _gst_mem.ot) / 32768].first_free_oop = oop;
+      }
+
       continue;
+    }
+
+    _gst_mem.ot_arena[(oop - _gst_mem.ot) / 32768].free_oops--;
 
     /* FIXME: a small amount of garbage is saved that is produced
        by mourning the ephemerons right before GC.  We should probably

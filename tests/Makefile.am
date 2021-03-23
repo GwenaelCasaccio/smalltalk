@@ -62,8 +62,8 @@ $(TESTSUITE): $(srcdir)/testsuite.at $(srcdir)/package.m4 $(srcdir)/local.at
 	$(AUTOTEST) -I '$(srcdir)' -o $@.tmp $@.at
 	mv $@.tmp $@
 
-TESTS = from_int grey_list barrier forward_object
-check_PROGRAMS = from_int grey_list barrier forward_object
+TESTS = from_int grey_list barrier forward_object forward_object_alloc
+check_PROGRAMS = from_int grey_list barrier forward_object forward_object_alloc
 from_int_SOURCES = vm/from_int.c
 from_int_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV)
 from_int_LDADD = $(top_builddir)/libgst/libgst.la $(LIBSIGSEGV) $(LIBSNPRINTFV) $(top_builddir)/lib-src/library.la @ICON@
@@ -86,5 +86,10 @@ forward_object_SOURCES = vm/forward_object.c
 forward_object_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV) $(CMOCKA_CFLAGS)
 forward_object_LDADD = $(top_builddir)/libgst/libgst.la $(CMOCKA_LIBS) $(LIBSNPRINTFV) $(LIBTHREAD) $(top_builddir)/lib-src/library.la @ICON@
 forward_object_DEPENDENCIES = $(top_builddir)/libgst/libgst.la $(top_builddir)/lib-src/library.la @ICON@
-forward_object_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS) -Wl,--wrap,_gst_heap_create -Wl,--wrap,nomemory -Wl,--wrap,_gst_heap_sbrk -Wl,--wrap,_gst_display_oop_short -Wl,--wrap,_gst_display_oop -Wl,--wrap,pthread_mutex_lock -Wl,--wrap,pthread_mutex_unlock  -Wl,--wrap,_gst_finished_incremental_gc -Wl,--wrap,_gst_sweep_oop
+forward_object_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS) -Wl,--wrap,_gst_heap_create -Wl,--wrap,nomemory -Wl,--wrap,_gst_heap_sbrk -Wl,--wrap,_gst_display_oop_short -Wl,--wrap,_gst_display_oop -Wl,--wrap,pthread_mutex_lock -Wl,--wrap,pthread_mutex_unlock -Wl,--wrap,_gst_finished_incremental_gc -Wl,--wrap,_gst_sweep_oop -Wl,--wrap,xcalloc
 
+forward_object_alloc_SOURCES = vm/forward_object_alloc.c
+forward_object_alloc_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV) $(CMOCKA_CFLAGS)
+forward_object_alloc_LDADD = $(top_builddir)/libgst/libgst.la $(CMOCKA_LIBS) $(LIBSNPRINTFV) $(LIBTHREAD) $(top_builddir)/lib-src/library.la @ICON@
+forward_object_alloc_DEPENDENCIES = $(top_builddir)/libgst/libgst.la $(top_builddir)/lib-src/library.la @ICON@
+forward_object_alloc_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS) -Wl,--wrap,_gst_detach_oop_arena_entry -Wl,--wrap,_gst_alloc_oop_arena_entry -Wl,--wrap,nomemory

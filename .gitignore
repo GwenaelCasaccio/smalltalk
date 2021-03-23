@@ -66,6 +66,7 @@ tests/from_int
 tests/grey_list
 tests/barrier
 tests/forward_object
+tests/forward_object_alloc
 tests/*.log
 tests/*.trs
 gst.im.SandstoneDb/

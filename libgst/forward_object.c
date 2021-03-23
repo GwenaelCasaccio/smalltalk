@@ -1,59 +1,142 @@
 #include "gstpriv.h"
 
-/* This is the memory area which holds the object table.  */
-static heap oop_heap = NULL;
-
-void _gst_init_oop_table(PTR address, size_t size) {
+void _gst_init_oop_table(PTR address, size_t number_of_forwarding_objects) {
   size_t i;
 
-  oop_heap = NULL;
-  for (i = MAX_OOP_TABLE_SIZE; i && !oop_heap; i >>= 1) {
-    oop_heap = _gst_heap_create(address, i * sizeof(struct oop_s));
-  }
-
-  if (!oop_heap || i < size) {
+  if (_gst_mem.oop_heap) {
     nomemory(true);
     return ;
   }
 
-  _gst_alloc_oop_table(size);
+  if ((number_of_forwarding_objects & 0x7FFF) != 0) {
+    nomemory(true);
+    return ;
+  }
+
+  for (i = MAX_OOP_TABLE_SIZE; i && !_gst_mem.oop_heap; i >>= 1) {
+    _gst_mem.oop_heap = _gst_heap_create(address, i * sizeof(struct oop_s));
+  }
+
+  if (!_gst_mem.oop_heap || i < number_of_forwarding_objects) {
+    nomemory(true);
+    return ;
+  }
+
+  _gst_alloc_oop_table(number_of_forwarding_objects);
+  _gst_alloc_oop_arena(i);
+  _gst_alloc_oop_arena_entry_init(0);
 }
 
-void _gst_alloc_oop_table(size_t size) {
+void _gst_alloc_oop_table(size_t number_of_forwarding_objects) {
   size_t bytes;
 
-  _gst_mem.ot_size = size;
-  bytes = size * sizeof(struct oop_s);
-  _gst_mem.ot = (struct oop_s *)_gst_heap_sbrk(oop_heap, bytes);
+  _gst_mem.ot_size = number_of_forwarding_objects;
+  bytes = number_of_forwarding_objects * sizeof(struct oop_s);
+  _gst_mem.ot = (struct oop_s *)_gst_heap_sbrk(_gst_mem.oop_heap, bytes);
   if (!_gst_mem.ot) {
     nomemory(true);
     return ;
   }
 
-  _gst_mem.num_free_oops = size;
+  _gst_mem.num_free_oops = number_of_forwarding_objects;
   _gst_mem.last_allocated_oop = _gst_mem.last_swept_oop = _gst_mem.ot - 1;
   _gst_mem.next_oop_to_sweep = _gst_mem.ot - 1;
 }
 
-mst_Boolean _gst_realloc_oop_table(size_t newSize) {
+void _gst_alloc_oop_arena(size_t size) {
+  size_t arena_size = (size / 32768) + 1;
+
+  _gst_mem.ot_arena = xcalloc(arena_size, sizeof(*_gst_mem.ot_arena));
+  _gst_mem.ot_arena_size = arena_size;
+
+  for (size_t i = 0; i < arena_size; i++) {
+    _gst_mem.ot_arena[i].thread_id = UINT16_MAX;
+    _gst_mem.ot_arena[i].free_oops = 32768;
+    _gst_mem.ot_arena[i].first_free_oop = &_gst_mem.ot[i * 32768];
+  }
+}
+
+size_t _gst_alloc_oop_arena_entry(uint16_t thread_id) {
+  if (thread_id == UINT16_MAX) {
+    return 0;
+  }
+
+  if (UNCOMMON (_gst_mem.current_arena[thread_id]->thread_id == thread_id && _gst_mem.current_arena[thread_id]->free_oops > 0)) {
+    return _gst_mem.current_arena[thread_id] - &_gst_mem.ot_arena[0];
+  }
+
+  return _gst_alloc_oop_arena_entry_unchecked(thread_id);
+}
+
+size_t _gst_alloc_oop_arena_entry_init(uint16_t thread_id) {
+  if (thread_id == UINT16_MAX) {
+    return 0;
+  }
+
+  if (UNCOMMON (_gst_mem.current_arena[thread_id])) {
+    return _gst_mem.current_arena[thread_id] - &_gst_mem.ot_arena[0];
+  }
+
+  return _gst_alloc_oop_arena_entry_unchecked(thread_id);
+}
+
+size_t _gst_alloc_oop_arena_entry_unchecked(uint16_t thread_id) {
+  const size_t ot_size_as_arena_entries = _gst_mem.ot_size / 32768;
+
+  for (size_t i = 0; i < _gst_mem.ot_arena_size && i < ot_size_as_arena_entries; i++) {
+    uint16_t expected_thread_id = UINT16_MAX;
+    if (atomic_compare_exchange_strong(&_gst_mem.ot_arena[i].thread_id, &expected_thread_id, thread_id)) {
+      if (atomic_load(&_gst_mem.ot_arena[i].free_oops) > 0) {
+        _gst_mem.current_arena[thread_id] = &_gst_mem.ot_arena[i];
+        return i;
+      }
+
+      atomic_store(&_gst_mem.ot_arena[i].thread_id, UINT16_MAX);
+    }
+  }
+
+  nomemory(true);
+  return 0;
+}
+
+void _gst_detach_oop_arena_entry(size_t arena_index) {
+  if (arena_index >= _gst_mem.ot_arena_size) {
+    return ;
+  }
+
+  atomic_store(&_gst_mem.ot_arena[arena_index].thread_id, UINT16_MAX);
+}
+
+mst_Boolean _gst_realloc_oop_table(size_t number_of_forwarding_objects) {
   size_t bytes;
 
-  if (newSize <= _gst_mem.ot_size)
-    return (true);
+  if (!_gst_mem.oop_heap) {
+    nomemory(true);
+    return false;
+  }
 
-  bytes = (newSize - _gst_mem.ot_size) * sizeof(struct oop_s);
+  if ((number_of_forwarding_objects & 0x7FFF) != 0) {
+    nomemory(true);
+    return false;
+  }
 
-  if (!_gst_heap_sbrk(oop_heap, bytes)) {
+  if (number_of_forwarding_objects <= _gst_mem.ot_size) {
+    return true;
+  }
+
+  bytes = (number_of_forwarding_objects - _gst_mem.ot_size) * sizeof(struct oop_s);
+
+  if (!_gst_heap_sbrk(_gst_mem.oop_heap, bytes)) {
     /* try to recover. Note that we cannot move
        the OOP table like we do with the object data.  */
 
     nomemory(false);
-    return (false);
+    return false;
   }
 
-  _gst_mem.num_free_oops += newSize - _gst_mem.ot_size;
-  _gst_mem.ot_size = newSize;
-  return (true);
+  _gst_mem.num_free_oops += number_of_forwarding_objects - _gst_mem.ot_size;
+  _gst_mem.ot_size = number_of_forwarding_objects;
+  return true;
 }
 
 void _gst_dump_oop_table() {
