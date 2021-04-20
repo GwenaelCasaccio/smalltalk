@@ -152,6 +152,11 @@ struct memory_space {
   /* This is the memory area which holds the object table.  */
   heap oop_heap;
 
+  /* New generation is splited in divided TLAB for fast allocation */
+  gst_heap_t *gen0;
+
+  gst_tlab_t *tlab_per_thread[100];
+
   heap_data *old, *fixed;
   struct new_space eden;
   struct surv_space surv[2], tenuring_queue;

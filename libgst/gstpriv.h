@@ -552,6 +552,9 @@ extern OOP _gst_nil_oop
 #include "avltrees.h"
 #include "rbtrees.h"
 
+#include "heap/heap.h"
+#include "heap/tlab.h"
+
 #include "files.h"
 #include "barrier.h"
 #include "callin.h"
@@ -580,13 +583,13 @@ extern OOP _gst_nil_oop
 
 #undef obstack_init
 #define obstack_init(h)                                         \
-  _obstack_begin ((h), 0, ALIGNOF_LONG_DOUBLE,                \
+  _obstack_begin ((h), 0, ALIGNOF_LONG_DOUBLE,                  \
                   (void *(*) (long)) obstack_chunk_alloc,       \
                   (void (*) (void *)) obstack_chunk_free)
 
 #undef obstack_begin
 #define obstack_begin(h, size)                                  \
-  _obstack_begin ((h), (size), ALIGNOF_LONG_DOUBLE,           \
+  _obstack_begin ((h), (size), ALIGNOF_LONG_DOUBLE,             \
                   (void *(*) (long)) obstack_chunk_alloc,       \
                   (void (*) (void *)) obstack_chunk_free)
 
