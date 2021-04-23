@@ -111,6 +111,15 @@ gst_tlab_t *gst_allocate_in_heap(gst_heap_t *heap, uint16_t current_thread_id) {
 
 OOP *gst_allocate_in_lab(gst_heap_t *heap, gst_tlab_t **tlab, uint16_t current_thread_id, size_t number_of_words) {
 
+  if (tlab == NULL) {
+   abort();
+ }
+
+
+ if (*tlab == NULL) {
+   abort();
+ }
+
  start:
 
   {
@@ -120,9 +129,13 @@ OOP *gst_allocate_in_lab(gst_heap_t *heap, gst_tlab_t **tlab, uint16_t current_t
     if (UNCOMMON (allocated >= (*tlab)->end_of_buffer)) {
       *tlab = gst_allocate_in_heap(heap, current_thread_id);
 
-      if (UNCOMMON (NULL == tlab)) {
+      if (UNCOMMON (NULL == *tlab)) {
         _gst_scavenge();
          *tlab = gst_allocate_in_heap(heap, current_thread_id);
+         if (NULL == *tlab) {
+           nomemory(1);
+           return NULL;
+         }
       }
 
       goto start;
