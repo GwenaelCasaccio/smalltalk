@@ -601,6 +601,15 @@ void _gst_tenure_oop(OOP oop) {
 gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
   gst_object p_instance;
 
+  /* Force a GC as soon as possible if we're low on OOPs or memory.  */
+  if UNCOMMON (_gst_mem.num_free_oops < LOW_WATER_OOP_THRESHOLD ||
+               _gst_mem.old->heap_total * 100.0 / _gst_mem.old->heap_limit >
+               _gst_mem.grow_threshold_percent ||
+               _gst_mem.fixed->heap_total * 100.0 / _gst_mem.fixed->heap_limit >
+               _gst_mem.grow_threshold_percent) {
+      _gst_global_gc(0);
+      _gst_incremental_gc_step();
+    }
 
   size = ROUNDED_BYTES(size);
 
@@ -890,6 +899,8 @@ void _gst_global_gc(int next_allocation) {
 #endif
   reset_incremental_gc(_gst_mem.ot);
 
+  gst_tlab_reset_for_local_heap(_gst_mem.gen0);
+
   update_stats(&stats.timeOfLastGlobalGC, NULL, &_gst_mem.timeToCollect);
 
   s = "done";
@@ -997,6 +1008,8 @@ void _gst_scavenge(void) {
   check_weak_refs();
 
   _gst_restore_object_pointers();
+
+  gst_tlab_reset_for_local_heap(_gst_mem.gen0);
 
   reset_incremental_gc(_gst_mem.ot);
 

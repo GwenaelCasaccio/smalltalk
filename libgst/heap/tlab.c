@@ -25,8 +25,7 @@ void gst_tlab_init_for_heap(gst_heap_t *heap) {
 
 void gst_tlab_init_for_local_heap(gst_heap_t *heap) {
   gst_tlab_t *tlab;
-  const size_t nb_of_tlab = get_total_of_tlab(heap);
-  const size_t last_space_reminder = (heap->meta_inf.free_space / SIZEOF_OOP) % TLAB_ENTRY_SIZE;
+  size_t nb_of_tlab;
 
   if (!heap) {
     nomemory(1);
@@ -38,9 +37,33 @@ void gst_tlab_init_for_local_heap(gst_heap_t *heap) {
     return;
   }
 
+  nb_of_tlab = get_total_of_tlab(heap);
+
   tlab = xcalloc(nb_of_tlab, sizeof(*tlab));
 
   heap->meta_inf.reserved_for_allocator = tlab;
+
+  gst_tlab_reset_for_local_heap(heap);
+}
+
+void gst_tlab_reset_for_local_heap(gst_heap_t *heap) {
+  gst_tlab_t *tlab;
+  size_t nb_of_tlab;
+  size_t last_space_reminder;
+
+  if (!heap) {
+    nomemory(1);
+    return;
+  }
+
+  if (!heap->meta_inf.reserved_for_allocator) {
+    nomemory(1);
+    return;
+  }
+
+  nb_of_tlab = get_total_of_tlab(heap);
+  last_space_reminder = (heap->meta_inf.free_space / SIZEOF_OOP) % TLAB_ENTRY_SIZE;
+  tlab = heap->meta_inf.reserved_for_allocator;
 
   for (size_t i = 0; i < nb_of_tlab; i++) {
     tlab[i].thread_id = UINT16_MAX;
@@ -98,9 +121,8 @@ OOP *gst_allocate_in_lab(gst_heap_t *heap, gst_tlab_t **tlab, uint16_t current_t
       *tlab = gst_allocate_in_heap(heap, current_thread_id);
 
       if (UNCOMMON (NULL == tlab)) {
-        /* TODO Do a GC */
-        nomemory(1);
-        return NULL;
+        _gst_scavenge();
+         *tlab = gst_allocate_in_heap(heap, current_thread_id);
       }
 
       goto start;
