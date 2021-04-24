@@ -130,7 +130,14 @@ OOP *gst_allocate_in_lab(gst_heap_t *heap, gst_tlab_t **tlab, uint16_t current_t
       *tlab = gst_allocate_in_heap(heap, current_thread_id);
 
       if (UNCOMMON (NULL == *tlab)) {
+        _gst_vm_global_barrier_wait();
+
+        set_except_flag_for_thread(false, current_thread_id);
+
         _gst_scavenge();
+
+        _gst_vm_end_barrier_wait();
+
          *tlab = gst_allocate_in_heap(heap, current_thread_id);
          if (NULL == *tlab) {
            nomemory(1);

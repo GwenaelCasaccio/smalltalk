@@ -578,10 +578,6 @@ gst_object new_instance_with(OOP class_oop, size_t numIndexFields, OOP *p_oop) {
   intptr_t instanceSpec;
   gst_object p_instance;
 
-  _gst_vm_global_barrier_wait();
-
-  set_except_flag_for_thread(false, current_thread_id);
-
   instanceSpec = CLASS_INSTANCE_SPEC(class_oop);
   numBytes = sizeof(gst_object_header) +
              SIZE_TO_BYTES(instanceSpec >> ISP_NUMFIXEDFIELDS) +
@@ -593,8 +589,6 @@ gst_object new_instance_with(OOP class_oop, size_t numIndexFields, OOP *p_oop) {
 
   OBJ_SET_CLASS(p_instance, class_oop);
 
-  _gst_vm_end_barrier_wait();
-
   return p_instance;
 }
 
@@ -603,18 +597,12 @@ gst_object new_instance(OOP class_oop, OOP *p_oop) {
   intptr_t instanceSpec;
   gst_object p_instance;
 
-  _gst_vm_global_barrier_wait();
-
-  set_except_flag_for_thread(false, current_thread_id);
-
   instanceSpec = CLASS_INSTANCE_SPEC(class_oop);
   numBytes = sizeof(gst_object_header) +
              SIZE_TO_BYTES(instanceSpec >> ISP_NUMFIXEDFIELDS);
 
   p_instance = _gst_alloc_obj(numBytes, p_oop);
   OBJ_SET_CLASS(p_instance, class_oop);
-
-  _gst_vm_end_barrier_wait();
 
   return p_instance;
 }
@@ -664,10 +652,6 @@ gst_object instantiate_with(OOP class_oop, size_t numIndexFields, OOP *p_oop) {
   intptr_t instanceSpec;
   gst_object p_instance;
 
-  _gst_vm_global_barrier_wait();
-
-  set_except_flag_for_thread(false, current_thread_id);
-
   instanceSpec = CLASS_INSTANCE_SPEC(class_oop);
 #ifndef OPTIMIZE
   if (!(instanceSpec & ISP_ISINDEXABLE) && numIndexFields != 0)
@@ -693,8 +677,6 @@ gst_object instantiate_with(OOP class_oop, size_t numIndexFields, OOP *p_oop) {
            indexedBytes);
   }
 
-  _gst_vm_end_barrier_wait();
-
   return p_instance;
 }
 
@@ -703,16 +685,10 @@ gst_object instantiate(OOP class_oop, OOP *p_oop) {
   intptr_t instanceSpec;
   gst_object p_instance;
 
-  _gst_vm_global_barrier_wait();
-
-  set_except_flag_for_thread(false, current_thread_id);
-
   instanceSpec = CLASS_INSTANCE_SPEC(class_oop);
   numBytes = sizeof(gst_object_header) +
              SIZE_TO_BYTES(instanceSpec >> ISP_NUMFIXEDFIELDS);
   p_instance = instantiate_numbytes(class_oop, p_oop, instanceSpec, numBytes);
-
-  _gst_vm_end_barrier_wait();
 
   return p_instance;
 }

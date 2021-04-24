@@ -607,14 +607,28 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
                _gst_mem.grow_threshold_percent ||
                _gst_mem.fixed->heap_total * 100.0 / _gst_mem.fixed->heap_limit >
                _gst_mem.grow_threshold_percent) {
+      _gst_vm_global_barrier_wait();
+
+      set_except_flag_for_thread(false, current_thread_id);
+
       _gst_global_gc(0);
       _gst_incremental_gc_step();
+
+      _gst_vm_end_barrier_wait();
     }
 
   size = ROUNDED_BYTES(size);
 
   if (UNCOMMON (size >= _gst_mem.big_object_threshold)) {
-    return alloc_fixed_obj(size, p_oop);
+    _gst_vm_global_barrier_wait();
+
+    set_except_flag_for_thread(false, current_thread_id);
+
+    p_instance = alloc_fixed_obj(size, p_oop);
+
+    _gst_vm_end_barrier_wait();
+
+    return p_instance;
   }
 
   p_instance = (gst_object) gst_allocate_in_lab(_gst_mem.gen0,
