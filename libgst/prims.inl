@@ -3277,6 +3277,7 @@ static intptr_t VMpr_ObjectMemory_quit(int id, volatile int numArgs) {
     fflush(stderr);
     _gst_invoke_hook(GST_ABOUT_TO_QUIT);
     arg1 = TO_INT(oop1);
+    _gst_heap_free_area(_gst_mem.gen0);
     exit(arg1);
   }
   PRIM_FAILED;

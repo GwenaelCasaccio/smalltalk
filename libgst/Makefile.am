@@ -1,6 +1,6 @@
 LEX_OUTPUT_ROOT = lex.yy
 ## CFLAGS=-O0 -g
-# AM_CFLAGS = $(LIBGST_CFLAGS) -flto
+##AM_CFLAGS = $(LIBGST_CFLAGS) -flto
 AM_CFLAGS = $(LIBGST_CFLAGS)
 AM_CPPFLAGS = $(RELOC_CPPFLAGS) \
   -I$(top_srcdir)/lib-src -I$(top_builddir)/lib-src \
@@ -17,7 +17,7 @@ libgst_la_LIBADD=$(top_builddir)/lib-src/library.la \
 
 libgst_la_DEPENDENCIES=$(top_builddir)/lib-src/library.la $(LIBSNPRINTFV)
 
-# libgst_la_LDFLAGS = -flto -version-info $(VERSION_INFO) -no-undefined -bindir $(bindir)
+# libgst_la_LDFLAGS = -flto -version-info $(VERSION_INFO) -no-undefined -bindir $(bindir)
 libgst_la_LDFLAGS = -version-info $(VERSION_INFO) -no-undefined -bindir $(bindir)
 
 libgst_la_SOURCES = \
@@ -51,7 +51,7 @@ noinst_HEADERS = 																												\
 	sysdep/win32/findexec.c sysdep/win32/mem.c sysdep/win32/signals.c 		\
 	sysdep/win32/time.c sysdep/win32/timer.c sysdep/posix/events.c 				\
 	sysdep/win32/events.c sysdep/cygwin/events.c 													\
-  heap/heap.c 																													\
+  heap/heap.h						heap/tlab.h																			\
 	$(BUILT_SOURCES)
 
 # rules for invoking gperf

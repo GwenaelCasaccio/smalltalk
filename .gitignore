@@ -27,6 +27,10 @@ stamp-h1
 termbold
 termnorm
 
+GPATH
+GRTAGS
+GTAGS
+
 /elc-stamp
 /gnu-smalltalk.pc
 /gst
@@ -67,6 +71,7 @@ tests/grey_list
 tests/barrier
 tests/forward_object
 tests/forward_object_alloc
+tests/heap_test
 tests/*.log
 tests/*.trs
 gst.im.SandstoneDb/

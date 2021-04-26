@@ -1,8 +1,13 @@
-#include "gstpriv.h"
+#include "../gstpriv.h"
 
 void _gst_heap_new_area(gst_heap_t **heap, size_t generation_size) {
   size_t number_of_heap;
   gst_heap_t *previous_heap = NULL;
+
+  if (NULL == heap) {
+    nomemory(1);
+    return ;
+  }
 
   if (NULL != *heap) {
     nomemory(1);
@@ -43,7 +48,15 @@ void _gst_heap_new_area(gst_heap_t **heap, size_t generation_size) {
 }
 
 void _gst_heap_free_area(gst_heap_t *heap) {
-}
 
-void _gst_heap_free(gst_heap_t *heap) {
+  if (NULL == heap) {
+    return ;
+  }
+
+  while (heap) {
+    gst_heap_t *current = heap;
+    heap = heap->meta_inf.next_heap_area;
+
+    free(current);
+  }
 }
