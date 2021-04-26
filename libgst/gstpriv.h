@@ -552,8 +552,8 @@ extern OOP _gst_nil_oop
 #include "avltrees.h"
 #include "rbtrees.h"
 
-#include "new_heap.h"
-#include "tlab.h"
+#include "heap/heap.h"
+#include "heap/tlab.h"
 
 #include "files.h"
 #include "barrier.h"
