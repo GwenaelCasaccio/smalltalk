@@ -88,6 +88,11 @@ gst_tlab_t *gst_allocate_in_heap(gst_heap_t *heap, uint16_t current_thread_id) {
     return NULL;
   }
 
+  if (current_thread_id == UINT16_MAX) {
+    nomemory(1);
+    return NULL;
+  }
+
   do {
     gst_tlab_t *tlab;
     const size_t nb_of_tlab = get_total_of_tlab(heap);
@@ -114,12 +119,14 @@ gst_tlab_t *gst_allocate_in_heap(gst_heap_t *heap, uint16_t current_thread_id) {
 OOP *gst_allocate_in_lab(gst_heap_t *heap, gst_tlab_t **tlab, uint16_t current_thread_id, size_t number_of_words) {
 
   if (tlab == NULL) {
-   abort();
- }
+    nomemory(1);
+    return NULL;
+  }
 
 
  if (*tlab == NULL) {
-   abort();
+   nomemory(1);
+   return NULL;
  }
 
  start:

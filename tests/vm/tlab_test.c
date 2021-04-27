@@ -203,7 +203,70 @@ static void should_allocate_and_init_when_heap_is_initialized(void **state) {
     assert_true(tlab[i].position == &next_heap.oop[i * TLAB_ENTRY_SIZE]);
     assert_true(tlab[i].end_of_buffer == &next_heap.oop[(i + 1) * TLAB_ENTRY_SIZE]);
   }
+}
 
+static void should_fail_to_allocate_tlab_entry_when_heap_is_null(void **state) {
+  (void) state;
+
+  expect_value(__wrap_nomemory, fatal, 1);
+  expect_function_calls(__wrap_nomemory, 1);
+
+  gst_allocate_in_heap(NULL, 0);
+}
+
+static void should_fail_to_allocate_tlab_entry_when_thread_id_is_invalid(void **state) {
+  (void) state;
+
+  expect_value(__wrap_nomemory, fatal, 1);
+  expect_function_calls(__wrap_nomemory, 1);
+
+  gst_allocate_in_heap(NULL, UINT16_MAX);
+}
+
+static void should_allocate_tlab_entry(void **state) {
+  gst_heap_t heap;
+  gst_heap_t next_heap;
+  size_t nb_of_tlab;
+  gst_tlab_t *tlab;
+
+  (void) state;
+
+  /* When  */
+  heap.meta_inf.free_space = sizeof(heap) - sizeof(heap.meta_inf);
+  nb_of_tlab = get_total_of_tlab(&heap);
+  heap.meta_inf.reserved_for_allocator = NULL;
+  heap.meta_inf.next_heap_area = &next_heap;
+
+  next_heap.meta_inf.free_space = sizeof(heap) - sizeof(heap.meta_inf);
+  next_heap.meta_inf.reserved_for_allocator = NULL;
+  next_heap.meta_inf.next_heap_area = NULL;
+
+  expect_value(__wrap_xcalloc, nb, nb_of_tlab + 1);
+  expect_value(__wrap_xcalloc, size, sizeof(*tlab));
+
+  expect_value(__wrap_xcalloc, nb, nb_of_tlab + 1);
+  expect_value(__wrap_xcalloc, size, sizeof(*tlab));
+
+  expect_function_calls(__wrap_xcalloc, 2);
+
+  gst_tlab_init_for_heap(&heap);
+
+  /* Then  */
+  for (size_t i = 0; i < nb_of_tlab; i++) {
+    const gst_tlab_t *reserved_tlab = gst_allocate_in_heap(&heap, 0);
+    assert_true(reserved_tlab != NULL);
+    assert_true(reserved_tlab->thread_id == 0);
+    assert_true(reserved_tlab->position == &heap.oop[i * TLAB_ENTRY_SIZE]);
+  }
+
+  for (size_t i = 0; i < nb_of_tlab; i++) {
+    const gst_tlab_t *reserved_tlab = gst_allocate_in_heap(&heap, 0);
+    assert_true(reserved_tlab != NULL);
+    assert_true(reserved_tlab->thread_id == 0);
+    assert_true(reserved_tlab->position == &next_heap.oop[i * TLAB_ENTRY_SIZE]);
+  }
+
+  assert_true(gst_allocate_in_heap(&heap, 0) == NULL);
 }
 
 int main(void) {
@@ -217,6 +280,9 @@ int main(void) {
      cmocka_unit_test(should_allocate_and_init_when_local_heap_is_initialized),
      cmocka_unit_test(should_fail_to_allocate_and_init_when_heap_is_null),
      cmocka_unit_test(should_allocate_and_init_when_heap_is_initialized),
+     cmocka_unit_test(should_fail_to_allocate_tlab_entry_when_heap_is_null),
+     cmocka_unit_test(should_fail_to_allocate_tlab_entry_when_thread_id_is_invalid),
+     cmocka_unit_test(should_allocate_tlab_entry),
     };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
