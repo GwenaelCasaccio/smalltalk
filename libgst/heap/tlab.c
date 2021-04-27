@@ -26,6 +26,7 @@ void gst_tlab_init_for_heap(gst_heap_t *heap) {
 void gst_tlab_init_for_local_heap(gst_heap_t *heap) {
   gst_tlab_t *tlab;
   size_t nb_of_tlab;
+  size_t last_space_reminder;
 
   if (!heap) {
     nomemory(1);
@@ -38,8 +39,9 @@ void gst_tlab_init_for_local_heap(gst_heap_t *heap) {
   }
 
   nb_of_tlab = get_total_of_tlab(heap);
+  last_space_reminder = (heap->meta_inf.free_space / SIZEOF_OOP) % TLAB_ENTRY_SIZE;
 
-  tlab = xcalloc(nb_of_tlab, sizeof(*tlab));
+  tlab = xcalloc(nb_of_tlab + (last_space_reminder > 0 ? 1 : 0), sizeof(*tlab));
 
   heap->meta_inf.reserved_for_allocator = tlab;
 
@@ -73,9 +75,9 @@ void gst_tlab_reset_for_local_heap(gst_heap_t *heap) {
 
   /* TODO Skipp if too small */
   if (last_space_reminder != 0) {
-    tlab[nb_of_tlab - 1].thread_id = UINT16_MAX;
-    tlab[nb_of_tlab - 1].position = &heap->oop[(nb_of_tlab - 1) * TLAB_ENTRY_SIZE];
-    tlab[nb_of_tlab - 1].end_of_buffer = &heap->oop[((nb_of_tlab - 1) * TLAB_ENTRY_SIZE) + last_space_reminder];
+    tlab[nb_of_tlab].thread_id = UINT16_MAX;
+    tlab[nb_of_tlab].position = &heap->oop[(nb_of_tlab - 1) * TLAB_ENTRY_SIZE];
+    tlab[nb_of_tlab].end_of_buffer = &heap->oop[((nb_of_tlab - 1) * TLAB_ENTRY_SIZE) + last_space_reminder];
   }
 }
 
