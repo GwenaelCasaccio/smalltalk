@@ -62,8 +62,8 @@ $(TESTSUITE): $(srcdir)/testsuite.at $(srcdir)/package.m4 $(srcdir)/local.at
 	$(AUTOTEST) -I '$(srcdir)' -o $@.tmp $@.at
 	mv $@.tmp $@
 
-TESTS = from_int grey_list barrier forward_object forward_object_alloc heap_test
-check_PROGRAMS = from_int grey_list barrier forward_object forward_object_alloc heap_test
+TESTS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test
+check_PROGRAMS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test
 from_int_SOURCES = vm/from_int.c
 from_int_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV)
 from_int_LDADD = $(top_builddir)/libgst/libgst.la $(LIBSIGSEGV) $(LIBSNPRINTFV) $(top_builddir)/lib-src/library.la @ICON@
@@ -100,3 +100,8 @@ heap_test_LDADD = $(top_builddir)/libgst/libgst.la $(CMOCKA_LIBS) $(LIBSNPRINTFV
 heap_test_DEPENDENCIES = $(top_builddir)/libgst/libgst.la $(top_builddir)/lib-src/library.la @ICON@
 heap_test_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS) -Wl,--wrap,nomemory -Wl,--wrap,posix_memalign -Wl,--wrap,perror
 
+tlab_test_SOURCES = vm/tlab_test.c
+tlab_test_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV) $(CMOCKA_CFLAGS)
+tlab_test_LDADD = $(top_builddir)/libgst/libgst.la $(CMOCKA_LIBS) $(LIBSNPRINTFV) $(LIBTHREAD) $(top_builddir)/lib-src/library.la @ICON@
+tlab_test_DEPENDENCIES = $(top_builddir)/libgst/libgst.la $(top_builddir)/lib-src/library.la @ICON@
+tlab_test_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS) -Wl,--wrap,nomemory -Wl,--wrap,_gst_scavenge -Wl,--wrap,xcalloc -Wl,--wrap,set_except_flag_for_thread -Wl,--wrap,_gst_vm_global_barrier_wait -Wl,--wrap,_gst_vm_end_barrier_wait

@@ -72,6 +72,7 @@ tests/barrier
 tests/forward_object
 tests/forward_object_alloc
 tests/heap_test
+tests/tlab_test
 tests/*.log
 tests/*.trs
 gst.im.SandstoneDb/

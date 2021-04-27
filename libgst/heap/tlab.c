@@ -1,4 +1,4 @@
-#include <gstpriv.h>
+#include "../gstpriv.h"
 
 /* Each threads has a TLAB entry of 100 Ko */
 static const uint16_t TLAB_ENTRY_SIZE = 100 * 1024 / SIZEOF_OOP;
@@ -139,7 +139,7 @@ OOP *gst_allocate_in_lab(gst_heap_t *heap, gst_tlab_t **tlab, uint16_t current_t
         _gst_vm_end_barrier_wait();
 
          *tlab = gst_allocate_in_heap(heap, current_thread_id);
-         if (NULL == *tlab) {
+         if (UNCOMMON (NULL == *tlab)) {
            nomemory(1);
            return NULL;
          }

@@ -162,16 +162,16 @@ static void should_free_heap_if_null(void **state) {
 
   (void) state;
 
-  heap_ptr = malloc(sizeof(*heap_ptr));
-  heap_ptr->meta_inf.next_heap_area = malloc(sizeof(*heap_ptr));
-
- _gst_heap_free_area(heap_ptr);
+  _gst_heap_free_area(heap_ptr);
 }
 
 static void should_free_heap(void **state) {
   gst_heap_t *heap_ptr = NULL;
 
   (void) state;
+
+  heap_ptr = malloc(sizeof(*heap_ptr));
+  heap_ptr->meta_inf.next_heap_area = malloc(sizeof(*heap_ptr));
 
   _gst_heap_free_area(heap_ptr);
 }
