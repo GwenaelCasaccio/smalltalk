@@ -269,6 +269,28 @@ static void should_allocate_tlab_entry(void **state) {
   assert_true(gst_allocate_in_heap(&heap, 0) == NULL);
 }
 
+static void should_fail_to_allocate_oop_when_heap_is_null(void **state) {
+  gst_tlab_t *tlab = (gst_tlab_t *)0xBABA;
+
+  (void) state;
+
+  expect_value(__wrap_nomemory, fatal, 1);
+  expect_function_calls(__wrap_nomemory, 1);
+
+  gst_allocate_in_lab(NULL, &tlab, 0, 5);
+}
+
+static void should_fail_to_allocate_oop_when_thread_id_is_invalid(void **state) {
+  gst_tlab_t *tlab = (gst_tlab_t *)0xBABA;
+
+  (void) state;
+
+  expect_value(__wrap_nomemory, fatal, 1);
+  expect_function_calls(__wrap_nomemory, 1);
+
+  gst_allocate_in_lab(NULL, &tlab, UINT16_MAX, 5);
+}
+
 int main(void) {
   const struct CMUnitTest tests[] =
     {
@@ -283,6 +305,8 @@ int main(void) {
      cmocka_unit_test(should_fail_to_allocate_tlab_entry_when_heap_is_null),
      cmocka_unit_test(should_fail_to_allocate_tlab_entry_when_thread_id_is_invalid),
      cmocka_unit_test(should_allocate_tlab_entry),
+     cmocka_unit_test(should_fail_to_allocate_oop_when_heap_is_null),
+     cmocka_unit_test(should_fail_to_allocate_oop_when_thread_id_is_invalid),
     };
 
   return cmocka_run_group_tests(tests, NULL, NULL);

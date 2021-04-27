@@ -118,6 +118,11 @@ gst_tlab_t *gst_allocate_in_heap(gst_heap_t *heap, uint16_t current_thread_id) {
 
 OOP *gst_allocate_in_lab(gst_heap_t *heap, gst_tlab_t **tlab, uint16_t current_thread_id, size_t number_of_words) {
 
+  if (heap == NULL) {
+    nomemory(1);
+    return NULL;
+  }
+
   if (tlab == NULL) {
     nomemory(1);
     return NULL;
@@ -125,6 +130,11 @@ OOP *gst_allocate_in_lab(gst_heap_t *heap, gst_tlab_t **tlab, uint16_t current_t
 
 
  if (*tlab == NULL) {
+   nomemory(1);
+   return NULL;
+ }
+
+ if (current_thread_id == UINT16_MAX) {
    nomemory(1);
    return NULL;
  }
