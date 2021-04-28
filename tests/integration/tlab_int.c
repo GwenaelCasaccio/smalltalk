@@ -120,6 +120,11 @@ static void should_allocate_oop() {
     if (check_tlab[i].thread_id == UINT16_MAX) {
       abort();
     }
+
+    if (check_tlab[i].position == check_tlab[i].end_of_buffer - 2) {
+      abort();
+    }
+
   }
 
   _gst_heap_free_area(test_heap);
