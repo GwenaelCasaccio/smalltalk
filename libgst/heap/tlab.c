@@ -139,6 +139,11 @@ OOP *gst_allocate_in_lab(gst_heap_t *heap, gst_tlab_t **tlab, uint16_t current_t
    return NULL;
  }
 
+ if (number_of_words == 0) {
+   nomemory(1);
+   return NULL;
+ }
+
  start:
 
   {
