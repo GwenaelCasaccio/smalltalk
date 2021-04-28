@@ -270,24 +270,10 @@ enum {
      garbage collection.  */
   F_REACHABLE = 0x800000U,
 
-  /* Set if a translation to native code is available, when running
-     with the JIT compiler enabled.  */
-  F_XLAT = 0x400000U,
-
-  /* Set if a translation to native code is used by the currently
-     reachable contexts.  */
-  F_XLAT_REACHABLE = 0x200000U,
-
-  /* Set if a translation to native code is available but not used by
-     the reachable contexts at the time of the last GC.  We give
-     another chance to the object, but if the translation is not used
-     for two consecutive GCs we discard it.  */
-  F_XLAT_2NDCHANCE = 0x100000U,
-
-  /* Set if a translation to native code was discarded for this
-     object (either because the programmer asked for this, or because
-     the method conflicted with a newly-installed method).  */
-  F_XLAT_DISCARDED = 0x80000U,
+  F_FREE_1 = 0x400000U,
+  F_FREE_2 = 0x200000U,
+  F_FREE_3 = 0x100000U,
+  F_FREE_4 = 0x080000U,
 
   /* One of this is set for objects that live in newspace.  */
   F_SPACES = 0x60000U,
@@ -335,7 +321,7 @@ enum {
 
   /* Set to the number of bytes unused in an object with byte-sized
      instance variables.  Note that this field and the following one
-     should be initialized only by INIT_UNALIGNED_OBJECT (not really 
+     should be initialized only by INIT_UNALIGNED_OBJECT (not really
      aesthetic but...) */
   EMPTY_BYTES = (sizeof (PTR) - 1),
 
@@ -566,6 +552,9 @@ extern OOP _gst_nil_oop
 #include "avltrees.h"
 #include "rbtrees.h"
 
+#include "heap/heap.h"
+#include "heap/tlab.h"
+
 #include "files.h"
 #include "barrier.h"
 #include "callin.h"
@@ -594,13 +583,13 @@ extern OOP _gst_nil_oop
 
 #undef obstack_init
 #define obstack_init(h)                                         \
-  _obstack_begin ((h), 0, ALIGNOF_LONG_DOUBLE,                \
+  _obstack_begin ((h), 0, ALIGNOF_LONG_DOUBLE,                  \
                   (void *(*) (long)) obstack_chunk_alloc,       \
                   (void (*) (void *)) obstack_chunk_free)
 
 #undef obstack_begin
 #define obstack_begin(h, size)                                  \
-  _obstack_begin ((h), (size), ALIGNOF_LONG_DOUBLE,           \
+  _obstack_begin ((h), (size), ALIGNOF_LONG_DOUBLE,             \
                   (void *(*) (long)) obstack_chunk_alloc,       \
                   (void (*) (void *)) obstack_chunk_free)
 

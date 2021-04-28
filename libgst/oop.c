@@ -225,7 +225,9 @@ heap_data *init_old_space(size_t size) {
   return h;
 }
 
-void _gst_init_mem_default() { _gst_init_mem(0, 0, 0, 0, 0, 0); }
+void _gst_init_mem_default() {
+  _gst_init_mem(0, 0, 0, 0, 0, 0);
+}
 
 void _gst_init_mem(size_t eden, size_t survivor, size_t old,
                    size_t big_object_threshold, int grow_threshold_percent,
@@ -257,6 +259,15 @@ void _gst_init_mem(size_t eden, size_t survivor, size_t old,
 
     if (old && old != _gst_mem.old->heap_total)
       _gst_grow_memory_to(old);
+  }
+
+  _gst_heap_new_area(&_gst_mem.gen0, 12 * K * K);
+  gst_tlab_init_for_heap(_gst_mem.gen0);
+  _gst_mem.tlab_per_thread[0] = gst_allocate_in_heap(_gst_mem.gen0, 0);
+
+  if (NULL == _gst_mem.tlab_per_thread[0]) {
+    nomemory(1);
+    return;
   }
 
   if (eden) {
@@ -588,28 +599,49 @@ void _gst_tenure_oop(OOP oop) {
 }
 
 gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
-  OOP *newAllocPtr;
   gst_object p_instance;
 
+  /* Force a GC as soon as possible if we're low on OOPs or memory.  */
+  if UNCOMMON (_gst_mem.num_free_oops < LOW_WATER_OOP_THRESHOLD ||
+               _gst_mem.old->heap_total * 100.0 / _gst_mem.old->heap_limit >
+               _gst_mem.grow_threshold_percent ||
+               _gst_mem.fixed->heap_total * 100.0 / _gst_mem.fixed->heap_limit >
+               _gst_mem.grow_threshold_percent) {
+      _gst_vm_global_barrier_wait();
+
+      set_except_flag_for_thread(false, current_thread_id);
+
+      _gst_global_gc(0);
+      _gst_incremental_gc_step();
+
+      _gst_vm_end_barrier_wait();
+    }
 
   size = ROUNDED_BYTES(size);
 
-  /* We don't want to have allocPtr pointing to the wrong thing during
-     GC, so we use a local var to hold its new value */
-  newAllocPtr = _gst_mem.eden.allocPtr + BYTES_TO_SIZE(size);
+  if (UNCOMMON (size >= _gst_mem.big_object_threshold)) {
+    _gst_vm_global_barrier_wait();
 
-  if UNCOMMON (size >= _gst_mem.big_object_threshold) {
-    return alloc_fixed_obj(size, p_oop);
+    set_except_flag_for_thread(false, current_thread_id);
+
+    p_instance = alloc_fixed_obj(size, p_oop);
+
+    _gst_vm_end_barrier_wait();
+
+    return p_instance;
   }
 
-  if UNCOMMON (newAllocPtr >= _gst_mem.eden.maxPtr) {
-    // Will allocate new object with mourn_objects
-    _gst_scavenge();
-    newAllocPtr = _gst_mem.eden.allocPtr + size;
+  p_instance = (gst_object) gst_allocate_in_lab(_gst_mem.gen0,
+                                                &_gst_mem.tlab_per_thread[current_thread_id],
+                                                current_thread_id,
+                                                BYTES_TO_SIZE(size));
+  if (UNCOMMON(NULL == p_instance)) {
+    // Check Too Big
+    // Reallocate new TLAB Entry
+    nomemory(1);
+    return NULL;
   }
 
-  p_instance = (gst_object)_gst_mem.eden.allocPtr;
-  _gst_mem.eden.allocPtr = newAllocPtr;
   *p_oop = alloc_oop(p_instance, _gst_mem.active_flag);
   OBJ_SET_SIZE (p_instance, FROM_INT(BYTES_TO_SIZE(size)));
   OBJ_SET_IDENTITY (p_instance, FROM_INT(0));
@@ -649,23 +681,23 @@ ok:
 }
 
 gst_object _gst_alloc_words(size_t size) {
-  OOP *newAllocPtr;
   gst_object p_instance;
 
-  /* We don't want to have allocPtr pointing to the wrong thing during
-     GC, so we use a local var to hold its new value */
-  newAllocPtr = _gst_mem.eden.allocPtr + size;
-
-  if UNCOMMON (newAllocPtr >= _gst_mem.eden.maxPtr) {
-    nomemory(0);
+  if (UNCOMMON (size >= _gst_mem.big_object_threshold)) {
     abort();
   }
 
-  if UNCOMMON (size >= _gst_mem.big_object_threshold)
-    abort();
+  p_instance = (gst_object) gst_allocate_in_lab(_gst_mem.gen0,
+                                                &_gst_mem.tlab_per_thread[current_thread_id],
+                                                current_thread_id,
+                                                size);
+  if (UNCOMMON(NULL == p_instance)) {
+    // Check Too Big
+    // Reallocate new TLAB Entry
+    nomemory(1);
+    return NULL;
+  }
 
-  p_instance = (gst_object)_gst_mem.eden.allocPtr;
-  _gst_mem.eden.allocPtr = newAllocPtr;
   OBJ_SET_SIZE (p_instance, FROM_INT(size));
   OBJ_SET_IDENTITY (p_instance, FROM_INT(0));
   return p_instance;
@@ -881,6 +913,8 @@ void _gst_global_gc(int next_allocation) {
 #endif
   reset_incremental_gc(_gst_mem.ot);
 
+  gst_tlab_reset_for_local_heap(_gst_mem.gen0);
+
   update_stats(&stats.timeOfLastGlobalGC, NULL, &_gst_mem.timeToCollect);
 
   s = "done";
@@ -988,6 +1022,8 @@ void _gst_scavenge(void) {
   check_weak_refs();
 
   _gst_restore_object_pointers();
+
+  gst_tlab_reset_for_local_heap(_gst_mem.gen0);
 
   reset_incremental_gc(_gst_mem.ot);
 
