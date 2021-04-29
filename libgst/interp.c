@@ -2318,51 +2318,57 @@ void _gst_copy_processor_registers(void) {
 }
 
 void copy_semaphore_oops(void) {
-  async_queue_entry *sig;
-
-  for (sig = queued_async_signals[current_thread_id]; sig != &queued_async_signals_tail[current_thread_id];
-       sig = sig->next)
-    MAYBE_COPY_OOP(sig->data);
-  for (sig = queued_async_signals_sig[current_thread_id]; sig != &queued_async_signals_tail[current_thread_id];
-       sig = sig->next)
-    MAYBE_COPY_OOP(sig->data);
-
   /* there does seem to be a window where this is not valid */
   if (single_step_semaphore)
     MAYBE_COPY_OOP(single_step_semaphore);
 
   for (size_t i = 0; i < _gst_interpret_thread_counter; i++) {
+    for (async_queue_entry *sig = queued_async_signals[i]; sig != &queued_async_signals_tail[i];
+         sig = sig->next) {
+      MAYBE_COPY_OOP(sig->data);
+    }
+    for (async_queue_entry *sig = queued_async_signals_sig[i]; sig != &queued_async_signals_tail[i];
+         sig = sig->next) {
+      MAYBE_COPY_OOP(sig->data);
+    }
+
     /* there does seem to be a window where this is not valid */
-    MAYBE_COPY_OOP(switch_to_process[current_thread_id]);
+    MAYBE_COPY_OOP(switch_to_process[i]);
   }
 }
 
 void _gst_mark_processor_registers(void) {
   mark_semaphore_oops();
-  if (_gst_this_context_oop[current_thread_id])
-    MAYBE_MARK_OOP(_gst_this_context_oop[current_thread_id]);
 
+  for (size_t i = 0; i < _gst_interpret_thread_counter; i++) {
+    if (_gst_this_context_oop[i]) {
+      MAYBE_MARK_OOP(_gst_this_context_oop[i]);
+    }
+  }
   /* everything else is pointed to by _gst_this_context_oop, either
      directly or indirectly, or has been marked when scanning the
      registered roots.  */
 }
 
 void mark_semaphore_oops(void) {
-  async_queue_entry *sig;
-
-  for (sig = queued_async_signals[current_thread_id]; sig != &queued_async_signals_tail[current_thread_id];
-       sig = sig->next)
-    MAYBE_MARK_OOP(sig->data);
-  for (sig = queued_async_signals_sig[current_thread_id]; sig != &queued_async_signals_tail[current_thread_id];
-       sig = sig->next)
-    MAYBE_MARK_OOP(sig->data);
-
   /* there does seem to be a window where this is not valid */
   if (single_step_semaphore)
     MAYBE_MARK_OOP(single_step_semaphore);
 
-  /* there does seem to be a window where this is not valid */
-  MAYBE_MARK_OOP(switch_to_process[current_thread_id]);
+  for (size_t i = 0; i < _gst_interpret_thread_counter; i++) {
+    for (async_queue_entry *sig = queued_async_signals[i]; sig != &queued_async_signals_tail[i];
+       sig = sig->next) {
+      MAYBE_MARK_OOP(sig->data);
+    }
+
+    for (async_queue_entry *sig = queued_async_signals_sig[i]; sig != &queued_async_signals_tail[i];
+       sig = sig->next) {
+      MAYBE_MARK_OOP(sig->data);
+    }
+
+    /* there does seem to be a window where this is not valid */
+    MAYBE_MARK_OOP(switch_to_process[i]);
+  }
 }
 
 void _gst_fixup_object_pointers(void) {
