@@ -172,7 +172,7 @@ static inline OOP alloc_oop(PTR objData, intptr_t flags) {
   atomic_fetch_sub(&_gst_mem.num_free_oops, 1);
 
   /* Force a GC as soon as possible if we're low on OOPs.  */
-  if (UNCOMMON (atomic_load(&_gst_mem.num_free_oops) < LOW_WATER_OOP_THRESHOLD)) {
+  if (UNCOMMON (atomic_load(&_gst_mem.num_free_oops) < LOW_WATER_OOP_THRESHOLD * atomic_load(&_gst_interpret_thread_counter) * 4)) {
     atomic_store(&_gst_mem.eden.maxPtr, _gst_mem.eden.allocPtr);
   }
 

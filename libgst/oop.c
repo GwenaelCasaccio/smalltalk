@@ -602,11 +602,9 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
   gst_object p_instance;
 
   /* Force a GC as soon as possible if we're low on OOPs or memory.  */
-  if UNCOMMON (_gst_mem.num_free_oops < LOW_WATER_OOP_THRESHOLD ||
-               _gst_mem.old->heap_total * 100.0 / _gst_mem.old->heap_limit >
-               _gst_mem.grow_threshold_percent ||
-               _gst_mem.fixed->heap_total * 100.0 / _gst_mem.fixed->heap_limit >
-               _gst_mem.grow_threshold_percent) {
+  if UNCOMMON (_gst_mem.num_free_oops < LOW_WATER_OOP_THRESHOLD  * atomic_load(&_gst_interpret_thread_counter) * 4 ||
+               _gst_mem.old->heap_total * 100.0 / _gst_mem.old->heap_limit > _gst_mem.grow_threshold_percent ||
+               _gst_mem.fixed->heap_total * 100.0 / _gst_mem.fixed->heap_limit > _gst_mem.grow_threshold_percent) {
       _gst_vm_global_barrier_wait();
 
       set_except_flag_for_thread(false, current_thread_id);
