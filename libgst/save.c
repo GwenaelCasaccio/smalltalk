@@ -457,7 +457,7 @@ mst_Boolean load_snapshot(int imageFd) {
 
   ot_delta = (intptr_t)(_gst_mem.ot) - header.ot_base;
   num_used_oops = header.oopTableSize;
-  _gst_mem.num_free_oops = 0; //header.num_free_oops;
+  _gst_mem.num_free_oops = 0;
 
   load_oop_table(imageFd);
 
