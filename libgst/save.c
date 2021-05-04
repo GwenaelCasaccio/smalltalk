@@ -457,7 +457,7 @@ mst_Boolean load_snapshot(int imageFd) {
 
   ot_delta = (intptr_t)(_gst_mem.ot) - header.ot_base;
   num_used_oops = header.oopTableSize;
-  _gst_mem.num_free_oops = header.num_free_oops;
+  _gst_mem.num_free_oops = 0; //header.num_free_oops;
 
   load_oop_table(imageFd);
 
@@ -544,7 +544,6 @@ void load_oop_table(int imageFd) {
 
 char *load_normal_oops(int imageFd) {
   OOP oop;
-  size_t i;
 
   gst_object object = NULL;
   size_t size = 0;
@@ -559,7 +558,7 @@ char *load_normal_oops(int imageFd) {
 
   _gst_mem.last_allocated_oop = &_gst_mem.ot[num_used_oops - 1];
   PREFETCH_START(_gst_mem.ot, PREF_WRITE | PREF_NTA);
-  for (oop = _gst_mem.ot, i = num_used_oops; i--; oop++) {
+  for (oop = _gst_mem.ot; oop < &_gst_mem.ot[_gst_mem.ot_size]; OOP_NEXT(oop)) {
     intptr_t flags;
 
     PREFETCH_LOOP(oop, PREF_WRITE | PREF_NTA);
@@ -573,6 +572,8 @@ char *load_normal_oops(int imageFd) {
       if (NULL == _gst_mem.ot_arena[(oop - _gst_mem.ot) / 32768].first_free_oop) {
         _gst_mem.ot_arena[(oop - _gst_mem.ot) / 32768].first_free_oop = oop;
       }
+
+      _gst_mem.num_free_oops++;
 
       continue;
     }
@@ -624,14 +625,16 @@ char *load_normal_oops(int imageFd) {
      (including classes!), for which we can do without NUM_OOPS, then
      do another pass here and fix the byte objects using the now
      correct class objects.  */
-  if UNCOMMON (wrong_endianness)
-    for (oop = _gst_mem.ot, i = num_used_oops; i--; OOP_NEXT(oop))
+  if (UNCOMMON (wrong_endianness)) {
+    for (oop = _gst_mem.ot; oop < &_gst_mem.ot[_gst_mem.ot_size]; OOP_NEXT(oop)) {
       if (OOP_GET_FLAGS(oop) & F_BYTE) {
         OOP classOOP;
         object = OOP_TO_OBJ(oop);
         classOOP = OOP_ABSOLUTE(OBJ_CLASS(object));
         fixup_byte_order(object->data, CLASS_FIXED_FIELDS(classOOP));
       }
+    }
+  }
 
   if (!use_copy_on_write) {
     buffer_read_free(imageFd);
