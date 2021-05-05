@@ -22,7 +22,7 @@ ACLOCAL_AMFLAGS = -I build-aux
 PACKAGE=smalltalk
 gstdatadir=$(pkgdatadir)
 
-DIST_SUBDIRS = lib-src libgst \
+DIST_SUBDIRS = dynasm lib-src libgst \
 	. $(ALL_PACKAGES) tests doc
 
 SUBDIRS = lib-src $(subdirs)

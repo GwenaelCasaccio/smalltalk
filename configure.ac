@@ -861,7 +861,7 @@ dnl Master Makefile
 AC_CONFIG_FILES(Makefile)
 
 dnl VM makefiles
-AC_CONFIG_FILES(doc/Makefile lib-src/Makefile libgst/Makefile)
+AC_CONFIG_FILES(dynasm/Makefile doc/Makefile lib-src/Makefile libgst/Makefile)
 AC_CONFIG_FILES(tests/Makefile)
 
 AC_OUTPUT

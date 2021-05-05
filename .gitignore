@@ -31,6 +31,8 @@ GPATH
 GRTAGS
 GTAGS
 
+dynasm/minilua
+
 /elc-stamp
 /gnu-smalltalk.pc
 /gst
