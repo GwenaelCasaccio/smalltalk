@@ -11,6 +11,8 @@
 .deps
 .dirstamp
 .libs
+*stamp
+*.Tpo
 aclocal.m4
 autom4te.cache
 config.h.in
@@ -32,6 +34,8 @@ GRTAGS
 GTAGS
 
 dynasm/minilua
+
+jit-x64.c
 
 /elc-stamp
 /gnu-smalltalk.pc

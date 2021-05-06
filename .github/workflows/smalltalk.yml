@@ -23,11 +23,6 @@ jobs:
         cmake -DCMAKE_INSTALL_PREFIX=/user ..
         sudo make install
         cd ../../
-    - name: Build DYNASM
-      run: |
-        wget https://luajit.org/download/LuaJIT-2.0.5.tar.gz
-        tar -xzf LuaJIT-2.0.5.tar.gz
-        gcc LuaJIT-2.0.5/src/host/minilua.c -lm -o minilua 
     - name: Build UNICORN
       run: |
         wget https://github.com/unicorn-engine/unicorn/archive/1.0.2.tar.gz
@@ -39,6 +34,10 @@ jobs:
       run: sudo apt install libsigsegv-dev libexpat1-dev gcc-10 g++-10
     - name: Update generated configuration files
       run: autoreconf -vi
+    - name: Build dynasm
+      run: |
+        cd dynasm/
+        gcc minilua.c -lm -o minilua
     - name: configure
       run: |
         export PKG_CONFIG_PATH=/user/lib/pkgconfig

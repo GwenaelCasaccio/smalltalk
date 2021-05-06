@@ -2,10 +2,18 @@ LEX_OUTPUT_ROOT = lex.yy
 ## CFLAGS=-O0 -g
 ##AM_CFLAGS = $(LIBGST_CFLAGS) -flto
 AM_CFLAGS = $(LIBGST_CFLAGS)
-AM_CPPFLAGS = $(RELOC_CPPFLAGS) \
-  -I$(top_srcdir)/lib-src -I$(top_builddir)/lib-src \
-  $(INCFFI) $(INCLIGHTNING) $(INCSNPRINTFV) $(INCSIGSEGV) $(INCLTDL)
+AM_CPPFLAGS = $(RELOC_CPPFLAGS)					\
+							-I$(top_srcdir)/dynasm		\
+							-I$(top_srcdir)/lib-src		\
+						  $(INCFFI)									\
+							$(INCSNPRINTFV) 					\
+							$(INCSIGSEGV) 						\
+							$(INCLTDL)
 
+CLEANFILES = jit-x64.c
+BUILT_SOURCES = jit-x64.c
+STAMP_FILES = jit-x64.stamp
+dist_noinst_DATA = jit-x64.dasc
 include_HEADERS = gstpub.h gst.h
 lib_LTLIBRARIES = libgst.la
 
@@ -28,7 +36,7 @@ libgst_la_SOURCES = \
        sysdep.c    			callin.c			mpz.c           barrier.c    			\
        print.c	   			alloc.c				re.c	          interp.c      		\
        real.c	     			sockets.c			events.c        object_pointer.c	\
-			 forward_object.c	heap/heap.c		heap/tlab.c
+			 forward_object.c	heap/heap.c		heap/tlab.c     jit-x64.c
 
 dist_noinst_DATA = valgrind.supp builtins.gperf
 
@@ -69,6 +77,14 @@ noinst_HEADERS = 																												\
 	      echo Retrying...; sleep 1; \
 	    fi; \
 	  done
+
+
+$(srcdir)/jit-x64.c: $(srcdir)/jit-x64.stamp
+	@:
+
+$(srcdir)/jit-x64.stamp:
+	../dynasm/minilua ../dynasm/dynasm.lua -D x64 -o jit-x64.c jit-x64.dasc
+	@echo timestamp > $(srcdir)/jit-x64.stamp
 
 builtins.inl: builtins.gperf
 

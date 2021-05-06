@@ -1,0 +1,171 @@
+#include "gstpriv.h"
+#include "match.h"
+
+#include "dynasm/dasm_proto.h"
+#include "dynasm/dasm_x86.h"
+
+void compile() {
+  dasm_State* d;
+
+  |.if X64
+  |.arch x64
+  |.else
+  |.arch x86
+  |.endif
+  |.section code
+  dasm_init(&d, DASM_MAXSECTION);
+
+/*  MATCH_BYTECODES (PRINT_BYTECODE_NAME, bp, (
+    PUSH_RECEIVER_VARIABLE {
+      printf ("%s\tpush Instance Variable[%d]\n", prefix, n);
+      prefix = pref;
+    }
+
+    PUSH_TEMPORARY_VARIABLE {
+      printf ("%s\tpush Temporary Variable[%d]\n", prefix, n);
+      prefix = pref;
+    }
+
+    PUSH_LIT_CONSTANT {
+      printf ("%s\tpush Literal[%d]", prefix, n);
+      if (literal_vec)
+        printf (" = %O", literal_vec[n]);
+      printf ("\n");
+      prefix = pref;
+    }
+
+    PUSH_LIT_VARIABLE {
+      printf ("%s\tpush Global Variable[%d]", prefix, n);
+      if (literal_vec)
+        printf (" = %+O", literal_vec[n]);
+      printf ("\n");
+      prefix = pref;
+    }
+
+    PUSH_SELF {
+      printf ("%s\tpush self\n", prefix);
+      prefix = pref;
+    }
+    PUSH_SPECIAL {
+      switch (n) {
+      case TRUE_INDEX: printf ("%s\tpush true\n", prefix); break;
+      case FALSE_INDEX: printf ("%s\tpush false\n", prefix); break;
+      case NIL_INDEX: printf ("%s\tpush nil\n", prefix); break;
+      }
+      prefix = pref;
+    }
+    PUSH_INTEGER {
+      printf ("%s\tpush %d\n", prefix, n);
+      prefix = pref;
+    }
+
+    RETURN_METHOD_STACK_TOP {
+      printf ("%s\treturn explicitly from method\n", prefix);
+      prefix = pref;
+    }
+    RETURN_CONTEXT_STACK_TOP {
+      printf ("%s\treturn stack top\n", prefix);
+      prefix = pref;
+    }
+
+    LINE_NUMBER_BYTECODE {
+      printf ("%s\tsource line %d\n", prefix, n);
+      prefix = pref;
+    }
+
+    STORE_RECEIVER_VARIABLE {
+      printf ("%s\tstore into Instance Variable[%d]\n", prefix, n);
+      prefix = pref;
+    }
+    STORE_TEMPORARY_VARIABLE {
+      printf ("%s\tstore into Temporary Variable[%d]\n", prefix, n);
+      prefix = pref;
+    }
+    STORE_LIT_VARIABLE {
+      printf ("%s\tstore into Global Variable[%d]", prefix, n);
+      if (literal_vec)
+        printf (" = %+O", literal_vec[n]);
+      printf ("\n");
+      prefix = pref;
+    }
+
+    SEND {
+      printf ("%s\tsend selector %d%s, %d args", prefix, n, super ? " to super" : "", num_args);
+      if (literal_vec)
+        printf (" = %O", literal_vec[n]);
+      printf ("\n");
+      prefix = pref;
+    }
+
+    POP_INTO_NEW_STACKTOP {
+      printf ("%s\tpop and store into Instance Variable[%d] of new stack top\n", prefix, n);
+      prefix = pref;
+    }
+
+    POP_STACK_TOP {
+      printf ("%s\tpop stack top\n", prefix);
+      prefix = pref;
+    }
+    DUP_STACK_TOP {
+      printf ("%s\tduplicate stack top\n", prefix);
+      prefix = pref;
+    }
+
+    PUSH_OUTER_TEMP {
+      printf ("%s\tpush outer var scopes = %d varIndex = %d\n", prefix, scopes, n);
+      prefix = pref;
+    }
+    STORE_OUTER_TEMP {
+      printf ("%s\tstore outer var scopes = %d varIndex = %d\n", prefix, scopes, n);
+      prefix = pref;
+    }
+
+    EXIT_INTERPRETER {
+      printf ("%s\tterminate interpreter\n", prefix);
+      prefix = pref;
+    }
+
+    JUMP {
+      printf ("%s\tjump to %d\n", prefix, ip + ofs);
+      prefix = pref;
+    }
+    POP_JUMP_TRUE {
+      printf ("%s\tpop and jump to %d if true\n", prefix, ip + ofs);
+      prefix = pref;
+    }
+    POP_JUMP_FALSE {
+      printf ("%s\tpop and jump to %d if false\n", prefix, ip + ofs);
+      prefix = pref;
+    }
+
+    SEND_ARITH {
+      printf ("%s\tsend arithmetic message %O\n", prefix,
+              _gst_builtin_selectors[n].symbol);
+      prefix = pref;
+    }
+    SEND_SPECIAL {
+      printf ("%s\tsend special message %O\n", prefix,
+              _gst_builtin_selectors[n + 16].symbol);
+      prefix = pref;
+    }
+
+    MAKE_DIRTY_BLOCK {
+      printf ("%s\tmake dirty block\n", prefix);
+      prefix = pref;
+    }
+
+    SEND_IMMEDIATE {
+      printf ("%s\tsend special message %O%s\n", prefix,
+              _gst_builtin_selectors[n].symbol,
+              super ? " to super" : "");
+      prefix = pref;
+    }
+
+    INVALID {
+      printf ("%s\tINVALID BYTECODE %d(%d)\n", prefix, b, arg);
+      prefix = pref;
+    }
+  )); */
+
+}
+
