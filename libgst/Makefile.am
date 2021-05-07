@@ -10,10 +10,9 @@ AM_CPPFLAGS = $(RELOC_CPPFLAGS)					\
 							$(INCSIGSEGV) 						\
 							$(INCLTDL)
 
-CLEANFILES = jit-x64.c
+CLEANFILES = jit-x64.c$ jit-x64.stamp
 BUILT_SOURCES = jit-x64.c
 STAMP_FILES = jit-x64.stamp
-dist_noinst_DATA = jit-x64.dasc
 include_HEADERS = gstpub.h gst.h
 lib_LTLIBRARIES = libgst.la
 
@@ -38,7 +37,7 @@ libgst_la_SOURCES = \
        real.c	     			sockets.c			events.c        object_pointer.c	\
 			 forward_object.c	heap/heap.c		heap/tlab.c     jit-x64.c
 
-dist_noinst_DATA = valgrind.supp builtins.gperf
+dist_noinst_DATA = valgrind.supp builtins.gperf jit-x64.dasc
 
 noinst_HEADERS = 																												\
 	gstpriv.h 						files.h 			lex.h 			str.h re.h 						\
@@ -77,7 +76,6 @@ noinst_HEADERS = 																												\
 	      echo Retrying...; sleep 1; \
 	    fi; \
 	  done
-
 
 $(srcdir)/jit-x64.c: $(srcdir)/jit-x64.stamp
 	@:

@@ -8,7 +8,7 @@ AM_CPPFLAGS = $(RELOC_CPPFLAGS) \
 noinst_PROGRAMS = minilua
 minilua_SOURCES = minilua.c
 
-noinst_HEADERS = \ 
+noinst_HEADERS = \
 	dasm_arm.h     \
 	dasm_mips.h    \
 	dasm_ppc.h     \

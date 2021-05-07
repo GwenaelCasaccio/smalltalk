@@ -42,14 +42,21 @@ dnl ------------------------------- PROGRAMS ------------------
 
 { echo; echo "${term_bold}Build Tools:${term_norm}"; } >& AS_MESSAGE_FD
 
-GST_PROG_CC(strict-aliasing,	   	 		           dnl enabled optimizations
-    gcse,                               	                   dnl disabled optimizations
-    all write-strings pointer-arith declaration-after-statement,   dnl enabled warnings
-    strict-aliasing pointer-sign long-double format switch)	   dnl disabled warnings
+GST_PROG_CC(strict-aliasing,	   	 		                                 dnl enabled optimizations
+            gcse,                               	                     dnl disabled optimizations
+            all write-strings pointer-arith,                           dnl enabled warnings
+            strict-aliasing pointer-sign long-double format switch)	   dnl disabled warnings
 
 if test "$GCC" != yes; then
   AC_MSG_ERROR([Please use GCC to compile GNU Smalltalk.])
 fi
+
+AX_CHECK_COMPILE_FLAG([-std=c18], [
+  CFLAGS+=" -std=gnu18"
+], [
+  echo "C compiler cannot compile GNU-C18 code"
+  exit -1
+])
 
 case "$host" in
   alpha*-*-*) CFLAGS="$CFLAGS -mieee" ;;
