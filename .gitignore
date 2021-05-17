@@ -11,6 +11,8 @@
 .deps
 .dirstamp
 .libs
+*stamp
+*.Tpo
 aclocal.m4
 autom4te.cache
 config.h.in
@@ -30,6 +32,10 @@ termnorm
 GPATH
 GRTAGS
 GTAGS
+
+dynasm/minilua
+
+libgst/jit-x64.c
 
 /elc-stamp
 /gnu-smalltalk.pc
@@ -74,6 +80,7 @@ tests/forward_object_alloc
 tests/heap_test
 tests/tlab_test
 tests/integration_tlab
+tests/jit_x64
 tests/*.log
 tests/*.trs
 gst.im.SandstoneDb/
