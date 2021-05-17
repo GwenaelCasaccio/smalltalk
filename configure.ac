@@ -118,6 +118,10 @@ PKG_CHECK_MODULES(CMOCKA, cmocka,
                   [gst_cv_cmocka=yes],
                   [gst_cv_cmocka=no])
 
+PKG_CHECK_MODULES(UNICORN, unicorn,
+                  [gst_cv_unicorn=yes],
+                  [gst_cv_unicorn=no])
+
 PKG_CHECK_MODULES(GNUTLS, gnutls,
                   [ac_cv_lib_gnutls_gnutls_global_init=yes],
                   [GST_HAVE_LIB(gnutls, gnutls_global_init)])

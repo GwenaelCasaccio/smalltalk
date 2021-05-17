@@ -10,9 +10,8 @@ AM_CPPFLAGS = $(RELOC_CPPFLAGS)					\
 							$(INCSIGSEGV) 						\
 							$(INCLTDL)
 
-CLEANFILES = jit-x64.c$ jit-x64.stamp
 BUILT_SOURCES = jit-x64.c
-STAMP_FILES = jit-x64.stamp
+CLEANFILES = jit-x64.c
 include_HEADERS = gstpub.h gst.h
 lib_LTLIBRARIES = libgst.la
 
@@ -77,12 +76,8 @@ noinst_HEADERS = 																												\
 	    fi; \
 	  done
 
-$(srcdir)/jit-x64.c: $(srcdir)/jit-x64.stamp
-	@:
-
-$(srcdir)/jit-x64.stamp:
+$(srcdir)/jit-x64.c: Makefile
 	../dynasm/minilua ../dynasm/dynasm.lua -D x64 -o jit-x64.c jit-x64.dasc
-	@echo timestamp > $(srcdir)/jit-x64.stamp
 
 builtins.inl: builtins.gperf
 
