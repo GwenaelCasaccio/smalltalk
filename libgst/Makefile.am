@@ -77,7 +77,7 @@ noinst_HEADERS = 																												\
 	  done
 
 $(srcdir)/jit-x64.c: Makefile
-	../dynasm/minilua ../dynasm/dynasm.lua -D x64 -o jit-x64.c jit-x64.dasc
+	../dynasm/minilua ../dynasm/dynasm.lua -o jit-x64.c jit-x64.dasc
 
 builtins.inl: builtins.gperf
 

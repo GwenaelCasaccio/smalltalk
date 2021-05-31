@@ -4,9 +4,21 @@
 #include "dynasm/dasm_proto.h"
 #include "dynasm/dasm_x86.h"
 
-static void compile(OOP compiled_code_oop);
+static void *compile(OOP compiled_code_oop);
 
-void compile(OOP compiled_code_oop) {
+
+static void *link_and_encode(dasm_State** d)
+{
+  size_t sz;
+  void* buf;
+  dasm_link(d, &sz);
+  buf = mmap(0, sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+  dasm_encode(d, buf);
+  mprotect(buf, sz, PROT_READ | PROT_EXEC);
+  return buf;
+}
+
+void *compile(OOP compiled_code_oop) {
 
   if (!is_a_kind_of(OOP_CLASS(compiled_code_oop), _gst_compiled_method_class) &&
       OOP_CLASS(compiled_code_oop) != _gst_compiled_block_class) {
@@ -45,62 +57,47 @@ void compile(OOP compiled_code_oop) {
   header = GET_METHOD_HEADER(compiled_code_oop);
   num_temps = header.numArgs + header.numTemps;
   stack_depth = header.stack_depth << DEPTH_SCALE;
-  switch (header.headerFlag) {
-  case MTH_NORMAL:
-  case MTH_PRIMITIVE:
-  case MTH_ANNOTATED:
-  case MTH_UNUSED:
-    break;
 
-  case MTH_USER_DEFINED:
-    break;
-
-  case MTH_RETURN_SELF:
-    break;
-
-  case MTH_RETURN_INSTVAR:
-    break;
-
-  case MTH_RETURN_LITERAL:
-    break;
-  }
-
-  |.if X64 
-  |.arch x64 
-  |.else 
-  |.arch x86 
-  |.endif 
+  |.arch x64
   |.section code
   dasm_init(&dasm_state, DASM_MAXSECTION);
-  |.globals lbl_ 
+  |.globals lbl_
   void *labels[lbl__MAX];
   dasm_setupglobal(&dasm_state, labels, lbl__MAX);
-  |.actionlist code_actions 
+  |.actionlist code_actions
   dasm_setup(&dasm_state, code_actions);
   dasm_growpc(&dasm_state, npc);
   dasm_State **Dst = &dasm_state;
+  /* For Linux Only */
   |.code
   |->bf_main:
-  | mov eax, 0
-  | ret
-
+  |  push rbp
+  |  mov rbp, rsp
+  |  mov r9, [rsi + 7 * 8]
+  |  lea r10, [rsi + 10 * 8]
+  /* Get Literal Array */
+  |  mov r11, [rsi + 8 * 8]
+  |  mov r11, [r11]
+  |  mov r11, [r11 + 3 * 8]
+  |  mov r11, [r11]
+  |  lea r12, [rsi + 6 * 8]
+  |  lea r13, [rsi + 5 * 8]
           /* Registers mapping:
 
-             current_thread_id: EAX
-             this_context:      EBP
-             stack_pointer:     ESP
-             gst_self:          EBX
-             literal_array:     ECX
-             ...
-
-             EDX: Free
+             current_thread_id:    RDI
+             this_context_object:  RSI
+             _gst_self:            R9 get from this_context->data[4]
+             stack_pointer:        R10 get from &this_context->data[7]
+             literal_array:        R11 get from this_context->data[5]->obj->...
+             sp                    R12 get from this_context->data[3]
+             ip                    R13 get from this_context->data[2]
           */
 
   int arg, arg_lsb, n, num_args, ofs, opcode, opcode_, scopes, super;
   unsigned char *IP = bytecode;
   unsigned char ATTRIBUTE_UNUSED *IP0 = bytecode;
   arg = arg_lsb = n = num_args = ofs = opcode = opcode_ = scopes = super = 0;
-  
+
 MATCH_BYTECODES_START_JIT_:
   opcode_ = *IP;
 MATCH_BYTECODES_SWITCH_JIT:
@@ -4414,34 +4411,45 @@ MATCH_BYTECODES_SWITCH_JIT:
     } while (0);
     goto MATCH_BYTECODES_END_JIT_;
 
-// TODO: Start of the JIT    
-MATCH_BYTECODES_JIT_PUSH_SELF: 
+MATCH_BYTECODES_JIT_PUSH_SELF:
 {
-  | mov [ebx + 8], ebx 
-  | add esp, 8
+  | mov [r10], r9
+  | add r10, 8
 }
 goto MATCH_BYTECODES_SWITCH_JIT;
 
 MATCH_BYTECODES_JIT_PUSH_TEMPORARY_VARIABLE:
 {
   // PUSH READ TEMPORARY
-  | mov edx, [esp + n * 8] 
-  | mov [esp + 8], edx 
-  | add esp, 8
-}
-goto MATCH_BYTECODES_SWITCH_JIT;
-MATCH_BYTECODES_JIT_PUSH_RECEIVER_VARIABLE: 
-{
-  | mov [esp + 8], ebx
-  | add esp, 8
+  // printf ("%s\tpush Temporary Variable[%d]\n", prefix, n);
+  int foo = n + 3;
+  | mov rax, [rsi + foo * 8]
+  | mov [r10], rax
+  | add r10, 8
 }
 goto MATCH_BYTECODES_SWITCH_JIT;
 
-MATCH_BYTECODES_JIT_PUSH_LIT_CONSTANT: 
+MATCH_BYTECODES_JIT_PUSH_RECEIVER_VARIABLE:
 {
-  | mov edx, [ecx + n * 8] 
-  | mov [esp + 8], edx 
-  | add esp, 8
+  // PUSH INSTANCE VARIABLE
+ // printf ("%s\tpush Instance Variable[%d]\n", prefix, n);
+ int foo = n + 3;
+  | mov rax, [r9]
+  | mov rax, [rax + foo * 8]
+  | mov [r10], rax
+  | add r10, 8
+}
+goto MATCH_BYTECODES_SWITCH_JIT;
+
+MATCH_BYTECODES_JIT_PUSH_LIT_CONSTANT:
+{
+  // printf ("%s\tpush Literal[%d]", prefix, n);
+  int foo = n + 3;
+  | mov rax, [r11]
+  | mov rax, [r11 + foo * 8]
+  | mov [r10], rax
+  | add r10, 8
+
 }
 goto MATCH_BYTECODES_SWITCH_JIT;
 
@@ -4450,20 +4458,70 @@ MATCH_BYTECODES_JIT_PUSH_LIT_VARIABLE:
   abort(); // Smalltalk Global in Literal Array
 }
 goto MATCH_BYTECODES_SWITCH_JIT;
-MATCH_BYTECODES_JIT_PUSH_SPECIAL : {}
+MATCH_BYTECODES_JIT_PUSH_SPECIAL:
+{
+  switch (n) {
+	case TRUE_INDEX:
+    {
+      | mov qword [r10], _gst_true_oop
+      | add r10, 8
+    }
+	case FALSE_INDEX:
+    {
+      | mov qword [r10], _gst_false_oop
+      | add r10, 8
+    }
+	case NIL_INDEX:
+    {
+      | mov qword [r10], _gst_nil_oop
+      | add r10, 8
+    }
+  }
+}
 goto MATCH_BYTECODES_SWITCH_JIT;
-MATCH_BYTECODES_JIT_PUSH_INTEGER : {}
+
+MATCH_BYTECODES_JIT_PUSH_INTEGER : {
+  | mov qword [r10], n
+  | add r10, 8
+}
 goto MATCH_BYTECODES_SWITCH_JIT;
-MATCH_BYTECODES_JIT_RETURN_METHOD_STACK_TOP : {}
+
+MATCH_BYTECODES_JIT_RETURN_METHOD_STACK_TOP:
+{
+  abort();
+  |  pop rbp
+  |  ret
+}
 goto MATCH_BYTECODES_SWITCH_JIT;
-MATCH_BYTECODES_JIT_RETURN_CONTEXT_STACK_TOP : {}
+
+MATCH_BYTECODES_JIT_RETURN_CONTEXT_STACK_TOP:
+{
+  |  pop rbp
+  |  ret
+}
 goto MATCH_BYTECODES_SWITCH_JIT;
-MATCH_BYTECODES_JIT_LINE_NUMBER_BYTECODE : {}
+
+MATCH_BYTECODES_JIT_LINE_NUMBER_BYTECODE:
+{
+}
 goto MATCH_BYTECODES_SWITCH_JIT;
-MATCH_BYTECODES_JIT_STORE_RECEIVER_VARIABLE : {}
+
+MATCH_BYTECODES_JIT_STORE_RECEIVER_VARIABLE:
+{
+  int foo = n + 3;
+  | mov rax, [r9]
+  | mov rbx, [r10]
+  | mov [rax + foo * 8], rbx
+}
 goto MATCH_BYTECODES_SWITCH_JIT;
-MATCH_BYTECODES_JIT_STORE_TEMPORARY_VARIABLE : {}
+
+MATCH_BYTECODES_JIT_STORE_TEMPORARY_VARIABLE:
+{
+  | mov rax, [r10]
+  | mov [rsi + foo * 8], rax
+}
 goto MATCH_BYTECODES_SWITCH_JIT;
+
 MATCH_BYTECODES_JIT_STORE_LIT_VARIABLE : {}
 goto MATCH_BYTECODES_SWITCH_JIT;
 MATCH_BYTECODES_JIT_SEND : {}
@@ -4492,15 +4550,22 @@ MATCH_BYTECODES_JIT_SEND_SPECIAL : {}
 goto MATCH_BYTECODES_SWITCH_JIT;
 MATCH_BYTECODES_JIT_MAKE_DIRTY_BLOCK : {}
 goto MATCH_BYTECODES_SWITCH_JIT;
-MATCH_BYTECODES_JIT_SEND_IMMEDIATE : {}
+
+MATCH_BYTECODES_JIT_SEND_IMMEDIATE:
+{
+}
 goto MATCH_BYTECODES_SWITCH_JIT;
-MATCH_BYTECODES_JIT_INVALID : {}
+
+MATCH_BYTECODES_JIT_INVALID:
+{
+}
 goto MATCH_BYTECODES_SWITCH_JIT;
 
   }
   
 MATCH_BYTECODES_END_JIT_:
 
-    return ;
+
+		return link_and_encode(&dasm_state);
 }
 
