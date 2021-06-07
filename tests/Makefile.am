@@ -116,7 +116,7 @@ integration_tlab_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_
 
 jit_x64_SOURCES = vm/jit_x64.c
 jit_x64_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV) $(CMOCKA_CFLAGS) $(UNICORN_CFLAGS)
-jit_x64_LDADD = $(top_builddir)/libgst/libgst.la $(CMOCKA_LIBS) $(UNICORN_LIBS) $(LIBSNPRINTFV) $(LIBTHREAD) $(top_builddir)/lib-src/library.la @ICON@ -lunicorn
+jit_x64_LDADD = $(top_builddir)/libgst/libgst.la $(CMOCKA_LIBS) $(UNICORN_LIBS) $(LIBSNPRINTFV) $(LIBTHREAD) $(top_builddir)/lib-src/library.la @ICON@ -lunicorn -lpthread
 jit_x64_DEPENDENCIES = $(top_builddir)/libgst/libgst.la $(top_builddir)/lib-src/library.la @ICON@
 jit_x64_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS)
 
