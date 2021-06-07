@@ -64,7 +64,7 @@ typedef struct symbol_list *symbol_list;
 
 struct symbol_list {
   OOP symbol;
-  mst_Boolean readOnly;
+  bool readOnly;
   int index;
   symbol_list prevSymbol;
 };
@@ -174,7 +174,7 @@ struct builtin_selector _gst_builtin_selectors[256] = {};
 /* Answer whether OOP is a Smalltalk String LEN characters long and
    these characters match the first LEN characters of STR (which must
    not have embedded NULs).  */
-static mst_Boolean is_same_string(const char *str, OOP oop, int len);
+static bool is_same_string(const char *str, OOP oop, int len);
 
 /* Allocate memory for a symbol of length LEN and whose contents are STR.
    This function does not fill in the object's class because it is called
@@ -187,7 +187,7 @@ static OOP alloc_symlink(OOP symbolOOP, uintptr_t index);
 
 /* Answer whether C is considered a white space character in Smalltalk
    programs.  */
-static mst_Boolean is_white_space(char c);
+static bool is_white_space(char c);
 
 /* Free the list of symbols declared in the given SCOPE.  */
 static void free_scope_symbols(scope scope);
@@ -203,7 +203,7 @@ static void parse_variable_name(const char **pp, const char **endp);
 
 /* This fills ENT's fields with the contents of its parameters.  */
 static void fill_symbol_entry(symbol_entry *ent, scope_type scope,
-                              mst_Boolean readOnly, OOP symbol, int index,
+                              bool readOnly, OOP symbol, int index,
                               unsigned int scopeDistance);
 
 /* Scans a variable name (letters and digits, initial letter), and
@@ -420,8 +420,8 @@ void _gst_undeclare_name(void) {
   xfree(oldList);
 }
 
-int _gst_declare_name(const char *name, mst_Boolean writeable,
-                      mst_Boolean allowDup) {
+int _gst_declare_name(const char *name, bool writeable,
+                      bool allowDup) {
   symbol_list newList;
   OOP symbol = _gst_intern_string(name);
   scope cur_scope = _gst_compiler_state->cur_scope;
@@ -760,7 +760,7 @@ static pool_list *add_shared_pool_resolution(OOP class_oop, OOP environmentOOP,
   return p_end;
 }
 
-void _gst_compute_linearized_pools(gst_parser *parser, mst_Boolean forDoit) {
+void _gst_compute_linearized_pools(gst_parser *parser, bool forDoit) {
   pool_list *p_end = &_gst_current_parser->linearized_pools;
   OOP myClass, classOOP;
   OOP environmentOOP = parser->current_namespace;
@@ -850,7 +850,7 @@ OOP _gst_get_undeclared_dictionary() {
   return temporaries_dictionary;
 }
 
-mst_Boolean _gst_find_variable(symbol_entry *se, tree_node list) {
+bool _gst_find_variable(symbol_entry *se, tree_node list) {
   tree_node resolved;
   int index;
   unsigned int scopeDistance;
@@ -929,7 +929,7 @@ static symbol_list find_local_var(scope scope, OOP symbol) {
 }
 
 static void fill_symbol_entry(symbol_entry *ent, scope_type scope,
-                              mst_Boolean readOnly, OOP symbol, int index,
+                              bool readOnly, OOP symbol, int index,
                               unsigned int scopeDistance) {
   ent->scope = scope;
   ent->readOnly = readOnly;
@@ -1160,7 +1160,7 @@ static void parse_variable_name(const char **pp, const char **endp) {
     *endp = p;
 }
 
-static mst_Boolean is_white_space(char c) {
+static bool is_white_space(char c) {
   return (c == ' ' || c == '\r' || c == '\t' || c == '\n' || c == '\f');
 }
 
@@ -1265,7 +1265,7 @@ static OOP alloc_symbol_oop(const char *str, int len) {
   return symbolOOP;
 }
 
-static mst_Boolean is_same_string(const char *str, OOP oop, int len) {
+static bool is_same_string(const char *str, OOP oop, int len) {
   if (_gst_string_oop_len(oop) == len)
     return (strncmp(str, ((gst_symbol)OOP_TO_OBJ(oop))->symString, len) == 0);
 

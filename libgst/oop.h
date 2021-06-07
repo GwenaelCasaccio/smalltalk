@@ -278,7 +278,7 @@ extern void _gst_global_gc(int next_allocation) ATTRIBUTE_HIDDEN;
 extern void _gst_global_compact(void) ATTRIBUTE_HIDDEN;
 
 /* Sweep a bunch of old objects, return whether there are more.  */
-extern mst_Boolean _gst_incremental_gc_step(void) ATTRIBUTE_HIDDEN;
+extern bool _gst_incremental_gc_step(void) ATTRIBUTE_HIDDEN;
 
 /* The incremental collector has done its job.  Update statistics,
    and if it was also sweeping old objects, make it consider all

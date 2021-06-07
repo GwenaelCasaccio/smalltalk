@@ -87,7 +87,7 @@ const char *_gst_image_file_path = NULL;
 const char *_gst_user_file_base_path = NULL;
 
 /* Whether to look for user files.  */
-static mst_Boolean no_user_files = false;
+static bool no_user_files = false;
 
 /* This is the name of the binary image to load.  If it is not NULL after the
    command line is parsed, the checking of the dates of the kernel source files
@@ -98,17 +98,17 @@ const char *_gst_binary_image_name = NULL;
 /* This is used by the callin functions to auto-initialize Smalltalk.
    When it's not true, initialization needs to be performed.  It's set
    to true by gst_init_smalltalk().  */
-mst_Boolean _gst_smalltalk_initialized = false;
+bool _gst_smalltalk_initialized = false;
 
 /* This is used to avoid doing complicated things (currently, this
    includes call-ins before and after _gst_execute_statements) before
    the system is ready to do them.  */
-mst_Boolean _gst_kernel_initialized = false;
+bool _gst_kernel_initialized = false;
 
 /* This is TRUE if we are doing regression testing, and causes
    whatever sources of variance to be suppressed (such as printing out
    execution statistics).  */
-mst_Boolean _gst_regression_testing = false;
+bool _gst_regression_testing = false;
 
 /***********************************************************************
  *
@@ -121,7 +121,7 @@ mst_Boolean _gst_regression_testing = false;
    and newer than all of the kernel files, or if the image file is
    global, newer than all of the global kernel files, and no local
    kernel file is found.  */
-static mst_Boolean ok_to_load_binary(void);
+static bool ok_to_load_binary(void);
 
 /* Attempts to find a viable Smalltalk file for user-level customization.
    FILENAME is a simple file name, sans directory; the file name to use
@@ -304,7 +304,7 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
   const char *home = getenv("HOME");
   char *str;
   int asprintf_res;
-  mst_Boolean loadBinary, abortOnFailure;
+  bool loadBinary, abortOnFailure;
   int rebuild_image_flags =
       flags & (GST_REBUILD_IMAGE | GST_MAYBE_REBUILD_IMAGE);
 
@@ -482,7 +482,7 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
     _gst_errorf("Couldn't load image file %s", _gst_binary_image_name);
     return 1;
   } else {
-    mst_Boolean willRegressTest = _gst_regression_testing;
+    bool willRegressTest = _gst_regression_testing;
     int result;
 
     _gst_regression_testing = false;
@@ -517,7 +517,7 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
   return 0;
 }
 
-mst_Boolean ok_to_load_binary(void) {
+bool ok_to_load_binary(void) {
   const char *fileName;
 
   if (!_gst_file_is_readable(_gst_binary_image_name))
@@ -525,7 +525,7 @@ mst_Boolean ok_to_load_binary(void) {
 
   for (fileName = standard_files; *fileName; fileName += strlen(fileName) + 1) {
     char *fullFileName = _gst_find_file(fileName, GST_DIR_KERNEL);
-    mst_Boolean ok = _gst_file_is_newer(_gst_binary_image_name, fullFileName);
+    bool ok = _gst_file_is_newer(_gst_binary_image_name, fullFileName);
     xfree(fullFileName);
     if (!ok)
       return (false);

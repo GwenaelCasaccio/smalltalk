@@ -126,7 +126,7 @@ static void grow_memory_no_compact(size_t size);
 static void reset_survivor_space(struct surv_space *space);
 
 /* Return whether the incremental collector is running.  */
-static inline mst_Boolean incremental_gc_running(void);
+static inline bool incremental_gc_running(void);
 
 /* Restart the incremental collector.  Objects before FIRSTOOP
    are assumed to be alive (currently the base of the OOP table is
@@ -1064,7 +1064,7 @@ void _gst_scavenge(void) {
   }
 }
 
-mst_Boolean incremental_gc_running() {
+bool incremental_gc_running() {
   return (_gst_mem.next_oop_to_sweep > _gst_mem.last_swept_oop);
 }
 
@@ -1116,7 +1116,7 @@ void _gst_finished_incremental_gc(void) {
 #endif
 }
 
-mst_Boolean _gst_incremental_gc_step() {
+bool _gst_incremental_gc_step() {
   OOP oop, firstOOP;
   int i;
 
@@ -1427,7 +1427,7 @@ void check_weak_refs() {
   for (node = rb_first(&(_gst_mem.weak_areas->rb), &t); node;
        node = rb_next(&t)) {
     weak_area_tree *area = (weak_area_tree *)node;
-    mst_Boolean mourn = false;
+    bool mourn = false;
     OOP *field, oop;
     int n;
 
@@ -1487,7 +1487,7 @@ void copy_oops(void) {
   _gst_mem.eden.allocPtr = _gst_mem.eden.minPtr;
 }
 
-void _gst_print_grey_list(mst_Boolean check_pointers) {
+void _gst_print_grey_list(bool check_pointers) {
   grey_area_node *node;
   OOP *pOOP, oop;
   size_t i, n;

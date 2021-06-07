@@ -154,7 +154,7 @@ static const struct option long_options[] = {
 };
 
 struct loaded_file {
-  mst_Boolean kernel_path;
+  bool kernel_path;
   const char *file_name;
 };
 
@@ -176,7 +176,7 @@ int execution_tracing;
 int flags;
 
 /* We implement -S ourselves.  This flag is set to 1 if -S is passed.  */
-mst_Boolean snapshot_after_load;
+bool snapshot_after_load;
 
 /* This is the name of the binary image to load.  If it is not NULL after the
    command line is parsed, the checking of the dates of the kernel source files

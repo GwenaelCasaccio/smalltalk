@@ -162,7 +162,7 @@ _gst_set_file_access_times (const char *name, long new_atime, long new_mtime)
   return (result);
 }
 
-mst_Boolean
+bool
 _gst_file_is_newer (const char *file1, const char *file2)
 {
   static char *prev_file1;
@@ -203,7 +203,7 @@ _gst_file_is_newer (const char *file1, const char *file2)
 }
 
 
-mst_Boolean
+bool
 _gst_file_is_readable (const char *fileName)
 {
   if (!fileName) {
@@ -213,13 +213,13 @@ _gst_file_is_readable (const char *fileName)
   return (access (fileName, R_OK) == 0);
 }
 
-mst_Boolean
+bool
 _gst_file_is_writeable (const char *fileName)
 {
   return (access (fileName, W_OK) == 0);
 }
 
-mst_Boolean
+bool
 _gst_file_is_executable (const char *fileName)
 {
   return (access (fileName, X_OK) == 0);
@@ -263,7 +263,7 @@ int
 _gst_open_file (const char *filename,
 		const char *mode)
 {
-  mst_Boolean create = false;
+  bool create = false;
   int oflags = O_BINARY, access = 0;
   int fd, i;
 
@@ -316,7 +316,7 @@ _gst_open_file (const char *filename,
   return fd;
 }
 
-mst_Boolean
+bool
 _gst_is_pipe (int fd)
 {
   struct stat st;

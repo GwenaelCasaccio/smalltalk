@@ -56,13 +56,13 @@ static inline uintptr_t scramble(uintptr_t x);
 
 /* Checks to see if TESTEDOOP is a subclass of CLASS_OOP, returning
    true if it is.  */
-static inline mst_Boolean is_a_kind_of(OOP testedOOP, OOP class_oop);
+static inline bool is_a_kind_of(OOP testedOOP, OOP class_oop);
 
 /* Stores the VALUE Object (which must be an appropriate Integer for
    byte or word objects) into the INDEX-th indexed instance variable
    of the Object pointed to by OOP.  Returns whether the INDEX is
    correct and the VALUE has the appropriate class and/or range.  */
-static inline mst_Boolean index_oop_put_spec(OOP oop, gst_object object,
+static inline bool index_oop_put_spec(OOP oop, gst_object object,
                                              size_t index, OOP value,
                                              intptr_t instanceSpec);
 
@@ -70,7 +70,7 @@ static inline mst_Boolean index_oop_put_spec(OOP oop, gst_object object,
    byte or word objects) into the INDEX-th indexed instance variable
    of the Object pointed to by OOP.  Returns whether the INDEX is
    correct and the VALUE has the appropriate class and/or range.  */
-static inline mst_Boolean index_oop_put(OOP oop, size_t index, OOP value);
+static inline bool index_oop_put(OOP oop, size_t index, OOP value);
 
 /* Stores the VALUE Object (which must be an appropriate Integer for
    byte or word objects and if accessing indexed instance variables)
@@ -170,7 +170,7 @@ static inline OOP index_oop_spec(OOP oop, gst_object object, size_t index,
 static inline int num_valid_oops(OOP oop);
 
 /* Returns whether the SCANNEDOOP points to TARGETOOP.  */
-static inline mst_Boolean is_owner(OOP scannedOOP, OOP targetOOP);
+static inline bool is_owner(OOP scannedOOP, OOP targetOOP);
 
 /* Converts F to a Smalltalk FloatD, taking care of avoiding alignment
    problems.  */
@@ -191,16 +191,16 @@ static inline void set_cobject_value(OOP oop, PTR val);
 
 /* Return whether the address of the data stored in a CObject, offsetted
    by OFFSET bytes, is still in bounds.  */
-static inline mst_Boolean cobject_index_check(OOP oop, intptr_t offset,
+static inline bool cobject_index_check(OOP oop, intptr_t offset,
                                               size_t size);
 
 /* Answer true if OOP is a SmallInteger or a LargeInteger of an
    appropriate size.  */
-static inline mst_Boolean is_c_int_32(OOP oop);
+static inline bool is_c_int_32(OOP oop);
 
 /* Answer true if OOP is a SmallInteger or a LargeInteger of an
    appropriate size.  */
-static inline mst_Boolean is_c_uint_32(OOP oop);
+static inline bool is_c_uint_32(OOP oop);
 
 /* Converts the 32-bit int I to the appropriate SmallInteger or
    LargeInteger.  */
@@ -217,11 +217,11 @@ static inline int32_t to_c_int_32(OOP oop);
 
 /* Answer true if OOP is a SmallInteger or a LargeInteger of an
    appropriate size.  */
-static inline mst_Boolean is_c_int_64(OOP oop);
+static inline bool is_c_int_64(OOP oop);
 
 /* Answer true if OOP is a SmallInteger or a LargeInteger of an
    appropriate size.  */
-static inline mst_Boolean is_c_uint_64(OOP oop);
+static inline bool is_c_uint_64(OOP oop);
 
 /* Converts the 64-bit int I to the appropriate SmallInteger or
    LargeInteger.  */
@@ -538,7 +538,7 @@ uintptr_t scramble(uintptr_t x) {
   return x & MAX_ST_INT;
 }
 
-mst_Boolean is_a_kind_of(OOP testedOOP, OOP class_oop) {
+bool is_a_kind_of(OOP testedOOP, OOP class_oop) {
   do {
     if (testedOOP == class_oop)
       return (true);
@@ -794,7 +794,7 @@ static int num_valid_oops(const OOP oop) {
 }
 
 /* Returns whether the SCANNEDOOP points to TARGETOOP.  */
-mst_Boolean is_owner(OOP scannedOOP, OOP targetOOP) {
+bool is_owner(OOP scannedOOP, OOP targetOOP) {
   gst_object object;
   OOP *scanPtr;
   int n;
@@ -946,13 +946,13 @@ OOP index_oop_spec(OOP oop, gst_object object, size_t index,
   return (NULL);
 }
 
-mst_Boolean index_oop_put(OOP oop, size_t index, OOP value) {
+bool index_oop_put(OOP oop, size_t index, OOP value) {
   gst_object object = OOP_TO_OBJ(oop);
   intptr_t instanceSpec = GET_INSTANCE_SPEC(object);
   return index_oop_put_spec(oop, object, index, value, instanceSpec);
 }
 
-mst_Boolean index_oop_put_spec(OOP oop, gst_object object, size_t index,
+bool index_oop_put_spec(OOP oop, gst_object object, size_t index,
                                OOP value, intptr_t instanceSpec) {
   size_t maxIndex, base;
 
@@ -1107,7 +1107,7 @@ void inst_var_at_put(OOP oop, int index, OOP value) {
   object->data[index - 1] = value;
 }
 
-mst_Boolean is_c_int_32(OOP oop) {
+bool is_c_int_32(OOP oop) {
   gst_object ba;
 
   if COMMON (IS_INT(oop))
@@ -1125,7 +1125,7 @@ mst_Boolean is_c_int_32(OOP oop) {
   return (false);
 }
 
-mst_Boolean is_c_uint_32(OOP oop) {
+bool is_c_uint_32(OOP oop) {
   gst_object ba;
 
   if COMMON (IS_INT(oop))
@@ -1206,7 +1206,7 @@ OOP from_c_uint_32(uint32_t ui) {
   return (oop);
 }
 
-mst_Boolean is_c_int_64(OOP oop) {
+bool is_c_int_64(OOP oop) {
   gst_object ba;
 
   if COMMON (IS_INT(oop))
@@ -1228,7 +1228,7 @@ mst_Boolean is_c_int_64(OOP oop) {
   return (false);
 }
 
-mst_Boolean is_c_uint_64(OOP oop) {
+bool is_c_uint_64(OOP oop) {
   gst_object ba;
 
   if COMMON (IS_INT(oop))
@@ -1370,7 +1370,7 @@ static inline void set_cobject_value(OOP oop, PTR val) {
 
 /* Return whether the address of the data stored in a CObject, offsetted
    by OFFSET bytes, is still in bounds.  */
-static inline mst_Boolean cobject_index_check(OOP oop, intptr_t offset,
+static inline bool cobject_index_check(OOP oop, intptr_t offset,
                                               size_t size) {
   gst_object cObj = OOP_TO_OBJ(oop);
   OOP baseOOP = OBJ_COBJECT_GET_STORAGE(cObj);

@@ -359,9 +359,9 @@ extern void _gst_set_oop_unicode_string(OOP stringOOP,
    FILESTREAMOOP.  If BUFFERED is true, the variables
    inherited by Streams are set to a 1024-bytes String.  */
 extern void _gst_set_file_stream_file(OOP fileStreamOOP, int fd,
-                                      OOP fileNameOOP, mst_Boolean isPipe,
+                                      OOP fileNameOOP, OOP isPipe,
                                       int access,
-                                      mst_Boolean buffered) ATTRIBUTE_HIDDEN;
+                                      bool buffered) ATTRIBUTE_HIDDEN;
 
 /* Copies the first bytes of BYTES into BYTEARRAYOOP (as many bytes as
    the OOP can hold).  */
@@ -374,8 +374,8 @@ extern void _gst_free_cobject(OOP cObjOOP) ATTRIBUTE_HIDDEN;
 /* Loads the contents of the global variables from the Smalltalk dictionary
    after an image has been restored.  PRIM_TABLE_MATCHES if true if the
    table of primitives is already set up correctly.  */
-extern mst_Boolean _gst_init_dictionary_on_image_load(
-    mst_Boolean prim_table_matches) ATTRIBUTE_HIDDEN;
+extern bool _gst_init_dictionary_on_image_load(
+    bool prim_table_matches) ATTRIBUTE_HIDDEN;
 
 /* Transforms a primitive name into a primitive index, looking up
    the VMPrimitives dictionary.  */

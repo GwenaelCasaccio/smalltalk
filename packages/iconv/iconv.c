@@ -59,14 +59,14 @@
 #include <iconv.h>
 #include <errno.h>
 
-static VMProxy *vmProxy; 
+static VMProxy *vmProxy;
 
-mst_Boolean
+bool
 iconvWrapper (iconv_t handle, OOP readBufferOOP, int readPos,
 	      int readCount, OOP writeBufferOOP, int writeCount,
 	      OOP bytesLeftOOP)
 {
-  const char *inbuf;
+  char *inbuf;
   size_t inbytesleft;
   char *outbuf;
   size_t outbytesleft;

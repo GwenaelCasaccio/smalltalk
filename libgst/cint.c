@@ -68,6 +68,7 @@
 
 typedef struct cparam {
   union {
+    bool boolVal;
     long longVal;
     PTR ptrVal;
     float floatVal;
@@ -140,7 +141,7 @@ static void bad_type(OOP class_oop, cdata_type cType);
 
 /* Determines the appropriate C mapping for OOP and stores it. This
    returns 1 in case the type could not be converted. */
-static mst_Boolean push_smalltalk_obj(OOP oop, cdata_type cType);
+static bool push_smalltalk_obj(OOP oop, cdata_type cType);
 
 /* Converts the return type as stored in RESULT to an OOP, based
    on the RETURNTYPEOOP that is stored in the descriptor.  #void is
@@ -224,7 +225,7 @@ static const char *c_type_name[] = {
     "char *",             /* CDATA_SYMBOL */
     "char *",             /* CDATA_BYTEARRAY */
     "char *",             /* CDATA_BYTEARRAY_OUT */
-    "int",                /* CDATA_BOOLEAN */
+    "bool",                /* CDATA_BOOLEAN */
     "void?",              /* CDATA_VOID */
     "...",                /* CDATA_VARIADIC */
     "...",                /* CDATA_VARIADIC_OOP */
@@ -462,7 +463,7 @@ struct search_path_stack {
 
 struct search_path_stack *search_paths;
 
-mst_Boolean _gst_dlopen(const char *path, mst_Boolean module) {
+bool _gst_dlopen(const char *path, bool module) {
   PTR h = dld_open(path);
   if (h && !module)
     _gst_msg_sendf(NULL, "%v %o addLibraryHandle: %C",
@@ -705,7 +706,7 @@ OOP _gst_invoke_croutine(OOP cFuncOOP, OOP receiver, OOP *args) {
   void *funcAddr, **p_slot, **ffi_arg_vec;
   OOP *argTypes, oop;
   int i, si, fixedArgs, totalArgs, filledArgs;
-  mst_Boolean haveVariadic, needPostprocessing;
+  bool haveVariadic, needPostprocessing;
   inc_ptr incPtr;
 
   incPtr = INC_SAVE_POINTER();
@@ -784,7 +785,7 @@ OOP _gst_invoke_croutine(OOP cFuncOOP, OOP receiver, OOP *args) {
 
   /* Push the arguments */
   for (si = i = 0; i < fixedArgs; i++) {
-    mst_Boolean res;
+    bool res;
 
     cType = IS_OOP(argTypes[i]) ? CDATA_COBJECT : TO_INT(argTypes[i]);
     if (cType == CDATA_VOID)
@@ -1041,7 +1042,7 @@ ffi_type *smalltalk_to_c(OOP oop, cparam *cp, cdata_type cType) {
     case CDATA_SHORT:
     case CDATA_USHORT:
     case CDATA_BOOLEAN:
-      cp->u.longVal = (oop == _gst_true_oop);
+      cp->u.boolVal = (oop == _gst_true_oop);
       return &ffi_type_sint;
     }
   }
@@ -1143,7 +1144,7 @@ ffi_type *smalltalk_to_c(OOP oop, cparam *cp, cdata_type cType) {
   return NULL;
 }
 
-mst_Boolean push_smalltalk_obj(OOP oop, cdata_type cType) {
+bool push_smalltalk_obj(OOP oop, cdata_type cType) {
   if (cType == CDATA_VARIADIC || cType == CDATA_VARIADIC_OOP) {
     int i;
     if (OOP_INT_CLASS(oop) != _gst_array_class) {
@@ -1193,7 +1194,7 @@ OOP c_to_smalltalk(cparam *result, OOP receiverOOP, OOP returnTypeOOP) {
     break;
 
   case CDATA_BOOLEAN:
-    resultOOP = result->u.longVal ? _gst_true_oop : _gst_false_oop;
+    resultOOP = result->u.boolVal ? _gst_true_oop : _gst_false_oop;
     break;
 
   case CDATA_INT:

@@ -31,7 +31,7 @@
 
 #define RAW_INT_OP(op, op1, op2, iop)                                          \
   {                                                                            \
-    mst_Boolean overflow;                                                      \
+    bool overflow;                                                      \
     OOP result = iop;                                                          \
     if (COMMON(!overflow)) {                                                   \
       op = result;                                                             \

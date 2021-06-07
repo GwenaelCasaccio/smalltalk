@@ -442,7 +442,7 @@ _gst_async_timed_wait (OOP semaphoreOOP,
   fhev_unref (ev);
 }
 
-mst_Boolean
+bool
 _gst_is_timeout_programmed (void)
 {
   struct handle_events *ev = fhev_find (hAlarmEvent);
@@ -453,7 +453,7 @@ _gst_is_timeout_programmed (void)
 
 void
 _gst_register_socket (int fd,
-		      mst_Boolean passive)
+		      bool passive)
 {
   HANDLE fh = _get_osfhandle (fd);
   struct handle_events *ev = fhev_new (fh, EV_SOCKET);

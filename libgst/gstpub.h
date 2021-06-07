@@ -155,20 +155,20 @@ typedef struct VMProxy
   /* More functions, added in 2.2.  */
   OOP (*getObjectClass) (OOP oop);
   OOP (*getSuperclass) (OOP oop);
-  mst_Boolean (*classIsKindOf) (OOP oop,
+  bool (*classIsKindOf) (OOP oop,
 				OOP candidate);
-  mst_Boolean (*objectIsKindOf) (OOP oop,
+  bool (*objectIsKindOf) (OOP oop,
 				 OOP candidate);
   OOP (*perform) (OOP oop,
 		  OOP selector);
   OOP (*performWith) (OOP oop,
 		      OOP selector,
 		      OOP arg);
-  mst_Boolean (*classImplementsSelector) (OOP classOOP,
+  bool (*classImplementsSelector) (OOP classOOP,
 					  OOP selector);
-  mst_Boolean (*classCanUnderstand) (OOP classOOP,
+  bool (*classCanUnderstand) (OOP classOOP,
 				     OOP selector);
-  mst_Boolean (*respondsTo) (OOP oop,
+  bool (*respondsTo) (OOP oop,
 			     OOP selector);
   size_t (*OOPSize) (OOP oop);
   OOP (*OOPAt) (OOP oop,
@@ -196,7 +196,7 @@ typedef struct VMProxy
 
   /* 3.0+ functions.  */
   void (*processStdin) (const char *);
-  mst_Boolean (*processFile) (const char *fileName, enum gst_file_dir dir);
+  bool (*processFile) (const char *fileName, enum gst_file_dir dir);
   int (*getVar) (enum gst_var_index index);
   int (*setVar) (enum gst_var_index index, int value);
   void (*invokeHook) (enum gst_vm_hook);
@@ -206,11 +206,11 @@ typedef struct VMProxy
   void *(*OOPIndexedBase) (OOP oop);
   enum gst_indexed_kind (*OOPIndexedKind) (OOP oop); 
   void (*asyncCall) (void (*func) (OOP), OOP argOOP);
-  mst_Boolean (*syncSignal) (OOP semaphoreOOP, mst_Boolean incrIfEmpty);
+  bool (*syncSignal) (OOP semaphoreOOP, bool incrIfEmpty);
   void (*showBacktrace) (FILE *fp);
 
   /* 3.2+ functions.  */
-  mst_Boolean (*dlOpen) (const char *filename, mst_Boolean module);
+  bool (*dlOpen) (const char *filename, bool module);
   void (*dlAddSearchDir) (const char *dir);
   void (*dlPushSearchPath) (void);
   void (*dlPopSearchPath) (void);
@@ -220,7 +220,7 @@ typedef struct VMProxy
   OOP (*uintToOOP) (unsigned long i);
 
   /* 3.3+ functions.  */
-  mst_Boolean (*setEventLoopHandlers)(mst_Boolean (*poll) (int ms),
+  bool (*setEventLoopHandlers)(bool (*poll) (int ms),
 				      void (*dispatch) (void));
 } VMProxy;
 
@@ -247,7 +247,7 @@ extern int gst_initialize (const char *kernel_dir,
 
 /* Functions in input.h.  */
 extern void gst_process_stdin (const char *prompt);
-extern mst_Boolean gst_process_file (const char *fileName, enum gst_file_dir dir);
+extern bool gst_process_file (const char *fileName, enum gst_file_dir dir);
 
 /* Functions in interp.h.  */
 extern int gst_get_var (enum gst_var_index index);
@@ -261,7 +261,7 @@ extern void gst_set_executable_path (const char *);
 extern char *gst_relocate_path (const char *);
 
 /* Functions in cint.h.  */
-extern mst_Boolean gst_dlopen (const char *filename, mst_Boolean module);
+extern bool gst_dlopen (const char *filename, bool module);
 
 /* Add DIR at the beginning of the libltdl search path.  */
 extern void gst_dladdsearchdir (const char *dir);
@@ -310,7 +310,7 @@ extern char *gst_oop_to_byte_array (OOP oop);
 extern PTR gst_oop_to_c_object (OOP oop);
 extern void gst_async_signal (OOP semaphore_oop);
 extern void gst_async_call (void (*func) (OOP), OOP arg_oop);
-extern mst_Boolean gst_sync_signal (OOP semaphore_oop, mst_Boolean incr_if_empty);
+extern bool gst_sync_signal (OOP semaphore_oop, bool incr_if_empty);
 extern void gst_sync_wait (OOP semaphore_oop);
 extern void gst_wakeup (void);
 extern void gst_show_backtrace (FILE *fp);
@@ -321,14 +321,14 @@ extern long double gst_oop_to_long_double (OOP oop);
 extern OOP gst_long_double_to_oop (long double f);
 extern OOP gst_get_object_class (OOP oop);
 extern OOP gst_get_superclass (OOP oop);
-extern mst_Boolean gst_class_is_kind_of (OOP oop, OOP candidate);
-extern mst_Boolean gst_object_is_kind_of (OOP oop, OOP candidate);
+extern bool gst_class_is_kind_of (OOP oop, OOP candidate);
+extern bool gst_object_is_kind_of (OOP oop, OOP candidate);
 extern void gst_set_c_object (OOP oop, PTR co);
 extern OOP gst_perform (OOP oop, OOP selector);
 extern OOP gst_perform_with (OOP oop, OOP selector, OOP arg);
-extern mst_Boolean gst_class_implements_selector (OOP class_oop, OOP selector);
-extern mst_Boolean gst_class_can_understand (OOP class_oop, OOP selector);
-extern mst_Boolean gst_responds_to (OOP oop, OOP selector);
+extern bool gst_class_implements_selector (OOP class_oop, OOP selector);
+extern bool gst_class_can_understand (OOP class_oop, OOP selector);
+extern bool gst_responds_to (OOP oop, OOP selector);
 extern size_t gst_oop_size (OOP oop);
 extern OOP gst_oop_at (OOP oop, size_t index);
 extern OOP gst_oop_at_put (OOP oop, size_t index, OOP new_oop); 
@@ -339,7 +339,7 @@ extern OOP gst_wstring_to_oop (const wchar_t *str);
 extern wchar_t gst_oop_to_wchar (OOP oop);
 extern wchar_t *gst_oop_to_wstring (OOP oop);
 
-extern mst_Boolean gst_set_event_loop_handlers(mst_Boolean (*poll) (int ms),
+extern bool gst_set_event_loop_handlers(bool (*poll) (int ms),
 					       void (*dispatch) (void));
 
 /* This is exclusively for programs who link with libgst.a; plugins

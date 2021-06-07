@@ -77,7 +77,7 @@ static int executable_fd = -1;
 const char *_gst_executable_path = NULL;
 
 /* Tests whether a given pathname may belong to the executable.  */
-static mst_Boolean
+static bool
 maybe_executable (const char *filename)
 {
   if (!_gst_file_is_executable (filename))

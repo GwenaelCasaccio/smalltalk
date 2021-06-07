@@ -97,7 +97,7 @@ typedef struct input_stream {
   const char *prompt;
 
   OOP fileOOP; /* the object stored in FileSegments */
-  mst_Boolean freeFileName;
+  bool freeFileName;
   const char *fileName;
   off_t fileOffset;
 
@@ -136,7 +136,7 @@ static thread_local input_stream in_stream = NULL;
 static int poll_and_read(int fd, char *buf, int n);
 
 /* If true, readline is disabled.  */
-mst_Boolean _gst_no_tty = false;
+bool _gst_no_tty = false;
 
 /* >= 1 if completions are enabled, < 1 if they are not.  Available
    for completeness even if Readline is not used.  */
@@ -158,7 +158,7 @@ static int sorted_count;
 
 /* Internal functions */
 static void merge(char **a1, int count1, char **a2, int count2,
-                  mst_Boolean reallocate);
+                  bool reallocate);
 
 static void add_completion(const char *str, int len);
 static int compare_strings(const PTR a, const PTR b);
@@ -185,7 +185,7 @@ static char **readline_match_symbols(char *text, int start, int end);
    decides to read in a new line.  The prompt is still shown by the
    readline() call.  */
 
-void _gst_pop_stream(mst_Boolean closeIt) {
+void _gst_pop_stream(bool closeIt) {
   input_stream stream;
 
   stream = in_stream;
@@ -411,7 +411,7 @@ int my_getc(input_stream stream) {
   return (ic);
 }
 
-mst_Boolean _gst_get_cur_stream_prompt(void) {
+bool _gst_get_cur_stream_prompt(void) {
   return in_stream && in_stream->prompt;
 }
 
@@ -692,7 +692,7 @@ void _gst_process_stdin(const char *prompt) {
   _gst_non_interactive = true;
 }
 
-mst_Boolean _gst_process_file(const char *fileName, enum gst_file_dir dir) {
+bool _gst_process_file(const char *fileName, enum gst_file_dir dir) {
   int fd;
   char *f;
 
@@ -800,7 +800,7 @@ void _gst_add_symbol_completion(const char *str, int len) {
  * reallocate must be true.
  */
 void merge(char **a1, int count1, char **a2, int count2,
-           mst_Boolean reallocate) {
+           bool reallocate) {
   char *source, *dest;
 
   /* Check if an array is empty */

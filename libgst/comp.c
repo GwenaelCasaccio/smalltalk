@@ -95,7 +95,7 @@ int _gst_declare_tracing = 0;
 /* If true, the compilation of a set of methods will be skipped
    completely; only syntax will be checked.  Set by primitive, cleared
    by grammar.  */
-mst_Boolean _gst_skip_compilation = false;
+bool _gst_skip_compilation = false;
 
 /* This is the value most recently returned by
    _gst_execute_statements.  It is used to communicate the returned
@@ -109,13 +109,13 @@ OOP _gst_last_returned_value = NULL;
 
 
 /* Returns true if EXPR represents the symbol "super"; false if not.  */
-static mst_Boolean is_super (tree_node expr);
+static bool is_super (tree_node expr);
 
 /* Returns true if OOP and CONSTEXPR represent the same literal value.
    Primarily used by the compiler to store a single copy of duplicated
    literals in a method.  Can call itself in the case array
    literals.  */
-static mst_Boolean equal_constant (OOP oop,
+static bool equal_constant (OOP oop,
 				   tree_node constExpr);
 
 
@@ -124,7 +124,7 @@ static mst_Boolean equal_constant (OOP oop,
    were emitted, false if not.  If the last argument to the message is
    not a block expression, this routine cannot do its job, and so
    returns false to indicate as much.  */
-static mst_Boolean compile_times_repeat (tree_node expr);
+static bool compile_times_repeat (tree_node expr);
 
 /* Special case compilation of a while loop whose selector is in
    SELECTOR.  EXPR is a node for the entire unary or keyword message
@@ -132,7 +132,7 @@ static mst_Boolean compile_times_repeat (tree_node expr);
    the last argument to the message is not a block expression, this
    routine cannot do its job, and so returns false to indicate as
    much.  */
-static mst_Boolean compile_while_loop (OOP selector,
+static bool compile_while_loop (OOP selector,
 				       tree_node expr);
 
 /* Special case compilation of a 1-argument if (#ifTrue: or #ifFalse:)
@@ -141,7 +141,7 @@ static mst_Boolean compile_while_loop (OOP selector,
    Returns true if byte codes were emitted, false if not.  If the last
    argument to the message is not a block expression, this routine
    cannot do its job, and so returns false to indicate as much.  */
-static mst_Boolean compile_if_statement (OOP selector,
+static bool compile_if_statement (OOP selector,
 					 tree_node expr);
 
 /* Special case compilation of a #to:do: (if BY is NULL) or #to:by:do:
@@ -150,7 +150,7 @@ static mst_Boolean compile_if_statement (OOP selector,
    not.  If the last argument to the message is not a block expression,
    this routine cannot do its job, and so returns false to indicate as
    much.  */
-static mst_Boolean compile_to_by_do (tree_node to,
+static bool compile_to_by_do (tree_node to,
 				     tree_node by,
 				     tree_node block);
 
@@ -160,7 +160,7 @@ static mst_Boolean compile_to_by_do (tree_node to,
    false if not.  If the last argument to the message is not a block
    expression, this routine cannot do its job, and so returns false to
    indicate as much.  */
-static mst_Boolean compile_and_or_statement (OOP selector,
+static bool compile_and_or_statement (OOP selector,
 					     tree_node expr);
 
 /* Special case compilation of a 2-argument if whose selector is in
@@ -168,7 +168,7 @@ static mst_Boolean compile_and_or_statement (OOP selector,
    Returns true if byte codes were emitted, false if not.  If the last
    argument to the message is not a block expression, this routine
    cannot do its job, and so returns false to indicate as much.  */
-static mst_Boolean compile_if_true_false_statement (OOP selector,
+static bool compile_if_true_false_statement (OOP selector,
 						    tree_node expr);
 
 /* Special case compilation of an infinite loop, given by the parse
@@ -176,15 +176,15 @@ static mst_Boolean compile_if_true_false_statement (OOP selector,
    if not.  If the last argument to the message is not a block
    expression, this routine cannot do its job, and so returns false to
    indicate as much.  */
-static mst_Boolean compile_repeat (tree_node receiver);
+static bool compile_repeat (tree_node receiver);
 
 /* Compiles all of the statements in STATEMENTLIST.  If ISBLOCK is
    true, adds a final instruction of the block to return the top of
    stack, if the final statement isn't an explicit return from method
    (^).  Returns whether the last statement was a return (whatever
    the value of ISBLOCK.  */
-static mst_Boolean compile_statements (tree_node statementList,
-				       mst_Boolean isBlock);
+static bool compile_statements (tree_node statementList,
+				       bool isBlock);
 
 /* Given a tree_node, this routine picks out and concatenates the
    keywords in SELECTOREXPR (if a TREE_KEYWORD_EXPR) or extracts the
@@ -311,7 +311,7 @@ static void compile_array_constructor (tree_node arrayConstructor);
    top after the evaluation of the receiver for use by the subsequent
    cascaded expressions.  */
 static void compile_unary_expr (tree_node expr,
-				mst_Boolean omit_receiver);
+				bool omit_receiver);
 
 /* Compile code to evaluate a binary expression EXPR.  Special cases
    sends to "super" and open codes whileTrue/whileFalse/repeat when
@@ -320,7 +320,7 @@ static void compile_unary_expr (tree_node expr,
    the stack top after the evaluation of the receiver for use by the
    subsequent cascaded expressions.  */
 static void compile_binary_expr (tree_node expr,
-				 mst_Boolean omit_receiver);
+				 bool omit_receiver);
 
 /* Compile code to evaluate a keyword expression EXPR.  Special cases
    sends to "super" and open codes while loops, the 4 kinds of if
@@ -330,7 +330,7 @@ static void compile_binary_expr (tree_node expr,
    code to duplicate the stack top after the evaluation of the
    receiver for use by the subsequent cascaded expressions.  */
 static void compile_keyword_expr (tree_node expr,
-				  mst_Boolean omit_receiver);
+				  bool omit_receiver);
 
 /* Compiles the code for a cascaded message send.  Due to the fact
    that cascaded sends go to the receiver of the last message before
@@ -364,7 +364,7 @@ static void compile_assignments (tree_node varList);
    unconditional jump and the short false jump that the byte code
    interpreter handles.  */
 static void compile_jump (int len,
-			  mst_Boolean jumpType);
+			  bool jumpType);
 
 /* Emit code to evaluate each argument to a keyword message send,
    taking them from the parse tree node LIST.  */
@@ -502,8 +502,8 @@ _gst_invoke_hook (enum gst_vm_hook hook)
 OOP
 _gst_execute_statements (OOP receiverOOP,
 			 tree_node method,
-			 mst_Boolean undeclared,
-			 mst_Boolean quiet)
+			 bool undeclared,
+			 bool quiet)
 {
   tree_node statements;
   int startTime, endTime, deltaTime;
@@ -684,9 +684,9 @@ _gst_execute_statements (OOP receiverOOP,
 
 OOP
 _gst_compile_method (tree_node method,
-		     mst_Boolean returnLast,
-		     mst_Boolean install,
-		     mst_Boolean undeclaredTemps)
+		     bool returnLast,
+		     bool install,
+		     bool undeclaredTemps)
 {
   tree_node outer_method;
   compiler_state s, *outer_state;
@@ -769,7 +769,7 @@ _gst_compile_method (tree_node method,
 
       for (statement = method->v_method.statements; statement; )
 	{
-	  mst_Boolean wasReturn = statement->v_list.value->nodeType == TREE_RETURN_EXPR;
+	  bool wasReturn = statement->v_list.value->nodeType == TREE_RETURN_EXPR;
 	  compile_statement (statement->v_list.value);
 
 	  statement = statement->v_list.next;
@@ -1198,9 +1198,9 @@ compile_block (tree_node blockExpr)
 }
 
 
-mst_Boolean
+bool
 compile_statements (tree_node statementList,
-		    mst_Boolean isBlock)
+		    bool isBlock)
 {
   tree_node stmt;
 
@@ -1289,7 +1289,7 @@ compile_array_constructor (tree_node arrayConstructor)
 
 void
 compile_unary_expr (tree_node expr,
-		    mst_Boolean omit_receiver)
+		    bool omit_receiver)
 {
   OOP selector;
 
@@ -1319,7 +1319,7 @@ compile_unary_expr (tree_node expr,
 
 void
 compile_binary_expr (tree_node expr,
-                     mst_Boolean omit_receiver)
+                     bool omit_receiver)
 {
   OOP selector;
 
@@ -1336,7 +1336,7 @@ compile_binary_expr (tree_node expr,
 
 void
 compile_keyword_expr (tree_node expr,
-                      mst_Boolean omit_receiver)
+                      bool omit_receiver)
 {
   OOP selector;
   int numArgs;
@@ -1445,7 +1445,7 @@ compile_keyword_list (tree_node list)
 
 
 
-mst_Boolean
+bool
 compile_while_loop (OOP selector,
 		    tree_node expr)
 {
@@ -1453,7 +1453,7 @@ compile_while_loop (OOP selector,
       oldJumpAroundLen;
   int whileCondLen;
   bc_vector receiverExprCodes, whileExprCodes = NULL;
-  mst_Boolean colon, whileTrue;
+  bool colon, whileTrue;
 
   colon = (expr->v_expr.expression != NULL);
   whileTrue = (selector == _gst_while_true_colon_symbol)
@@ -1524,7 +1524,7 @@ compile_while_loop (OOP selector,
 }
 
 
-mst_Boolean
+bool
 compile_repeat (tree_node receiver)
 {
   int repeatedLoopLen, finalJumpLen;
@@ -1560,7 +1560,7 @@ compile_repeat (tree_node receiver)
   return (true);
 }
 
-mst_Boolean
+bool
 compile_times_repeat (tree_node expr)
 {
   int jumpAroundOfs, oldJumpAroundLen, jumpAroundLen;
@@ -1620,7 +1620,7 @@ compile_times_repeat (tree_node expr)
   return (true);
 }
 
-mst_Boolean
+bool
 compile_to_by_do (tree_node to,
 		  tree_node by,
 		  tree_node block)
@@ -1718,7 +1718,7 @@ compile_to_by_do (tree_node to,
 }
 
 
-mst_Boolean
+bool
 compile_if_true_false_statement (OOP selector,
 				 tree_node expr)
 {
@@ -1757,7 +1757,7 @@ compile_if_true_false_statement (OOP selector,
   return (true);
 }
 
-mst_Boolean
+bool
 compile_if_statement (OOP selector,
 		      tree_node expr)
 {
@@ -1791,7 +1791,7 @@ compile_if_statement (OOP selector,
 }
 
 
-mst_Boolean
+bool
 compile_and_or_statement (OOP selector,
 			  tree_node expr)
 {
@@ -1817,7 +1817,7 @@ compile_and_or_statement (OOP selector,
 bc_vector
 compile_sub_expression (tree_node expr)
 {
-  mst_Boolean returns;
+  bool returns;
   bc_vector current_bytecodes, subExprByteCodes;
 
   current_bytecodes = _gst_save_bytecode_array ();
@@ -1837,7 +1837,7 @@ compile_sub_expression_and_jump (tree_node expr,
 				 int branchLen)
 {
   bc_vector current_bytecodes, subExprByteCodes;
-  mst_Boolean returns;
+  bool returns;
 
   current_bytecodes = _gst_save_bytecode_array ();
   returns = compile_statements (expr->v_block.statements, false);
@@ -1855,7 +1855,7 @@ compile_sub_expression_and_jump (tree_node expr,
 
 void
 compile_jump (int len,
-	      mst_Boolean jumpType)
+	      bool jumpType)
 {
   if (len <= 0)
     {
@@ -1979,7 +1979,7 @@ compile_assignments (tree_node varList)
 
 
 
-mst_Boolean
+bool
 is_super (tree_node expr)
 {
   return (expr->nodeType == TREE_VARIABLE_NODE
@@ -1988,7 +1988,7 @@ is_super (tree_node expr)
 }
 
 
-mst_Boolean
+bool
 equal_constant (OOP oop,
 		tree_node constExpr)
 {

@@ -86,12 +86,12 @@ extern int _gst_signal_count;
 
 /* Saves and returns the current state of the software interrupt
    system.  Disables all interrupts.  */
-extern void _gst_disable_interrupts (mst_Boolean fromSignalHandler)
+extern void _gst_disable_interrupts (bool fromSignalHandler)
   ATTRIBUTE_HIDDEN;
 
 /* Restores the state of the interrupt system to that which it had when
    _gst_disable_interrupts was last invoked.  */
-extern void _gst_enable_interrupts (mst_Boolean fromSignalHandler)
+extern void _gst_enable_interrupts (bool fromSignalHandler)
   ATTRIBUTE_HIDDEN;
 
 /* Set the signal handler for signal SIGNUM to be HANDLERFUNC.  Further
@@ -156,7 +156,7 @@ extern time_t _gst_get_time (void)
 /* Returns whether FILE1 is newer (or last modified at the same time as)
    FILE2.  Returns true if FILE2 is not readable, false if FILE1 is not
    readable.  */
-extern mst_Boolean _gst_file_is_newer (const char *file1, const char *file2)
+extern bool _gst_file_is_newer (const char *file1, const char *file2)
   ATTRIBUTE_HIDDEN;
 
 /* Sets the time when FILENAME was last modified.  The times are in
@@ -200,11 +200,11 @@ extern int _gst_mem_protect (PTR addr,
 
 /* Returns true if the file named FILENAME exists has the given
    permission for the current user.  Returns false otherwise.  */
-extern mst_Boolean _gst_file_is_readable (const char *fileName)
+extern bool _gst_file_is_readable (const char *fileName)
   ATTRIBUTE_HIDDEN;
-extern mst_Boolean _gst_file_is_writeable (const char *fileName)
+extern bool _gst_file_is_writeable (const char *fileName)
   ATTRIBUTE_HIDDEN;
-extern mst_Boolean _gst_file_is_executable (const char *fileName)
+extern bool _gst_file_is_executable (const char *fileName)
   ATTRIBUTE_HIDDEN;
 
 /* Return a path to the executable given argv[0].  */
@@ -218,7 +218,7 @@ char *_gst_relocate_path (const char *path)
 
 /* Answer true if the file descriptor FD is associated to a pipe
    (it cannot be seeked through).  */
-extern mst_Boolean _gst_is_pipe (int fd)
+extern bool _gst_is_pipe (int fd)
   ATTRIBUTE_HIDDEN;
 
 /* Similar to popen, but supports two-way pipes (achieved through

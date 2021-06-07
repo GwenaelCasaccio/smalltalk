@@ -82,17 +82,17 @@ struct obstack *_gst_compilation_obstack = NULL;
 /* True if errors must be reported to the standard error, false if
    errors should instead stored so that they are passed to Smalltalk
    code.  */
-mst_Boolean _gst_report_errors = true;
+bool _gst_report_errors = true;
 
 /* This is set to true by the parser or the compiler if an error
    (respectively, a parse error or a semantic error) is found, and
    avoids that _gst_execute_statements tries to execute the result of
    the compilation.  */
-mst_Boolean _gst_had_error = false;
+bool _gst_had_error = false;
 
 /* This is set to true by the parser if error recovery is going on.
    In this case ERROR_RECOVERY tokens are generated.  */
-mst_Boolean _gst_error_recovery = false;
+bool _gst_error_recovery = false;
 
 /* The location of the first error reported, stored here so that
    compilation primitives can pass them to Smalltalk code.  */
@@ -107,10 +107,10 @@ static int last_token;
 static int parenthesis_depth;
 
 /* Answer true if IC is a valid base-10 digit.  */
-static mst_Boolean is_digit (int ic);
+static bool is_digit (int ic);
 
 /* Answer true if C is a valid base-BASE digit.  */
-static mst_Boolean is_base_digit (int c,
+static bool is_base_digit (int c,
 				  int base);
 
 /* Parse the fractional part of a Float constant.  Store it in
@@ -119,11 +119,11 @@ static mst_Boolean is_base_digit (int c,
    the digits are stored in an obstack, and LARGEINTEGER is set to true
    if numPtr does not have sufficient precision.  */
 static int scan_fraction (int c,
-			  mst_Boolean negative,
+			  bool negative,
 			  unsigned base,
 			  uintptr_t *intNumPtr,
 			  struct real *numPtr,
-			  mst_Boolean *largeInteger);
+			  bool *largeInteger);
 
 /* Parse a numeric constant and return it.  Read numbers in
    base-BASE, the first one being C.  If a - was parsed, NEGATIVE
@@ -132,16 +132,16 @@ static int scan_fraction (int c,
    and LARGEINTEGER is set to true if the return value does not have
    sufficient precision.  */
 static uintptr_t scan_digits (int c,
-			      mst_Boolean negative,
+			      bool negative,
 			      unsigned base,
 			      struct real * n,
-			      mst_Boolean * largeInteger);
+			      bool * largeInteger);
 
 /* Parse the large integer constant stored as base-BASE
    digits in the buffer maintained by str.c, adjusting
    the sign if NEGATIVE is true.  Return an embryo of the
    LargeInteger object as a byte_object structure.  */
-static byte_object scan_large_integer (mst_Boolean negative,
+static byte_object scan_large_integer (bool negative,
 					int base);
 
 /* Raise an error.  */
@@ -185,7 +185,7 @@ static int scan_bin_op (int c,
    we cannot parse a negative number in this context.  */ 
 static int scan_bin_op_1 (int c,
 			  YYSTYPE * lvalp,
-			  mst_Boolean maybe_number);
+			  bool maybe_number);
 
 
 /* Parse a string literal.  C is '\'' */
@@ -614,7 +614,7 @@ scan_symbol (int c,
 int
 scan_bin_op_1 (int c,
 	       YYSTYPE *lvalp,
-	       mst_Boolean maybe_number)
+	       bool maybe_number)
 {
   char buf[3];
   int ic;
@@ -757,7 +757,7 @@ scan_number (int c,
   uintptr_t intNum;
   struct real num, dummy;
   int floatExponent;
-  mst_Boolean isNegative = false, largeInteger = false;
+  bool isNegative = false, largeInteger = false;
   int float_type = 0;
 
   base = 10;
@@ -942,13 +942,13 @@ scan_number (int c,
 
 uintptr_t
 scan_digits (int c,
-	     mst_Boolean negative,
+	     bool negative,
 	     unsigned base,
 	     struct real * n,
-	     mst_Boolean * largeInteger)
+	     bool * largeInteger)
 {
   uintptr_t result;
-  mst_Boolean oneDigit = false;
+  bool oneDigit = false;
 
   while (c == '_')
     c = _gst_next_char ();
@@ -991,11 +991,11 @@ scan_digits (int c,
 
 int
 scan_fraction (int c,
-	       mst_Boolean negative,
+	       bool negative,
 	       unsigned base,
 	       uintptr_t *intNumPtr,
 	       struct real *numPtr,
-	       mst_Boolean *largeInteger)
+	       bool *largeInteger)
 {
   uintptr_t intNum;
   int scale;
@@ -1064,7 +1064,7 @@ digit_to_int (int c,
   return (c);
 }
 
-mst_Boolean
+bool
 is_base_digit (int c,
 	       int base)
 {
@@ -1081,14 +1081,14 @@ is_base_digit (int c,
 }
 
 
-mst_Boolean
+bool
 is_digit (int ic)
 {
   return (ic != EOF && (CHAR_TAB (ic)->char_class & DIGIT) != 0);
 }
 
 byte_object
-scan_large_integer (mst_Boolean negative,
+scan_large_integer (bool negative,
 		     int base)
 {
   int i;
@@ -1330,7 +1330,7 @@ _gst_yyprint (FILE * file,
     }
 }
 
-mst_Boolean
+bool
 _gst_negate_yylval (int token, YYSTYPE *yylval)
 {
   switch (token)

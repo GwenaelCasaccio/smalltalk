@@ -59,7 +59,7 @@
 /* Where the compiled bytecodes go.  */
 bc_vector _gst_cur_bytecodes;
 
-mst_Boolean _gst_omit_line_numbers = 0;
+bool _gst_omit_line_numbers = 0;
 
 /* Reallocate an array of bytecodes, leaving space for DELTA more
    bytes.  */

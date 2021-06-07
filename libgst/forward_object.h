@@ -90,7 +90,7 @@ extern void _gst_alloc_oop_table(size_t size);
 
 /* Grow the OOP table to NEWSIZE pointers and initialize the newly
    created pointers.  */
-extern mst_Boolean _gst_realloc_oop_table(size_t number_of_forwarding_objects);
+extern bool _gst_realloc_oop_table(size_t number_of_forwarding_objects);
 
 /* Dump the entire contents of the OOP table.  Mainly for debugging
    purposes.  */

@@ -130,7 +130,7 @@ static off_t file_size;
 static off_t file_pos;
 
 /* Whether we are using mmap to read the file.  */
-static mst_Boolean buf_used_mmap;
+static bool buf_used_mmap;
 
 /* This function tries to write SIZE bytes to FD starting at BUFFER,
    and longjmps out of SAVE_JMPBUF if something goes wrong.  */
@@ -206,7 +206,7 @@ static void save_file_version(int imageFd, struct save_file_header *headerp);
 /* This function loads into HEADERP the header of the image file
    without checking its validity.
    This data is loaded from the IMAGEFD file descriptor.  */
-static mst_Boolean load_file_version(int imageFd, save_file_header *headerp);
+static bool load_file_version(int imageFd, save_file_header *headerp);
 
 /* This function walks the OOP table and adjusts all the OOP addresses,
    to account for the difference between the OOP table address at save
@@ -229,11 +229,11 @@ static void save_all_objects(int imageFd);
 /* This function is the heart of _gst_load_from_file, which opens
    the file and then passes the descriptor to load_snapshot into
    IMAGEFD.  */
-static mst_Boolean load_snapshot(int imageFd);
+static bool load_snapshot(int imageFd);
 
 /* This variable says whether the image we are loading has the
    wrong endianness.  */
-static mst_Boolean wrong_endianness;
+static bool wrong_endianness;
 
 /* This variable contains the OOP slot index of the highest non-free
    OOP, excluding the built-in ones (i.e., it will always be <
@@ -254,10 +254,10 @@ static jmp_buf save_jmpbuf;
 
 struct oop_s *myOOPTable = NULL;
 
-mst_Boolean _gst_save_to_file(const char *fileName) {
+bool _gst_save_to_file(const char *fileName) {
   int imageFd;
   int save_errno;
-  mst_Boolean success;
+  bool success;
 
   _gst_invoke_hook(GST_ABOUT_TO_SNAPSHOT);
   _gst_global_gc(0);
@@ -414,8 +414,8 @@ void save_file_version(int imageFd, struct save_file_header *headerp) {
  *
  ***********************************************************************/
 
-mst_Boolean _gst_load_from_file(const char *fileName) {
-  mst_Boolean loaded = 0;
+bool _gst_load_from_file(const char *fileName) {
+  bool loaded = 0;
   int imageFd;
 
   imageFd = _gst_open_file(fileName, "r");
@@ -427,7 +427,7 @@ mst_Boolean _gst_load_from_file(const char *fileName) {
 
 heap_data *abort_nomemory(heap_data *h, size_t sz) { abort(); }
 
-mst_Boolean load_snapshot(int imageFd) {
+bool load_snapshot(int imageFd) {
   save_file_header header;
   int prim_table_matches;
   char *base, *end;
@@ -496,7 +496,7 @@ mst_Boolean load_snapshot(int imageFd) {
   return (false);
 }
 
-mst_Boolean load_file_version(int imageFd, save_file_header *headerp) {
+bool load_file_version(int imageFd, save_file_header *headerp) {
   buffer_read(imageFd, headerp, sizeof(save_file_header));
   if (strcmp(headerp->signature, SIGNATURE))
     return (false);
@@ -547,11 +547,11 @@ char *load_normal_oops(int imageFd) {
 
   gst_object object = NULL;
   size_t size = 0;
-  mst_Boolean use_copy_on_write =
+  bool use_copy_on_write =
 #ifdef NO_SIGSEGV_HANDLING
       0 &&
 #endif
-      buf_used_mmap && ~wrong_endianness && ot_delta == 0;
+      buf_used_mmap && !wrong_endianness && ot_delta == 0;
 
   /* Now walk the oop table.  Load the data (or get the addresses from the
      mmap-ed area) and fix the byte order.  */

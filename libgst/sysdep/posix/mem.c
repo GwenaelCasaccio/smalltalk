@@ -82,7 +82,7 @@ _gst_mem_protect (PTR addr, size_t len, int prot)
    is not used currently.  */
 
 typedef struct heap_implementation {
-  mst_Boolean (*check) ();
+  bool (*check) ();
   PTR (*reserve) (PTR, size_t);
   void (*release) (PTR, size_t);
   PTR (*commit) (PTR, size_t);
@@ -96,7 +96,7 @@ typedef struct heap_implementation {
 static PTR noreserve_reserve (PTR, size_t);
 static void noreserve_decommit (PTR, size_t);
 #endif
-static mst_Boolean anon_mmap_check (void);
+static bool anon_mmap_check (void);
 static PTR anon_mmap_reserve (PTR, size_t);
 static void anon_mmap_release (PTR, size_t);
 static PTR anon_mmap_commit (PTR, size_t);
@@ -254,7 +254,7 @@ not_mapped (sig)
   longjmp (already_mapped, 1);
 }
 
-mst_Boolean
+bool
 anon_mmap_check (void)
 {
   volatile char *mmapGuess, *higher, *lower;	/* reference addresses */

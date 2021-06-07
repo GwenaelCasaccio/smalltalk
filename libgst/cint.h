@@ -155,7 +155,7 @@ extern void _gst_free_closure(OOP callbackOOP) ATTRIBUTE_HIDDEN;
 /* Call lt_dlopenext with FILENAME, and invoke gst_initModule if it is
    found in the library.  If MODULE is false, add the file to the list
    of libraries that Smalltalk searches for external symbols.  */
-extern mst_Boolean _gst_dlopen(const char *filename, mst_Boolean module);
+extern bool _gst_dlopen(const char *filename, bool module);
 
 /* Add DIR at the beginning of the libltdl search path.  */
 extern void _gst_dladdsearchdir(const char *dir) ATTRIBUTE_HIDDEN;

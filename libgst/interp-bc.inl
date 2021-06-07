@@ -397,7 +397,7 @@ void _gst_send_method(OOP methodOOP) {
   SET_THIS_METHOD(methodOOP, 0);
 }
 
-static mst_Boolean send_block_value(int numArgs, int cull_up_to) {
+static bool send_block_value(int numArgs, int cull_up_to) {
   OOP closureOOP;
   block_header header;
   REGISTER(1, gst_object blockContext);

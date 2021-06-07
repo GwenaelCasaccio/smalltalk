@@ -172,7 +172,7 @@ _gst_va_msg_sendf (PTR resultPtr,
   const char *fp;
   char *s, selectorBuf[256];
   inc_ptr incPtr;
-  mst_Boolean receiver_is_block = false;
+  bool receiver_is_block = false;
 
   if (!_gst_smalltalk_initialized)
     _gst_initialize (NULL, NULL, GST_NO_TTY);
@@ -811,7 +811,7 @@ _gst_get_superclass (OOP oop)
   return SUPERCLASS (oop);
 }
 
-mst_Boolean
+bool
 _gst_class_is_kind_of (OOP candidate, OOP superclass)
 {
   if (!_gst_smalltalk_initialized)
@@ -832,7 +832,7 @@ _gst_class_is_kind_of (OOP candidate, OOP superclass)
 }
 
 
-mst_Boolean
+bool
 _gst_object_is_kind_of (OOP candidate, OOP superclass)
 {
   OOP its_class;
@@ -878,7 +878,7 @@ _gst_perform_with (OOP receiver, OOP selector, OOP arg)
   return _gst_nvmsg_send (receiver, selector, &arg, 1);
 }
 
-mst_Boolean
+bool
 _gst_class_implements_selector (OOP classOOP, OOP selector)
 {
   if (!_gst_smalltalk_initialized)
@@ -891,7 +891,7 @@ _gst_class_implements_selector (OOP classOOP, OOP selector)
   return _gst_find_class_method (classOOP, selector) != _gst_nil_oop;
 }
 
-mst_Boolean
+bool
 _gst_class_can_understand (OOP classOOP, OOP selector)
 {
   method_cache_entry dummy;
@@ -906,7 +906,7 @@ _gst_class_can_understand (OOP classOOP, OOP selector)
   return _gst_find_method (classOOP, selector, &dummy);
 }
 
-mst_Boolean
+bool
 _gst_responds_to (OOP oop, OOP selector)
 {
   method_cache_entry dummy;

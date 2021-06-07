@@ -65,7 +65,7 @@ typedef enum {
 } stream_type;
 
 /* If true, readline is suppressed.  */
-extern mst_Boolean _gst_no_tty ATTRIBUTE_HIDDEN;
+extern bool _gst_no_tty ATTRIBUTE_HIDDEN;
 
 /* Pass file descriptor FD, printed as file name FILENAME, to the
    parser.  */
@@ -96,7 +96,7 @@ extern void _gst_push_stdin_string(void) ATTRIBUTE_HIDDEN;
 
 /* Restores the previous stream on the stack, optionally closing the
    topmost one if CLOSEIT is true.  */
-extern void _gst_pop_stream(mst_Boolean closeIt) ATTRIBUTE_HIDDEN;
+extern void _gst_pop_stream(bool closeIt) ATTRIBUTE_HIDDEN;
 
 /* This function resets the file type information for the current
    stream.  It is typically used by fileIn type methods when filing in
@@ -138,7 +138,7 @@ extern void _gst_unread_char(int ic) ATTRIBUTE_HIDDEN;
 extern int _gst_next_char(void) ATTRIBUTE_HIDDEN;
 
 /* Return whether the topmost stream is an interactive one.  */
-extern mst_Boolean
+extern bool
 _gst_get_cur_stream_prompt(void) ATTRIBUTE_PURE ATTRIBUTE_HIDDEN;
 
 /* Return the type of the topmost stream in the stack.  */
@@ -179,7 +179,7 @@ extern void _gst_process_stdin(const char *prompt) ATTRIBUTE_HIDDEN;
 
 /* Parse the Smalltalk source code read from file FILE found within
    the search path DIR.  */
-extern mst_Boolean _gst_process_file(const char *fileName,
+extern bool _gst_process_file(const char *fileName,
                                      enum gst_file_dir dir) ATTRIBUTE_HIDDEN;
 
 #endif

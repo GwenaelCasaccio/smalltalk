@@ -71,7 +71,7 @@ typedef struct gst_symbol {
 typedef struct symbol_entry {
   scope_type scope;
   OOP symbol;
-  mst_Boolean readOnly;
+  bool readOnly;
   int varIndex;               /* index of receiver or temporary */
   unsigned int scopeDistance; /* how many frames up the stack is this
                                  variable from where we are? */
@@ -173,7 +173,7 @@ _gst_get_scope_kind(scope_type scope) ATTRIBUTE_CONST ATTRIBUTE_HIDDEN;
    True is returned, and SE is filled with the information about the
    variable if it is found or it is deemed part of Undeclared.  Else,
    SE is untouched and FALSE is returned.  */
-extern mst_Boolean _gst_find_variable(symbol_entry *se,
+extern bool _gst_find_variable(symbol_entry *se,
                                       tree_node list) ATTRIBUTE_HIDDEN;
 
 /* Compute linearized pool order for PARSER.  If FORDOIT is true,
@@ -181,7 +181,7 @@ extern mst_Boolean _gst_find_variable(symbol_entry *se,
    of the compilation class.  */
 struct gst_parser;
 extern void _gst_compute_linearized_pools(struct gst_parser *parser,
-                                          mst_Boolean forDoit) ATTRIBUTE_HIDDEN;
+                                          bool forDoit) ATTRIBUTE_HIDDEN;
 
 /* Free linearized pool order that was computed last.  */
 extern void _gst_free_linearized_pools(void) ATTRIBUTE_HIDDEN;
@@ -263,8 +263,8 @@ extern int _gst_declare_block_arguments(tree_node args) ATTRIBUTE_HIDDEN;
    variable with the same name in the currently active scope and return
    -1 if one is found; otherwise, return the index of the variable into
    the activation record.  */
-extern int _gst_declare_name(const char *name, mst_Boolean writeable,
-                             mst_Boolean allowDup) ATTRIBUTE_HIDDEN;
+extern int _gst_declare_name(const char *name, bool writeable,
+                             bool allowDup) ATTRIBUTE_HIDDEN;
 
 /* Computes the number of arguments that a message named SYMBOLOOP
    expects.  */

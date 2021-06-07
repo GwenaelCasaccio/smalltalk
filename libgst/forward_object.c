@@ -107,7 +107,7 @@ void _gst_detach_oop_arena_entry(size_t arena_index) {
   atomic_store(&_gst_mem.ot_arena[arena_index].thread_id, UINT16_MAX);
 }
 
-mst_Boolean _gst_realloc_oop_table(size_t number_of_forwarding_objects) {
+bool _gst_realloc_oop_table(size_t number_of_forwarding_objects) {
   size_t bytes;
 
   if (!_gst_mem.oop_heap) {

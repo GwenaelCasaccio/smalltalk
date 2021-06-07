@@ -149,11 +149,11 @@ thread_local int _gst_execution_tracing = 0;
 /* When this is true, and an interrupt occurs (such as SIGABRT),
    Smalltalk will terminate itself by making a core dump (normally it
    produces a backtrace).  */
-mst_Boolean _gst_make_core_file = false;
+bool _gst_make_core_file = false;
 
 /* When true, this indicates that there is no top level loop for
    control to return to, so it causes the system to exit.  */
-mst_Boolean _gst_non_interactive = true;
+bool _gst_non_interactive = true;
 
 /* The table of functions that implement the primitives.  */
 prim_table_entry _gst_primitive_table[NUM_PRIMITIVES];
@@ -250,7 +250,7 @@ static thread_local int class_cache_prim;
 #endif
 
 /* Queue for async (outside the interpreter) semaphore signals */
-static mst_Boolean async_queue_enabled[100] = { true };
+static bool async_queue_enabled[100] = { true };
 static async_queue_entry queued_async_signals_tail[100];
 static async_queue_entry *queued_async_signals[100] = { &queued_async_signals_tail[0] };
 static async_queue_entry *queued_async_signals_sig[100] = { &queued_async_signals_tail[0] };
@@ -265,7 +265,7 @@ static OOP switch_to_process[100];
 
 /* Set to true if it is time to switch process in a round-robin
    time-sharing fashion.  */
-static mst_Boolean time_to_preempt;
+static bool time_to_preempt;
 
 /* Used to bail out of a C callout and back to the interpreter.  */
 static thread_local interp_jmp_buf *reentrancy_jmp_buf = NULL;
@@ -283,12 +283,12 @@ static inline intptr_t execute_primitive_operation(int primitive,
 
 /* Execute a #at: primitive, with arguments REC and IDX, knowing that
    the receiver's class has an instance specification SPEC.  */
-static inline mst_Boolean cached_index_oop_primitive(OOP rec, OOP idx,
+static inline bool cached_index_oop_primitive(OOP rec, OOP idx,
                                                      intptr_t spec);
 
 /* Execute a #at:put: primitive, with arguments REC/IDX/VAL, knowing that
    the receiver's class has an instance specification SPEC.  */
-static inline mst_Boolean
+static inline bool
 cached_index_oop_put_primitive(OOP rec, OOP idx, OOP val, intptr_t spec);
 
 /* This functions accepts an OOP for a Semaphore object and puts the
@@ -301,7 +301,7 @@ static void empty_async_queue(void);
 
 /* Try to find another process with higher or same priority as the
    active one.  Return whether there is one.  */
-static mst_Boolean would_reschedule_process(void);
+static bool would_reschedule_process(void);
 
 /* Locates in the ProcessorScheduler's process lists and returns the
    highest priority process different from the current process.  */
@@ -335,12 +335,12 @@ static void set_preemption_timer(void);
 
 /* Same as _gst_parse_stream, but creating a reentrancy_jmpbuf.  Returns
    true if interrupted. */
-static mst_Boolean parse_stream_with_protection(OOP currentNamespace);
+static bool parse_stream_with_protection(OOP currentNamespace);
 
 /* Same as _gst_parse_method_from_stream, but creating a reentrancy_jmpbuf.
    Returns true if interrupted, pushes the last compiled method on the
    stack. */
-static mst_Boolean
+static bool
 parse_method_from_stream_with_protection(OOP currentClass, OOP currentCategory);
 
 /* Put the given process to sleep by rotating the list of processes for
@@ -388,19 +388,19 @@ static void suspend_process(OOP processOOP);
    If PROCESSOOP is terminating, answer false.  If PROCESSOOP can
    be restarted or at least put back in the process list for its
    priority, answer true.  */
-static mst_Boolean resume_process(OOP processOOP, mst_Boolean alwaysPreempt);
+static bool resume_process(OOP processOOP, bool alwaysPreempt);
 
 /* Answer whether PROCESSOOP is ready to execute (neither terminating,
    nor suspended, nor waiting on a semaphore).  */
-static mst_Boolean is_process_ready(OOP processOOP) ATTRIBUTE_PURE;
+static bool is_process_ready(OOP processOOP) ATTRIBUTE_PURE;
 
 /* Answer whether any processes are queued in the PROCESSLISTOOP
    (which can be a LinkedList or a Semaphore).  */
-static inline mst_Boolean is_empty(OOP processListOOP) ATTRIBUTE_PURE;
+static inline bool is_empty(OOP processListOOP) ATTRIBUTE_PURE;
 
 /* Answer whether the processs is terminating, that is, it does not
    have an execution context to resume execution from.  */
-static inline mst_Boolean is_process_terminating(OOP processOOP) ATTRIBUTE_PURE;
+static inline bool is_process_terminating(OOP processOOP) ATTRIBUTE_PURE;
 
 /* Answer the process that is scheduled to run (that is, the
    executing process or, if any, the process that is scheduled
@@ -427,14 +427,14 @@ static inline OOP create_args_array(int numArgs);
    The block should accept between NUMARGS - CULL_UP_TO and
    NUMARGS arguments.  If this is not true (failure) return true;
    on success return false.  */
-static mst_Boolean send_block_value(int numArgs, int cull_up_to);
+static bool send_block_value(int numArgs, int cull_up_to);
 
 /* This is a kind of simplified _gst_send_message_internal that,
    instead of setting up a context for a particular receiver, stores
    information on the lookup into METHODDATA.  Unlike
    _gst_send_message_internal, this function is generic and valid for
    both the interpreter and the JIT compiler.  */
-static mst_Boolean lookup_method(OOP sendSelector,
+static bool lookup_method(OOP sendSelector,
                                  method_cache_entry *methodData, int sendArgs,
                                  OOP method_class);
 
@@ -480,7 +480,7 @@ static inline void unwind_context(void);
    number of arguments expected by the selector (1 if binary, else the
    number of colons).  If you don't know a receiver you can just pass
    _gst_nil_oop or directly call _gst_selector_num_args.  */
-static inline mst_Boolean check_send_correctness(OOP receiver, OOP sendSelector,
+static inline bool check_send_correctness(OOP receiver, OOP sendSelector,
                                                  int numArgs);
 
 /* Unwind the contexts up until the caller of the method that
@@ -492,7 +492,7 @@ static inline mst_Boolean check_send_correctness(OOP receiver, OOP sendSelector,
    block closures, hence the context we return from can be found by
    following OUTERCONTEXT links starting from the currently executing
    context, and until we reach a MethodContext.  */
-static mst_Boolean unwind_method(void);
+static bool unwind_method(void);
 
 /* Unwind up to context returnContextOOP, carefully examining the
    method call stack.  That is, we examine each context and we only
@@ -502,7 +502,7 @@ static mst_Boolean unwind_method(void);
    or an unwind method.  In this case the non-unwind contexts between
    the unwind method and the returnContextOOP must be removed from the
    chain.  */
-static mst_Boolean unwind_to(OOP returnContextOOP);
+static bool unwind_to(OOP returnContextOOP);
 
 /* Arrange things so that all the non-unwinding contexts up to
    returnContextOOP aren't executed.  For block contexts this can
@@ -511,7 +511,7 @@ static mst_Boolean unwind_to(OOP returnContextOOP);
    from them!  For this reason, method contexts are flagged as
    disabled and unwind_context takes care of skipping them when
    doing a local return.  */
-static mst_Boolean disable_non_unwind_contexts(OOP returnContextOOP);
+static bool disable_non_unwind_contexts(OOP returnContextOOP);
 
 /* Called to preempt the current process after a specified amount
    of time has been spent in the GNU Smalltalk interpreter.  */
@@ -528,7 +528,7 @@ static void push_jmp_buf(interp_jmp_buf *jb, int for_interpreter,
 
 /* Pop an execution state.  Return true if the interruption has to
    be propagated up.  */
-static mst_Boolean pop_jmp_buf(void);
+static bool pop_jmp_buf(void);
 
 /* Jump out of the top execution state.  This is used by C call-out
    primitives to jump out repeatedly until a Smalltalk process is
@@ -555,7 +555,7 @@ thread_local size_t current_thread_id = 0;
 
 volatile _Atomic(size_t) _gst_interpret_thread_counter = 1;
 
-static mst_Boolean _gst_interp_need_to_wait[100] = { false };
+static bool _gst_interp_need_to_wait[100] = { false };
 
 static pthread_mutex_t dispatch_vec_mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -602,7 +602,7 @@ void global_lock_for_gc(void) {
     __sync_synchronize();                                               \
   } while (0)
 
-void set_except_flag_for_thread(mst_Boolean reset, size_t thread_id) {
+void set_except_flag_for_thread(bool reset, size_t thread_id) {
   SET_EXCEPT_FLAG_FOR_THREAD(reset, thread_id);
 }
 
@@ -989,7 +989,7 @@ void prepare_context(gst_context_part context, int args, int temps) {
   sp[current_thread_id] = stackBase - 1;
 }
 
-mst_Boolean _gst_send_cannot_interpret_message(OOP sendSelector, method_cache_entry *methodData,
+bool _gst_send_cannot_interpret_message(OOP sendSelector, method_cache_entry *methodData,
                           int sendArgs, OOP method_class) {
   inc_ptr inc;
   OOP argsArrayOOP;
@@ -1012,7 +1012,7 @@ mst_Boolean _gst_send_cannot_interpret_message(OOP sendSelector, method_cache_en
   return _gst_find_method(method_class, _gst_cannot_interpret_symbol, methodData);
 }
 
-mst_Boolean lookup_method(OOP sendSelector, method_cache_entry *methodData,
+bool lookup_method(OOP sendSelector, method_cache_entry *methodData,
                           int sendArgs, OOP method_class) {
   inc_ptr inc;
   OOP argsArrayOOP;
@@ -1038,7 +1038,7 @@ mst_Boolean lookup_method(OOP sendSelector, method_cache_entry *methodData,
   return (false);
 }
 
-mst_Boolean _gst_find_method(OOP receiverClass, OOP sendSelector,
+bool _gst_find_method(OOP receiverClass, OOP sendSelector,
                              method_cache_entry *methodData) {
   OOP method_class = receiverClass;
   for (; !IS_NIL(method_class); method_class = SUPERCLASS(method_class)) {
@@ -1070,7 +1070,7 @@ OOP create_args_array(int numArgs) {
   return argsArrayOOP;
 }
 
-mst_Boolean check_send_correctness(OOP receiver, OOP sendSelector,
+bool check_send_correctness(OOP receiver, OOP sendSelector,
                                    int numArgs) {
   int hashIndex;
   method_cache_entry *methodData;
@@ -1150,7 +1150,7 @@ void unwind_context(void) {
                   GET_CONTEXT_IP(newContext));
 }
 
-mst_Boolean unwind_method(void) {
+bool unwind_method(void) {
   OOP oldContextOOP, newContextOOP;
   gst_object newBlockContext;
 
@@ -1185,7 +1185,7 @@ mst_Boolean unwind_method(void) {
   return unwind_to(OBJ_METHOD_CONTEXT_PARENT_CONTEXT(newBlockContext));
 }
 
-mst_Boolean unwind_to(OOP returnContextOOP) {
+bool unwind_to(OOP returnContextOOP) {
   OOP oldContextOOP, newContextOOP;
   gst_object oldContext, newContext;
 
@@ -1205,7 +1205,7 @@ mst_Boolean unwind_to(OOP returnContextOOP) {
     /* Check if we got to an unwinding context (#ensure:).  */
     if UNCOMMON ((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(newContext) &
                  MCF_IS_UNWIND_CONTEXT) {
-      mst_Boolean result;
+      bool result;
       _gst_this_context_oop[current_thread_id] = oldContextOOP;
 
       /* _gst_this_context_oop is the context above the
@@ -1255,7 +1255,7 @@ mst_Boolean unwind_to(OOP returnContextOOP) {
   return (true);
 }
 
-mst_Boolean disable_non_unwind_contexts(OOP returnContextOOP) {
+bool disable_non_unwind_contexts(OOP returnContextOOP) {
   OOP newContextOOP, *chain;
   gst_object oldContext, newContext;
 
@@ -1356,7 +1356,7 @@ void change_process_context(OOP newProcess) {
   OOP processOOP;
   gst_object process;
   gst_object processor;
-  mst_Boolean enable_async_queue;
+  bool enable_async_queue;
 
   switch_to_process[current_thread_id] = _gst_nil_oop;
 
@@ -1522,7 +1522,7 @@ void add_last_link(OOP semaphoreOOP, OOP processOOP) {
   }
 }
 
-mst_Boolean is_empty(OOP processListOOP) {
+bool is_empty(OOP processListOOP) {
   gst_object processList;
 
   processList = OOP_TO_OBJ(processListOOP);
@@ -1542,7 +1542,7 @@ void active_process_yield(void) {
   activate_process(IS_NIL(newProcess) ? activeProcess : newProcess);
 }
 
-mst_Boolean _gst_sync_signal(OOP semaphoreOOP, mst_Boolean incr_if_empty) {
+bool _gst_sync_signal(OOP semaphoreOOP, bool incr_if_empty) {
   gst_object sem;
   gst_object process;
   gst_object suspendedContext;
@@ -1612,7 +1612,7 @@ void _gst_async_call(void (*func)(OOP), OOP arg) {
   SET_EXCEPT_FLAG_FOR_THREAD(true, 0);
 }
 
-mst_Boolean _gst_have_pending_async_calls() {
+bool _gst_have_pending_async_calls() {
   return (queued_async_signals[current_thread_id] != &queued_async_signals_tail[current_thread_id] ||
           queued_async_signals_sig[current_thread_id] != &queued_async_signals_tail[current_thread_id]);
 }
@@ -1681,7 +1681,7 @@ void _gst_async_signal_and_unregister(OOP semaphoreOOP) {
 
 void sync_wait_process(OOP semaphoreOOP, OOP processOOP) {
   gst_object sem;
-  mst_Boolean isActive;
+  bool isActive;
 
   sem = OOP_TO_OBJ(semaphoreOOP);
   if (IS_NIL(processOOP)) {
@@ -1733,13 +1733,13 @@ OOP remove_first_link(OOP semaphoreOOP) {
   return (processOOP);
 }
 
-mst_Boolean resume_process(OOP processOOP, mst_Boolean alwaysPreempt) {
+bool resume_process(OOP processOOP, bool alwaysPreempt) {
   int priority;
   OOP activeOOP;
   OOP processLists;
   OOP processList;
   gst_object process, active;
-  /* mst_Boolean ints_enabled; */
+  /* bool ints_enabled; */
 
   /* 2002-19-12: tried get_active_process instead of get_scheduled_process.  */
   activeOOP = get_active_process();
@@ -1821,14 +1821,14 @@ preempt_smalltalk_process(int sig) {
 }
 #endif
 
-mst_Boolean is_process_terminating(OOP processOOP) {
+bool is_process_terminating(OOP processOOP) {
   gst_object process;
 
   process = OOP_TO_OBJ(processOOP);
   return (IS_NIL(OBJ_PROCESS_GET_SUSPENDED_CONTEXT(process)));
 }
 
-mst_Boolean is_process_ready(OOP processOOP) {
+bool is_process_ready(OOP processOOP) {
   gst_object process;
   int priority;
   OOP processLists;
@@ -1858,7 +1858,7 @@ void sleep_process(OOP processOOP) {
   add_last_link(processList, processOOP);
 }
 
-mst_Boolean would_reschedule_process() {
+bool would_reschedule_process() {
   OOP processLists, processListOOP;
   int priority, activePriority;
   OOP processOOP;
@@ -2430,8 +2430,8 @@ static RETSIGTYPE interrupt_on_signal(int sig) {
   }
 }
 
-static void backtrace_on_signal_1(mst_Boolean is_serious_error,
-                                  mst_Boolean c_backtrace) {
+static void backtrace_on_signal_1(bool is_serious_error,
+                                  bool c_backtrace) {
   static int reentering = -1;
 
   /* Avoid recursive signals */
@@ -2550,7 +2550,7 @@ void _gst_show_backtrace(FILE *fp) {
 void _gst_show_stack_contents(void) {
   gst_object context;
   OOP *walk;
-  mst_Boolean first;
+  bool first;
 
   if (IS_NIL(_gst_this_context_oop[current_thread_id]))
     return;
@@ -2566,7 +2566,7 @@ void _gst_show_stack_contents(void) {
   printf("\n\n");
 }
 
-static inline mst_Boolean cached_index_oop_primitive(OOP rec, OOP idx,
+static inline bool cached_index_oop_primitive(OOP rec, OOP idx,
                                                      intptr_t spec) {
   OOP result;
   if (!IS_INT(idx))
@@ -2581,7 +2581,7 @@ static inline mst_Boolean cached_index_oop_primitive(OOP rec, OOP idx,
   return (false);
 }
 
-static inline mst_Boolean
+static inline bool
 cached_index_oop_put_primitive(OOP rec, OOP idx, OOP val, intptr_t spec) {
   if (!IS_INT(idx))
     return (true);
@@ -2625,7 +2625,7 @@ void push_jmp_buf(interp_jmp_buf *jb, int for_interpreter, OOP processOOP) {
   reentrancy_jmp_buf = jb;
 }
 
-mst_Boolean pop_jmp_buf(void) {
+bool pop_jmp_buf(void) {
   interp_jmp_buf *jb = reentrancy_jmp_buf;
   reentrancy_jmp_buf = jb->next;
 
@@ -2649,7 +2649,7 @@ void stop_execution(void) {
     longjmp(reentrancy_jmp_buf->jmpBuf, 1);
 }
 
-mst_Boolean parse_method_from_stream_with_protection(OOP currentClass,
+bool parse_method_from_stream_with_protection(OOP currentClass,
                                                      OOP currentCategory) {
   interp_jmp_buf jb;
   OOP methodOOP;
@@ -2664,7 +2664,7 @@ mst_Boolean parse_method_from_stream_with_protection(OOP currentClass,
   return pop_jmp_buf();
 }
 
-mst_Boolean parse_stream_with_protection(OOP currentNamespace) {
+bool parse_stream_with_protection(OOP currentNamespace) {
   interp_jmp_buf jb;
 
   push_jmp_buf(&jb, false, get_active_process());
