@@ -78,19 +78,12 @@
 #endif
 
 /* A boolean type */
-#ifdef __cplusplus
-typedef bool mst_Boolean;
-#else
-typedef enum {
-  false,
-  true
-} mst_Boolean;
-#endif
+#include <stdbool.h>
 
 #include "forward_object.h"
 
 /* The header of all objects in the system.
-   Note how structural inheritance is achieved without adding extra levels of 
+   Note how structural inheritance is achieved without adding extra levels of
    nested structures.  */
 #define OBJ_HEADER   \
   OOP		objSize;     \

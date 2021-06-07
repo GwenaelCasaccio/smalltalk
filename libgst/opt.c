@@ -138,7 +138,7 @@ typedef struct basic_block_item {
      overridden if a jump to the block is found, in which case
      the flag is cleared.  Suspended basic blocks are processed
      FIFO, not LIFO like the normal worklist.  */
-  mst_Boolean suspended;
+  bool suspended;
   OOP stack[1];
 } basic_block_item;
 
@@ -219,7 +219,7 @@ static int make_destination_table (gst_uchar * bp,
 
 /* Helper function to compute the bytecode verifier's `in'
    sets from the `out' sets.  */
-static mst_Boolean merge_stacks (OOP *dest,
+static bool merge_stacks (OOP *dest,
 				 int dest_sp,
 				 OOP *src,
 				 int src_sp);
@@ -439,7 +439,7 @@ _gst_optimize_bytecodes (bc_vector bytecodes)
   block_boundary *blocks, *block, *last;
   gst_uchar *bp, *end, *first;
   int i;
-  mst_Boolean changed;
+  bool changed;
 
   bp = bytecodes->base;
   end = bytecodes->ptr;
@@ -452,7 +452,7 @@ _gst_optimize_bytecodes (bc_vector bytecodes)
     {
       gst_uchar *dest = bp;
       gst_uchar *dest_ip0;
-      mst_Boolean canOptimizeJump, split;
+      bool canOptimizeJump, split;
       int kind = 0;
       split = false;
 
@@ -1256,11 +1256,11 @@ typedef struct partially_constructed_array {
    Bytecode verification proceeds forwards, so the worklist is added all the
    successors of the basic block whenever merging results in a difference.  */
 
-mst_Boolean
+bool
 merge_stacks (OOP *dest, int dest_sp,
 	      OOP *src, int src_sp)
 {
-  mst_Boolean varied = false;
+  bool varied = false;
   assert (dest_sp == src_sp);
 
   for (; src_sp--; dest++, src++)

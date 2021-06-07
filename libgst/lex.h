@@ -85,19 +85,19 @@ typedef struct YYLTYPE
 /* True if errors must be reported to the standard error, false if
    errors should instead stored so that they are passed to Smalltalk
    code.  */
-extern mst_Boolean _gst_report_errors 
+extern bool _gst_report_errors 
   ATTRIBUTE_HIDDEN;
 
 /* This is set to true by the parser or the compiler if an error
    (respectively, a parse error or a semantic error) is found, and
    avoids that _gst_execute_statements tries to execute the result of
    the compilation.  */
-extern mst_Boolean _gst_had_error
+extern bool _gst_had_error
   ATTRIBUTE_HIDDEN;
 
 /* This is set to true by the parser if error recovery is going on.
    In this case ERROR_RECOVERY tokens are generated.  */
-extern mst_Boolean _gst_error_recovery
+extern bool _gst_error_recovery
   ATTRIBUTE_HIDDEN;
 
 /* The location of the first error reported, stored here so that
@@ -135,7 +135,7 @@ extern void _gst_yyprint (FILE * file,
 /* Negate the semantic value YYLVAL, which must be a numeric token
    of type TOKEN.  Returns true if YYLVAL is positive, false if it
    is negative.  */
-extern mst_Boolean _gst_negate_yylval (int token,
+extern bool _gst_negate_yylval (int token,
 				       YYSTYPE *yylval);
 
 #endif /* GST_LEX_H */

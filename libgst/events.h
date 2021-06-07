@@ -82,7 +82,7 @@ extern void _gst_async_timed_wait (OOP semaphoreOOP,
 /* Answer whether a timeout has been scheduled and a semaphore was
    passed to the virtual machine, to be signaled when the timer
    fires.  */
-extern mst_Boolean _gst_is_timeout_programmed (void)
+extern bool _gst_is_timeout_programmed (void)
   ATTRIBUTE_PURE 
   ATTRIBUTE_HIDDEN;
 
@@ -98,7 +98,7 @@ extern void _gst_remove_fd_polling_handlers (int fd)
 /* Initialize the socket for asynchronous event notifications for the
    kind of socket given by PASSIVE and on the file descriptor FD.  */
 extern void _gst_register_socket (int fd,
-				  mst_Boolean passive)
+				  bool passive)
   ATTRIBUTE_HIDDEN;
 
 /* Check whether I/O is possible on the FD file descriptor; COND is 0
@@ -142,11 +142,11 @@ void _gst_dispatch_events (void);
 
 /* The VM is idle, call the polling handler or just wait for something
    (a signal) to happen if none is installed.  */
-void _gst_idle (mst_Boolean blocking);
+void _gst_idle (bool blocking);
 
 /* Set the polling and dispatching handlers for the VM's internal
    event loop.  */
-mst_Boolean _gst_set_event_loop_handlers(mst_Boolean (*poll) (int ms),
+bool _gst_set_event_loop_handlers(bool (*poll) (int ms),
                                          void (*dispatch) (void));
 
 #endif /* GST_EVENTS_H */

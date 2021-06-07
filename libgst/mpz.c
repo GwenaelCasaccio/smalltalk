@@ -789,7 +789,7 @@ void _gst_mpz_sub(gst_mpz *w, const gst_mpz *u, const gst_mpz *v) {
   w->size = wsize;
 }
 
-mst_Boolean _gst_mpz_get_d(const gst_mpz *mpz, double *p_d) {
+bool _gst_mpz_get_d(const gst_mpz *mpz, double *p_d) {
   double d, old;
   int n;
 
@@ -811,7 +811,7 @@ mst_Boolean _gst_mpz_get_d(const gst_mpz *mpz, double *p_d) {
   return true;
 }
 
-mst_Boolean _gst_mpz_get_ld(const gst_mpz *mpz, long double *p_ld) {
+bool _gst_mpz_get_ld(const gst_mpz *mpz, long double *p_ld) {
   long double d, old;
   int n;
 
@@ -1542,7 +1542,7 @@ void _gst_mpz_from_oop(gst_mpz *mpz, OOP srcOOP) {
 OOP _gst_oop_from_mpz(gst_mpz *mpz) {
   gst_uchar *bytes;
   mp_limb_t *limbs;
-  mst_Boolean neg;
+  bool neg;
   int n;
   OOP oop;
   gst_object ba;

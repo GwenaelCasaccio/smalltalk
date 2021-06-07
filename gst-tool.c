@@ -79,7 +79,7 @@ struct tool {
   const char *script;
   const char *options;
   const char *force_opt;
-  mst_Boolean allow_other_arguments;
+  bool allow_other_arguments;
 };
 
 const struct tool tools[] = {

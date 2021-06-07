@@ -52,9 +52,9 @@
 
 /* Do an arithmetic operation between A and B and set OVERFLOW to
    false or true depending on overflow.  */
-static inline OOP add_with_check(OOP op1, OOP op2, mst_Boolean *overflow);
-static inline OOP sub_with_check(OOP op1, OOP op2, mst_Boolean *overflow);
-static inline OOP mul_with_check(OOP op1, OOP op2, mst_Boolean *overflow);
+static inline OOP add_with_check(OOP op1, OOP op2, bool *overflow);
+static inline OOP sub_with_check(OOP op1, OOP op2, bool *overflow);
+static inline OOP mul_with_check(OOP op1, OOP op2, bool *overflow);
 
 /* Generate random number using the Mersenne Twister technique */
 static inline uint32_t random_next(uint32_t *);
@@ -102,7 +102,7 @@ OOP tagged_xor(OOP op1, OOP op2) {
   return (OOP)(iop1 ^ iop2);
 }
 
-OOP add_with_check(OOP op1, OOP op2, mst_Boolean *overflow) {
+OOP add_with_check(OOP op1, OOP op2, bool *overflow) {
   intptr_t iop1 = (intptr_t)op1;
   intptr_t iop2 = (intptr_t)op2;
   intptr_t iresult;
@@ -125,7 +125,7 @@ OOP add_with_check(OOP op1, OOP op2, mst_Boolean *overflow) {
   return (OOP)iresult;
 }
 
-OOP sub_with_check(OOP op1, OOP op2, mst_Boolean *overflow) {
+OOP sub_with_check(OOP op1, OOP op2, bool *overflow) {
   intptr_t iop1 = (intptr_t)op1;
   intptr_t iop2 = (intptr_t)op2;
   intptr_t iresult;
@@ -148,7 +148,7 @@ OOP sub_with_check(OOP op1, OOP op2, mst_Boolean *overflow) {
   return (OOP)iresult;
 }
 
-OOP mul_with_check(OOP op1, OOP op2, mst_Boolean *overflow) {
+OOP mul_with_check(OOP op1, OOP op2, bool *overflow) {
 #ifdef HAVE_OVERFLOW_BUILTINS
   intptr_t a = TO_INT(op1);
   intptr_t b = TO_INT(op2);

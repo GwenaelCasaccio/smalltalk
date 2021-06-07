@@ -20,7 +20,7 @@ pthread_cond_t _gst_vm_end_barrier_cond = PTHREAD_COND_INITIALIZER;
 
 pthread_mutex_t _gst_vm_end_barrier_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-mst_Boolean _gst_vm_barrier_wait(void) {
+bool _gst_vm_barrier_wait(void) {
   int error;
   size_t count;
   size_t cpy;
@@ -75,7 +75,7 @@ mst_Boolean _gst_vm_barrier_wait(void) {
   return count == 0;
 }
 
-mst_Boolean _gst_vm_end_barrier_wait(void) {
+bool _gst_vm_end_barrier_wait(void) {
   int error;
   size_t count;
 

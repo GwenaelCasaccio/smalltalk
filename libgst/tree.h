@@ -202,7 +202,7 @@ extern tree_node _gst_make_method(YYLTYPE *startLocation, YYLTYPE *endLocation,
                                   tree_node attributes, tree_node statements,
                                   OOP currentEnvironment, OOP currentClass,
                                   OOP currentCategory,
-                                  mst_Boolean isOldSyntax) ATTRIBUTE_HIDDEN;
+                                  bool isOldSyntax) ATTRIBUTE_HIDDEN;
 
 /* Create an expr_node to be passed to _gst_make_method for a unary
    selector, or representing a send of a unary message

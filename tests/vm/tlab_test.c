@@ -9,7 +9,7 @@
 void __wrap_nomemory(int fatal);
 void __wrap__gst_scavenge(void);
 void *__wrap_xcalloc(size_t nb, size_t size);
-void __wrap_set_except_flag_for_thread(mst_Boolean value, size_t thread_id);
+void __wrap_set_except_flag_for_thread(bool value, size_t thread_id);
 void __wrap__gst_vm_global_barrier_wait(void);
 void __wrap__gst_vm_end_barrier_wait(void);
 
@@ -35,7 +35,7 @@ void *__wrap_xcalloc(size_t nb, size_t size) {
   return calloc(nb, size);
 }
 
-void __wrap_set_except_flag_for_thread(mst_Boolean value, size_t thread_id) {
+void __wrap_set_except_flag_for_thread(bool value, size_t thread_id) {
   function_called();
 }
 

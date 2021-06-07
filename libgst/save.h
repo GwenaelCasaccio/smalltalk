@@ -57,12 +57,12 @@
 
 /* Try to open FILENAME for output and writing a snapshot to it, and
    return whether the operation succeeded.  */
-extern mst_Boolean _gst_save_to_file (const char *fileName)
+extern bool _gst_save_to_file (const char *fileName)
   ATTRIBUTE_HIDDEN;
 
 /* Try to open FILENAME for input and loading a snapshot from it, and
    return whether the operation succeeded.  */
-extern mst_Boolean _gst_load_from_file (const char *fileName)
+extern bool _gst_load_from_file (const char *fileName)
   ATTRIBUTE_HIDDEN;
 
 #endif /* GST_SAVE_H */

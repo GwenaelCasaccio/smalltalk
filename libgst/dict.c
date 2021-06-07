@@ -63,7 +63,7 @@ typedef struct class_definition {
   OOP *classVar;
   OOP *superClassPtr;
   intptr_t instanceSpec;
-  mst_Boolean reloadAddress;
+  bool reloadAddress;
   int numFixedFields;
   const char *name;
   const char *instVarNames;
@@ -1109,7 +1109,7 @@ void add_file_stream_object(int fd, int access, const char *fileObjectName) {
     instantiate(_gst_file_stream_class, &fileStreamOOP);
 
   _gst_set_file_stream_file(fileStreamOOP, fd, _gst_string_new(fileObjectName),
-                            _gst_is_pipe(fd), access, true);
+                            _gst_is_pipe(fd) ? _gst_true_oop : _gst_false_oop, access, true);
 
   add_smalltalk(fileObjectName, fileStreamOOP);
 }
@@ -1142,7 +1142,7 @@ void create_class(const class_definition *ci) {
   *ci->classVar = classOOP;
 }
 
-mst_Boolean _gst_init_dictionary_on_image_load(mst_Boolean prim_table_matches) {
+bool _gst_init_dictionary_on_image_load(bool prim_table_matches) {
   const class_definition *ci;
 
   _gst_nil_oop = &_gst_mem.ot[256];
@@ -1849,8 +1849,8 @@ void _gst_free_cobject(OOP cObjOOP) {
 }
 
 void _gst_set_file_stream_file(OOP fileStreamOOP, int fd, OOP fileNameOOP,
-                               mst_Boolean isPipe, int access,
-                               mst_Boolean buffered) {
+                               OOP isPipe, int access,
+                               bool buffered) {
   gst_object fileStream;
 
   fileStream = OOP_TO_OBJ(fileStreamOOP);
@@ -1879,8 +1879,7 @@ void _gst_set_file_stream_file(OOP fileStreamOOP, int fd, OOP fileNameOOP,
 
   OBJ_FILE_STREAM_SET_FD(fileStream, FROM_INT(fd));
   OBJ_FILE_STREAM_SET_FILE(fileStream, fileNameOOP);
-  OBJ_FILE_STREAM_SET_IS_PIPE(fileStream,
-      isPipe == -1 ? _gst_nil_oop : isPipe ? _gst_true_oop : _gst_false_oop);
+  OBJ_FILE_STREAM_SET_IS_PIPE(fileStream, isPipe);
 }
 
 /* Profiling callback.  The profiler use a simple data structure

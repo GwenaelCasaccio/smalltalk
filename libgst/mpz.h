@@ -93,10 +93,10 @@ void _gst_mpz_gcd(gst_mpz *, const gst_mpz *, const gst_mpz *) ATTRIBUTE_HIDDEN;
 int _gst_mpz_cmp(const gst_mpz *, const gst_mpz *) ATTRIBUTE_HIDDEN;
 
 /* Convert to double */
-mst_Boolean _gst_mpz_get_d(const gst_mpz *, double *) ATTRIBUTE_HIDDEN;
+bool _gst_mpz_get_d(const gst_mpz *, double *) ATTRIBUTE_HIDDEN;
 
 /* Convert to long double */
-mst_Boolean _gst_mpz_get_ld(const gst_mpz *, long double *) ATTRIBUTE_HIDDEN;
+bool _gst_mpz_get_ld(const gst_mpz *, long double *) ATTRIBUTE_HIDDEN;
 
 /* Multiply an integer by 2**CNT  */
 void _gst_mpz_mul_2exp(gst_mpz *, const gst_mpz *, unsigned) ATTRIBUTE_HIDDEN;

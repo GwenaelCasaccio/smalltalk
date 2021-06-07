@@ -117,7 +117,7 @@ static void set_event_loop_state (enum event_loop_state state);
 static enum event_loop_state cur_state = STATE_RUNNING;
 
 /* The current event loop handlers.  */
-static mst_Boolean (*event_poll) (int);
+static bool (*event_poll) (int);
 static void (*event_dispatch) (void);
 
 /* Whether event loop handlers have been set, and the event loop
@@ -289,7 +289,7 @@ _gst_dispatch_events (void)
 }
 
 void
-_gst_idle (mst_Boolean blocking)
+_gst_idle (bool blocking)
 {
   event_loop_lock ();
   set_event_loop_state (STATE_IDLE);
@@ -303,8 +303,8 @@ _gst_idle (mst_Boolean blocking)
     _gst_usleep (EVENT_LOOP_POLL_INTERVAL * 1000);
 }
 
-mst_Boolean
-_gst_set_event_loop_handlers(mst_Boolean (*poll) (int ms),
+bool
+_gst_set_event_loop_handlers(bool (*poll) (int ms),
                              void (*dispatch) (void))
 {
   if (!have_event_loop_handlers)

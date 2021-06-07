@@ -15,7 +15,7 @@ extern pthread_cond_t _gst_vm_barrier_cond;
 extern pthread_mutex_t _gst_vm_barrier_mutex;
 
 /* return true if I am the first you acquired the lock */
-extern mst_Boolean _gst_vm_barrier_wait(void);
+extern bool _gst_vm_barrier_wait(void);
 
 /* Count the interpreter threads that reached the barrier */
 extern volatile _Atomic(size_t) _gst_count_end_locked_vm;
@@ -25,7 +25,7 @@ extern pthread_cond_t _gst_vm_end_barrier_cond;
 extern pthread_mutex_t _gst_vm_end_barrier_mutex;
 
 /* return true if I am the first you acquired the lock */
-extern mst_Boolean _gst_vm_end_barrier_wait(void);
+extern bool _gst_vm_end_barrier_wait(void);
 
 extern void _gst_vm_global_barrier_wait(void);
 

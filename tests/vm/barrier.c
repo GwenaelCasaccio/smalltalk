@@ -21,7 +21,7 @@ int test_initial_state() {
 }
 
 int test_barrier_wait_without_thread() {
-  mst_Boolean res;
+  bool res;
 
   res = _gst_vm_barrier_wait();
   if (!res) {

@@ -79,7 +79,7 @@ _gst_sigvtalrm_every (int deltaMilli,
 
 #ifdef HAVE_TIMER_CREATE
 static timer_t timer;
-static mst_Boolean have_timer;
+static bool have_timer;
 #endif
 
 void

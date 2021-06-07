@@ -71,7 +71,7 @@ dummy_signal_handler (int sig)
 int _gst_signal_count;
 
 void
-_gst_disable_interrupts (mst_Boolean from_signal_handler)
+_gst_disable_interrupts (bool from_signal_handler)
 {
   __sync_synchronize ();
   if (_gst_signal_count++ == 0)
@@ -84,7 +84,7 @@ _gst_disable_interrupts (mst_Boolean from_signal_handler)
 }
 
 void
-_gst_enable_interrupts (mst_Boolean from_signal_handler)
+_gst_enable_interrupts (bool from_signal_handler)
 {
   int i;
   long local_pending_sigs;

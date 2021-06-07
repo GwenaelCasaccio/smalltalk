@@ -161,7 +161,7 @@ void gst_process_stdin (const char *prompt)
   _gst_process_stdin (prompt);
 }
 
-mst_Boolean
+bool
 gst_process_file (const char *fileName, enum gst_file_dir dir)
 {
   return _gst_process_file (fileName, dir);
@@ -408,8 +408,8 @@ gst_async_signal_and_unregister (OOP semaphore_oop)
   _gst_async_signal_and_unregister (semaphore_oop);
 }
 
-mst_Boolean
-gst_sync_signal (OOP semaphore_oop, mst_Boolean incr_if_empty)
+bool
+gst_sync_signal (OOP semaphore_oop, bool incr_if_empty)
 {
   return _gst_sync_signal (semaphore_oop, incr_if_empty);
 }
@@ -426,8 +426,8 @@ gst_show_backtrace (FILE *fp)
   _gst_show_backtrace (fp);
 }
 
-mst_Boolean
-gst_dlopen (const char *filename, mst_Boolean module)
+bool
+gst_dlopen (const char *filename, bool module)
 {
   return _gst_dlopen (filename, module);
 }
@@ -516,13 +516,13 @@ gst_get_superclass (OOP oop)
   return _gst_get_superclass (oop);
 }
 
-mst_Boolean
+bool
 gst_class_is_kind_of (OOP oop, OOP candidate)
 {
   return _gst_class_is_kind_of (oop, candidate);
 }
 
-mst_Boolean
+bool
 gst_object_is_kind_of (OOP oop, OOP candidate)
 {
   return _gst_object_is_kind_of (oop, candidate);
@@ -540,18 +540,18 @@ gst_perform_with (OOP oop, OOP selector, OOP arg)
   return _gst_perform_with (oop, selector, arg);
 }
 
-mst_Boolean
+bool
 gst_class_implements_selector (OOP class_oop, OOP selector)
 {
   return _gst_class_implements_selector (class_oop, selector);
 }
 
-mst_Boolean gst_class_can_understand (OOP class_oop, OOP selector)
+bool gst_class_can_understand (OOP class_oop, OOP selector)
 {
   return _gst_class_can_understand (class_oop, selector);
 }
 
-mst_Boolean
+bool
 gst_responds_to (OOP oop, OOP selector)
 {
   return _gst_responds_to (oop, selector);
@@ -603,8 +603,8 @@ gst_relocate_path (const char *path)
 
 
 /* Functions in events.h.  */
-mst_Boolean
-gst_set_event_loop_handlers(mst_Boolean (*poll) (int ms),
+bool
+gst_set_event_loop_handlers(bool (*poll) (int ms),
 			    void (*dispatch) (void))
 {
   return _gst_set_event_loop_handlers(poll, dispatch);

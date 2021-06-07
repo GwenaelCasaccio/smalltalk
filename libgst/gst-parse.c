@@ -68,7 +68,7 @@ typedef enum expr_kinds {
 /* Used to communicate with the #methodsFor: primitive.  */
 gst_parser *_gst_current_parser;
 
-static inline mst_Boolean is_unlikely_selector (const char *);
+static inline bool is_unlikely_selector (const char *);
 
 /* Lexer interface.  */
 
@@ -81,7 +81,7 @@ static inline YYSTYPE *val (gst_parser *p, int n);
 static inline YYLTYPE *loc (gst_parser *p, int n);
 static inline void lex_must_be (gst_parser *p, int req_token);
 static inline void lex_skip_mandatory (gst_parser *p, int req_token);
-static inline mst_Boolean lex_skip_if (gst_parser *p, int req_token, mst_Boolean fail_at_eof);
+static inline bool lex_skip_if (gst_parser *p, int req_token, bool fail_at_eof);
 
 /* Error recovery.  */
 
@@ -102,8 +102,8 @@ static OOP make_attribute (gst_parser *p,
 
 static void parse_chunks (gst_parser *p);
 static void parse_doit (gst_parser *p,
-			mst_Boolean fail_at_eof);
-static mst_Boolean parse_scoped_definition (gst_parser *p, 
+			bool fail_at_eof);
+static bool parse_scoped_definition (gst_parser *p, 
 					    tree_node first_stmt);
 
 
@@ -111,12 +111,12 @@ static void parse_eval_definition (gst_parser *p);
 
 static void parse_and_send_attribute (gst_parser *p,
                                       OOP receiverOOP,
-                                      mst_Boolean forClass);
-static mst_Boolean parse_namespace_definition (gst_parser *p,
+                                      bool forClass);
+static bool parse_namespace_definition (gst_parser *p,
 					       tree_node first_stmt);
-static mst_Boolean parse_class_definition (gst_parser *p,
+static bool parse_class_definition (gst_parser *p,
 					   OOP classOOP,	
-					   mst_Boolean extend);
+					   bool extend);
 static OOP parse_namespace (gst_parser *p,
 			    tree_node name);
 static OOP parse_class (gst_parser *p,
@@ -125,7 +125,7 @@ static void parse_scoped_method (gst_parser *p,
 				 OOP classOOP);
 static void parse_instance_variables (gst_parser *p,
 				      OOP classOOP,	
-				      mst_Boolean extend);
+				      bool extend);
 
 static void parse_method_list (gst_parser *p);
 static void parse_method (gst_parser *p,
@@ -137,17 +137,17 @@ static tree_node parse_attributes (gst_parser *p,
 				  tree_node prev_attrs);
 static tree_node parse_attribute (gst_parser *p);
 static tree_node parse_temporaries (gst_parser *p,
-				    mst_Boolean implied_pipe);
+				    bool implied_pipe);
 static tree_node parse_statements (gst_parser *p,
 				   tree_node first_stmt,
-				   mst_Boolean accept_caret);
+				   bool accept_caret);
 static tree_node parse_required_expression (gst_parser *p);
 static tree_node parse_expression (gst_parser *p,
 				   enum expr_kinds kind);
 static tree_node parse_primary (gst_parser *p);
 static tree_node parse_variable_primary (gst_parser *p);
 static tree_node parse_literal (gst_parser *p,
-				mst_Boolean array);
+				bool array);
 static tree_node parse_array_literal (gst_parser *p);
 static tree_node parse_builtin_identifier (gst_parser *p);
 static tree_node parse_byte_array_literal (gst_parser *p);
@@ -268,8 +268,8 @@ lex_skip_mandatory (gst_parser *p, int req_token)
 /* Lexer interface.  If the next token is REQ_TOKEN, eat it and return true;
    otherwise return false.  */
 
-static inline mst_Boolean
-lex_skip_if (gst_parser *p, int req_token, mst_Boolean fail_at_eof)
+static inline bool
+lex_skip_if (gst_parser *p, int req_token, bool fail_at_eof)
 {
   if (token (p, 0) != req_token)
     {
@@ -551,10 +551,10 @@ recover_error (gst_parser *p)
 static OOP
 execute_doit (gst_parser *p, tree_node temps, tree_node stmts,
               OOP receiverOOP,
-	      mst_Boolean undeclared, mst_Boolean quiet)
+	      bool undeclared, bool quiet)
 {
   tree_node method;
-  mst_Boolean in_class;
+  bool in_class;
   OOP resultOOP;
   inc_ptr incPtr;
 
@@ -603,10 +603,10 @@ execute_doit (gst_parser *p, tree_node temps, tree_node stmts,
    | empty */
 
 static void
-parse_doit (gst_parser *p, mst_Boolean fail_at_eof)
+parse_doit (gst_parser *p, bool fail_at_eof)
 {
   tree_node statement = NULL;
-  mst_Boolean caret;
+  bool caret;
 
   if (token (p, 0) == '|')
     parse_temporaries (p, false);
@@ -648,7 +648,7 @@ parse_doit (gst_parser *p, mst_Boolean fail_at_eof)
    | class_definition 
    | namespace_definition */
 
-static mst_Boolean
+static bool
 parse_scoped_definition (gst_parser *p, tree_node first_stmt)
 {	
   OOP classOOP = NULL;
@@ -693,7 +693,7 @@ parse_scoped_definition (gst_parser *p, tree_node first_stmt)
 	   && first_stmt->v_expr.selector == _gst_intern_string ("extend"))
     {
       OOP classOrMetaclassOOP = NULL;
-      mst_Boolean ret_value;
+      bool ret_value;
 
       if (receiver->nodeType == TREE_VARIABLE_NODE)
  	{
@@ -817,7 +817,7 @@ make_attribute (gst_parser *p, OOP classOOP, tree_node attribute_keywords)
 
 
 static void
-parse_and_send_attribute (gst_parser *p, OOP receiverOOP, mst_Boolean forClass)
+parse_and_send_attribute (gst_parser *p, OOP receiverOOP, bool forClass)
 {
   tree_node keywords;
 
@@ -842,7 +842,7 @@ parse_and_send_attribute (gst_parser *p, OOP receiverOOP, mst_Boolean forClass)
 }
 
 
-static mst_Boolean
+static bool
 parse_namespace_definition (gst_parser *p, tree_node first_stmt)
 {      
   tree_node expr = first_stmt->v_expr.expression;
@@ -869,10 +869,10 @@ parse_namespace_definition (gst_parser *p, tree_node first_stmt)
   return false;
 }
 
-static mst_Boolean
-parse_class_definition (gst_parser *p, OOP classOOP, mst_Boolean extend)
+static bool
+parse_class_definition (gst_parser *p, OOP classOOP, bool extend)
 {
-  mst_Boolean add_inst_vars = extend;
+  bool add_inst_vars = extend;
 
   for (;;)
     {
@@ -1094,7 +1094,7 @@ parse_scoped_method (gst_parser *p, OOP classOOP)
 {
   OOP class, classInstanceOOP;
   tree_node class_node;
-  mst_Boolean class_method = false;
+  bool class_method = false;
 
   class_node = parse_variable_primary (p);
   class = parse_class (p, class_node);
@@ -1256,7 +1256,7 @@ parse_namespace (gst_parser *p, tree_node list)
    | empty */
 
 static void
-parse_instance_variables (gst_parser *p, OOP classOOP, mst_Boolean extend)
+parse_instance_variables (gst_parser *p, OOP classOOP, bool extend)
 {
   char *out = NULL;
   char *out_tmp = NULL;
@@ -1521,7 +1521,7 @@ parse_attribute (gst_parser *p)
    | empty */
 
 static tree_node
-parse_temporaries (gst_parser *p, mst_Boolean implied_pipe)
+parse_temporaries (gst_parser *p, bool implied_pipe)
 {
   tree_node temps = NULL;
   if (!implied_pipe && !lex_skip_if (p, '|', false))
@@ -1549,10 +1549,10 @@ parse_temporaries (gst_parser *p, mst_Boolean implied_pipe)
    | empty */
 
 static tree_node
-parse_statements (gst_parser *p, tree_node first_stmt, mst_Boolean accept_caret)
+parse_statements (gst_parser *p, tree_node first_stmt, bool accept_caret)
 {
   tree_node stmts, stmt;
-  mst_Boolean caret;
+  bool caret;
 
   if (first_stmt)
     {
@@ -1741,7 +1741,7 @@ parse_variable_primary (gst_parser *p)
    | '#' '#' compile_time_constant */
 
 static tree_node
-parse_literal (gst_parser *p, mst_Boolean array)
+parse_literal (gst_parser *p, bool array)
 {
   tree_node node;
   int ival;
@@ -2029,7 +2029,7 @@ parse_block (gst_parser *p)
 {
   YYLTYPE location = *loc(p,0);
   tree_node vars, temps, stmts;
-  mst_Boolean implied_pipe;
+  bool implied_pipe;
 
   assert (token (p, 0) == '[');
   lex (p);
@@ -2300,7 +2300,7 @@ parse_keyword_list (gst_parser *p, enum expr_kinds kind)
 
    ... but using gperf is more cool :-) */
 
-mst_Boolean
+bool
 is_unlikely_selector (register const char *str)
 {
   /* The first-character table is big enough that

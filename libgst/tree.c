@@ -118,7 +118,7 @@ tree_node _gst_make_method(YYLTYPE *location, YYLTYPE *endLocation,
                            tree_node selectorExpr, tree_node temporaries,
                            tree_node attributes, tree_node statements,
                            OOP currentEnvironment, OOP currentClass,
-                           OOP currentCategory, mst_Boolean isOldSyntax) {
+                           OOP currentCategory, bool isOldSyntax) {
   tree_node result;
 
   result = make_tree_node(location, TREE_METHOD_NODE);

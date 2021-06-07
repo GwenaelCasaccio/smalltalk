@@ -232,19 +232,19 @@ extern OOP _gst_get_object_class (OOP oop)
   ATTRIBUTE_HIDDEN;
 extern OOP _gst_get_superclass (OOP oop)
   ATTRIBUTE_HIDDEN;
-extern mst_Boolean _gst_class_is_kind_of (OOP candidate, OOP superclass)
+extern bool _gst_class_is_kind_of (OOP candidate, OOP superclass)
   ATTRIBUTE_HIDDEN;
-extern mst_Boolean _gst_object_is_kind_of (OOP candidate, OOP superclass)
+extern bool _gst_object_is_kind_of (OOP candidate, OOP superclass)
   ATTRIBUTE_HIDDEN;
 extern OOP _gst_perform (OOP receiver, OOP selector)
   ATTRIBUTE_HIDDEN;
 extern OOP _gst_perform_with (OOP receiver, OOP selector, OOP arg)
   ATTRIBUTE_HIDDEN;
-extern mst_Boolean _gst_class_implements_selector (OOP classOOP, OOP selector)
+extern bool _gst_class_implements_selector (OOP classOOP, OOP selector)
   ATTRIBUTE_HIDDEN;
-extern mst_Boolean _gst_class_can_understand (OOP classOOP, OOP selector)
+extern bool _gst_class_can_understand (OOP classOOP, OOP selector)
   ATTRIBUTE_HIDDEN;
-extern mst_Boolean _gst_responds_to (OOP oop, OOP selector)
+extern bool _gst_responds_to (OOP oop, OOP selector)
   ATTRIBUTE_HIDDEN;
 extern size_t _gst_oop_size (OOP oop)
   ATTRIBUTE_HIDDEN;

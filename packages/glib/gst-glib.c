@@ -152,7 +152,7 @@ main_loop_dispatch (void)
   g_main_context_release (context);
 }
 
-static mst_Boolean
+static bool
 main_loop_poll (int ms)
 {
   GMainContext *context;

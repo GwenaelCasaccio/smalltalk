@@ -76,7 +76,7 @@ static sigset_t oldSet;
 int _gst_signal_count;
 
 void
-_gst_disable_interrupts (mst_Boolean from_signal_handler)
+_gst_disable_interrupts (bool from_signal_handler)
 {
   sigset_t newSet;
 
@@ -98,7 +98,7 @@ _gst_disable_interrupts (mst_Boolean from_signal_handler)
 }
 
 void
-_gst_enable_interrupts (mst_Boolean from_signal_handler)
+_gst_enable_interrupts (bool from_signal_handler)
 {
   __sync_synchronize ();
   if (--_gst_signal_count == 0)

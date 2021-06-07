@@ -150,11 +150,11 @@ extern thread_local int _gst_execution_tracing ATTRIBUTE_HIDDEN;
 /* When this is true, and an interrupt occurs (such as SIGSEGV),
    Smalltalk will terminate itself by making a core dump (normally it
    produces a backtrace).  */
-extern mst_Boolean _gst_make_core_file ATTRIBUTE_HIDDEN;
+extern bool _gst_make_core_file ATTRIBUTE_HIDDEN;
 
 /* When true, this indicates that there is no top level loop for
    control to return to, so it causes the system to exit.  */
-extern mst_Boolean _gst_non_interactive ATTRIBUTE_HIDDEN;
+extern bool _gst_non_interactive ATTRIBUTE_HIDDEN;
 
 /* The OOP for a gst_compiled_method or gst_compiled_block that is the
    currently executing method.  */
@@ -216,11 +216,11 @@ extern const char *_gst_abort_execution ATTRIBUTE_HIDDEN;
 /* Set to true when some special action must be done at the next
    sequence point.  */
 #ifdef ENABLE_JIT_TRANSLATION
-extern mst_Boolean _gst_except_flag ATTRIBUTE_HIDDEN;
+extern bool _gst_except_flag ATTRIBUTE_HIDDEN;
 #endif
 
 extern void global_lock_for_gc(void) ATTRIBUTE_HIDDEN;
-extern void set_except_flag_for_thread(mst_Boolean reset, size_t thread_id) ATTRIBUTE_HIDDEN;
+extern void set_except_flag_for_thread(bool reset, size_t thread_id) ATTRIBUTE_HIDDEN;
 
 /* Create a new Process on the top of the stack, which is specially
    marked so that it stops the interpreter's execution.  This kind
@@ -269,7 +269,7 @@ extern void _gst_init_context(void) ATTRIBUTE_HIDDEN;
 extern void _gst_empty_context_pool(void) ATTRIBUTE_HIDDEN;
 
 /* Return whether there are pending asynchronous calls.  */
-extern mst_Boolean _gst_have_pending_async_calls(void) ATTRIBUTE_HIDDEN;
+extern bool _gst_have_pending_async_calls(void) ATTRIBUTE_HIDDEN;
 
 /* Set up so that FUNC will be called, with ARGOOP as its argument,
    as soon as the next sequence point is reached.  */
@@ -378,10 +378,10 @@ extern void _gst_terminate_process(OOP processOOP) ATTRIBUTE_HIDDEN;
 
 /* This is a further simplified lookup_method which does not care
    about preparing for #doesNotUnderstand:.  */
-extern mst_Boolean _gst_find_method(OOP classOOP, OOP sendSelector,
+extern bool _gst_find_method(OOP classOOP, OOP sendSelector,
                                     method_cache_entry *mce) ATTRIBUTE_HIDDEN;
 
-extern mst_Boolean _gst_send_cannot_interpret_message(OOP sendSelector, 
+extern bool _gst_send_cannot_interpret_message(OOP sendSelector, 
                                                       method_cache_entry *mce,
                                                       int sendArgs, 
                                                       OOP method_class) ATTRIBUTE_HIDDEN;
@@ -409,8 +409,8 @@ extern void _gst_sync_wait(OOP semaphoreOOP) ATTRIBUTE_HIDDEN;
    This functions also cannot be called from within a signal handler.
    It can be called from a function that is registered with
    _gst_async_call, though.  */
-extern mst_Boolean _gst_sync_signal(OOP semaphoreOOP,
-                                    mst_Boolean incr_if_empty) ATTRIBUTE_HIDDEN;
+extern bool _gst_sync_signal(OOP semaphoreOOP,
+                                    bool incr_if_empty) ATTRIBUTE_HIDDEN;
 
 /* Take a CompiledBlock and turn it into a BlockClosure that references
    thisContext as its static link.  */

@@ -205,7 +205,7 @@ _gst_async_timed_wait (OOP semaphoreOOP,
   _gst_sigalrm_at (milliTime);
 }
 
-mst_Boolean
+bool
 _gst_is_timeout_programmed (void)
 {
   return (!IS_NIL (no_opt (_gst_sem_int_vec[SIGALRM].data)));
@@ -213,7 +213,7 @@ _gst_is_timeout_programmed (void)
 
 void
 _gst_register_socket (int fd,
-		      mst_Boolean passive)
+		      bool passive)
 {
 }
 
@@ -265,7 +265,7 @@ _gst_sync_file_polling (int fd,
 }
 
 static void
-signal_polled_files (int fd, mst_Boolean try_again)
+signal_polled_files (int fd, bool try_again)
 {
   polling_queue *node, **pprev;
   int n, more;

@@ -85,7 +85,7 @@
   {                                                                            \
     OOP oop1;                                                                  \
     OOP oop2;                                                                  \
-    mst_Boolean overflow;                                                      \
+    bool overflow;                                                      \
     oop2 = POP_OOP();                                                          \
     oop1 = POP_OOP();                                                          \
     if COMMON (RECEIVER_IS_INT(oop1) && IS_INT(oop2)) {                        \
@@ -4141,7 +4141,7 @@ static intptr_t VMpr_Float_pow(int id, volatile int numArgs) {
   OOP oop2;
   double farg1, farg2;
   long double lfarg1, lfarg2;
-  mst_Boolean long_double = false;
+  bool long_double = false;
 
   _gst_primitives_executed++;
 
@@ -4822,7 +4822,7 @@ static intptr_t VMpr_Object_makeReadOnly(int id, volatile int numArgs) {
 static intptr_t VMpr_Behavior_primCompile(int id, volatile int numArgs) {
   OOP oop1;
   OOP oop2;
-  mst_Boolean interrupted;
+  bool interrupted;
   _gst_primitives_executed++;
 
   oop2 = POP_OOP();
@@ -4854,8 +4854,8 @@ static intptr_t VMpr_Behavior_primCompileIfError(int id, volatile int numArgs) {
   oop2 = POP_OOP();
   oop1 = POP_OOP();
   if (IS_CLASS(oop3, _gst_block_closure_class)) {
-    mst_Boolean oldReportErrors = _gst_report_errors;
-    mst_Boolean interrupted;
+    bool oldReportErrors = _gst_report_errors;
+    bool interrupted;
 
     if (oldReportErrors) {
       /* only clear out these guys on first transition */
@@ -4944,7 +4944,7 @@ static intptr_t VMpr_ObjectMemory_snapshot(int id, volatile int numArgs) {
 
   oop2 = POP_OOP();
   if (IS_CLASS(oop2, _gst_string_class)) {
-    mst_Boolean success;
+    bool success;
     fileName = _gst_to_cstring(oop2);
     errno = 0;
 
@@ -5013,7 +5013,7 @@ static intptr_t VMpr_Stream_fileInLine(int id, volatile int numArgs) {
 
   if (IS_INT(oop1) &&
       (IS_NIL(oop3) || (IS_CLASS(oop3, _gst_string_class) && IS_INT(oop4)))) {
-    mst_Boolean interrupted;
+    bool interrupted;
     intptr_t arg1 = TO_INT(oop1);
     intptr_t arg4 = TO_INT(oop4);
 
@@ -5057,7 +5057,7 @@ static intptr_t VMpr_FileDescriptor_fileOp(int id, volatile int numArgs) {
   switch (arg1) {
   case PRIM_OPEN_FILE:
   case PRIM_OPEN_PIPE: {
-    int is_pipe = false;
+    OOP is_pipe = _gst_false_oop;
     char *fileMode = NULL;
     int access = 0;
     struct stat st;
@@ -5074,14 +5074,14 @@ static intptr_t VMpr_FileDescriptor_fileOp(int id, volatile int numArgs) {
       memset(&st, 0, sizeof(st));
       fstat(fd, &st);
       is_pipe = S_ISFIFO(st.st_mode)
-                    ? true
-                    : S_ISREG(st.st_mode) && st.st_size > 0 ? false : -1;
+                    ? _gst_true_oop
+                    : S_ISREG(st.st_mode) && st.st_size > 0 ? _gst_false_oop : _gst_nil_oop;
     }
 
     else {
       fileMode = _gst_to_cstring(oopVec[2]);
       fd = _gst_open_pipe(fileName, fileMode);
-      is_pipe = true;
+      is_pipe = _gst_true_oop;
     }
 
     if (fileMode) {
@@ -5112,7 +5112,7 @@ static intptr_t VMpr_FileDescriptor_fileOp(int id, volatile int numArgs) {
       goto fail;
     }
 
-    _gst_set_file_stream_file(oop1, fd, _gst_string_new(fileName2), false,
+    _gst_set_file_stream_file(oop1, fd, _gst_string_new(fileName2), _gst_false_oop,
                               O_RDWR, false);
 
     xfree(fileName2);

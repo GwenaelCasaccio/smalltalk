@@ -216,7 +216,7 @@ constantFunction(aiAddrconfig, AI_ADDRCONFIG)
 
 #if defined SOCK_CLOEXEC && !defined __MSVCRT__
     /* 0 = unknown, 1 = yes, -1 = no.  */
-    static mst_Boolean have_sock_cloexec;
+    static int have_sock_cloexec;
 
 /* Return 0 if the operation failed and an error can be returned
    by the caller.  */
@@ -267,9 +267,6 @@ static int mySocket(int domain, int type, int protocol) {
    entire sa_family field. */
 static inline void fix_sockaddr(struct sockaddr *sockaddr, socklen_t len) {
 #ifndef HAVE_STRUCT_SOCKADDR_SA_LEN
-  /* Make sure sa_family is a short.  */
-  char verify[sizeof(sockaddr->sa_family) == 2 ? 1 : -1];
-
   if (len >= 2)
     sockaddr->sa_family = ((unsigned char *)sockaddr)[1];
 #endif

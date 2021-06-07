@@ -230,8 +230,8 @@ typedef struct compiler_state
   int line_offset;
   int prev_line;
   scope cur_scope;
-  mst_Boolean inside_block;
-  mst_Boolean undeclared_temporaries;
+  uint8_t inside_block;
+  bool undeclared_temporaries;
   int inc_depth;
   OOP *literal_vec;
   OOP *literal_vec_curr;
@@ -267,7 +267,7 @@ extern int _gst_declare_tracing
 /* If true, the compilation of a set of methods will be skipped
    completely; only syntax will be checked.  Set by primitive, cleared
    by grammar.  */
-extern mst_Boolean _gst_skip_compilation 
+extern bool _gst_skip_compilation 
   ATTRIBUTE_HIDDEN;
 
 /* Given a tree_node of type TREE_KEYWORD_LIST, pick out and concatenate
@@ -286,8 +286,8 @@ extern OOP _gst_make_constant_oop (tree_node constExpr);
    METHOD.  Return the object that was returned by the expression.  */
 extern OOP _gst_execute_statements (OOP receiverOOP,
 				    tree_node method,
-				    mst_Boolean undeclaredTemps,
-				    mst_Boolean quiet)
+				    bool undeclaredTemps,
+				    bool quiet)
   ATTRIBUTE_HIDDEN;
 
 /* This routine does a very interesting thing.  It installs the inital
@@ -323,9 +323,9 @@ extern void _gst_invoke_hook (enum gst_vm_hook hook)
    installs it in the current method dictionary with the selector
    derived from the method expression.  */
 extern OOP _gst_compile_method (tree_node method,
-				mst_Boolean returnLast,
-				mst_Boolean install,
-                                mst_Boolean undeclaredTemps) 
+				bool returnLast,
+				bool install,
+                                bool undeclaredTemps) 
   ATTRIBUTE_HIDDEN;
 
 /* Constructs and returns a new CompiledMethod instance.  It computes
