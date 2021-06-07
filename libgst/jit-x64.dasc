@@ -4,9 +4,6 @@
 #include "dynasm/dasm_proto.h"
 #include "dynasm/dasm_x86.h"
 
-static void *compile(OOP compiled_code_oop);
-
-
 static void *link_and_encode(dasm_State** d)
 {
   size_t sz;
@@ -22,7 +19,7 @@ void *compile(OOP compiled_code_oop) {
 
   if (!is_a_kind_of(OOP_CLASS(compiled_code_oop), _gst_compiled_method_class) &&
       OOP_CLASS(compiled_code_oop) != _gst_compiled_block_class) {
-    return;
+    return NULL;
   }
 
   /* TODO: Compiled Block!!! */
@@ -4517,6 +4514,7 @@ goto MATCH_BYTECODES_SWITCH_JIT;
 
 MATCH_BYTECODES_JIT_STORE_TEMPORARY_VARIABLE:
 {
+  int foo = n + 3;
   | mov rax, [r10]
   | mov [rsi + foo * 8], rax
 }

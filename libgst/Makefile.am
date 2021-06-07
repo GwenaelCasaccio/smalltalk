@@ -57,7 +57,7 @@ noinst_HEADERS = 																												\
 	sysdep/win32/findexec.c sysdep/win32/mem.c sysdep/win32/signals.c 		\
 	sysdep/win32/time.c sysdep/win32/timer.c sysdep/posix/events.c 				\
 	sysdep/win32/events.c sysdep/cygwin/events.c 													\
-  heap/heap.h						heap/tlab.h																			\
+  heap/heap.h						heap/tlab.h		jit.h															\
 	$(BUILT_SOURCES)
 
 # rules for invoking gperf
