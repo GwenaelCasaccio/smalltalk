@@ -15,7 +15,7 @@ static void *link_and_encode(dasm_State** d)
   return buf;
 }
 
-void *compile(OOP compiled_code_oop) {
+dasm_State *compile(OOP compiled_code_oop) {
 
   if (!is_a_kind_of(OOP_CLASS(compiled_code_oop), _gst_compiled_method_class) &&
       OOP_CLASS(compiled_code_oop) != _gst_compiled_block_class) {
@@ -4617,6 +4617,8 @@ goto MATCH_BYTECODES_SWITCH_JIT;
 MATCH_BYTECODES_END_JIT_:
 
 
-		return link_and_encode(&dasm_state);
+		//return link_and_encode(&dasm_state);
+
+    return dasm_state;
 }
 

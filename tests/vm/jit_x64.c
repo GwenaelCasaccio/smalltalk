@@ -18,8 +18,11 @@ OOP _gst_compiled_block_class = NULL;
 OOP array(size_t items)
 {
   OOP array_oop = malloc(sizeof(*array_oop));
+  gst_object foo = malloc(1024);
 
+  OBJ_SET_SIZE(foo, FROM_INT(0));
   OOP_SET_FLAGS(array_oop, 0);
+  OOP_SET_OBJECT(array_oop, foo);
 
   return array_oop;
 }
@@ -54,16 +57,23 @@ int main(int argc, const char **argv) {
     }
 
   OOP compiled_code = compiled_code_builder(array(0));
-  dasm_State **result = compile(compiled_code);
+  dasm_State *result = compile(compiled_code);
 
   size_t instructionSize;
   void* buf;
-  dasm_link(result, &instructionSize);
+  dasm_link(&result, &instructionSize);
   buf = malloc(instructionSize);
-  dasm_encode(result, buf);
+  dasm_encode(&result, buf);
 
-  uc_mem_map(uc, ADDRESS, 1024, UC_PROT_ALL);
-  if (uc_mem_write(uc, ADDRESS, buf, instructionSize - 1))
+  err = uc_mem_map(uc, ADDRESS, 4096, UC_PROT_ALL);
+  if (err != UC_ERR_OK)
+    {
+      printf("Failed to map memory, quit!\n");
+      return -1;
+    }
+
+  err = uc_mem_write(uc, ADDRESS, buf, instructionSize);
+  if (err != UC_ERR_OK)
     {
       printf("Failed to write emulation code to memory, quit!\n");
       return -1;
