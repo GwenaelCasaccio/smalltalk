@@ -128,7 +128,7 @@ make_node_tag (const char *p)
   char *tmp;
   int len;
   OOP tagOOP, nsOOP, typeOOP, qualOOP;
-  mst_Object tagObj;
+  gst_object tagObj;
 
   q = strchr (p, '\n');
   r = q ? strchr (q, '\n') : NULL;
@@ -174,7 +174,7 @@ static OOP
 make_attribute (const char **attr)
 {
   OOP attributeOOP, nameOOP, valueOOP;
-  mst_Object obj;
+  gst_object obj;
   size_t n;
 
   nameOOP = make_node_tag (attr[0]);
@@ -201,7 +201,7 @@ make_event (OOP parserOOP, OOP classOOP, ...)
   OOP sentinelOOP;
   XMLExpatPullParser parserObj;
   SAXEventSequence pendingObj, sentinelObj;
-  mst_Object obj;
+  gst_object obj;
   int i;
 
   eventOOP = vmProxy->objectAlloc (classOOP, 0);
@@ -222,7 +222,7 @@ make_event (OOP parserOOP, OOP classOOP, ...)
   /* Sometimes, expat will return more than one event.  In this case, the
      first will go into currentEventOOP, but the others will go in a
      circular linked list whose sentinel node is in pendingEventOOP.
-     
+
      Using a circular linked list makes it very simple to add new events
      at the end without storing HEAD and TAIL of the list.  To add a new
      node at the end, we put the event in the current sentinel node
@@ -262,7 +262,7 @@ gst_StartElementHandler (void *userData,
   for (i = 0; *atts; i++, atts += 2)
     {
       OOP attributeOOP = make_attribute (atts);
-      mst_Object attributesObj = OOP_TO_OBJ (attributesArray);
+      gst_object attributesObj = OOP_TO_OBJ (attributesArray);
       attributesObj->data[i] = attributeOOP;
     }
 

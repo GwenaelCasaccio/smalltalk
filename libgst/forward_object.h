@@ -22,7 +22,7 @@ _Static_assert((INITIAL_OOP_TABLE_SIZE & 0x7FFF) == 0, "Forward object table sho
 typedef struct oop_s *OOP;
 
 /* A direct pointer to the object data.  */
-typedef struct object_s *gst_object, *mst_Object;
+typedef struct object_s *gst_object;
 
 /* The contents of an indirect pointer to object data.  */
 struct oop_s
