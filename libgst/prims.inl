@@ -5663,7 +5663,7 @@ static intptr_t VMpr_SystemDictionary_rawProfile(int id, volatile int numArgs) {
 
 static intptr_t VMpr_Random_next(int id, volatile int numArgs) {
   OOP oop1, oop2;
-  mst_Object obj;
+  gst_object obj;
   intptr_t spec;
   uint64_t limit, top;
 
