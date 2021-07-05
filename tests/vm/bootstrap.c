@@ -40,7 +40,11 @@ void __wrap__gst_errorf(const char *str, ...) {
 }
 
 gst_object __wrap__gst_alloc_words(size_t size) {
-  abort();
+  check_expected(size);
+
+  function_called();
+
+  return calloc(size, sizeof(OOP));
 }
 
 void __wrap__gst_init_symbols_pass1(void) {
@@ -128,13 +132,35 @@ static void should_initialize_builtins_objects(void **state) {
   _gst_array_class = (OOP) 0x1234;
   _gst_system_dictionary_class = (OOP) 0x2345;
   _gst_smalltalk_namespace_symbol = (OOP) 0x3456;
+  _gst_processor_scheduler_class = (OOP) 0x6789;
   _gst_nil_oop = (OOP) 0x5678;
 
-  _gst_symbol_table = NULL;
-  _gst_smalltalk_dictionary = NULL;
-  _gst_processor_oop[0] = NULL;
+  _gst_symbol_table = malloc(sizeof(*_gst_symbol_table));
+  OOP_SET_OBJECT(_gst_symbol_table, NULL);
+
+  _gst_smalltalk_dictionary = malloc(sizeof(*_gst_smalltalk_dictionary));
+  OOP_SET_OBJECT(_gst_smalltalk_dictionary, NULL);
+
+  _gst_processor_oop[0] = malloc(sizeof(*_gst_processor_oop[0]));
+  OOP_SET_OBJECT(_gst_processor_oop[0], NULL);
+
+  expect_value(__wrap__gst_alloc_words, size, 515);
+  expect_value(__wrap__gst_alloc_words, size, 520);
+  expect_value(__wrap__gst_alloc_words, size, 11);
+
+  expect_function_calls(__wrap__gst_alloc_words, 3);
 
   init_proto_oops();
+
+  assert_true(OOP_TO_OBJ(_gst_symbol_table) != NULL);
+  assert_true(OBJ_CLASS(OOP_TO_OBJ(_gst_symbol_table)) == _gst_array_class);
+
+  assert_true(OOP_TO_OBJ(_gst_smalltalk_dictionary) != NULL);
+  assert_true(OBJ_CLASS(OOP_TO_OBJ(_gst_smalltalk_dictionary)) == _gst_system_dictionary_class);
+
+  assert_true(OOP_TO_OBJ(_gst_processor_oop[0]) != NULL);
+  assert_true(OBJ_CLASS(OOP_TO_OBJ(_gst_processor_oop[0])) == _gst_processor_scheduler_class);
+  assert_true(OBJ_PROCESSOR_SCHEDULER_GET_VM_THREAD_ID(OOP_TO_OBJ(_gst_processor_oop[0])) == FROM_INT(0));
 }
 
 int main(void) {
