@@ -33,8 +33,7 @@
 
 
 Object subclass: ProcessorScheduler [
-    | processLists activeProcess idleTasks processTimeslice gcSemaphore gcArray
-      eventSemaphore |
+    | processLists activeProcess idleTasks processTimeslice gcSemaphore gcArray eventSemaphore vmThreadId |
     
     <category: 'Language-Processes'>
     <comment: 'I provide methods that control the execution of processes.'>

@@ -62,9 +62,9 @@ $(TESTSUITE): $(srcdir)/testsuite.at $(srcdir)/package.m4 $(srcdir)/local.at
 	$(AUTOTEST) -I '$(srcdir)' -o $@.tmp $@.at
 	mv $@.tmp $@
 
-TESTS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test integration_tlab jit_x64
+TESTS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test integration_tlab jit_x64 object_pointer_test bootstrap_test
 
-check_PROGRAMS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test integration_tlab jit_x64
+check_PROGRAMS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test integration_tlab jit_x64 object_pointer_test bootstrap_test
 
 from_int_SOURCES = vm/from_int.c
 from_int_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV)
@@ -119,4 +119,16 @@ jit_x64_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV) $(CMOCKA_CFLAGS) $(U
 jit_x64_LDADD = $(top_builddir)/libgst/libgst.la $(CMOCKA_LIBS) $(UNICORN_LIBS) $(LIBSNPRINTFV) $(LIBTHREAD) $(top_builddir)/lib-src/library.la @ICON@ -lunicorn
 jit_x64_DEPENDENCIES = $(top_builddir)/libgst/libgst.la $(top_builddir)/lib-src/library.la @ICON@
 jit_x64_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS)
+
+object_pointer_test_SOURCES = vm/object_pointer.c
+object_pointer_test_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV) $(CMOCKA_CFLAGS)
+object_pointer_test_LDADD = $(top_builddir)/libgst/libgst.la $(CMOCKA_LIBS) $(LIBSNPRINTFV) $(LIBTHREAD) $(top_builddir)/lib-src/library.la @ICON@
+object_pointer_test_DEPENDENCIES = $(top_builddir)/libgst/libgst.la $(top_builddir)/lib-src/library.la @ICON@
+object_pointer_test_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS)
+
+bootstrap_test_SOURCES = vm/bootstrap.c
+bootstrap_test_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV) $(CMOCKA_CFLAGS)
+bootstrap_test_LDADD = $(top_builddir)/libgst/libgst.la $(CMOCKA_LIBS) $(LIBSNPRINTFV) $(LIBTHREAD) $(top_builddir)/lib-src/library.la @ICON@
+bootstrap_test_DEPENDENCIES = $(top_builddir)/libgst/libgst.la $(top_builddir)/lib-src/library.la @ICON@
+bootstrap_test_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS) -Wl,--wrap,nomemory -Wl,--wrap,_gst_alloc_obj -Wl,--wrap,_gst_errorf -Wl,--wrap,_gst_alloc_words -Wl,--wrap,_gst_make_class_variable_dictionary -Wl,--wrap,xfree -Wl,--wrap,xmalloc -Wl,--wrap,_gst_inc_grow_registry -Wl,--wrap,_gst_swap_objects -Wl,--wrap,_gst_intern_string -Wl,--wrap,_gst_init_symbols_pass1 -Wl,--wrap,_gst_init_builtin_objects_classes -Wl,--wrap,_gst_init_symbols_pass2 -Wl,--wrap,_gst_tenure_all_survivors -Wl,--wrap,_gst_restore_symbols -Wl,--wrap,_gst_set_primitive_attributes -Wl,--wrap,_gst_set_primitive_attributes -Wl,--wrap,_gst_get_primitive_attributes -Wl,--wrap,_gst_make_instance_variable_array -Wl,--wrap,_gst_relocate_path -Wl,--wrap,_gst_register_oop -Wl,--wrap,_gst_make_pool_array -Wl,--wrap,_gst_init_process_system -Wl,--wrap,_gst_relocate_path -Wl,--wrap,_gst_is_pipe
 
