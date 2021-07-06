@@ -154,13 +154,30 @@ static void should_initialize_builtins_objects(void **state) {
 
   assert_true(OOP_TO_OBJ(_gst_symbol_table) != NULL);
   assert_true(OBJ_CLASS(OOP_TO_OBJ(_gst_symbol_table)) == _gst_array_class);
+  for (size_t i = 0; i < 515 - OBJ_HEADER_SIZE_WORDS; i++) {
+    assert_true(OOP_TO_OBJ(_gst_symbol_table)->data[i] == _gst_nil_oop);
+  }
 
   assert_true(OOP_TO_OBJ(_gst_smalltalk_dictionary) != NULL);
   assert_true(OBJ_CLASS(OOP_TO_OBJ(_gst_smalltalk_dictionary)) == _gst_system_dictionary_class);
+  assert_true(OBJ_NAMESPACE_GET_TALLY(OOP_TO_OBJ(_gst_smalltalk_dictionary)) == FROM_INT(0));
+  for (size_t i = 1; i < 520 - OBJ_HEADER_SIZE_WORDS; i++) {
+    if (i != 2) {
+      assert_true(OOP_TO_OBJ(_gst_smalltalk_dictionary)->data[i] == _gst_nil_oop);
+    } else {
+      assert_true(OBJ_NAMESPACE_GET_NAME(OOP_TO_OBJ(_gst_smalltalk_dictionary)) == _gst_smalltalk_namespace_symbol);
+    }
+  }
 
   assert_true(OOP_TO_OBJ(_gst_processor_oop[0]) != NULL);
   assert_true(OBJ_CLASS(OOP_TO_OBJ(_gst_processor_oop[0])) == _gst_processor_scheduler_class);
-  assert_true(OBJ_PROCESSOR_SCHEDULER_GET_VM_THREAD_ID(OOP_TO_OBJ(_gst_processor_oop[0])) == FROM_INT(0));
+  for (size_t i = 0; i < 11 - OBJ_HEADER_SIZE_WORDS; i++) {
+    if (i != 7) {
+      assert_true(OOP_TO_OBJ(_gst_processor_oop[0])->data[i] == _gst_nil_oop);
+    } else {
+      assert_true(OBJ_PROCESSOR_SCHEDULER_GET_VM_THREAD_ID(OOP_TO_OBJ(_gst_processor_oop[0])) == FROM_INT(0));
+    }
+  }
 }
 
 int main(void) {
