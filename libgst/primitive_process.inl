@@ -73,10 +73,13 @@ static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
   atomic_fetch_add(&_gst_count_threaded_vm, 1);
 
   if ((error = pthread_create(&thread_id, NULL, &start_vm_thread, oop1))) {
-    fprintf(stderr, "failed to create new thread: %s\n", strerror(error));
-    fflush(stderr);
+    perror("failed to create new thread");
 
-    abort();
+    atomic_fetch_add(&_gst_count_threaded_vm, -1);
+
+    _gst_vm_end_barrier_wait();
+
+    PRIM_FAILED;
   }
 
   _gst_vm_end_barrier_wait();

@@ -7,6 +7,7 @@
 #include "libgst/gstpriv.h"
 
 #define PRIM_SUCCEEDED return (false)
+#define PRIM_FAILED return (true)
 
 OOP highest_priority_process(void);
 void change_process_context(OOP newProcess);
@@ -73,16 +74,104 @@ void __wrap_set_except_flag_for_thread(bool reset, size_t thread_id) {
   abort();
 }
 
-static void should_create_new_vm_thread(void **state) {
+int __wrap_pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start_routine) (void *), void *arg) {
+  assert_true(thread != NULL);
+  check_expected(attr);
+  check_expected(start_routine);
+  check_expected(arg);
+
+  function_called();
+
+  return (int) mock();
+}
+
+void __wrap__gst_vm_global_barrier_wait(void) {
+
+  function_called();
+
+  return ;
+}
+
+void __wrap__gst_vm_end_barrier_wait(void) {
+
+  function_called();
+
+  return ;
+}
+
+void __wrap_perror(const char *msg) {
+  assert_true(msg != NULL);
+
+  function_called();
+
+  return ;
+}
+
+static void should_not_create_vm_thread_if_cannot_create_a_thread(void **state) {
 
   (void) state;
 
+  OOP processor = malloc(sizeof(*processor));
+
+  // When
+  current_thread_id = 0;
+  _gst_count_threaded_vm = 1;
+
+  sp[current_thread_id] = &processor;
+
+  // Then
+  expect_function_calls(__wrap__gst_vm_global_barrier_wait, 1);
+
+  expect_value(__wrap_pthread_create, attr, NULL);
+  expect_value(__wrap_pthread_create, start_routine, &start_vm_thread);
+  expect_value(__wrap_pthread_create, arg, processor);
+  will_return(__wrap_pthread_create, 1);
+  expect_function_calls(__wrap_pthread_create, 1);
+
+  expect_function_calls(__wrap_perror, 1);
+
+  expect_function_calls(__wrap__gst_vm_end_barrier_wait, 1);
+
+  intptr_t result = VMpr_Processor_newThread(123, 0);
+
+  assert_true(_gst_count_threaded_vm == 1);
+  assert_true(result == true);
+}
+
+static void should_create_vm_thread(void **state) {
+
+  (void) state;
+
+  OOP processor = malloc(sizeof(*processor));
+
+  // When
+  current_thread_id = 0;
+  _gst_count_threaded_vm = 1;
+
+  sp[current_thread_id] = &processor;
+
+  // Then
+  expect_function_calls(__wrap__gst_vm_global_barrier_wait, 1);
+
+  expect_value(__wrap_pthread_create, attr, NULL);
+  expect_value(__wrap_pthread_create, start_routine, &start_vm_thread);
+  expect_value(__wrap_pthread_create, arg, processor);
+  will_return(__wrap_pthread_create, 0);
+  expect_function_calls(__wrap_pthread_create, 1);
+
+  expect_function_calls(__wrap__gst_vm_end_barrier_wait, 1);
+
+  intptr_t result = VMpr_Processor_newThread(123, 0);
+
+  assert_true(_gst_count_threaded_vm == 2);
+  assert_true(result == false);
 }
 
 int main(void) {
   const struct CMUnitTest tests[] =
     {
-      cmocka_unit_test(should_create_new_vm_thread),
+      cmocka_unit_test(should_not_create_vm_thread_if_cannot_create_a_thread),
+      cmocka_unit_test(should_create_vm_thread),
     };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
