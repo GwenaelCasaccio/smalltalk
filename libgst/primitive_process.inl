@@ -104,10 +104,9 @@ static intptr_t VMpr_Processor_killThread(int id, volatile int numArgs) {
   atomic_fetch_add(&_gst_count_threaded_vm, -1);
 
   if ((error = pthread_cond_signal(&_gst_vm_end_barrier_cond))) {
-    fprintf(stderr, "error while signaling: %s", strerror(error));
-    fflush(stderr);
+    perror("failed signal conditional variable");
 
-    abort();
+    PRIM_FAILED;
   }
 
   pthread_exit(NULL);
