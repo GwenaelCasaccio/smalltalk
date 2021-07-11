@@ -17,7 +17,7 @@ void *start_vm_thread(void *argument) {
   OBJ_PROCESSOR_SCHEDULER_SET_VM_THREAD_ID(OOP_TO_OBJ(_gst_processor_oop[current_thread_id]),
                                            FROM_INT(current_thread_id));
 
-  _gst_mem.tlab_per_thread[current_thread_id] = gst_allocate_in_heap(_gst_mem.gen0, 0);
+  _gst_mem.tlab_per_thread[current_thread_id] = gst_allocate_in_heap(_gst_mem.gen0, current_thread_id);
 
   if (NULL == _gst_mem.tlab_per_thread[current_thread_id]) {
     nomemory(true);
@@ -41,7 +41,8 @@ void *start_vm_thread(void *argument) {
  activeProcess = highest_priority_process();
 
  if (IS_NIL(activeProcess)) {
-   abort();
+   nomemory(1);
+   return NULL;
  }
 
  change_process_context(activeProcess);
