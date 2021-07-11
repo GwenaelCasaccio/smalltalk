@@ -5,12 +5,12 @@ void _gst_heap_new_area(gst_heap_t **heap, size_t generation_size) {
   gst_heap_t *previous_heap = NULL;
 
   if (NULL == heap) {
-    nomemory(1);
+    nomemory(true);
     return ;
   }
 
   if (NULL != *heap) {
-    nomemory(1);
+    nomemory(true);
     return ;
   }
 
@@ -25,7 +25,7 @@ void _gst_heap_new_area(gst_heap_t **heap, size_t generation_size) {
 
     if (posix_memalign((void **)&new_heap, 0x200000, sizeof(gst_heap_t))) {
       perror("error while allocating heap");
-      nomemory(1);
+      nomemory(true);
 
       return;
     }

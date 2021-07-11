@@ -149,7 +149,7 @@ extern char *xstrdup(const char *s) ATTRIBUTE_HIDDEN;
 extern void xfree(PTR p) ATTRIBUTE_HIDDEN;
 
 /* Print an error message, and exit if FATAL is non-zero.  */
-extern void nomemory(int fatal) ATTRIBUTE_HIDDEN;
+extern void nomemory(bool fatal) ATTRIBUTE_HIDDEN;
 
 #define obstack_chunk_alloc xmalloc
 #define obstack_chunk_free xfree
