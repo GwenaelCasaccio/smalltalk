@@ -2701,7 +2701,7 @@ void *start_vm_thread(void *argument) {
   _gst_mem.tlab_per_thread[current_thread_id] = gst_allocate_in_heap(_gst_mem.gen0, 0);
 
   if (NULL == _gst_mem.tlab_per_thread[current_thread_id]) {
-    nomemory(1);
+    nomemory(true);
     return NULL;
   }
 

@@ -629,7 +629,7 @@ static void heap_system_alloc(heap_data *h, size_t sz) {
 
   mem = (heap_block *)morecore(sz);
   if (!mem)
-    nomemory(1);
+    nomemory(true);
   mem->mmap_block = 0;
   mem->size = sz;
 
@@ -694,7 +694,7 @@ PTR xmalloc(size_t n) {
 
   block = malloc(n);
   if (!block && n)
-    nomemory(1);
+    nomemory(true);
 
   return (block);
 }
@@ -704,7 +704,7 @@ PTR xcalloc(size_t n, size_t s) {
 
   block = calloc(n, s);
   if (!block && n && s)
-    nomemory(1);
+    nomemory(true);
 
   return (block);
 }
@@ -714,7 +714,7 @@ PTR xrealloc(PTR p, size_t n) {
 
   block = realloc(p, n);
   if (!block && n)
-    nomemory(1);
+    nomemory(true);
 
   return (block);
 }
@@ -724,11 +724,12 @@ void xfree(PTR p) {
     free(p);
 }
 
-void nomemory(int fatal) {
+void nomemory(bool fatal) {
   fputs("\n\n[Memory allocation failure]"
         "\nCan't allocate enough memory to continue.\n",
         stderr);
 
-  if (fatal)
+  if (fatal) {
     exit(1);
+  }
 }

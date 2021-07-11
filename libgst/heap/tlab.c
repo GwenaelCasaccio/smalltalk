@@ -11,7 +11,7 @@ void gst_tlab_init_for_heap(gst_heap_t *heap) {
   gst_heap_t *current_heap = NULL;
 
   if (!heap) {
-    nomemory(1);
+    nomemory(true);
     return;
   }
 
@@ -29,12 +29,12 @@ void gst_tlab_init_for_local_heap(gst_heap_t *heap) {
   size_t last_space_reminder;
 
   if (!heap) {
-    nomemory(1);
+    nomemory(true);
     return;
   }
 
   if (heap->meta_inf.reserved_for_allocator) {
-    nomemory(1);
+    nomemory(true);
     return;
   }
 
@@ -54,12 +54,12 @@ void gst_tlab_reset_for_local_heap(gst_heap_t *heap) {
   size_t last_space_reminder;
 
   if (!heap) {
-    nomemory(1);
+    nomemory(true);
     return;
   }
 
   if (!heap->meta_inf.reserved_for_allocator) {
-    nomemory(1);
+    nomemory(true);
     return;
   }
 
@@ -84,12 +84,12 @@ void gst_tlab_reset_for_local_heap(gst_heap_t *heap) {
 gst_tlab_t *gst_allocate_in_heap(gst_heap_t *heap, uint16_t current_thread_id) {
 
   if (!heap) {
-    nomemory(1);
+    nomemory(true);
     return NULL;
   }
 
   if (current_thread_id == UINT16_MAX) {
-    nomemory(1);
+    nomemory(true);
     return NULL;
   }
 
@@ -98,7 +98,7 @@ gst_tlab_t *gst_allocate_in_heap(gst_heap_t *heap, uint16_t current_thread_id) {
     const size_t nb_of_tlab = get_total_of_tlab(heap);
 
     if (!(tlab = heap->meta_inf.reserved_for_allocator)) {
-      nomemory(1);
+      nomemory(true);
       return NULL;
     }
 
@@ -119,28 +119,28 @@ gst_tlab_t *gst_allocate_in_heap(gst_heap_t *heap, uint16_t current_thread_id) {
 OOP *gst_allocate_in_lab(gst_heap_t *heap, gst_tlab_t **tlab, uint16_t current_thread_id, size_t number_of_words) {
 
   if (heap == NULL) {
-    nomemory(1);
+    nomemory(true);
     return NULL;
   }
 
   if (tlab == NULL) {
-    nomemory(1);
+    nomemory(true);
     return NULL;
   }
 
 
  if (*tlab == NULL) {
-   nomemory(1);
+   nomemory(true);
    return NULL;
  }
 
  if (current_thread_id == UINT16_MAX) {
-   nomemory(1);
+   nomemory(true);
    return NULL;
  }
 
  if (number_of_words == 0) {
-   nomemory(1);
+   nomemory(true);
    return NULL;
  }
 
@@ -164,7 +164,7 @@ OOP *gst_allocate_in_lab(gst_heap_t *heap, gst_tlab_t **tlab, uint16_t current_t
 
          *tlab = gst_allocate_in_heap(heap, current_thread_id);
          if (UNCOMMON (NULL == *tlab)) {
-           nomemory(1);
+           nomemory(true);
            return NULL;
          }
       }

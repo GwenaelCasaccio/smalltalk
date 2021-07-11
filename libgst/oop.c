@@ -266,7 +266,7 @@ void _gst_init_mem(size_t eden, size_t survivor, size_t old,
   _gst_mem.tlab_per_thread[0] = gst_allocate_in_heap(_gst_mem.gen0, 0);
 
   if (NULL == _gst_mem.tlab_per_thread[0]) {
-    nomemory(1);
+    nomemory(true);
     return;
   }
 
@@ -636,7 +636,7 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
   if (UNCOMMON(NULL == p_instance)) {
     // Check Too Big
     // Reallocate new TLAB Entry
-    nomemory(1);
+    nomemory(true);
     return NULL;
   }
 
@@ -692,7 +692,7 @@ gst_object _gst_alloc_words(size_t size) {
   if (UNCOMMON(NULL == p_instance)) {
     // Check Too Big
     // Reallocate new TLAB Entry
-    nomemory(1);
+    nomemory(true);
     return NULL;
   }
 
