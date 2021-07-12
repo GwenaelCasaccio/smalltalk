@@ -49,6 +49,7 @@ noinst_HEADERS = 																												\
 	print.h 							alloc.h 			gst-parse.h prims.inl							\
 	superop1.inl 					superop2.inl 	object_pointer.h 									\
 	forward_object.h vm.inl stack.inl barrier.h 													\
+	primitive_process.inl 																								\
 	sysdep/common/files.c sysdep/common/time.c sysdep/cygwin/files.c 			\
 	sysdep/cygwin/findexec.c sysdep/cygwin/mem.c sysdep/cygwin/signals.c 	\
 	sysdep/cygwin/time.c sysdep/cygwin/timer.c sysdep/posix/files.c 			\

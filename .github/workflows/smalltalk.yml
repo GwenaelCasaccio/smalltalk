@@ -41,7 +41,7 @@ jobs:
     - name: configure
       run: |
         export PKG_CONFIG_PATH=/user/lib/pkgconfig
-        ./configure
+        CFLAGS="-g3 -O0" ./configure
     - name: make
       run: make
       shell: bash

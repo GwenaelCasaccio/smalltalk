@@ -28,7 +28,6 @@ extern intptr_t _gst_object_identity;
     }                                                                          \
   } while (0)
 
-
 #define OBJ_CLASS(obj) ((obj)->objClass)
 
 #define OBJ_SET_CLASS(obj, valueOOP)                                           \
@@ -261,33 +260,34 @@ extern intptr_t _gst_object_identity;
 /* DEFERRED VARIABLE BINDING */
 
 #define OBJ_DEFERRED_VARIABLE_BINDING_GET_KEY(obj) ((obj))->data[0]
-#define OBJ_DEFERRED_VARIABLE_BINDING_SET_KEY(obj, valueOOP)  \
-  do {                                                        \
-    ((obj))->data[0] = (valueOOP);                            \
+#define OBJ_DEFERRED_VARIABLE_BINDING_SET_KEY(obj, valueOOP)                   \
+  do {                                                                         \
+    ((obj))->data[0] = (valueOOP);                                             \
   } while (0)
 
 #define OBJ_DEFERRED_VARIABLE_BINDING_GET_CLASS(obj) ((obj))->data[1]
-#define OBJ_DEFERRED_VARIABLE_BINDING_SET_CLASS(obj, valueOOP)  \
-  do {                                                        \
-    ((obj))->data[1] = (valueOOP);                            \
+#define OBJ_DEFERRED_VARIABLE_BINDING_SET_CLASS(obj, valueOOP)                 \
+  do {                                                                         \
+    ((obj))->data[1] = (valueOOP);                                             \
   } while (0)
 
-#define OBJ_DEFERRED_VARIABLE_BINDING_GET_DEFAULT_DICTIONARY(obj) ((obj))->data[2]
-#define OBJ_DEFERRED_VARIABLE_BINDING_SET_DEFAULT_DICTIONARY(obj, valueOOP) \
-  do {                                                                  \
-    ((obj))->data[2] = (valueOOP);                                      \
+#define OBJ_DEFERRED_VARIABLE_BINDING_GET_DEFAULT_DICTIONARY(obj)              \
+  ((obj))->data[2]
+#define OBJ_DEFERRED_VARIABLE_BINDING_SET_DEFAULT_DICTIONARY(obj, valueOOP)    \
+  do {                                                                         \
+    ((obj))->data[2] = (valueOOP);                                             \
   } while (0)
 
 #define OBJ_DEFERRED_VARIABLE_BINDING_GET_ASSOCIATION(obj) ((obj))->data[3]
-#define OBJ_DEFERRED_VARIABLE_BINDING_SET_ASSOCIATION(obj, valueOOP)    \
-  do {                                                                  \
-    ((obj))->data[3] = (valueOOP);                                      \
+#define OBJ_DEFERRED_VARIABLE_BINDING_SET_ASSOCIATION(obj, valueOOP)           \
+  do {                                                                         \
+    ((obj))->data[3] = (valueOOP);                                             \
   } while (0)
 
 #define OBJ_DEFERRED_VARIABLE_BINDING_GET_PATH(obj) ((obj))->data[4]
-#define OBJ_DEFERRED_VARIABLE_BINDING_SET_PATH(obj, valueOOP)         \
-  do {                                                                \
-    ((obj))->data[4] = (valueOOP);                                    \
+#define OBJ_DEFERRED_VARIABLE_BINDING_SET_PATH(obj, valueOOP)                  \
+  do {                                                                         \
+    ((obj))->data[4] = (valueOOP);                                             \
   } while (0)
 
 /* MESSAGE */
@@ -416,253 +416,258 @@ extern intptr_t _gst_object_identity;
 
 /* COBJECT */
 #define OBJ_COBJECT_GET_TYPE(obj) ((obj))->data[0]
-#define OBJ_COBJECT_SET_TYPE(obj, valueOOP) \
-  do {                                            \
-    ((obj))->data[0] = (valueOOP);                \
+#define OBJ_COBJECT_SET_TYPE(obj, valueOOP)                                    \
+  do {                                                                         \
+    ((obj))->data[0] = (valueOOP);                                             \
   } while (0)
 
 #define OBJ_COBJECT_GET_STORAGE(obj) ((obj))->data[1]
-#define OBJ_COBJECT_SET_STORAGE(obj, valueOOP)     \
-  do {                                          \
-    ((obj))->data[1] = (valueOOP);              \
+#define OBJ_COBJECT_SET_STORAGE(obj, valueOOP)                                 \
+  do {                                                                         \
+    ((obj))->data[1] = (valueOOP);                                             \
   } while (0)
 
 /* Answer the offset component of the a CObject, COBJ (*not* an OOP,
    but an object pointer).  */
-#define COBJECT_OFFSET_OBJ(cObj)                      \
+#define COBJECT_OFFSET_OBJ(cObj)                                               \
   (((uintptr_t *)cObj)[TO_INT(OBJ_SIZE((cObj))) - 1])
 
 /* Sets to VALUE the offset component of the CObject, COBJ (*not* an
    OOP, but an object pointer).  */
-#define SET_COBJECT_OFFSET_OBJ(cObj, value)                             \
+#define SET_COBJECT_OFFSET_OBJ(cObj, value)                                    \
   (((uintptr_t *)cObj)[TO_INT(OBJ_SIZE((cObj))) - 1] = (uintptr_t)(value))
-
 
 /* CTYPE */
 
 #define OBJ_CTYPE_GET_COBJECT_TYPE(obj) ((obj))->data[0]
-#define OBJ_CTYPE_SET_COBJECT_TYPE(obj, valueOOP)         \
-  do {                                                    \
-    ((obj))->data[0] = (valueOOP);                        \
+#define OBJ_CTYPE_SET_COBJECT_TYPE(obj, valueOOP)                              \
+  do {                                                                         \
+    ((obj))->data[0] = (valueOOP);                                             \
   } while (0)
 
 /* FLOATD */
 #define OBJ_FLOATD_GET_VALUE(obj) ((double *)((obj))->data)[0]
-#define OBJ_FLOATD_SET_VALUE(obj, valueOOP)          \
-  do {                                               \
-    ((double *)((obj))->data)[0] = (valueOOP);        \
+#define OBJ_FLOATD_SET_VALUE(obj, valueOOP)                                    \
+  do {                                                                         \
+    ((double *)((obj))->data)[0] = (valueOOP);                                 \
   } while (0)
 
 /* FLOATE */
 #define OBJ_FLOATE_GET_VALUE(obj) ((float *)((obj))->data)[0]
-#define OBJ_FLOATE_SET_VALUE(obj, valueOOP)     \
-  do {                                          \
-    ((float *)((obj))->data)[0] = (valueOOP);   \
+#define OBJ_FLOATE_SET_VALUE(obj, valueOOP)                                    \
+  do {                                                                         \
+    ((float *)((obj))->data)[0] = (valueOOP);                                  \
   } while (0)
 
 /* FLOATQ */
 #define OBJ_FLOATQ_GET_VALUE(obj) ((long double *)((obj))->data)[0]
-#define OBJ_FLOATQ_SET_VALUE(obj, valueOOP)     \
-  do {                                          \
-    ((long double *)((obj))->data)[0] = (valueOOP);  \
+#define OBJ_FLOATQ_SET_VALUE(obj, valueOOP)                                    \
+  do {                                                                         \
+    ((long double *)((obj))->data)[0] = (valueOOP);                            \
   } while (0)
 
 /* STRING */
 #define OBJ_STRING_GET_CHARS(obj) ((char *)((obj))->data)
-#define OBJ_STRING_SET_CHARS(obj, valueOOP)         \
-  do {                                              \
-    ((char *)((obj))->data)[0] = (valueOOP);        \
+#define OBJ_STRING_SET_CHARS(obj, valueOOP)                                    \
+  do {                                                                         \
+    ((char *)((obj))->data)[0] = (valueOOP);                                   \
   } while (0)
 
 /* Answer a pointer to the first character of STRINGOOP.  */
-#define STRING_OOP_CHARS(stringOOP)                         \
+#define STRING_OOP_CHARS(stringOOP)                                            \
   ((gst_uchar *)(OBJ_STRING_GET_CHARS(OOP_TO_OBJ(stringOOP))))
 
 /* UNICODE STRING */
 #define OBJ_UNICODE_STRING_GET_CHARS(obj) ((uint32_t *)((obj))->data)
-#define OBJ_UNICODE_STRING_SET_CHARS(obj, i, valueOOP) \
-  do {                                          \
-    ((uint32_t *)((obj))->data)[(i)] = (valueOOP);  \
+#define OBJ_UNICODE_STRING_SET_CHARS(obj, i, valueOOP)                         \
+  do {                                                                         \
+    ((uint32_t *)((obj))->data)[(i)] = (valueOOP);                             \
   } while (0)
 
 /* CHAR */
 #define OBJ_CHAR_GET_CODE_POINTS(obj) (((obj))->data)[0]
-#define OBJ_CHAR_SET_CODE_POINTS(obj, valueOOP)     \
-  do {                                              \
-    (((obj))->data)[0] = (valueOOP);                \
+#define OBJ_CHAR_SET_CODE_POINTS(obj, valueOOP)                                \
+  do {                                                                         \
+    (((obj))->data)[0] = (valueOOP);                                           \
   } while (0)
 
 /* BYTE ARRAY */
 #define OBJ_BYTE_ARRAY_GET_BYTES(obj, i) ((gst_uchar *)((obj))->data)[(i)]
-#define OBJ_BYTE_ARRAY_SET_BYTES(obj, i, valueOOP) \
-  do {                                             \
-    ((gst_uchar *)((obj))->data)[(i)] = (valueOOP);  \
+#define OBJ_BYTE_ARRAY_SET_BYTES(obj, i, valueOOP)                             \
+  do {                                                                         \
+    ((gst_uchar *)((obj))->data)[(i)] = (valueOOP);                            \
   } while (0)
 
 /* FILE STREAM */
 #define OBJ_FILE_STREAM_GET_ACCESS(obj) (((obj))->data)[0]
-#define OBJ_FILE_STREAM_SET_ACCESS(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[0] = (valueOOP);  \
+#define OBJ_FILE_STREAM_SET_ACCESS(obj, valueOOP)                              \
+  do {                                                                         \
+    (((obj))->data)[0] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_FILE_STREAM_GET_FD(obj) (((obj))->data)[1]
-#define OBJ_FILE_STREAM_SET_FD(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[1] = (valueOOP);  \
+#define OBJ_FILE_STREAM_SET_FD(obj, valueOOP)                                  \
+  do {                                                                         \
+    (((obj))->data)[1] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_FILE_STREAM_GET_FILE(obj) (((obj))->data)[2]
-#define OBJ_FILE_STREAM_SET_FILE(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[2] = (valueOOP);  \
+#define OBJ_FILE_STREAM_SET_FILE(obj, valueOOP)                                \
+  do {                                                                         \
+    (((obj))->data)[2] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_FILE_STREAM_GET_IS_PIPE(obj) (((obj))->data)[3]
-#define OBJ_FILE_STREAM_SET_IS_PIPE(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[3] = (valueOOP);  \
+#define OBJ_FILE_STREAM_SET_IS_PIPE(obj, valueOOP)                             \
+  do {                                                                         \
+    (((obj))->data)[3] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_FILE_STREAM_GET_AT_END(obj) (((obj))->data)[4]
-#define OBJ_FILE_STREAM_SET_AT_END(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[4] = (valueOOP);  \
+#define OBJ_FILE_STREAM_SET_AT_END(obj, valueOOP)                              \
+  do {                                                                         \
+    (((obj))->data)[4] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_FILE_STREAM_GET_PEEK(obj) (((obj))->data)[5]
-#define OBJ_FILE_STREAM_SET_PEEK(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[5] = (valueOOP);  \
+#define OBJ_FILE_STREAM_SET_PEEK(obj, valueOOP)                                \
+  do {                                                                         \
+    (((obj))->data)[5] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_FILE_STREAM_GET_COLLECTION(obj) (((obj))->data)[6]
-#define OBJ_FILE_STREAM_SET_COLLECTION(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[6] = (valueOOP);  \
+#define OBJ_FILE_STREAM_SET_COLLECTION(obj, valueOOP)                          \
+  do {                                                                         \
+    (((obj))->data)[6] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_FILE_STREAM_GET_PTR(obj) (((obj))->data)[7]
-#define OBJ_FILE_STREAM_SET_PTR(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[7] = (valueOOP);  \
+#define OBJ_FILE_STREAM_SET_PTR(obj, valueOOP)                                 \
+  do {                                                                         \
+    (((obj))->data)[7] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_FILE_STREAM_GET_END_PTR(obj) (((obj))->data)[8]
-#define OBJ_FILE_STREAM_SET_END_PTR(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[8] = (valueOOP);  \
+#define OBJ_FILE_STREAM_SET_END_PTR(obj, valueOOP)                             \
+  do {                                                                         \
+    (((obj))->data)[8] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_FILE_STREAM_GET_WRITE_PTR(obj) (((obj))->data)[9]
-#define OBJ_FILE_STREAM_SET_WRITE_PTR(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[9] = (valueOOP);  \
+#define OBJ_FILE_STREAM_SET_WRITE_PTR(obj, valueOOP)                           \
+  do {                                                                         \
+    (((obj))->data)[9] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_FILE_STREAM_GET_WRITE_END(obj) (((obj))->data)[10]
-#define OBJ_FILE_STREAM_SET_WRITE_END(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[10] = (valueOOP);  \
+#define OBJ_FILE_STREAM_SET_WRITE_END(obj, valueOOP)                           \
+  do {                                                                         \
+    (((obj))->data)[10] = (valueOOP);                                          \
   } while (0)
 
 /* PROCESS */
 #define OBJ_PROCESS_GET_NEXT_LINK(obj) (((obj))->data)[0]
-#define OBJ_PROCESS_SET_NEXT_LINK(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[0] = (valueOOP);  \
+#define OBJ_PROCESS_SET_NEXT_LINK(obj, valueOOP)                               \
+  do {                                                                         \
+    (((obj))->data)[0] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_PROCESS_GET_SUSPENDED_CONTEXT(obj) (((obj))->data)[1]
-#define OBJ_PROCESS_SET_SUSPENDED_CONTEXT(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[1] = (valueOOP);  \
+#define OBJ_PROCESS_SET_SUSPENDED_CONTEXT(obj, valueOOP)                       \
+  do {                                                                         \
+    (((obj))->data)[1] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_PROCESS_GET_PRIORITY(obj) (((obj))->data)[2]
-#define OBJ_PROCESS_SET_PRIORITY(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[2] = (valueOOP);  \
+#define OBJ_PROCESS_SET_PRIORITY(obj, valueOOP)                                \
+  do {                                                                         \
+    (((obj))->data)[2] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_PROCESS_GET_MY_LIST(obj) (((obj))->data)[3]
-#define OBJ_PROCESS_SET_MY_LIST(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[3] = (valueOOP);  \
+#define OBJ_PROCESS_SET_MY_LIST(obj, valueOOP)                                 \
+  do {                                                                         \
+    (((obj))->data)[3] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_PROCESS_GET_NAME(obj) (((obj))->data)[4]
-#define OBJ_PROCESS_SET_NAME(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[4] = (valueOOP);  \
+#define OBJ_PROCESS_SET_NAME(obj, valueOOP)                                    \
+  do {                                                                         \
+    (((obj))->data)[4] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_PROCESS_GET_UNWIND_POINTS(obj) (((obj))->data)[5]
-#define OBJ_PROCESS_SET_UNWIND_POINTS(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[5] = (valueOOP);  \
+#define OBJ_PROCESS_SET_UNWIND_POINTS(obj, valueOOP)                           \
+  do {                                                                         \
+    (((obj))->data)[5] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_PROCESS_GET_INTERRUPTS(obj) (((obj))->data)[6]
-#define OBJ_PROCESS_SET_INTERRUPTS(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[6] = (valueOOP);  \
+#define OBJ_PROCESS_SET_INTERRUPTS(obj, valueOOP)                              \
+  do {                                                                         \
+    (((obj))->data)[6] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_PROCESS_GET_INTERRUPT_LOCK(obj) (((obj))->data)[7]
-#define OBJ_PROCESS_SET_INTERRUPT_LOCK(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[7] = (valueOOP);  \
+#define OBJ_PROCESS_SET_INTERRUPT_LOCK(obj, valueOOP)                          \
+  do {                                                                         \
+    (((obj))->data)[7] = (valueOOP);                                           \
   } while (0)
 
 /* CALLIN PROCESS */
 #define OBJ_CALLIN_PROCESS_GET_RETURNED_VALUE(obj) (((obj))->data)[8]
-#define OBJ_CALLIN_PROCESS_SET_RETURNED_VALUE(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[8] = (valueOOP);  \
+#define OBJ_CALLIN_PROCESS_SET_RETURNED_VALUE(obj, valueOOP)                   \
+  do {                                                                         \
+    (((obj))->data)[8] = (valueOOP);                                           \
   } while (0)
 
 /* PROCESSOR SCHEDULER */
 #define OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_LISTS(obj) (((obj))->data)[0]
-#define OBJ_PROCESSOR_SCHEDULER_SET_PROCESS_LISTS(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[0] = (valueOOP);  \
+#define OBJ_PROCESSOR_SCHEDULER_SET_PROCESS_LISTS(obj, valueOOP)               \
+  do {                                                                         \
+    (((obj))->data)[0] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_PROCESSOR_SCHEDULER_GET_ACTIVE_PROCESS(obj) (((obj))->data)[1]
-#define OBJ_PROCESSOR_SCHEDULER_SET_ACTIVE_PROCESS(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[1] = (valueOOP);  \
+#define OBJ_PROCESSOR_SCHEDULER_SET_ACTIVE_PROCESS(obj, valueOOP)              \
+  do {                                                                         \
+    (((obj))->data)[1] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_PROCESSOR_SCHEDULER_GET_IDLE_TASKS(obj) (((obj))->data)[2]
-#define OBJ_PROCESSOR_SCHEDULER_SET_IDLE_TASKS(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[2] = (valueOOP);  \
+#define OBJ_PROCESSOR_SCHEDULER_SET_IDLE_TASKS(obj, valueOOP)                  \
+  do {                                                                         \
+    (((obj))->data)[2] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_TIME_SLICE(obj) (((obj))->data)[3]
-#define OBJ_PROCESSOR_SCHEDULER_SET_PROCESS_TIME_SLICE(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[3] = (valueOOP);  \
+#define OBJ_PROCESSOR_SCHEDULER_SET_PROCESS_TIME_SLICE(obj, valueOOP)          \
+  do {                                                                         \
+    (((obj))->data)[3] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_PROCESSOR_SCHEDULER_GET_GC_SEMAPHORE(obj) (((obj))->data)[4]
-#define OBJ_PROCESSOR_SCHEDULER_SET_GC_SEMAPHORE(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[4] = (valueOOP);  \
+#define OBJ_PROCESSOR_SCHEDULER_SET_GC_SEMAPHORE(obj, valueOOP)                \
+  do {                                                                         \
+    (((obj))->data)[4] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_PROCESSOR_SCHEDULER_GET_GC_ARRAY(obj) (((obj))->data)[5]
-#define OBJ_PROCESSOR_SCHEDULER_SET_GC_ARRAY(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[5] = (valueOOP);  \
+#define OBJ_PROCESSOR_SCHEDULER_SET_GC_ARRAY(obj, valueOOP)                    \
+  do {                                                                         \
+    (((obj))->data)[5] = (valueOOP);                                           \
   } while (0)
 
 #define OBJ_PROCESSOR_SCHEDULER_GET_EVENT_SEMAPHORE(obj) (((obj))->data)[6]
-#define OBJ_PROCESSOR_SCHEDULER_SET_EVENT_SEMAPHORE(obj, valueOOP)     \
-  do {                                          \
-    (((obj))->data)[6] = (valueOOP);  \
+#define OBJ_PROCESSOR_SCHEDULER_SET_EVENT_SEMAPHORE(obj, valueOOP)             \
+  do {                                                                         \
+    (((obj))->data)[6] = (valueOOP);                                           \
+  } while (0)
+
+#define OBJ_PROCESSOR_SCHEDULER_GET_VM_THREAD_ID(obj) (((obj))->data)[7]
+#define OBJ_PROCESSOR_SCHEDULER_SET_VM_THREAD_ID(obj, valueOOP)                \
+  do {                                                                         \
+    (((obj))->data)[7] = (valueOOP);                                           \
   } while (0)
 
 #endif /* GST_OBJECT_POINTER_H */

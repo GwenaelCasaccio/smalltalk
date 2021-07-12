@@ -555,10 +555,9 @@ static const class_definition class_info[] = {
      "truthValue", NULL, NULL},
 
     {&_gst_processor_scheduler_class, &_gst_object_class, GST_ISP_FIXED, false,
-     7, "ProcessorScheduler",
+     8, "ProcessorScheduler",
      "processLists activeProcess idleTasks processTimeslice gcSemaphore "
-     "gcArray "
-     "eventSemaphore",
+     "gcArray eventSemaphore vmThreadId",
      NULL, NULL},
 
     /* Change this, classDescription, or gst_class, and you must change
@@ -670,9 +669,6 @@ void init_proto_oops() {
   gst_object symbolTable, processorScheduler;
   int numWords;
 
-  /* We can do this now that the classes are defined */
-  _gst_init_builtin_objects_classes();
-
   /* Also finish the creation of the OOPs with reserved indices in
      oop.h */
 
@@ -700,12 +696,13 @@ void init_proto_oops() {
   nil_fill(OBJ_NAMESPACE_ASSOC(smalltalkDictionary), INITIAL_SMALLTALK_SIZE);
 
   /* ... and finally Processor */
-  numWords = 7 + OBJ_HEADER_SIZE_WORDS;
+  numWords = 8 + OBJ_HEADER_SIZE_WORDS;
   processorScheduler = _gst_alloc_words(numWords);
   OOP_SET_OBJECT(_gst_processor_oop[0], processorScheduler);
 
   OBJ_SET_CLASS(processorScheduler, _gst_processor_scheduler_class);
   nil_fill(processorScheduler->data, numWords - OBJ_HEADER_SIZE_WORDS);
+  OBJ_PROCESSOR_SCHEDULER_SET_VM_THREAD_ID(processorScheduler, FROM_INT(0));
 }
 
 void _gst_init_dictionary(void) {
@@ -720,6 +717,9 @@ void _gst_init_dictionary(void) {
   _gst_init_symbols_pass1();
 
   create_classes_pass1(class_info, sizeof(class_info) / sizeof(class_info[0]));
+
+  /* We can do this now that the classes are defined */
+  _gst_init_builtin_objects_classes();
 
   init_proto_oops();
   _gst_init_symbols_pass2();
