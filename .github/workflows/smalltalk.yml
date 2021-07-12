@@ -41,12 +41,10 @@ jobs:
     - name: configure
       run: |
         export PKG_CONFIG_PATH=/user/lib/pkgconfig
-        ./configure
+        CFLAGS="-g3 -O0" ./configure
     - name: make
       run: make
       shell: bash
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
     - name: make check
       run: LD_LIBRARY_PATH=/user/lib make check
     - name: upload tests results
