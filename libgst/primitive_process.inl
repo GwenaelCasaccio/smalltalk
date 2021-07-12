@@ -30,22 +30,22 @@ void *start_vm_thread(void *argument) {
   queued_async_signals[current_thread_id] = &queued_async_signals_tail[current_thread_id];
   queued_async_signals_sig[current_thread_id] = &queued_async_signals_tail[current_thread_id];
 
- _gst_init_context();
+  _gst_init_context();
 
- /* Force cache cleanup and *init* */
- _gst_sample_counter = 1;
- _gst_invalidate_method_cache();
+  /* Force cache cleanup and *init* */
+  _gst_sample_counter = 1;
+  _gst_invalidate_method_cache();
 
- _gst_check_process_state();
+  _gst_check_process_state();
 
- activeProcess = highest_priority_process();
+  activeProcess = highest_priority_process();
 
- if (IS_NIL(activeProcess)) {
-   nomemory(1);
-   return NULL;
- }
+  if (IS_NIL(activeProcess)) {
+    nomemory(1);
+    return NULL;
+  }
 
- change_process_context(activeProcess);
+  change_process_context(activeProcess);
 
   atomic_store(&dispatch_vec_per_thread[current_thread_id], global_normal_bytecodes);
   _gst_interp_need_to_wait[current_thread_id] = false;
@@ -61,7 +61,6 @@ void *start_vm_thread(void *argument) {
 }
 
 static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
-  int error;
   pthread_t thread_id;
   OOP oop1;
 
@@ -73,7 +72,7 @@ static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
 
   atomic_fetch_add(&_gst_count_threaded_vm, 1);
 
-  if ((error = pthread_create(&thread_id, NULL, &start_vm_thread, oop1))) {
+  if (pthread_create(&thread_id, NULL, &start_vm_thread, oop1)) {
     perror("failed to create new thread");
 
     atomic_fetch_add(&_gst_count_threaded_vm, -1);
@@ -89,8 +88,6 @@ static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_Processor_killThread(int id, volatile int numArgs) {
-  int error;
-
   _gst_primitives_executed++;
 
   _gst_vm_global_barrier_wait();
@@ -104,7 +101,7 @@ static intptr_t VMpr_Processor_killThread(int id, volatile int numArgs) {
 
   atomic_fetch_add(&_gst_count_threaded_vm, -1);
 
-  if ((error = pthread_cond_signal(&_gst_vm_end_barrier_cond))) {
+  if (pthread_cond_signal(&_gst_vm_end_barrier_cond)) {
     perror("failed signal conditional variable");
 
     PRIM_FAILED;
