@@ -45,10 +45,10 @@ jobs:
     - name: make
       run: make
       shell: bash
-    - name: make check
-      run: LD_LIBRARY_PATH=/user/lib make check
     - name: Setup tmate session
       uses: mxschmitt/action-tmate@v3
+    - name: make check
+      run: LD_LIBRARY_PATH=/user/lib make check
     - name: upload tests results
       uses: actions/upload-artifact@v2
       if: ${{ failure() }}
