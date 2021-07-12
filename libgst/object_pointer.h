@@ -614,11 +614,17 @@ extern intptr_t _gst_object_identity;
     (((obj))->data)[7] = (valueOOP);                                           \
   } while (0)
 
-/* CALLIN PROCESS */
-#define OBJ_CALLIN_PROCESS_GET_RETURNED_VALUE(obj) (((obj))->data)[8]
-#define OBJ_CALLIN_PROCESS_SET_RETURNED_VALUE(obj, valueOOP)                   \
+#define OBJ_PROCESS_GET_PROCESSOR_SCHEDULER(obj) (((obj))->data)[8]
+#define OBJ_PROCESS_SET_PROCESSOR_SCHEDULER(obj, valueOOP)                     \
   do {                                                                         \
     (((obj))->data)[8] = (valueOOP);                                           \
+  } while (0)
+
+/* CALLIN PROCESS */
+#define OBJ_CALLIN_PROCESS_GET_RETURNED_VALUE(obj) (((obj))->data)[9]
+#define OBJ_CALLIN_PROCESS_SET_RETURNED_VALUE(obj, valueOOP)                   \
+  do {                                                                         \
+    (((obj))->data)[9] = (valueOOP);                                           \
   } while (0)
 
 /* PROCESSOR SCHEDULER */

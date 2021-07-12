@@ -391,9 +391,9 @@ static const class_definition class_info[] = {
     {&_gst_link_class, &_gst_object_class, GST_ISP_FIXED, false, 1, "Link",
      "nextLink", NULL, NULL},
 
-    {&_gst_process_class, &_gst_link_class, GST_ISP_FIXED, true, 7, "Process",
+    {&_gst_process_class, &_gst_link_class, GST_ISP_FIXED, true, 8, "Process",
      "suspendedContext priority myList name environment interrupts "
-     "interruptLock",
+     "interruptLock processorScheduler",
      NULL, NULL},
 
     {&_gst_callin_process_class, &_gst_process_class, GST_ISP_FIXED, true, 1,
