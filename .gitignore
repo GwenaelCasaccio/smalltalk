@@ -84,6 +84,7 @@ tests/jit_x64
 tests/bootstrap_test
 tests/object_pointer_test
 tests/primitive_multithread_vm_test
+tests/primitive_process_test
 tests/*.log
 tests/*.trs
 gst.im.SandstoneDb/

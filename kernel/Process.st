@@ -33,7 +33,7 @@
 
 
 Link subclass: Process [
-    | suspendedContext priority myList name environment interruptLock interrupts |
+    | suspendedContext priority myList name environment interruptLock interrupts processorScheduler |
     
     <category: 'Language-Processes'>
     <comment: 'I represent a unit of computation.  My instances are independantly
