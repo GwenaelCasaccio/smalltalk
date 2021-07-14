@@ -50,6 +50,7 @@ noinst_HEADERS = 																												\
 	superop1.inl 					superop2.inl 	object_pointer.h 									\
 	forward_object.h vm.inl stack.inl barrier.h 													\
 	primitive_process.inl 																								\
+	primitive_process_scheduling.inl 																			\
 	sysdep/common/files.c sysdep/common/time.c sysdep/cygwin/files.c 			\
 	sysdep/cygwin/findexec.c sysdep/cygwin/mem.c sysdep/cygwin/signals.c 	\
 	sysdep/cygwin/time.c sysdep/cygwin/timer.c sysdep/posix/files.c 			\

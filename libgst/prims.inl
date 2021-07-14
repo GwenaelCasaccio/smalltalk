@@ -2629,64 +2629,7 @@ static intptr_t VMpr_Semaphore_waitAfterSignalling(int id,
   PRIM_SUCCEEDED;
 }
 
-/* Process suspend */
-static intptr_t VMpr_Process_suspend(int id, volatile int numArgs) {
-  OOP oop1;
-  _gst_primitives_executed++;
-
-  oop1 = STACKTOP();
-  suspend_process(oop1);
-  PRIM_SUCCEEDED;
-}
-
-/* Process resume */
-static intptr_t VMpr_Process_resume(int id, volatile int numArgs) {
-  OOP oop1;
-  _gst_primitives_executed++;
-
-  oop1 = STACKTOP();
-  if (resume_process(oop1, false))
-    PRIM_SUCCEEDED;
-  else
-    PRIM_FAILED;
-}
-
-/* Process singleStepWaitingOn: */
-static intptr_t VMpr_Process_singleStepWaitingOn(int id, volatile int numArgs) {
-  OOP oop1;
-  OOP oop2;
-
-  _gst_primitives_executed++;
-
-  oop2 = POP_OOP();
-  oop1 = POP_OOP();
-
-  if (is_process_ready(oop1) || is_process_terminating(oop1)) {
-    UNPOP(2);
-    PRIM_FAILED;
-  }
-
-  /* Put the current process to sleep, switch execution to the
-     new one, and set up the VM to signal the semaphore as soon
-     as possible.  */
-  _gst_sync_wait(oop2);
-  resume_process(oop1, true);
-  single_step_semaphore = oop2;
-  PRIM_SUCCEEDED;
-}
-
-/* Process yield */
-static intptr_t VMpr_Process_yield(int id, volatile int numArgs) {
-  OOP oop1;
-
-  _gst_primitives_executed++;
-  oop1 = STACKTOP();
-  if (oop1 == get_active_process()) {
-    SET_STACKTOP(_gst_nil_oop); /* this is our return value */
-    active_process_yield();
-  }
-  PRIM_SUCCEEDED;
-}
+#include "primitive_process_scheduling.inl"
 
 #include "primitive_process.inl"
 
