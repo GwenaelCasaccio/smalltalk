@@ -154,10 +154,10 @@ extern intptr_t _gst_object_identity;
     ((obj))->data[1] = (valueOOP);                                             \
   } while (0)
 
-#define OBJ_SEMAPHORE_GET_SIGNALS(obj) ((obj))->data[2]
+#define OBJ_SEMAPHORE_GET_SIGNALS(obj) atomic_load((_Atomic OOP*) &((obj)->data[2]))
 #define OBJ_SEMAPHORE_SET_SIGNALS(obj, valueOOP)                               \
   do {                                                                         \
-    ((obj))->data[2] = (valueOOP);                                             \
+    atomic_store((_Atomic OOP*) &((obj)->data[2]), (valueOOP));                \
   } while (0)
 
 #define OBJ_SEMAPHORE_GET_NAME(obj) ((obj))->data[3]
