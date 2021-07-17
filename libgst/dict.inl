@@ -77,10 +77,12 @@ static inline bool index_oop_put(OOP oop, size_t index, OOP value);
    into the INDEX-th instance variable of the Object pointed to by
    OOP.  */
 static inline void inst_var_at_put(OOP oop, int index, OOP value);
+static inline void atomic_inst_var_at_put(OOP oop, int index, OOP value);
 
 /* Returns the INDEX-th instance variable of the Object pointed to by
    OOP.  No range checks are done in INDEX.  */
 static inline OOP inst_var_at(OOP oop, int index);
+static inline OOP atomic_inst_var_at(OOP oop, int index);
 
 /* Returns the number of instance variables (both fixed and indexed) in OOP.  */
 static inline int oop_num_fields(OOP oop);
@@ -1101,6 +1103,20 @@ OOP inst_var_at(OOP oop, int index) {
 }
 
 void inst_var_at_put(OOP oop, int index, OOP value) {
+  gst_object object;
+
+  object = OOP_TO_OBJ(oop);
+  object->data[index - 1] = value;
+}
+
+OOP atomic_inst_var_at(OOP oop, int index) {
+  gst_object object;
+
+  object = OOP_TO_OBJ(oop);
+  return (atomic_load((_Atomic OOP*) &object->data[index - 1]));
+}
+
+void atomic_inst_var_at_put(OOP oop, int index, OOP value) {
   gst_object object;
 
   object = OOP_TO_OBJ(oop);

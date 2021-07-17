@@ -50,6 +50,24 @@ I also provide some methods for implementing critical sections.'>
 	    yourself
     ]
 
+    atomicInstVarAt: anIndex [
+    	<primitive: VMpr_Atomic_get>
+    ]
+
+    atomicInstVarAt: anIndex put: anObject [
+    	<primitive: VMpr_Atomic_set>
+    ]
+
+    privateSignals [
+
+    	^ self atomicInstVarAt: 3
+    ]
+
+    privateSignals: anInteger [
+
+    	^ self atomicInstVarAt: 3 put: anInteger
+    ]
+
     critical: aBlock [
 	"Wait for the receiver to be free, execute aBlock and signal the receiver
 	 again. Return the result of evaluating aBlock."
@@ -99,7 +117,7 @@ I also provide some methods for implementing critical sections.'>
 	"Answer whether waiting on the receiver would suspend the current process."
 
 	<category: 'accessing'>
-	^signals <= 0
+	^self privateSignals <= 0
     ]
 
     printOn: aStream [
@@ -117,7 +135,7 @@ I also provide some methods for implementing critical sections.'>
 
     initialize [
 	<category: 'private'>
-	signals := 0
+	self privateSignals: 0
     ]
 
     signals [
@@ -131,7 +149,7 @@ I also provide some methods for implementing critical sections.'>
 	 - if >0, no processes must be waiting and the signal count is signals"
 
 	<category: 'private'>
-	^(signals max: 0) - self size
+	^(self privateSignals max: 0) - self size
     ]
 
     notify [
