@@ -85,7 +85,7 @@
   {                                                                            \
     OOP oop1;                                                                  \
     OOP oop2;                                                                  \
-    bool overflow;                                                      \
+    bool overflow;                                                             \
     oop2 = POP_OOP();                                                          \
     oop1 = POP_OOP();                                                          \
     if COMMON (RECEIVER_IS_INT(oop1) && IS_INT(oop2)) {                        \
@@ -2632,6 +2632,8 @@ static intptr_t VMpr_Semaphore_waitAfterSignalling(int id,
 #include "primitive_process_scheduling.inl"
 
 #include "primitive_process.inl"
+
+#include "primitive_atomic.inl"
 
 static intptr_t VMpr_Processor_tracing(int id, volatile int numArgs) {
 
@@ -5558,7 +5560,13 @@ unsigned char _gst_primitives_md5[16] = {225, 63,  18,  146, 66, 109, 248, 224,
                                          201, 185, 175, 54,  25, 109, 150, 224};
 
 void _gst_init_primitives() {
-  int i;
+  for (size_t i = 0; i < NUM_PRIMITIVES; i++) {
+    _gst_default_primitive_table[i].name = NULL;
+    _gst_default_primitive_table[i].attributes = PRIM_FAIL;
+    _gst_default_primitive_table[i].id = i;
+    _gst_default_primitive_table[i].func = VMpr_HOLE;
+  }
+
   _gst_default_primitive_table[1].name = "VMpr_SmallInteger_plus";
   _gst_default_primitive_table[1].attributes = PRIM_SUCCEED | PRIM_FAIL;
   _gst_default_primitive_table[1].id = 0;
@@ -6608,10 +6616,39 @@ void _gst_init_primitives() {
   _gst_default_primitive_table[247].id = 0;
   _gst_default_primitive_table[247].func = VMpr_Processor_tracing;
 
-  for (i = 248; i < NUM_PRIMITIVES; i++) {
-    _gst_default_primitive_table[i].name = NULL;
-    _gst_default_primitive_table[i].attributes = PRIM_FAIL;
-    _gst_default_primitive_table[i].id = i;
-    _gst_default_primitive_table[i].func = VMpr_HOLE;
-  }
+  _gst_default_primitive_table[248].name = "VMpr_Atomic_set";
+  _gst_default_primitive_table[248].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[248].id = 0;
+  _gst_default_primitive_table[248].func = VMpr_Atomic_set;
+
+  _gst_default_primitive_table[249].name = "VMpr_Atomic_get";
+  _gst_default_primitive_table[249].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[249].id = 0;
+  _gst_default_primitive_table[249].func = VMpr_Atomic_get;
+
+  _gst_default_primitive_table[250].name = "VMpr_Atomic_add";
+  _gst_default_primitive_table[250].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[250].id = 0;
+  _gst_default_primitive_table[250].func = VMpr_Atomic_add;
+
+  _gst_default_primitive_table[251].name = "VMpr_Atomic_sub";
+  _gst_default_primitive_table[251].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[251].id = 0;
+  _gst_default_primitive_table[251].func = VMpr_Atomic_sub;
+
+  _gst_default_primitive_table[252].name = "VMpr_Atomic_or";
+  _gst_default_primitive_table[252].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[252].id = 0;
+  _gst_default_primitive_table[252].func = VMpr_Atomic_or;
+
+  _gst_default_primitive_table[253].name = "VMpr_Atomic_and";
+  _gst_default_primitive_table[253].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[253].id = 0;
+  _gst_default_primitive_table[253].func = VMpr_Atomic_and;
+
+  _gst_default_primitive_table[254].name = "VMpr_Atomic_xor";
+  _gst_default_primitive_table[254].attributes = PRIM_SUCCEED | PRIM_FAIL;
+  _gst_default_primitive_table[254].id = 0;
+  _gst_default_primitive_table[254].func = VMpr_Atomic_xor;
+
 }
