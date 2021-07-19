@@ -414,8 +414,8 @@ static const class_definition class_info[] = {
     {&_gst_linked_list_class, &_gst_sequenceable_collection_class,
      GST_ISP_FIXED, false, 2, "LinkedList", "firstLink lastLink", NULL, NULL},
 
-    {&_gst_semaphore_class, &_gst_linked_list_class, GST_ISP_FIXED, true, 2,
-     "Semaphore", "signals name", NULL, NULL},
+    {&_gst_semaphore_class, &_gst_linked_list_class, GST_ISP_FIXED, true, 3,
+     "Semaphore", "signals name lockThreadId", NULL, NULL},
 
     {&_gst_arrayed_collection_class, &_gst_sequenceable_collection_class,
      GST_ISP_POINTER, false, 0, "ArrayedCollection", NULL, NULL, NULL},

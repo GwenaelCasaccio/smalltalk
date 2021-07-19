@@ -162,6 +162,12 @@ extern intptr_t _gst_object_identity;
 
 #define OBJ_SEMAPHORE_GET_NAME(obj) ((obj))->data[3]
 
+#define OBJ_SEMAPHORE_GET_LOCK_THREAD_ID(obj) ((obj))->data[4]
+#define OBJ_SEMAPHORE_SET_LOCK_THREAD_ID(obj, valueOOP)                        \
+  do {                                                                         \
+    ((obj))->data[4] = (valueOOP);                                             \
+  } while (0)
+
 #define OBJ_DICTIONARY_GET_TALLY(obj) ((obj))->data[0]
 #define OBJ_DICTIONARY_SET_TALLY(obj, valueOOP)                                \
   do {                                                                         \
