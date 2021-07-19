@@ -570,6 +570,7 @@ extern OOP _gst_nil_oop
 #include "oop.h"
 #include "byte.h"
 #include "comp.h"
+#include "semaphore.h"
 #include "interp.h"
 #include "events.h"
 #include "opt.h"

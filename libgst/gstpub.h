@@ -102,7 +102,7 @@ typedef struct VMProxy
   OOP (*objectAlloc) (OOP classOOP,
 		      int size);
   int (*basicSize) (OOP oop);
-  
+
   /* Actually funcAddr is a function pointer, but we don't know the
      returned type so we must declare it as PTR */
   void (*defineCFunc) (const char *funcName,
@@ -111,7 +111,7 @@ typedef struct VMProxy
   void (*unregisterOOP) (OOP oop);
 
   /* Convert C datatypes to Smalltalk types */
-  
+
   OOP (*idToOOP) (long i);
   OOP (*intToOOP) (long i);
   OOP (*floatToOOP) (double f);
@@ -140,7 +140,6 @@ typedef struct VMProxy
 
   /* Smalltalk process support */
   void (*asyncSignal) (OOP semaphoreOOP);
-  void (*syncWait) (OOP semaphoreOOP);
   void (*asyncSignalAndUnregister) (OOP semaphoreOOP);
 
   /* Array-of-OOP registry support.  Move these above
@@ -204,9 +203,8 @@ typedef struct VMProxy
   /* 3.1+ functions.  */
   char *(*relocatePath) (const char *);
   void *(*OOPIndexedBase) (OOP oop);
-  enum gst_indexed_kind (*OOPIndexedKind) (OOP oop); 
+  enum gst_indexed_kind (*OOPIndexedKind) (OOP oop);
   void (*asyncCall) (void (*func) (OOP), OOP argOOP);
-  bool (*syncSignal) (OOP semaphoreOOP, bool incrIfEmpty);
   void (*showBacktrace) (FILE *fp);
 
   /* 3.2+ functions.  */
@@ -308,13 +306,8 @@ extern char gst_oop_to_char (OOP oop);
 extern char *gst_oop_to_string (OOP oop);
 extern char *gst_oop_to_byte_array (OOP oop);
 extern PTR gst_oop_to_c_object (OOP oop);
-extern void gst_async_signal (OOP semaphore_oop);
-extern void gst_async_call (void (*func) (OOP), OOP arg_oop);
-extern bool gst_sync_signal (OOP semaphore_oop, bool incr_if_empty);
-extern void gst_sync_wait (OOP semaphore_oop);
 extern void gst_wakeup (void);
 extern void gst_show_backtrace (FILE *fp);
-extern void gst_async_signal_and_unregister (OOP semaphore_oop);
 extern void gst_register_oop_array (OOP **first, OOP **last);
 extern void gst_unregister_oop_array (OOP **first);
 extern long double gst_oop_to_long_double (OOP oop);
@@ -331,9 +324,9 @@ extern bool gst_class_can_understand (OOP class_oop, OOP selector);
 extern bool gst_responds_to (OOP oop, OOP selector);
 extern size_t gst_oop_size (OOP oop);
 extern OOP gst_oop_at (OOP oop, size_t index);
-extern OOP gst_oop_at_put (OOP oop, size_t index, OOP new_oop); 
+extern OOP gst_oop_at_put (OOP oop, size_t index, OOP new_oop);
 extern void *gst_oop_indexed_base (OOP oop);
-extern enum gst_indexed_kind gst_oop_indexed_kind (OOP oop); 
+extern enum gst_indexed_kind gst_oop_indexed_kind (OOP oop);
 extern OOP gst_wchar_to_oop (wchar_t c);
 extern OOP gst_wstring_to_oop (const wchar_t *str);
 extern wchar_t gst_oop_to_wchar (OOP oop);
