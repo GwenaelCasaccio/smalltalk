@@ -1505,7 +1505,6 @@ void add_last_link(OOP semaphoreOOP, OOP processOOP) {
   OOP lastProcessOOP;
 
   process = OOP_TO_OBJ(processOOP);
-  remove_process_from_list(processOOP);
 
   sem = OOP_TO_OBJ(semaphoreOOP);
   OBJ_PROCESS_SET_MY_LIST(process, semaphoreOOP);
@@ -1680,17 +1679,17 @@ void _gst_async_signal_and_unregister(OOP semaphoreOOP) {
 }
 
 void sync_wait_process(OOP semaphoreOOP, OOP processOOP) {
-  gst_object sem;
   bool isActive;
 
-  sem = OOP_TO_OBJ(semaphoreOOP);
+  gst_object semaphore = OOP_TO_OBJ(semaphoreOOP);
   if (IS_NIL(processOOP)) {
     processOOP = get_active_process();
     isActive = true;
-  } else
+  } else {
     isActive = (processOOP == get_active_process());
+  }
 
-  if (TO_INT(OBJ_SEMAPHORE_GET_SIGNALS(sem)) <= 0) {
+  if (TO_INT(OBJ_SEMAPHORE_GET_SIGNALS(semaphore)) <= 0) {
     /* Have to suspend.  Prepare return value for #wait and move
        this process to the end of the list.
 
@@ -1700,13 +1699,12 @@ void sync_wait_process(OOP semaphoreOOP, OOP processOOP) {
     remove_process_from_list(processOOP);
     add_last_link(semaphoreOOP, processOOP);
     if (isActive && IS_NIL(ACTIVE_PROCESS_YIELD())) {
-      printf("No runnable process");
-      activate_process(_gst_prepare_execution_environment());
+      perror("No runnable process");
+      nomemory(true);
     }
-  } else
-    OBJ_SEMAPHORE_SET_SIGNALS(sem, DECR_INT(OBJ_SEMAPHORE_GET_SIGNALS(sem)));
-
-  /* printf ("wait %O %O\n", semaphoreOOP, sem->firstLink); */
+  } else {
+    OBJ_SEMAPHORE_SET_SIGNALS(semaphore, DECR_INT(OBJ_SEMAPHORE_GET_SIGNALS(semaphore)));
+  }
 }
 
 void _gst_sync_wait(OOP semaphoreOOP) {
@@ -1855,6 +1853,7 @@ void sleep_process(OOP processOOP) {
   processList = ARRAY_AT(processLists, priority);
 
   /* add process to end of priority queue */
+  remove_process_from_list(processOOP);
   add_last_link(processList, processOOP);
 }
 
@@ -1901,6 +1900,7 @@ OOP highest_priority_process(void) {
     if (!is_empty(processListOOP)) {
       processOOP = remove_first_link(processListOOP);
       if (processOOP == get_scheduled_process()) {
+        remove_process_from_list(processOOP);
         add_last_link(processListOOP, processOOP);
         _gst_check_process_state();
 
