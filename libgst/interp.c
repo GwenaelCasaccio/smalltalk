@@ -1551,9 +1551,10 @@ bool _gst_sync_signal(OOP semaphoreOOP, bool incr_if_empty) {
   sem = OOP_TO_OBJ(semaphoreOOP);
   do {
     if (is_empty(semaphoreOOP)) {
-      if (incr_if_empty)
+      if (incr_if_empty) {
         OBJ_SEMAPHORE_SET_SIGNALS(sem,
                                   INCR_INT(OBJ_SEMAPHORE_GET_SIGNALS(sem)));
+      }
       return false;
     }
 
@@ -1722,8 +1723,9 @@ OOP remove_first_link(OOP semaphoreOOP) {
 
   sem = OOP_TO_OBJ(semaphoreOOP);
   OBJ_SEMAPHORE_SET_FIRST_LINK(sem, OBJ_PROCESS_GET_NEXT_LINK(process));
-  if (IS_NIL(OBJ_SEMAPHORE_GET_FIRST_LINK(sem)))
+  if (IS_NIL(OBJ_SEMAPHORE_GET_FIRST_LINK(sem))) {
     OBJ_SEMAPHORE_SET_LAST_LINK(sem, _gst_nil_oop);
+  }
 
   /* Unlink the process from any list it was in! */
   OBJ_PROCESS_SET_MY_LIST(process, _gst_nil_oop);
