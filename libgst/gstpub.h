@@ -138,10 +138,6 @@ typedef struct VMProxy
   char *(*OOPToByteArray) (OOP oop);
   PTR (*OOPToCObject) (OOP oop);
 
-  /* Smalltalk process support */
-  void (*asyncSignal) (OOP semaphoreOOP);
-  void (*asyncSignalAndUnregister) (OOP semaphoreOOP);
-
   /* Array-of-OOP registry support.  Move these above
      when we break binary compatibility.  */
   void (*registerOOPArray) (OOP **first, OOP **last);
