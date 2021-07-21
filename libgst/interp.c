@@ -1547,6 +1547,7 @@ bool _gst_sync_signal(OOP semaphoreOOP, bool incr_if_empty) {
   gst_object suspendedContext;
   OOP processOOP;
   int spOffset;
+  bool isResumedProcess = false;
 
   sem = OOP_TO_OBJ(semaphoreOOP);
   do {
@@ -1560,8 +1561,12 @@ bool _gst_sync_signal(OOP semaphoreOOP, bool incr_if_empty) {
 
     processOOP = remove_first_link(semaphoreOOP);
 
+    wait_for_processor_scheduler(OBJ_PROCESS_GET_PROCESSOR_SCHEDULER(OOP_TO_OBJ(processOOP)), current_thread_id);
+    isResumedProcess = resume_process(processOOP, false);
+    signal_and_broadcast_for_processor_scheduler(OBJ_PROCESS_GET_PROCESSOR_SCHEDULER(OOP_TO_OBJ(processOOP)), current_thread_id);
+
     /* If they terminated this process, well, try another */
-  } while (!resume_process(processOOP, false));
+  } while (!isResumedProcess);
 
   /* Put the semaphore at the stack top as a marker that the
      wait was not interrupted.  This assumes that _gst_sync_wait
