@@ -146,7 +146,7 @@ static void should_initialize_builtins_objects(void **state) {
 
   expect_value(__wrap__gst_alloc_words, size, 515);
   expect_value(__wrap__gst_alloc_words, size, 520);
-  expect_value(__wrap__gst_alloc_words, size, 11);
+  expect_value(__wrap__gst_alloc_words, size, 12);
 
   expect_function_calls(__wrap__gst_alloc_words, 3);
 

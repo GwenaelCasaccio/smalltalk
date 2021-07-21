@@ -286,6 +286,7 @@ static const char *feature_strings[] = {
 #endif
     NULL};
 
+#define GST_PROCESSOR_SCHEDULER_NUMBER_INSTANCE_VARIABLES 9
 /* The class definition structure.  From this structure, the initial
    set of Smalltalk classes are defined.  */
 
@@ -555,9 +556,9 @@ static const class_definition class_info[] = {
      "truthValue", NULL, NULL},
 
     {&_gst_processor_scheduler_class, &_gst_object_class, GST_ISP_FIXED, false,
-     8, "ProcessorScheduler",
+     GST_PROCESSOR_SCHEDULER_NUMBER_INSTANCE_VARIABLES, "ProcessorScheduler",
      "processLists activeProcess idleTasks processTimeslice gcSemaphore "
-     "gcArray eventSemaphore vmThreadId",
+     "gcArray eventSemaphore vmThreadId lockThreadId",
      NULL, NULL},
 
     /* Change this, classDescription, or gst_class, and you must change
@@ -696,7 +697,7 @@ void init_proto_oops() {
   nil_fill(OBJ_NAMESPACE_ASSOC(smalltalkDictionary), INITIAL_SMALLTALK_SIZE);
 
   /* ... and finally Processor */
-  numWords = 8 + OBJ_HEADER_SIZE_WORDS;
+  numWords = GST_PROCESSOR_SCHEDULER_NUMBER_INSTANCE_VARIABLES + OBJ_HEADER_SIZE_WORDS;
   processorScheduler = _gst_alloc_words(numWords);
   OOP_SET_OBJECT(_gst_processor_oop[0], processorScheduler);
 
