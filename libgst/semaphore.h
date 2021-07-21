@@ -23,7 +23,8 @@ static inline void signal_and_broadcast_for_semaphore(OOP semaphoreOOP, size_t t
   const OOP currentThreadIdOOP = atomic_load((_Atomic OOP*) &OBJ_SEMAPHORE_GET_LOCK_THREAD_ID(OOP_TO_OBJ(semaphoreOOP)));
 
   if (UNCOMMON(currentThreadIdOOP != threadIdOOP)) {
-    nomemory(false);
+    nomemory(true);
+    return ;
   }
 
   atomic_store((_Atomic OOP*) &OBJ_SEMAPHORE_GET_LOCK_THREAD_ID(OOP_TO_OBJ(semaphoreOOP)), _gst_nil_oop);

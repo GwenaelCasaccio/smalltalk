@@ -571,6 +571,7 @@ extern OOP _gst_nil_oop
 #include "byte.h"
 #include "comp.h"
 #include "semaphore.h"
+#include "processor_scheduler.h"
 #include "interp.h"
 #include "events.h"
 #include "opt.h"

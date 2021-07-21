@@ -1697,7 +1697,12 @@ void sync_wait_process(OOP semaphoreOOP, OOP processOOP) {
        Tweaking the stack top means that this function should only
        be called from a primitive.  */
     SET_STACKTOP(_gst_nil_oop);
+
+    OOP processorOOP = OBJ_PROCESS_GET_PROCESSOR_SCHEDULER(OOP_TO_OBJ(processOOP));
+    wait_for_processor_scheduler(processorOOP, current_thread_id);
     remove_process_from_list(processOOP);
+    signal_and_broadcast_for_processor_scheduler(processorOOP, current_thread_id);
+
     add_last_link(semaphoreOOP, processOOP);
     if (isActive && IS_NIL(ACTIVE_PROCESS_YIELD())) {
       perror("No runnable process");
@@ -2087,6 +2092,7 @@ OOP create_callin_process(OOP contextOOP) {
   OBJ_PROCESS_SET_INTERRUPT_LOCK(initialProcess, _gst_nil_oop);
   OBJ_PROCESS_SET_SUSPENDED_CONTEXT(initialProcess, contextOOP);
   OBJ_PROCESS_SET_NAME(initialProcess, nameOOP);
+  OBJ_PROCESS_SET_PROCESSOR_SCHEDULER(initialProcess, _gst_processor_oop[current_thread_id]);
   INC_RESTORE_POINTER(inc);
 
   /* Put initialProcessOOP in the root set */
