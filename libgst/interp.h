@@ -274,11 +274,13 @@ extern bool _gst_have_pending_async_calls(void) ATTRIBUTE_HIDDEN;
 /* Set up so that FUNC will be called, with ARGOOP as its argument,
    as soon as the next sequence point is reached.  */
 extern void _gst_async_call(void (*func)(OOP), OOP argOOP) ATTRIBUTE_HIDDEN;
+extern void _gst_async_call_on_thread(void (*func)(OOP), OOP arg, size_t thread_id);
 
 /* Worker functions for _gst_async_call_internal.  */;
 extern void _gst_do_async_signal(OOP semaphoreOOP) ATTRIBUTE_HIDDEN;
 extern void
 _gst_do_async_signal_and_unregister(OOP semaphoreOOP) ATTRIBUTE_HIDDEN;
+extern void _gst_do_resume_and_unregister(OOP processOOP) ATTRIBUTE_HIDDEN;
 
 /* Set up so that ENTRY->FUNC will be called, with ENTRY->DATA as its
    argument, as soon as the next sequence point is reached.  Async-signal
