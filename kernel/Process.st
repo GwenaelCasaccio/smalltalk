@@ -117,6 +117,7 @@ can suspend themselves and resume themselves however they wish.'>
 
 	<category: 'builtins'>
 	<primitive: VMpr_Process_suspend>
+	ObjectMemory abort.
     ]
 
     finalize [

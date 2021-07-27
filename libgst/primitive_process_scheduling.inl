@@ -15,6 +15,7 @@ static intptr_t VMpr_Process_suspend(int id, volatile int numArgs) {
     PRIM_FAILED;
   }
 
+  // TODO Make it THREAD SAFE with new primitives!!!
   suspend_process(oop1);
   PRIM_SUCCEEDED;
 }

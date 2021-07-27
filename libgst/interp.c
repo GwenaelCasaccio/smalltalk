@@ -351,6 +351,8 @@ static void sleep_process(OOP processOOP);
 /* Yield control from the active process.  */
 static void active_process_yield(void);
 
+static void remove_process_from_list(OOP processOOP);
+
 /* Sets flags so that the interpreter switches to PROCESSOOP at the
    next sequence point.  Unless PROCESSOOP is already active, in which
    case nothing happens, the process is made the head of the list of
@@ -1730,7 +1732,7 @@ void sync_wait_process(OOP semaphoreOOP, OOP processOOP) {
 
     add_last_link(semaphoreOOP, processOOP);
     if (isActive && IS_NIL(ACTIVE_PROCESS_YIELD())) {
-      perror("No runnable process");
+      perror("No runnable process Thread ID can be different than current thread id");
       nomemory(true);
     }
   } else {

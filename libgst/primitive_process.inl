@@ -41,11 +41,19 @@ void *start_vm_thread(void *argument) {
   activeProcess = highest_priority_process();
 
   if (IS_NIL(activeProcess)) {
-    nomemory(1);
+    nomemory(true);
     return NULL;
   }
 
+  OBJ_PROCESS_SET_PROCESSOR_SCHEDULER(OOP_TO_OBJ(activeProcess), _gst_processor_oop[current_thread_id]);
+
+  const OOP processLists = GET_PROCESS_LISTS();
+  const OOP semaphoreOOP = ARRAY_AT(processLists, 9);
+  add_first_link(semaphoreOOP, activeProcess);
+
   change_process_context(activeProcess);
+
+  _gst_check_process_state();
 
   atomic_store(&dispatch_vec_per_thread[current_thread_id], global_normal_bytecodes);
   _gst_interp_need_to_wait[current_thread_id] = false;
