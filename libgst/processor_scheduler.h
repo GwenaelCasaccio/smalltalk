@@ -22,7 +22,9 @@ static inline void signal_and_broadcast_for_processor_scheduler(OOP processorSch
   const OOP currentThreadIdOOP = atomic_load((_Atomic OOP*) &OBJ_PROCESSOR_SCHEDULER_GET_LOCK_THREAD_ID(OOP_TO_OBJ(processorSchedulerOOP)));
 
   if (UNCOMMON(currentThreadIdOOP != threadIdOOP)) {
-    perror("Thread ID are not the same");
+    char *str;
+    asprintf(&str, "signal_and_broadcast_for_processor_scheduler Thread ID are not the same %O != %O", threadIdOOP, currentThreadIdOOP);
+    perror(str);
     nomemory(true);
     return ;
   }
