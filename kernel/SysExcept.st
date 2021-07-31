@@ -125,6 +125,29 @@ Exception subclass: Halt [
 
 
 
+Exception subclass: ProcessInvalidThread [
+    
+    <category: 'Language-Exceptions'>
+    <comment: 'ProcessInvalidThread is raised by a Smalltalk process when a program
+    tries to suspend or resume it while its attached processor scheduler is not the
+    same as the virtual machine thread identifier'>
+
+    description [
+	"Answer a textual description of the exception."
+
+	<category: 'description'>
+	^'The program attempted to resume or suspend a process that does not belong to the virtual machine thread identifier.'
+    ]
+
+    isResumable [
+	"Answer true.  ProcessInvalidThread exceptions are by default resumable."
+
+	<category: 'description'>
+	^true
+    ]
+]
+
+
 Error subclass: ArithmeticError [
     
     <category: 'Language-Exceptions'>

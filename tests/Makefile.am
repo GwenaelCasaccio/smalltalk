@@ -19,7 +19,8 @@ quit.st random-bench.ok random-bench.st sets.ok \
 sets.st sieve.ok sieve.st strcat.ok strcat.st strings.ok strings.st \
 pools.ok pools.st Ansi.st AnsiDB.st AnsiInit.st AnsiLoad.st AnsiRun.st \
 stcompiler.st stcompiler.ok shape.st shape.ok streams.st streams.ok \
-xlat.st xlat.ok multithread.st multithread.ok
+xlat.st xlat.ok multithread.st multithread.ok \
+multithreaded_semaphore.st multithreaded_semaphore.ok
 
 CLEANFILES = gst.im
 DISTCLEANFILES = atconfig
@@ -62,9 +63,9 @@ $(TESTSUITE): $(srcdir)/testsuite.at $(srcdir)/package.m4 $(srcdir)/local.at
 	$(AUTOTEST) -I '$(srcdir)' -o $@.tmp $@.at
 	mv $@.tmp $@
 
-TESTS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test integration_tlab jit_x64 object_pointer_test bootstrap_test primitive_multithread_vm_test primitive_process_test primitive_atomic_test primitive_semaphore_test
+TESTS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test integration_tlab jit_x64 object_pointer_test bootstrap_test primitive_multithread_vm_test primitive_process_test primitive_atomic_test
 
-check_PROGRAMS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test integration_tlab jit_x64 object_pointer_test bootstrap_test primitive_multithread_vm_test primitive_process_test primitive_atomic_test primitive_semaphore_test
+check_PROGRAMS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test integration_tlab jit_x64 object_pointer_test bootstrap_test primitive_multithread_vm_test primitive_process_test primitive_atomic_test
 
 from_int_SOURCES = vm/from_int.c
 from_int_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV)

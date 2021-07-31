@@ -119,3 +119,11 @@ static intptr_t VMpr_Processor_killThread(int id, volatile int numArgs) {
 
   PRIM_SUCCEEDED;
 }
+
+static intptr_t VMpr_Processor_currentThreadId(int id, volatile int numArgs) {
+  _gst_primitives_executed++;
+
+  SET_STACKTOP(FROM_INT(current_thread_id));
+
+  PRIM_SUCCEEDED;
+}

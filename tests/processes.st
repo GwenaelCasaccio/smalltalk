@@ -375,3 +375,36 @@ Eval [
     p1 executeUntilTermination.
     p2 executeUntilTermination
 ]
+
+"Retreive the current thread id"
+Eval [
+
+    | p1 |
+    p1 := [ ] fork.
+    p1 currentThreadId.
+]
+
+"Signal a process not attached to the correct virtual machine thread id"
+Eval [
+
+    | p1 scheduler |
+    scheduler := ProcessorScheduler basicNew.
+    scheduler instVarNamed: #lockThreadId put: 1234.
+    p1 := [ ] newProcess.
+    p1 instVarNamed: #processorScheduler put: scheduler.
+    [ p1 suspend ] on: SystemExceptions.ProcessInvalidThread do: [ : ex |  'process has invalid VM thread' printNl ].
+    nil.
+]
+
+"Signal a process not attached to the correct virtual machine thread id"
+Eval [
+
+    | p1 scheduler |
+    scheduler := ProcessorScheduler basicNew.
+    scheduler instVarNamed: #lockThreadId put: 1234.
+    p1 := [ ] newProcess.
+    p1 instVarNamed: #processorScheduler put: scheduler.
+    [ p1 yield ] on: SystemExceptions.ProcessInvalidThread do: [ : ex |  'process has invalid VM thread' printNl ].
+    nil.
+]
+

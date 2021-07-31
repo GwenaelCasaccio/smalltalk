@@ -6594,4 +6594,8 @@ void _gst_init_primitives() {
   _gst_default_primitive_table[254].id = 0;
   _gst_default_primitive_table[254].func = VMpr_Atomic_xor;
 
+  _gst_default_primitive_table[255].name = "VMpr_Processor_currentThreadId";
+  _gst_default_primitive_table[255].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[255].id = 0;
+  _gst_default_primitive_table[255].func = VMpr_Processor_currentThreadId;
 }
