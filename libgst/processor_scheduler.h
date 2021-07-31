@@ -8,12 +8,13 @@ static inline void signal_and_broadcast_for_processor_scheduler(OOP processorOOP
 
 static inline void wait_for_processor_scheduler(OOP processorSchedulerOOP, size_t thread_id) {
   const OOP threadIdOOP = FROM_INT(thread_id);
-  const OOP nilOOP = _gst_nil_oop;
+  OOP nilOOP = _gst_nil_oop;
 
   while (!atomic_compare_exchange_strong((_Atomic OOP*) &OBJ_PROCESSOR_SCHEDULER_GET_LOCK_THREAD_ID(OOP_TO_OBJ(processorSchedulerOOP)),
                                          &nilOOP,
                                          threadIdOOP)) {
     _mm_pause();
+    nilOOP = _gst_nil_oop;
   }
 }
 
