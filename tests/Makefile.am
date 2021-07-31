@@ -62,9 +62,9 @@ $(TESTSUITE): $(srcdir)/testsuite.at $(srcdir)/package.m4 $(srcdir)/local.at
 	$(AUTOTEST) -I '$(srcdir)' -o $@.tmp $@.at
 	mv $@.tmp $@
 
-TESTS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test integration_tlab jit_x64 object_pointer_test bootstrap_test primitive_multithread_vm_test primitive_process_test primitive_atomic_test
+TESTS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test integration_tlab jit_x64 object_pointer_test bootstrap_test primitive_multithread_vm_test primitive_process_test primitive_atomic_test primitive_semaphore_test
 
-check_PROGRAMS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test integration_tlab jit_x64 object_pointer_test bootstrap_test primitive_multithread_vm_test primitive_process_test primitive_atomic_test
+check_PROGRAMS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test integration_tlab jit_x64 object_pointer_test bootstrap_test primitive_multithread_vm_test primitive_process_test primitive_atomic_test primitive_semaphore_test
 
 from_int_SOURCES = vm/from_int.c
 from_int_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV)
@@ -136,7 +136,7 @@ primitive_multithread_vm_test_SOURCES = vm/primitive_multithread_vm.c
 primitive_multithread_vm_test_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV) $(CMOCKA_CFLAGS)
 primitive_multithread_vm_test_LDADD = $(top_builddir)/libgst/libgst.la $(CMOCKA_LIBS) $(LIBSNPRINTFV) $(LIBTHREAD) $(top_builddir)/lib-src/library.la @ICON@
 primitive_multithread_vm_test_DEPENDENCIES = $(top_builddir)/libgst/libgst.la $(top_builddir)/lib-src/library.la @ICON@
-primitive_multithread_vm_test_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS) -Wl,--wrap,nomemory -Wl,--wrap,_gst_init_context -Wl,--wrap,_gst_invalidate_method_cache -Wl,--wrap,_gst_check_process_state -Wl,--wrap,_gst_interpret -Wl,--wrap,set_except_flag_for_thread -Wl,--wrap,pthread_create -Wl,--wrap,_gst_vm_global_barrier_wait -Wl,--wrap,_gst_vm_end_barrier_wait -Wl,--wrap,perror -Wl,--wrap,pthread_cond_signal -Wl,--wrap,empty_context_stack -Wl,--wrap,pthread_exit -Wl,--wrap,_gst_alloc_oop_arena_entry_init -Wl,--wrap,gst_allocate_in_heap -Wl,--wrap,highest_priority_process -Wl,--wrap,change_process_context
+primitive_multithread_vm_test_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS) -Wl,--wrap,nomemory -Wl,--wrap,_gst_init_context -Wl,--wrap,_gst_invalidate_method_cache -Wl,--wrap,_gst_check_process_state -Wl,--wrap,_gst_interpret -Wl,--wrap,set_except_flag_for_thread -Wl,--wrap,pthread_create -Wl,--wrap,_gst_vm_global_barrier_wait -Wl,--wrap,_gst_vm_end_barrier_wait -Wl,--wrap,perror -Wl,--wrap,pthread_cond_signal -Wl,--wrap,empty_context_stack -Wl,--wrap,pthread_exit -Wl,--wrap,_gst_alloc_oop_arena_entry_init -Wl,--wrap,gst_allocate_in_heap -Wl,--wrap,highest_priority_process -Wl,--wrap,change_process_context -Wl,--wrap,GET_PROCESS_LISTS -Wl,--wrap,add_first_link
 
 primitive_process_test_SOURCES = vm/primitive_process.c
 primitive_process_test_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV) $(CMOCKA_CFLAGS)
