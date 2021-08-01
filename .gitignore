@@ -87,6 +87,7 @@ tests/primitive_multithread_vm_test
 tests/primitive_process_test
 tests/primitive_atomic_test
 tests/semaphore_lock_test
+tests/processor_scheduler_test
 tests/*.log
 tests/*.trs
 gst.im.SandstoneDb/
