@@ -405,5 +405,10 @@ Object subclass: ProcessorScheduler [
     tracing [
 	          <primitive: VMpr_Processor_tracing>
     ]
+
+    vmThreadId [
+
+        ^ vmThreadId
+    ]
 ]
 

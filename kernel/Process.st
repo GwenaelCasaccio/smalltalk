@@ -508,7 +508,7 @@ can suspend themselves and resume themselves however they wish.'>
         <primitive: VMpr_Process_resume>
 
         processorScheduler isNil ifTrue: [ ^ SystemExceptions.ProcessInvalidThread signal ].
-        self currentThreadId == processorScheduler threadId ifFalse: [ ^ SystemExceptions.ProcessInvalidThread signal ].
+        self currentThreadId = processorScheduler vmThreadId ifFalse: [ ^ SystemExceptions.ProcessInvalidThread signal ].
         ^ SystemExceptions.ProcessTerminated signalOn: self
     ]
 

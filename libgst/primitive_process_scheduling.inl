@@ -11,9 +11,9 @@ static intptr_t VMpr_Process_suspend(int id, volatile int numArgs) {
   const OOP oop1 = STACKTOP();
   const OOP processorSchedulerOOP = OBJ_PROCESS_GET_PROCESSOR_SCHEDULER(OOP_TO_OBJ(oop1));
 
-  if (IS_NIL(processorSchedulerOOP)) {
+  if (UNCOMMON (IS_NIL(processorSchedulerOOP))) {
     PRIM_FAILED;
-  } else if (processorSchedulerOOP != _gst_processor_oop[current_thread_id]) {
+  } else if (UNCOMMON (processorSchedulerOOP != _gst_processor_oop[current_thread_id])) {
     PRIM_FAILED;
   }
 
@@ -29,9 +29,9 @@ static intptr_t VMpr_Process_resume(int id, volatile int numArgs) {
   const OOP oop1 = STACKTOP();
   const OOP processorSchedulerOOP = OBJ_PROCESS_GET_PROCESSOR_SCHEDULER(OOP_TO_OBJ(oop1));
 
-  if (IS_NIL(processorSchedulerOOP)) {
+  if (UNCOMMON (IS_NIL(processorSchedulerOOP))) {
     OBJ_PROCESS_SET_PROCESSOR_SCHEDULER(OOP_TO_OBJ(oop1), _gst_processor_oop[current_thread_id]);
-  } else if (processorSchedulerOOP != _gst_processor_oop[current_thread_id]) {
+  } else if (UNCOMMON (processorSchedulerOOP != _gst_processor_oop[current_thread_id])) {
     PRIM_FAILED;
   }
 
@@ -49,9 +49,9 @@ static intptr_t VMpr_Process_yield(int id, volatile int numArgs) {
   const OOP oop1 = STACKTOP();
   const OOP processorSchedulerOOP = OBJ_PROCESS_GET_PROCESSOR_SCHEDULER(OOP_TO_OBJ(oop1));
 
-  if (IS_NIL(processorSchedulerOOP)) {
+  if (UNCOMMON (IS_NIL(processorSchedulerOOP))) {
     PRIM_FAILED;
-  } else if (processorSchedulerOOP != _gst_processor_oop[current_thread_id]) {
+  } else if (UNCOMMON (processorSchedulerOOP != _gst_processor_oop[current_thread_id])) {
     PRIM_FAILED;
   }
 
@@ -70,10 +70,10 @@ static intptr_t VMpr_Process_singleStepWaitingOn(int id, volatile int numArgs) {
   const OOP oop1 = POP_OOP();
   const OOP processorSchedulerOOP = OBJ_PROCESS_GET_PROCESSOR_SCHEDULER(OOP_TO_OBJ(oop1));
 
-  if (IS_NIL(processorSchedulerOOP)) {
+  if (UNCOMMON (IS_NIL(processorSchedulerOOP))) {
     UNPOP(2);
     PRIM_FAILED;
-  } else if (processorSchedulerOOP != _gst_processor_oop[current_thread_id]) {
+  } else if (UNCOMMON (processorSchedulerOOP != _gst_processor_oop[current_thread_id])) {
     UNPOP(2);
     PRIM_FAILED;
   }
