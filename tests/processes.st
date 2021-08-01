@@ -376,6 +376,12 @@ Eval [
     p2 executeUntilTermination
 ]
 
+"Retreive the current thread id of the process scheduler"
+Eval [
+    'Retreive the current thread id of the process scheduler' printNl.
+    (Processor instVarNamed: #vmThreadId) == 0
+]
+
 "Retreive the current thread id"
 Eval [
 
