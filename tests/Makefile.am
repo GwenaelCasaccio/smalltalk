@@ -63,9 +63,9 @@ $(TESTSUITE): $(srcdir)/testsuite.at $(srcdir)/package.m4 $(srcdir)/local.at
 	$(AUTOTEST) -I '$(srcdir)' -o $@.tmp $@.at
 	mv $@.tmp $@
 
-TESTS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test integration_tlab jit_x64 object_pointer_test bootstrap_test primitive_multithread_vm_test primitive_process_test primitive_atomic_test semaphore_lock_test processor_scheduler_test
+TESTS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test integration_tlab jit_x64 object_pointer_test bootstrap_test primitive_multithread_vm_test primitive_process_test primitive_atomic_test semaphore_lock_test processor_scheduler_test primitive_semaphore_test
 
-check_PROGRAMS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test integration_tlab jit_x64 object_pointer_test bootstrap_test primitive_multithread_vm_test primitive_process_test primitive_atomic_test semaphore_lock_test processor_scheduler_test
+check_PROGRAMS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test integration_tlab jit_x64 object_pointer_test bootstrap_test primitive_multithread_vm_test primitive_process_test primitive_atomic_test semaphore_lock_test processor_scheduler_test primitive_semaphore_test
 
 from_int_SOURCES = vm/from_int.c
 from_int_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV)
@@ -163,3 +163,8 @@ processor_scheduler_test_LDADD = $(top_builddir)/libgst/libgst.la $(CMOCKA_LIBS)
 processor_scheduler_test_DEPENDENCIES = $(top_builddir)/libgst/libgst.la $(top_builddir)/lib-src/library.la @ICON@
 processor_scheduler_test_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS) -Wl,--wrap,nomemory -Wl,--wrap,perror
 
+primitive_semaphore_test_SOURCES = vm/primitive_semaphore.c
+primitive_semaphore_test_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV) $(CMOCKA_CFLAGS)
+primitive_semaphore_test_LDADD = $(top_builddir)/libgst/libgst.la $(CMOCKA_LIBS) $(LIBSNPRINTFV) $(LIBTHREAD) $(top_builddir)/lib-src/library.la @ICON@
+primitive_semaphore_test_DEPENDENCIES = $(top_builddir)/libgst/libgst.la $(top_builddir)/lib-src/library.la @ICON@
+primitive_semaphore_test_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS) -Wl,--wrap,nomemory -Wl,--wrap,_gst_sync_signal -Wl,--wrap,_gst_sync_wait -Wl,--wrap,wait_for_semaphore -Wl,--wrap,signal_and_broadcast_for_semaphore -Wl,--wrap,STACKTOP -Wl,--wrap,FROM_INT -Wl,--wrap,TO_INT -Wl,--wrap,SET_STACKTOP_BOOLEAN -Wl,--wrap,POP_OOP
