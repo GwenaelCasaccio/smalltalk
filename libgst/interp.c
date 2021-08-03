@@ -351,6 +351,8 @@ static void sleep_process(OOP processOOP);
 /* Yield control from the active process.  */
 static void active_process_yield(void);
 
+static void remove_process_from_list(OOP processOOP);
+
 /* Sets flags so that the interpreter switches to PROCESSOOP at the
    next sequence point.  Unless PROCESSOOP is already active, in which
    case nothing happens, the process is made the head of the list of
@@ -1505,7 +1507,6 @@ void add_last_link(OOP semaphoreOOP, OOP processOOP) {
   OOP lastProcessOOP;
 
   process = OOP_TO_OBJ(processOOP);
-  remove_process_from_list(processOOP);
 
   sem = OOP_TO_OBJ(semaphoreOOP);
   OBJ_PROCESS_SET_MY_LIST(process, semaphoreOOP);
@@ -1548,20 +1549,37 @@ bool _gst_sync_signal(OOP semaphoreOOP, bool incr_if_empty) {
   gst_object suspendedContext;
   OOP processOOP;
   int spOffset;
+  bool isTerminatingProcess = false;
 
   sem = OOP_TO_OBJ(semaphoreOOP);
   do {
     if (is_empty(semaphoreOOP)) {
-      if (incr_if_empty)
+      if (incr_if_empty) {
         OBJ_SEMAPHORE_SET_SIGNALS(sem,
                                   INCR_INT(OBJ_SEMAPHORE_GET_SIGNALS(sem)));
+      }
       return false;
     }
 
     processOOP = remove_first_link(semaphoreOOP);
 
+    isTerminatingProcess = is_process_terminating(processOOP);
+    if (!isTerminatingProcess) {
+      OOP processorSchedulerOOP = OBJ_PROCESS_GET_PROCESSOR_SCHEDULER(OOP_TO_OBJ(processOOP));
+      int threadId = TO_INT(OBJ_PROCESSOR_SCHEDULER_GET_VM_THREAD_ID(OOP_TO_OBJ(processorSchedulerOOP)));
+
+      if (threadId == current_thread_id) {
+        wait_for_processor_scheduler(processorSchedulerOOP, current_thread_id);
+        resume_process(processOOP, false);
+        signal_and_broadcast_for_processor_scheduler(processorSchedulerOOP, current_thread_id);
+      } else {
+        _gst_register_oop(processOOP);
+        _gst_async_call_on_thread(_gst_do_resume_and_unregister, processOOP, threadId);
+      }
+    }
+
     /* If they terminated this process, well, try another */
-  } while (!resume_process(processOOP, false));
+  } while (isTerminatingProcess);
 
   /* Put the semaphore at the stack top as a marker that the
      wait was not interrupted.  This assumes that _gst_sync_wait
@@ -1572,6 +1590,11 @@ bool _gst_sync_signal(OOP semaphoreOOP, bool incr_if_empty) {
   OBJ_METHOD_CONTEXT_CONTEXT_STACK_AT_PUT(suspendedContext, spOffset,
                                           semaphoreOOP);
   return true;
+}
+
+void _gst_do_resume_and_unregister(OOP processOOP) {
+  resume_process(processOOP, false);
+  _gst_unregister_oop(processOOP);
 }
 
 void _gst_do_async_signal(OOP semaphoreOOP) {
@@ -1598,7 +1621,7 @@ void _gst_async_call_internal(async_queue_entry *e) {
   SET_EXCEPT_FLAG_FOR_SIGNAL_FOR_THREAD(true, 0);
 }
 
-void _gst_async_call(void (*func)(OOP), OOP arg) {
+void _gst_async_call_on_thread(void (*func)(OOP), OOP arg, size_t thread_id) {
   /* Thread-safe version for the masses.  This lockless stack
      is reversed in the interpreter loop to get FIFO behavior.  */
   async_queue_entry *sig = xmalloc(sizeof(async_queue_entry));
@@ -1606,10 +1629,14 @@ void _gst_async_call(void (*func)(OOP), OOP arg) {
   sig->data = arg;
 
   do
-    sig->next = queued_async_signals[0];
-  while (!__sync_bool_compare_and_swap(&queued_async_signals[0], sig->next, sig));
+    sig->next = queued_async_signals[thread_id];
+  while (!__sync_bool_compare_and_swap(&queued_async_signals[thread_id], sig->next, sig));
   _gst_wakeup();
-  SET_EXCEPT_FLAG_FOR_THREAD(true, 0);
+  SET_EXCEPT_FLAG_FOR_THREAD(true, thread_id);
+}
+
+void _gst_async_call(void (*func)(OOP), OOP arg) {
+  _gst_async_call_on_thread(func, arg, 0);
 }
 
 bool _gst_have_pending_async_calls() {
@@ -1680,33 +1707,37 @@ void _gst_async_signal_and_unregister(OOP semaphoreOOP) {
 }
 
 void sync_wait_process(OOP semaphoreOOP, OOP processOOP) {
-  gst_object sem;
   bool isActive;
 
-  sem = OOP_TO_OBJ(semaphoreOOP);
+  gst_object semaphore = OOP_TO_OBJ(semaphoreOOP);
   if (IS_NIL(processOOP)) {
     processOOP = get_active_process();
     isActive = true;
-  } else
+  } else {
     isActive = (processOOP == get_active_process());
+  }
 
-  if (TO_INT(OBJ_SEMAPHORE_GET_SIGNALS(sem)) <= 0) {
+  if (TO_INT(OBJ_SEMAPHORE_GET_SIGNALS(semaphore)) <= 0) {
     /* Have to suspend.  Prepare return value for #wait and move
        this process to the end of the list.
 
        Tweaking the stack top means that this function should only
        be called from a primitive.  */
     SET_STACKTOP(_gst_nil_oop);
+
+    OOP processorOOP = OBJ_PROCESS_GET_PROCESSOR_SCHEDULER(OOP_TO_OBJ(processOOP));
+    wait_for_processor_scheduler(processorOOP, current_thread_id);
     remove_process_from_list(processOOP);
+    signal_and_broadcast_for_processor_scheduler(processorOOP, current_thread_id);
+
     add_last_link(semaphoreOOP, processOOP);
     if (isActive && IS_NIL(ACTIVE_PROCESS_YIELD())) {
-      printf("No runnable process");
-      activate_process(_gst_prepare_execution_environment());
+      perror("No runnable process Thread ID can be different than current thread id");
+      nomemory(true);
     }
-  } else
-    OBJ_SEMAPHORE_SET_SIGNALS(sem, DECR_INT(OBJ_SEMAPHORE_GET_SIGNALS(sem)));
-
-  /* printf ("wait %O %O\n", semaphoreOOP, sem->firstLink); */
+  } else {
+    OBJ_SEMAPHORE_SET_SIGNALS(semaphore, DECR_INT(OBJ_SEMAPHORE_GET_SIGNALS(semaphore)));
+  }
 }
 
 void _gst_sync_wait(OOP semaphoreOOP) {
@@ -1724,8 +1755,9 @@ OOP remove_first_link(OOP semaphoreOOP) {
 
   sem = OOP_TO_OBJ(semaphoreOOP);
   OBJ_SEMAPHORE_SET_FIRST_LINK(sem, OBJ_PROCESS_GET_NEXT_LINK(process));
-  if (IS_NIL(OBJ_SEMAPHORE_GET_FIRST_LINK(sem)))
+  if (IS_NIL(OBJ_SEMAPHORE_GET_FIRST_LINK(sem))) {
     OBJ_SEMAPHORE_SET_LAST_LINK(sem, _gst_nil_oop);
+  }
 
   /* Unlink the process from any list it was in! */
   OBJ_PROCESS_SET_MY_LIST(process, _gst_nil_oop);
@@ -1741,7 +1773,6 @@ bool resume_process(OOP processOOP, bool alwaysPreempt) {
   gst_object process, active;
   /* bool ints_enabled; */
 
-  /* 2002-19-12: tried get_active_process instead of get_scheduled_process.  */
   activeOOP = get_active_process();
   active = OOP_TO_OBJ(activeOOP);
   process = OOP_TO_OBJ(processOOP);
@@ -1757,17 +1788,13 @@ bool resume_process(OOP processOOP, bool alwaysPreempt) {
   if (processOOP == activeOOP) {
     assert(!alwaysPreempt);
     remove_process_from_list(processOOP);
-  } else if (priority >= TO_INT(OBJ_PROCESS_GET_PRIORITY(active)) /* && ints_enabled */)
+  } else if (priority >= TO_INT(OBJ_PROCESS_GET_PRIORITY(active)) /* && ints_enabled */) {
     alwaysPreempt = true;
+  }
 
-  if (IS_NIL(processOOP) || is_process_terminating(processOOP))
+  if (is_process_terminating(processOOP)) {
     /* The process was terminated - nothing to resume, fail */
-    return (false);
-
-  /* We have no active process, activate this guy instantly.  */
-  if (IS_NIL(activeOOP)) {
-    activate_process(processOOP);
-    return (true);
+    return false;
   }
 
   processLists = GET_PROCESS_LISTS();
@@ -1776,8 +1803,9 @@ bool resume_process(OOP processOOP, bool alwaysPreempt) {
   if (alwaysPreempt) {
     /* We're resuming a process with a *equal or higher* priority, so sleep
        the current one and activate the new one */
-    if (OBJ_PROCESS_GET_MY_LIST(active) != _gst_nil_oop)
+    if (OBJ_PROCESS_GET_MY_LIST(active) != _gst_nil_oop) {
       sleep_process(activeOOP);
+    }
     activate_process(processOOP);
   } else {
     /* this process has a lower priority than the active one, so the
@@ -1787,7 +1815,7 @@ bool resume_process(OOP processOOP, bool alwaysPreempt) {
     add_first_link(processList, processOOP);
   }
 
-  return (true);
+  return true;
 }
 
 OOP activate_process(OOP processOOP) {
@@ -1855,6 +1883,7 @@ void sleep_process(OOP processOOP) {
   processList = ARRAY_AT(processLists, priority);
 
   /* add process to end of priority queue */
+  remove_process_from_list(processOOP);
   add_last_link(processList, processOOP);
 }
 
@@ -1901,6 +1930,7 @@ OOP highest_priority_process(void) {
     if (!is_empty(processListOOP)) {
       processOOP = remove_first_link(processListOOP);
       if (processOOP == get_scheduled_process()) {
+        remove_process_from_list(processOOP);
         add_last_link(processListOOP, processOOP);
         _gst_check_process_state();
 
@@ -2085,6 +2115,7 @@ OOP create_callin_process(OOP contextOOP) {
   OBJ_PROCESS_SET_INTERRUPT_LOCK(initialProcess, _gst_nil_oop);
   OBJ_PROCESS_SET_SUSPENDED_CONTEXT(initialProcess, contextOOP);
   OBJ_PROCESS_SET_NAME(initialProcess, nameOOP);
+  OBJ_PROCESS_SET_PROCESSOR_SCHEDULER(initialProcess, _gst_processor_oop[current_thread_id]);
   INC_RESTORE_POINTER(inc);
 
   /* Put initialProcessOOP in the root set */

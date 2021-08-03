@@ -95,3 +95,40 @@ returned value is Process new "<0>"
 
 Execution begins...
 returned value is Process new "<0>"
+
+Execution begins...
+'Retreive the current thread id of the process scheduler'
+returned value is true
+
+Execution begins...
+Retreive the current thread id
+returned value is 0
+
+Execution begins...
+When suspend a process without scheduler Then it throws an exception
+process has invalid VM thread
+returned value is nil
+
+Execution begins...
+Signal a process not attached to the correct virtual machine thread id
+'process has invalid VM thread'
+returned value is nil
+
+Execution begins...
+When a process yield without a processor scheduler Then an exception is raised
+'process has invalid VM thread'
+returned value is nil
+
+Execution begins...
+Signal a process not attached to the correct virtual machine thread id
+'process has invalid VM thread'
+returned value is nil
+
+Execution begins...
+Should not signal when try to resume a process not attached to a process scheduler
+returned value is true
+
+Execution begins...
+Signal when try to resume a process and thread id different than process scheduler thread id
+process has invalid VM thread
+returned value is nil

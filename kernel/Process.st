@@ -110,13 +110,15 @@ can suspend themselves and resume themselves however they wish.'>
     ]
 
     suspend [
-	"Do nothing if we're already suspended. Note that the blue book made
-	 suspend a primitive - but the real primitive is yielding control to
-	 another process. Suspending is nothing more than taking ourselves out
-	 of every scheduling list and THEN yielding control to another process"
+        "Do nothing if we're already suspended. Note that the blue book made
+        suspend a primitive - but the real primitive is yielding control to
+        another process. Suspending is nothing more than taking ourselves out
+        of every scheduling list and THEN yielding control to another process"
 
-	<category: 'builtins'>
-	<primitive: VMpr_Process_suspend>
+        <category: 'builtins'>
+        <primitive: VMpr_Process_suspend>
+
+        SystemExceptions.ProcessInvalidThread signal
     ]
 
     finalize [
@@ -432,8 +434,6 @@ can suspend themselves and resume themselves however they wish.'>
 	closure :=
 	    [[[
 		priority := aPriority.
-  'SUSPEND' basicPrint.
-  'SUSPEND' basicPrint.
 		aBlockClosure value]
 			on: SystemExceptions.ProcessBeingTerminated
 			do: 
@@ -482,6 +482,11 @@ can suspend themselves and resume themselves however they wish.'>
 	^self isReady not & self isSuspended not
     ]
 
+    currentThreadId [
+
+        <primitive: VMpr_Processor_currentThreadId>
+    ]
+
     singleStepWaitingOn: aSemaphore [
 	"Execute a limited amount of code (usually a bytecode, or up to the
 	 next backward jump, or up to the next message send) of the receiver,
@@ -497,19 +502,23 @@ can suspend themselves and resume themselves however they wish.'>
     ]
 
     resume [
-	"Resume the receiver's execution"
+        "Resume the receiver's execution"
 
-	<category: 'builtins'>
-	<primitive: VMpr_Process_resume>
-	SystemExceptions.ProcessTerminated signalOn: self
+        <category: 'builtins'>
+        <primitive: VMpr_Process_resume>
+
+        processorScheduler isNil ifTrue: [ ^ SystemExceptions.ProcessInvalidThread signal ].
+        self currentThreadId = processorScheduler vmThreadId ifFalse: [ ^ SystemExceptions.ProcessInvalidThread signal ].
+        ^ SystemExceptions.ProcessTerminated signalOn: self
     ]
 
     yield [
-	"Yield control from the receiver to other processes"
+        "Yield control from the receiver to other processes"
 
-	<category: 'builtins'>
-	<primitive: VMpr_Process_yield>
-	
+        <category: 'builtins'>
+        <primitive: VMpr_Process_yield>
+
+        SystemExceptions.ProcessInvalidThread signal
     ]
 
     setBlock: aBlockClosure [

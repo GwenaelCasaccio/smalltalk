@@ -375,3 +375,91 @@ Eval [
     p1 executeUntilTermination.
     p2 executeUntilTermination
 ]
+
+"Retreive the current thread id of the process scheduler"
+Eval [
+    'Retreive the current thread id of the process scheduler' printNl.
+    (Processor instVarNamed: #vmThreadId) == 0
+]
+
+"Retreive the current thread id"
+Eval [
+
+    | p1 |
+    'Retreive the current thread id' displayNl.
+    p1 := [ ] fork.
+    p1 currentThreadId.
+]
+
+Eval [
+
+    | p1 |
+    'When suspend a process without scheduler Then it throws an exception' displayNl.
+    p1 := [ ] newProcess.
+    p1 instVarNamed: #processorScheduler put: nil.
+    [ p1 suspend ] on: SystemExceptions.ProcessInvalidThread do: [ : ex |  'process has invalid VM thread' displayNl ].
+    nil.
+]
+
+"Signal a process not attached to the correct virtual machine thread id"
+Eval [
+
+    | p1 scheduler |
+    'Signal a process not attached to the correct virtual machine thread id' displayNl.
+    scheduler := ProcessorScheduler basicNew.
+    scheduler instVarNamed: #vmThreadId put: 1234.
+    p1 := [ ] newProcess.
+    p1 instVarNamed: #processorScheduler put: scheduler.
+    [ p1 suspend ] on: SystemExceptions.ProcessInvalidThread do: [ : ex |  'process has invalid VM thread' printNl ].
+    nil.
+]
+
+" When a process yield without a processor scheduler Then an exception is raised "
+Eval [
+
+    | p1 |
+    'When a process yield without a processor scheduler Then an exception is raised' displayNl.
+    p1 := [ ] newProcess.
+    p1 instVarNamed: #processorScheduler put: nil.
+    [ p1 yield ] on: SystemExceptions.ProcessInvalidThread do: [ : ex |  'process has invalid VM thread' printNl ].
+    nil.
+]
+
+"Signal a process not attached to the correct virtual machine thread id"
+Eval [
+
+    | p1 scheduler |
+    'Signal a process not attached to the correct virtual machine thread id' displayNl.
+    scheduler := ProcessorScheduler basicNew.
+    scheduler instVarNamed: #vmThreadId put: 1234.
+    p1 := [ ] newProcess.
+    p1 instVarNamed: #processorScheduler put: scheduler.
+    [ p1 yield ] on: SystemExceptions.ProcessInvalidThread do: [ : ex |  'process has invalid VM thread' printNl ].
+    nil.
+]
+
+" Should not signal when try to resume a process not attached to a process scheduler "
+Eval [
+
+    | p1 scheduler |
+    'Should not signal when try to resume a process not attached to a process scheduler' displayNl.
+    scheduler := ProcessorScheduler basicNew.
+    scheduler instVarNamed: #vmThreadId put: 1234.
+    p1 := [ ] newProcess.
+    p1 instVarNamed: #processorScheduler put: nil.
+    [ p1 resume ] on: SystemExceptions.ProcessInvalidThread do: [ : ex |  'process has invalid VM thread' displayNl ].
+    (p1 instVarNamed: #processorScheduler) == Processor.
+]
+
+" Signal when try to resume a process and thread id different than process scheduler thread id "
+Eval [
+
+    | p1 scheduler |
+    'Signal when try to resume a process and thread id different than process scheduler thread id' displayNl.
+    scheduler := ProcessorScheduler basicNew.
+    scheduler instVarNamed: #vmThreadId put: 1234.
+    p1 := [ ] newProcess.
+    p1 instVarNamed: #processorScheduler put: scheduler.
+    [ p1 resume ] on: SystemExceptions.ProcessInvalidThread do: [ : ex |  'process has invalid VM thread' displayNl ].
+    nil.
+]

@@ -51,6 +51,9 @@ noinst_HEADERS = 																												\
 	forward_object.h vm.inl stack.inl barrier.h 													\
 	primitive_process.inl 																								\
 	primitive_process_scheduling.inl 																			\
+	primitive_semaphore.inl 																							\
+  semaphore.h 																							            \
+	processor_scheduler.h                                                 \
 	sysdep/common/files.c sysdep/common/time.c sysdep/cygwin/files.c 			\
 	sysdep/cygwin/findexec.c sysdep/cygwin/mem.c sysdep/cygwin/signals.c 	\
 	sysdep/cygwin/time.c sysdep/cygwin/timer.c sysdep/posix/files.c 			\

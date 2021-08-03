@@ -32,6 +32,11 @@ Eval [
   ps4 newThread.
 
   (Delay forSeconds: 10) wait.
+  '' displayNl.
+  ((ps1 instVarNamed: #vmThreadId) = 1) printNl.
+  ((ps2 instVarNamed: #vmThreadId) = 2) printNl.
+  ((ps3 instVarNamed: #vmThreadId) = 3) printNl.
+  ((ps4 instVarNamed: #vmThreadId) = 4) printNl.
 ]
 
 Eval [

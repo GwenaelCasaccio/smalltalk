@@ -12,6 +12,8 @@
 void change_process_context(OOP newProcess);
 void empty_context_stack(void);
 OOP highest_priority_process(void);
+OOP GET_PROCESS_LISTS();
+void add_first_link(OOP listOOP, OOP processOOP);
 
 OOP switch_to_process[100];
 bool async_queue_enabled[100] = { true };
@@ -135,6 +137,20 @@ void __wrap__gst_vm_end_barrier_wait(void) {
 
 void __wrap_perror(const char *msg) {
   assert_true(msg != NULL);
+
+  function_called();
+}
+
+
+OOP __wrap_GET_PROCESS_LISTS() {
+  function_called();
+
+  return (OOP) mock();
+}
+
+void __wrap_add_first_link(OOP listOOP, OOP processOOP) {
+  check_expected(listOOP);
+  check_expected(processOOP);
 
   function_called();
 }
@@ -290,15 +306,37 @@ static void should_initialize_new_vm_thread(void **state) {
 
   expect_function_calls(__wrap__gst_check_process_state, 1);
 
-  will_return(__wrap_highest_priority_process, 0x1000);
+  const OOP processOOP = malloc(sizeof(*processOOP));
+  const gst_object process = calloc(20, sizeof(OOP));
+  OOP_SET_OBJECT(processOOP, process);
+  will_return(__wrap_highest_priority_process, processOOP);
   expect_function_calls(__wrap_highest_priority_process, 1);
 
-  expect_value(__wrap_change_process_context, processOOP, 0x1000);
+  const OOP processListsOOP = malloc(sizeof(*processListsOOP));
+  const gst_object processLists = calloc(20, sizeof(OOP));
+  OOP_SET_OBJECT(processListsOOP, processLists);
+
+  const OOP semaphoreOOP = malloc(sizeof(*semaphoreOOP));
+  const gst_object semaphore = calloc(20, sizeof(OOP));
+  OOP_SET_OBJECT(semaphoreOOP, semaphore);
+
+  processLists->data[8] = semaphoreOOP;
+
+  will_return(__wrap_GET_PROCESS_LISTS, processListsOOP);
+  expect_function_calls(__wrap_GET_PROCESS_LISTS, 1);
+
+  expect_value(__wrap_add_first_link, listOOP, semaphoreOOP);
+  expect_value(__wrap_add_first_link, processOOP, processOOP);
+  expect_function_calls(__wrap_add_first_link, 1);
+
+  expect_value(__wrap_change_process_context, processOOP, processOOP);
   expect_function_calls(__wrap_change_process_context, 1);
+
+  expect_function_calls(__wrap__gst_check_process_state, 1);
 
   expect_function_calls(__wrap__gst_vm_end_barrier_wait, 1);
 
-  expect_value(__wrap__gst_interpret, processOOP, 0x1000);
+  expect_value(__wrap__gst_interpret, processOOP, processOOP);
   will_return(__wrap__gst_interpret, NULL);
   expect_function_calls(__wrap__gst_interpret, 1);
 
@@ -321,6 +359,24 @@ static void should_initialize_new_vm_thread(void **state) {
   assert_true(dispatch_vec_per_thread[current_thread_id] == global_normal_bytecodes);
 }
 
+static void should_set_current_thread_id(void **state) {
+  (void) state;
+
+  // When
+  OOP stack[1] = { (OOP) 0x1234 };
+
+  current_thread_id = 0;
+
+  sp[current_thread_id] = &stack[0];
+
+  // Then
+  VMpr_Processor_currentThreadId(0, 0);
+
+  //
+  assert_true(sp[current_thread_id] == &stack[0]);
+  assert_true(*sp[current_thread_id] == FROM_INT(current_thread_id));
+}
+
 int main(void) {
   const struct CMUnitTest tests[] =
     {
@@ -329,6 +385,7 @@ int main(void) {
       cmocka_unit_test(should_abort_if_cannot_signal_conditional_variable),
       cmocka_unit_test(should_exit_thread),
       cmocka_unit_test(should_initialize_new_vm_thread),
+      cmocka_unit_test(should_set_current_thread_id),
     };
 
   return cmocka_run_group_tests(tests, NULL, NULL);

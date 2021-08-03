@@ -1,6 +1,11 @@
 
 Execution begins...
-Object: 'ok'Object: 'ok'Object: 'ok'Object: 'ok'returned value is Delay new "<0>"
+Object: 'ok'Object: 'ok'Object: 'ok'Object: 'ok'
+true
+true
+true
+true
+returned value is true
 
 Execution begins...
 Object: trueObject: trueObject: trueObject: trueObject: trueObject: trueObject: trueObject: trueObject: trueObject: truereturned value is true

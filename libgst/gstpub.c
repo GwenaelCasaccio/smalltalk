@@ -84,9 +84,6 @@ VMProxy gst_interpreter_proxy = {
   _gst_oop_to_bool, _gst_oop_to_char,
   _gst_oop_to_string, _gst_oop_to_byte_array, _gst_oop_to_c_object,
 
-/* Smalltalk process support */
-  _gst_async_signal, _gst_sync_wait, _gst_async_signal_and_unregister,
-
   _gst_register_oop_array, _gst_unregister_oop_array,
 
 /* Convert Smalltalk datatypes to C data types (2) */
@@ -117,7 +114,6 @@ VMProxy gst_interpreter_proxy = {
   _gst_oop_indexed_base,
   _gst_oop_indexed_kind,
   _gst_async_call,
-  _gst_sync_signal,
   _gst_show_backtrace,
 
   /* New in 3.2.  */
@@ -388,36 +384,6 @@ PTR
 gst_oop_to_c_object (OOP oop)
 {
   return _gst_oop_to_c_object (oop);
-}
-
-void
-gst_async_signal (OOP semaphore_oop)
-{
-  _gst_async_signal (semaphore_oop);
-}
-
-void
-gst_sync_wait (OOP semaphore_oop)
-{
-  _gst_sync_wait (semaphore_oop);
-}
-
-void
-gst_async_signal_and_unregister (OOP semaphore_oop)
-{
-  _gst_async_signal_and_unregister (semaphore_oop);
-}
-
-bool
-gst_sync_signal (OOP semaphore_oop, bool incr_if_empty)
-{
-  return _gst_sync_signal (semaphore_oop, incr_if_empty);
-}
-
-void
-gst_async_call (void (*func) (OOP), OOP semaphore_oop)
-{
-  _gst_async_call (func, semaphore_oop);
 }
 
 void

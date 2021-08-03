@@ -33,7 +33,7 @@
 
 
 Object subclass: ProcessorScheduler [
-    | processLists activeProcess idleTasks processTimeslice gcSemaphore gcArray eventSemaphore vmThreadId |
+    | processLists activeProcess idleTasks processTimeslice gcSemaphore gcArray eventSemaphore vmThreadId lockThreadId |
     
     <category: 'Language-Processes'>
     <comment: 'I provide methods that control the execution of processes.'>
@@ -404,6 +404,11 @@ Object subclass: ProcessorScheduler [
 
     tracing [
 	          <primitive: VMpr_Processor_tracing>
+    ]
+
+    vmThreadId [
+
+        ^ vmThreadId
     ]
 ]
 

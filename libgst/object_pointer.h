@@ -162,6 +162,12 @@ extern intptr_t _gst_object_identity;
 
 #define OBJ_SEMAPHORE_GET_NAME(obj) ((obj))->data[3]
 
+#define OBJ_SEMAPHORE_GET_LOCK_THREAD_ID(obj) ((obj))->data[4]
+#define OBJ_SEMAPHORE_SET_LOCK_THREAD_ID(obj, valueOOP)                        \
+  do {                                                                         \
+    ((obj))->data[4] = (valueOOP);                                             \
+  } while (0)
+
 #define OBJ_DICTIONARY_GET_TALLY(obj) ((obj))->data[0]
 #define OBJ_DICTIONARY_SET_TALLY(obj, valueOOP)                                \
   do {                                                                         \
@@ -674,6 +680,12 @@ extern intptr_t _gst_object_identity;
 #define OBJ_PROCESSOR_SCHEDULER_SET_VM_THREAD_ID(obj, valueOOP)                \
   do {                                                                         \
     (((obj))->data)[7] = (valueOOP);                                           \
+  } while (0)
+
+#define OBJ_PROCESSOR_SCHEDULER_GET_LOCK_THREAD_ID(obj) (((obj))->data)[8]
+#define OBJ_PROCESSOR_SCHEDULER_SET_LOCK_THREAD_ID(obj, valueOOP)              \
+  do {                                                                         \
+    (((obj))->data)[8] = (valueOOP);                                           \
   } while (0)
 
 #endif /* GST_OBJECT_POINTER_H */

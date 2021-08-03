@@ -33,7 +33,7 @@
 
 
 LinkedList subclass: Semaphore [
-    | signals name |
+    | signals name lockThreadId |
     
     <category: 'Language-Processes'>
     <comment: 'My instances represent counting semaphores.  I provide methods for signalling
