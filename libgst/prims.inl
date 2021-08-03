@@ -2856,7 +2856,7 @@ static intptr_t VMpr_ArrayedCollection_equal(int id, volatile int numArgs) {
   dstOOP = STACKTOP();
   if COMMON (OOP_INT_CLASS(srcOOP) == OOP_INT_CLASS(dstOOP)) {
     intptr_t spec = OOP_INSTANCE_SPEC(srcOOP);
-    if (spec & (~0 << ISP_NUMFIXEDFIELDS))
+    if (spec & ((uintptr_t) ~0 << ISP_NUMFIXEDFIELDS))
       goto bad;
 
     /* dstEnd is inclusive: (1 to: 1) has length 1 */

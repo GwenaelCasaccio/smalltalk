@@ -181,12 +181,12 @@
 
 /* the prefetch is a loss on a ARM9 (TI Davinci), hack it out */
 #if !defined(DISABLE_PREFETCH) && GNUC_PREREQ (3, 1)
-#define DO_PREFETCH(x, distance, k) \
-  __builtin_prefetch (((char *) (x)) \
-		      + (((k) & PREF_BACKWARDS ? -(distance) : (distance)) \
-			 << L1_CACHE_SHIFT), \
-		      (k) & PREF_WRITE, \
-		      3 - (k) / (PREF_NTA / 3))
+#define DO_PREFETCH(x, distance, k)                                     \
+  __builtin_prefetch (((char *) (x))                                    \
+                      + (((k) & PREF_BACKWARDS ? (uintptr_t) -(distance) : (distance)) \
+                         << L1_CACHE_SHIFT),                            \
+                      (k) & PREF_WRITE,                                 \
+                      3 - (k) / (PREF_NTA / 3))
 #else
 #define DO_PREFETCH(x, distance, kind) ((void)(x))
 #endif
@@ -489,7 +489,7 @@ extern OOP _gst_nil_oop
   ((intptr_t)(oop) >> 1)
 
 #define FROM_INT(i) \
-  (OOP)( ((intptr_t)(i) << 1) + 1)
+  (OOP)( ((uintptr_t)(i) << 1) + 1)
 
 #define ST_INT_SIZE        ((sizeof (PTR) * 8) - 2)
 #define MAX_ST_INT         ((1L << ST_INT_SIZE) - 1)
