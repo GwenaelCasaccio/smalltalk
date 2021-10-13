@@ -1032,7 +1032,7 @@ void init_c_symbols() {
   NAMESPACE_AT_PUT(cSymbolsOOP, _gst_intern_string("CDoubleBinaryDigits"),
                    FROM_INT(DBL_MANT_DIG));
   NAMESPACE_AT_PUT(cSymbolsOOP, _gst_intern_string("CDoubleMinExp"),
-                   FROM_INT(DBL_MIN_EXP));
+                   FROM_INT((DBL_MIN_EXP)));
   NAMESPACE_AT_PUT(cSymbolsOOP, _gst_intern_string("CDoubleMaxExp"),
                    FROM_INT(DBL_MAX_EXP));
   NAMESPACE_AT_PUT(cSymbolsOOP, _gst_intern_string("CDoubleAlignment"),

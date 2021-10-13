@@ -19,6 +19,6 @@ extern void _gst_heap_new_area(gst_heap_t **heap, size_t generation_size);
 
 extern void _gst_heap_free_area(gst_heap_t *heap);
 
-_Static_assert(sizeof(gst_heap_t) == heap_size);
+_Static_assert(sizeof(gst_heap_t) == heap_size, "Sizeof gest_heap_t struct should be equal to heap_size");
 
 #endif /* GST_NEW_HEAP_H */

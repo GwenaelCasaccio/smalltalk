@@ -2101,40 +2101,43 @@ parse_message_expression (gst_parser *p, tree_node receiver, enum expr_kinds kin
   int n;
   for (n = 0; ; n++)
     {
-      switch (token (p, 0))
-	{
-	case IDENTIFIER:
-	  node = parse_unary_expression (p, node, kind & ~EXPR_CASCADE);
-	  break;
+      int t = token (p, 0);
 
-	case '>':
-	  if ((kind & EXPR_GREATER) == 0)
-	    return node;
+      if (t == '>' && (kind & EXPR_GREATER) == 0) {
+        return node;
+      }
 
-	case BINOP:
-	case '<':
+      switch (t)
+        {
+        case IDENTIFIER:
+          node = parse_unary_expression (p, node, kind & ~EXPR_CASCADE);
+          break;
+
+        case '>':
+        case BINOP:
+        case '<':
         case '-':
-	case '|':
-	  if ((kind & EXPR_BINOP) == 0)
-	    return node;
-	  node = parse_binary_expression (p, node, kind & ~EXPR_CASCADE);
-	  break;
+        case '|':
+          if ((kind & EXPR_BINOP) == 0)
+            return node;
+          node = parse_binary_expression (p, node, kind & ~EXPR_CASCADE);
+          break;
 
-	case KEYWORD:
-	  if ((kind & EXPR_KEYWORD) == 0)
-	    return node;
-	  node = parse_keyword_expression (p, node, kind & ~EXPR_CASCADE);
-	  break;
+        case KEYWORD:
+          if ((kind & EXPR_KEYWORD) == 0)
+            return node;
+          node = parse_keyword_expression (p, node, kind & ~EXPR_CASCADE);
+          break;
 
-	case ';':
-	  if (n == 0 || (kind & EXPR_CASCADE) == 0)
-	    return node;
-	  return _gst_make_cascaded_message (&node->location, node,
-					     parse_cascaded_messages (p));
+        case ';':
+          if (n == 0 || (kind & EXPR_CASCADE) == 0)
+            return node;
+          return _gst_make_cascaded_message (&node->location, node,
+                                             parse_cascaded_messages (p));
 
-	default:
-	  return node;
-	}
+        default:
+          return node;
+        }
     }
 
   abort ();
