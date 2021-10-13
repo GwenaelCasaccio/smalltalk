@@ -413,9 +413,10 @@ _gst_yylex (PTR lvalp, YYLTYPE *llocp)
 
 
 int
-invalid (int c,
-	 YYSTYPE * lvalp)
+invalid (int c, YYSTYPE * lvalp)
 {
+  UNUSED(lvalp);
+
   char cp[5];
 
   if (c < ' ' || c == 127)
@@ -439,36 +440,41 @@ invalid (int c,
 
 
 int
-scan_reset_paren (int c,
-	         YYSTYPE * lvalp)
+scan_reset_paren (int c, YYSTYPE * lvalp)
 {
+  UNUSED(lvalp);
+
   if (_gst_get_cur_stream_prompt ())
     parenthesis_depth = 0;
   return c;
 }
 
 int
-scan_open_paren (int c,
-	         YYSTYPE * lvalp)
+scan_open_paren (int c, YYSTYPE * lvalp)
 {
+  UNUSED(lvalp);
+
   if (_gst_get_cur_stream_prompt ())
     parenthesis_depth++;
   return c;
 }
 
 int
-scan_close_paren (int c,
-	          YYSTYPE * lvalp)
+scan_close_paren (int c, YYSTYPE * lvalp)
 {
+  UNUSED(lvalp);
+
   if (_gst_get_cur_stream_prompt ())
     parenthesis_depth--;
   return c;
 }
 
 int
-scan_newline (int c,
-	      YYSTYPE * lvalp)
+scan_newline (int c, YYSTYPE * lvalp)
 {
+  UNUSED(c);
+  UNUSED(lvalp);
+
   if (_gst_get_cur_stream_prompt ())
     {
       /* Newline is special-cased in the REPL.  */
@@ -489,9 +495,10 @@ scan_newline (int c,
 
 
 int
-comment (int c,
-	 YYSTYPE * lvalp)
+comment (int c, YYSTYPE * lvalp)
 {
+  UNUSED(lvalp);
+
   int ic;
 
   do
@@ -509,9 +516,11 @@ comment (int c,
 }
 
 int
-char_literal (int c,
-	      YYSTYPE * lvalp)
+char_literal (int c, YYSTYPE * lvalp)
 {
+  UNUSED(c);
+  UNUSED(lvalp);
+
   int ic;
 
   ic = _gst_next_char ();
@@ -537,9 +546,11 @@ char_literal (int c,
 }
 
 int
-scan_colon (int c,
-	     YYSTYPE * lvalp)
+scan_colon (int c, YYSTYPE * lvalp)
 {
+  UNUSED(c);
+  UNUSED(lvalp);
+
   int ic;
 
   ic = _gst_next_char ();
@@ -555,9 +566,11 @@ scan_colon (int c,
 
 
 int
-scan_symbol (int c,
-	      YYSTYPE *lvalp)
+scan_symbol (int c, YYSTYPE *lvalp)
 {
+  UNUSED(c);
+  UNUSED(lvalp);
+
   int ic;
 
   ic = _gst_next_char ();
@@ -616,6 +629,8 @@ scan_bin_op_1 (int c,
 	       YYSTYPE *lvalp,
 	       bool maybe_number)
 {
+  UNUSED(maybe_number);
+
   char buf[3];
   int ic;
 

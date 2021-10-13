@@ -69,6 +69,10 @@ void *start_vm_thread(void *argument) {
 }
 
 static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   pthread_t thread_id;
   OOP oop1;
 
@@ -96,6 +100,10 @@ static intptr_t VMpr_Processor_newThread(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_Processor_killThread(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
 
   _gst_vm_global_barrier_wait();
@@ -121,6 +129,10 @@ static intptr_t VMpr_Processor_killThread(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_Processor_currentThreadId(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
 
   SET_STACKTOP(FROM_INT(current_thread_id));

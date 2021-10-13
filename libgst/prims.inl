@@ -115,54 +115,117 @@
   }
 
 static intptr_t VMpr_SmallInteger_plus(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
   INT_BIN_OP(add_with_check(oop1, oop2, &overflow), false);
 }
 
 /* SmallInteger - arg */
 static intptr_t VMpr_SmallInteger_minus(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
   INT_BIN_OP(sub_with_check(oop1, oop2, &overflow), false);
 }
 
 /* SmallInteger < arg */
 static intptr_t VMpr_SmallInteger_lt(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
   BOOL_BIN_OP(<);
 }
 
 /* SmallInteger > arg */
 static intptr_t VMpr_SmallInteger_gt(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
   BOOL_BIN_OP(>);
 }
 
 /* SmallInteger <= arg */
 static intptr_t VMpr_SmallInteger_le(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
   BOOL_BIN_OP(<=);
 }
 
 /* SmallInteger >= arg */
 static intptr_t VMpr_SmallInteger_ge(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
   BOOL_BIN_OP(>=);
 }
 
 /* SmallInteger =, == arg */
 static intptr_t VMpr_SmallInteger_eq(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
   BOOL_BIN_OP(==);
 }
 
 /* SmallInteger ~=, ~~ arg */
 static intptr_t VMpr_SmallInteger_ne(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
   BOOL_BIN_OP(!=);
 }
 
 /* SmallInteger * arg */
 static intptr_t VMpr_SmallInteger_times(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
   INT_BIN_OP(mul_with_check(oop1, oop2, &overflow), false);
 }
@@ -170,6 +233,13 @@ static intptr_t VMpr_SmallInteger_times(int id, volatile int numArgs) {
 /* SmallInteger / arg */
 /* quotient as exact as possible */
 static intptr_t VMpr_SmallInteger_divide(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -194,6 +264,13 @@ static intptr_t VMpr_SmallInteger_divide(int id, volatile int numArgs) {
 /* SmallInteger \\ arg */
 /* remainder truncated towards -infinity */
 static intptr_t VMpr_SmallInteger_modulo(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -215,6 +292,13 @@ static intptr_t VMpr_SmallInteger_modulo(int id, volatile int numArgs) {
 /* SmallInteger // arg */
 /* quotient truncated towards -infinity */
 static intptr_t VMpr_SmallInteger_intDiv(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -243,6 +327,13 @@ static intptr_t VMpr_SmallInteger_intDiv(int id, volatile int numArgs) {
 /* SmallInteger quo: arg */
 /* quotient truncated towards 0 */
 static intptr_t VMpr_SmallInteger_quo(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -264,24 +355,52 @@ static intptr_t VMpr_SmallInteger_quo(int id, volatile int numArgs) {
 
 /* SmallInteger bitAnd: arg */
 static intptr_t VMpr_SmallInteger_bitAnd(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
   INT_BIN_OP(tagged_and(oop1, oop2), true);
 }
 
 /* SmallInteger bitOr: arg */
 static intptr_t VMpr_SmallInteger_bitOr(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
   INT_BIN_OP(tagged_or(oop1, oop2), true);
 }
 
 /* SmallInteger bitXor: arg */
 static intptr_t VMpr_SmallInteger_bitXor(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
   INT_BIN_OP(tagged_xor(oop1, oop2), true);
 }
 
 /* SmallInteger bitShift: arg */
 static intptr_t VMpr_SmallInteger_bitShift(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -316,6 +435,13 @@ static intptr_t VMpr_SmallInteger_bitShift(int id, volatile int numArgs) {
 /* SmallInteger scramble */
 
 static intptr_t VMpr_SmallInteger_scramble(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -331,6 +457,13 @@ static intptr_t VMpr_SmallInteger_scramble(int id, volatile int numArgs) {
 /* SmallInteger asFloatD */
 
 static intptr_t VMpr_SmallInteger_asFloatD(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -346,6 +479,13 @@ static intptr_t VMpr_SmallInteger_asFloatD(int id, volatile int numArgs) {
 /* SmallInteger asFloatE */
 
 static intptr_t VMpr_SmallInteger_asFloatE(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -361,6 +501,13 @@ static intptr_t VMpr_SmallInteger_asFloatE(int id, volatile int numArgs) {
 /* SmallInteger asFloatQ */
 
 static intptr_t VMpr_SmallInteger_asFloatQ(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -374,6 +521,13 @@ static intptr_t VMpr_SmallInteger_asFloatQ(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_eq(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   gst_mpz b = {0, 0, NULL};
@@ -413,6 +567,13 @@ static intptr_t VMpr_LargeInteger_eq(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_ne(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   gst_mpz b = {0, 0, NULL};
@@ -452,6 +613,13 @@ static intptr_t VMpr_LargeInteger_ne(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_lt(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   gst_mpz b = {0, 0, NULL};
@@ -491,6 +659,13 @@ static intptr_t VMpr_LargeInteger_lt(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_le(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   gst_mpz b = {0, 0, NULL};
@@ -530,6 +705,13 @@ static intptr_t VMpr_LargeInteger_le(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_gt(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   gst_mpz b = {0, 0, NULL};
@@ -569,6 +751,13 @@ static intptr_t VMpr_LargeInteger_gt(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_ge(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   gst_mpz b = {0, 0, NULL};
@@ -608,6 +797,13 @@ static intptr_t VMpr_LargeInteger_ge(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_times(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   gst_mpz b = {0, 0, NULL};
@@ -649,6 +845,13 @@ static intptr_t VMpr_LargeInteger_times(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_intDiv(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   gst_mpz b = {0, 0, NULL};
@@ -693,6 +896,13 @@ static intptr_t VMpr_LargeInteger_intDiv(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_modulo(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   gst_mpz b = {0, 0, NULL};
@@ -738,6 +948,13 @@ static intptr_t VMpr_LargeInteger_modulo(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_divExact(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   gst_mpz b = {0, 0, NULL};
@@ -780,6 +997,13 @@ static intptr_t VMpr_LargeInteger_divExact(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_quo(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   gst_mpz b = {0, 0, NULL};
@@ -824,6 +1048,13 @@ static intptr_t VMpr_LargeInteger_quo(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_rem(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   gst_mpz b = {0, 0, NULL};
@@ -869,6 +1100,13 @@ static intptr_t VMpr_LargeInteger_rem(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_negated(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   gst_mpz b = {0, 0, NULL};
@@ -898,6 +1136,13 @@ static intptr_t VMpr_LargeInteger_negated(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_bitAnd(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   gst_mpz b = {0, 0, NULL};
@@ -939,6 +1184,13 @@ static intptr_t VMpr_LargeInteger_bitAnd(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_bitOr(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   gst_mpz b = {0, 0, NULL};
@@ -980,6 +1232,13 @@ static intptr_t VMpr_LargeInteger_bitOr(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_bitXor(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   gst_mpz b = {0, 0, NULL};
@@ -1021,6 +1280,13 @@ static intptr_t VMpr_LargeInteger_bitXor(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_bitInvert(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   gst_mpz c = {0, 0, NULL};
@@ -1049,6 +1315,13 @@ static intptr_t VMpr_LargeInteger_bitInvert(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_bitShift(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   int n;
   gst_mpz a = {0, 0, NULL};
@@ -1089,6 +1362,13 @@ static intptr_t VMpr_LargeInteger_bitShift(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_plus(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   gst_mpz b = {0, 0, NULL};
@@ -1130,6 +1410,13 @@ static intptr_t VMpr_LargeInteger_plus(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_minus(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   gst_mpz b = {0, 0, NULL};
@@ -1171,6 +1458,13 @@ static intptr_t VMpr_LargeInteger_minus(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_gcd(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   gst_mpz b = {0, 0, NULL};
@@ -1219,6 +1513,13 @@ static intptr_t VMpr_LargeInteger_gcd(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_asFloatD(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   OOP oop1, oop2;
@@ -1248,6 +1549,13 @@ static intptr_t VMpr_LargeInteger_asFloatD(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_asFloatE(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   OOP oop1, oop2;
@@ -1277,6 +1585,13 @@ static intptr_t VMpr_LargeInteger_asFloatE(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_LargeInteger_asFloatQ(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
 #ifdef HAVE_GMP
   gst_mpz a = {0, 0, NULL};
   OOP oop1, oop2;
@@ -1306,6 +1621,13 @@ static intptr_t VMpr_LargeInteger_asFloatQ(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_FloatD_arith(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   double farg2;
   OOP oop1;
   OOP oop2;
@@ -1366,6 +1688,13 @@ static intptr_t VMpr_FloatD_arith(int id, volatile int numArgs) {
 
 /* FloatD truncated */
 static intptr_t VMpr_FloatD_truncated(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -1383,6 +1712,13 @@ static intptr_t VMpr_FloatD_truncated(int id, volatile int numArgs) {
 
 /* FloatD fractionPart */
 static intptr_t VMpr_FloatD_fractionPart(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -1401,6 +1737,13 @@ static intptr_t VMpr_FloatD_fractionPart(int id, volatile int numArgs) {
 
 /* FloatD exponent */
 static intptr_t VMpr_FloatD_exponent(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -1425,6 +1768,13 @@ static intptr_t VMpr_FloatD_exponent(int id, volatile int numArgs) {
 
 /* FloatD timesTwoPower: */
 static intptr_t VMpr_FloatD_timesTwoPower(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -1446,6 +1796,13 @@ static intptr_t VMpr_FloatD_timesTwoPower(int id, volatile int numArgs) {
 /* FloatD asFloatE */
 
 static intptr_t VMpr_FloatD_asFloatE(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -1461,6 +1818,13 @@ static intptr_t VMpr_FloatD_asFloatE(int id, volatile int numArgs) {
 /* FloatD asFloatQ */
 
 static intptr_t VMpr_FloatD_asFloatQ(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -1474,6 +1838,13 @@ static intptr_t VMpr_FloatD_asFloatQ(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_FloatE_arith(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   double farg2;
   OOP oop1;
   OOP oop2;
@@ -1534,6 +1905,13 @@ static intptr_t VMpr_FloatE_arith(int id, volatile int numArgs) {
 
 /* FloatD truncated */
 static intptr_t VMpr_FloatE_truncated(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -1551,6 +1929,13 @@ static intptr_t VMpr_FloatE_truncated(int id, volatile int numArgs) {
 
 /* FloatD fractionPart */
 static intptr_t VMpr_FloatE_fractionPart(int id, volatile int numArgs) {
+
+
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -1569,6 +1954,11 @@ static intptr_t VMpr_FloatE_fractionPart(int id, volatile int numArgs) {
 
 /* FloatD exponent */
 static intptr_t VMpr_FloatE_exponent(int id, volatile int numArgs) {
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -1593,6 +1983,10 @@ static intptr_t VMpr_FloatE_exponent(int id, volatile int numArgs) {
 
 /* FloatD timesTwoPower: */
 static intptr_t VMpr_FloatE_timesTwoPower(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -1614,6 +2008,11 @@ static intptr_t VMpr_FloatE_timesTwoPower(int id, volatile int numArgs) {
 /* FloatE asFloatD */
 
 static intptr_t VMpr_FloatE_asFloatD(int id, volatile int numArgs) {
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -1629,6 +2028,11 @@ static intptr_t VMpr_FloatE_asFloatD(int id, volatile int numArgs) {
 /* FloatD asFloatQ */
 
 static intptr_t VMpr_FloatE_asFloatQ(int id, volatile int numArgs) {
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -1642,6 +2046,10 @@ static intptr_t VMpr_FloatE_asFloatQ(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_FloatQ_arith(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   long double farg2;
   OOP oop1;
   OOP oop2;
@@ -1702,6 +2110,11 @@ static intptr_t VMpr_FloatQ_arith(int id, volatile int numArgs) {
 
 /* FloatD truncated */
 static intptr_t VMpr_FloatQ_truncated(int id, volatile int numArgs) {
+
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -1719,6 +2132,10 @@ static intptr_t VMpr_FloatQ_truncated(int id, volatile int numArgs) {
 
 /* FloatD fractionPart */
 static intptr_t VMpr_FloatQ_fractionPart(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -1737,6 +2154,10 @@ static intptr_t VMpr_FloatQ_fractionPart(int id, volatile int numArgs) {
 
 /* FloatD exponent */
 static intptr_t VMpr_FloatQ_exponent(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -1761,6 +2182,10 @@ static intptr_t VMpr_FloatQ_exponent(int id, volatile int numArgs) {
 
 /* FloatD timesTwoPower: */
 static intptr_t VMpr_FloatQ_timesTwoPower(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -1782,6 +2207,10 @@ static intptr_t VMpr_FloatQ_timesTwoPower(int id, volatile int numArgs) {
 /* FloatQ asFloatD */
 
 static intptr_t VMpr_FloatQ_asFloatD(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -1797,6 +2226,10 @@ static intptr_t VMpr_FloatQ_asFloatD(int id, volatile int numArgs) {
 /* FloatD asFloatQ */
 
 static intptr_t VMpr_FloatQ_asFloatE(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -1812,6 +2245,10 @@ static intptr_t VMpr_FloatQ_asFloatE(int id, volatile int numArgs) {
 /* Object at:, Object basicAt: */
 
 static intptr_t VMpr_Object_basicAt(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -1834,6 +2271,10 @@ static intptr_t VMpr_Object_basicAt(int id, volatile int numArgs) {
 
 /* Object at:put:, Object basicAt:put: */
 static intptr_t VMpr_Object_basicAtPut(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   OOP oop3;
@@ -1857,6 +2298,10 @@ static intptr_t VMpr_Object_basicAtPut(int id, volatile int numArgs) {
 
 /* Object basicSize; Object size; String size */
 static intptr_t VMpr_Object_basicSize(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -1868,6 +2313,10 @@ static intptr_t VMpr_Object_basicSize(int id, volatile int numArgs) {
 /* CharacterArray valueAt: */
 
 static intptr_t VMpr_CharacterArray_valueAt(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   intptr_t spec;
@@ -1905,6 +2354,10 @@ static intptr_t VMpr_CharacterArray_valueAt(int id, volatile int numArgs) {
 
 /* CharacterArray valueAt:put: */
 static intptr_t VMpr_CharacterArray_valueAtPut(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   OOP oop3;
@@ -1944,6 +2397,9 @@ static intptr_t VMpr_CharacterArray_valueAtPut(int id, volatile int numArgs) {
 /* CompiledCode verificationResult */
 static intptr_t VMpr_CompiledCode_verificationResult(int id,
                                                      volatile int numArgs) {
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1 = STACKTOP();
   const char *result = _gst_verify_method(oop1, NULL, 0);
   OOP resultOOP = result ? _gst_string_new(result) : _gst_nil_oop;
@@ -1954,6 +2410,10 @@ static intptr_t VMpr_CompiledCode_verificationResult(int id,
 
 /* CompiledBlock numArgs:numTemps:bytecodes:depth:literals: */
 static intptr_t VMpr_CompiledBlock_create(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP *_gst_literals = OOP_TO_OBJ(STACK_AT(0))->data;
   int depth = TO_INT(STACK_AT(1));
   OOP bytecodesOOP = STACK_AT(2);
@@ -1974,6 +2434,10 @@ static intptr_t VMpr_CompiledBlock_create(int id, volatile int numArgs) {
 
 /* CompiledMethod literals:numArgs:numTemps:attributes:bytecodes:depth: */
 static intptr_t VMpr_CompiledMethod_create(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   int depth = TO_INT(STACK_AT(0));
   OOP bytecodesOOP = STACK_AT(1);
   OOP attributesOOP = STACK_AT(2);
@@ -1999,6 +2463,10 @@ static intptr_t VMpr_CompiledMethod_create(int id, volatile int numArgs) {
 
 /* Object shallowCopy */
 static intptr_t VMpr_Object_shallowCopy(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -2010,6 +2478,10 @@ static intptr_t VMpr_Object_shallowCopy(int id, volatile int numArgs) {
 
 /* Behavior basicNew */
 static intptr_t VMpr_Behavior_basicNew(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -2029,6 +2501,10 @@ static intptr_t VMpr_Behavior_basicNew(int id, volatile int numArgs) {
 
 /* Behavior Behavior new; */
 static intptr_t VMpr_Behavior_newInitialize(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -2049,6 +2525,10 @@ static intptr_t VMpr_Behavior_newInitialize(int id, volatile int numArgs) {
 
 /* Behavior basicNew: */
 static intptr_t VMpr_Behavior_basicNewColon(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -2074,6 +2554,10 @@ static intptr_t VMpr_Behavior_basicNewColon(int id, volatile int numArgs) {
 
 /* Behavior new:; */
 static intptr_t VMpr_Behavior_newColonInitialize(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -2100,6 +2584,10 @@ static intptr_t VMpr_Behavior_newColonInitialize(int id, volatile int numArgs) {
 
 /* Object become: */
 static intptr_t VMpr_Object_become(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -2117,6 +2605,10 @@ static intptr_t VMpr_Object_become(int id, volatile int numArgs) {
 
 /* Object instVarAt: */
 static intptr_t VMpr_Object_instVarAt(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -2137,6 +2629,10 @@ static intptr_t VMpr_Object_instVarAt(int id, volatile int numArgs) {
 
 /* Object inst_var_at:put: */
 static intptr_t VMpr_Object_instVarAtPut(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   OOP oop3;
@@ -2159,6 +2655,10 @@ static intptr_t VMpr_Object_instVarAtPut(int id, volatile int numArgs) {
 
 /* Object asOop; Object hash; Symbol hash */
 static intptr_t VMpr_Object_hash(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -2177,6 +2677,10 @@ static intptr_t VMpr_Object_hash(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_Object_changeHashTo(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -2197,6 +2701,10 @@ static intptr_t VMpr_Object_changeHashTo(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_Object_asOop(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -2213,6 +2721,10 @@ static intptr_t VMpr_Object_asOop(int id, volatile int numArgs) {
 
 /* SmallInteger asObject; SmallInteger asObjectNoFail */
 static intptr_t VMpr_SmallInteger_asObject(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   intptr_t arg1;
   _gst_primitives_executed++;
@@ -2233,6 +2745,10 @@ static intptr_t VMpr_SmallInteger_asObject(int id, volatile int numArgs) {
 
 /* SmallInteger nextValidOop */
 static intptr_t VMpr_SmallInteger_nextValidOop(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   intptr_t arg1;
   _gst_primitives_executed++;
@@ -2252,6 +2768,10 @@ static intptr_t VMpr_SmallInteger_nextValidOop(int id, volatile int numArgs) {
 
 /* Behavior someInstance */
 static intptr_t VMpr_Behavior_someInstance(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2, lastOOP;
   _gst_primitives_executed++;
@@ -2271,6 +2791,10 @@ static intptr_t VMpr_Behavior_someInstance(int id, volatile int numArgs) {
 
 /* Object nextInstance */
 static intptr_t VMpr_Object_nextInstance(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -2300,6 +2824,10 @@ static intptr_t VMpr_Object_nextInstance(int id, volatile int numArgs) {
 
 /* Object becomeForward: */
 static intptr_t VMpr_Object_becomeForward(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1, ownerOOP;
   OOP oop2, lastOOP;
   _gst_primitives_executed++;
@@ -2342,6 +2870,10 @@ static intptr_t VMpr_Object_becomeForward(int id, volatile int numArgs) {
 
 /* Object allOwners */
 static intptr_t VMpr_Object_allOwners(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2, lastOOP;
   OOP result;
@@ -2368,6 +2900,10 @@ static intptr_t VMpr_Object_allOwners(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_ContextPart_thisContext(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   _gst_primitives_executed++;
   empty_context_stack();
   SET_STACKTOP(_gst_this_context_oop[current_thread_id]);
@@ -2375,6 +2911,10 @@ static intptr_t VMpr_ContextPart_thisContext(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_ContextPart_continue(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop2;
   OOP oop1;
   _gst_primitives_executed++;
@@ -2393,6 +2933,10 @@ static intptr_t VMpr_ContextPart_continue(int id, volatile int numArgs) {
 
 /* Continuation resume:nextContinuation: */
 static intptr_t VMpr_Continuation_resume(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1, oop2, oop3;
 
   _gst_primitives_executed++;
@@ -2418,6 +2962,10 @@ static intptr_t VMpr_Continuation_resume(int id, volatile int numArgs) {
    BlockClosure value:value:
    BlockClosure value:value:value: */
 static intptr_t VMpr_BlockClosure_value(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   _gst_primitives_executed++;
   if UNCOMMON (send_block_value(numArgs, 0))
     PRIM_FAILED;
@@ -2429,6 +2977,10 @@ static intptr_t VMpr_BlockClosure_value(int id, volatile int numArgs) {
    BlockClosure cull:cull:
    BlockClosure cull:cull:cull: */
 static intptr_t VMpr_BlockClosure_cull(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   _gst_primitives_executed++;
   if UNCOMMON (send_block_value(numArgs, numArgs))
     PRIM_FAILED;
@@ -2441,6 +2993,9 @@ static intptr_t VMpr_BlockClosure_cull(int id, volatile int numArgs) {
    for that in xlat.c, we can set the cache_new_ip attribute.  */
 static intptr_t VMpr_BlockClosure_valueAndResumeOnUnwind(int id,
                                                          volatile int numArgs) {
+  UNUSED(id);
+  UNUSED(numArgs);
+
   gst_object context;
 
   _gst_primitives_executed++;
@@ -2458,6 +3013,10 @@ static intptr_t VMpr_BlockClosure_valueAndResumeOnUnwind(int id,
 /* BlockClosure valueWithArguments: */
 static intptr_t VMpr_BlockClosure_valueWithArguments(int id,
                                                      volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop2;
   _gst_primitives_executed++;
 
@@ -2484,6 +3043,10 @@ static intptr_t VMpr_BlockClosure_valueWithArguments(int id,
    Object perform:with:with:
    Object perform:with:with:with: */
 static intptr_t VMpr_Object_perform(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   OOP *oopVec = alloca(numArgs * sizeof(OOP));
   int i;
@@ -2528,6 +3091,10 @@ static intptr_t VMpr_Object_perform(int id, volatile int numArgs) {
 
 /* Object perform:withArguments: */
 static intptr_t VMpr_Object_performWithArguments(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -2580,6 +3147,10 @@ static intptr_t VMpr_Object_performWithArguments(int id, volatile int numArgs) {
 
 static intptr_t VMpr_Processor_tracing(int id, volatile int numArgs) {
 
+UNUSED(id);
+UNUSED(numArgs);
+
+
   _gst_primitives_executed++;
 
   _gst_execution_tracing = true;
@@ -2591,6 +3162,10 @@ static intptr_t VMpr_Processor_tracing(int id, volatile int numArgs) {
 
 /* Processor waitForEvents */
 static intptr_t VMpr_Processor_dispatchEvents(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   interp_jmp_buf jb;
   gst_object processor;
   OOP oop1 = STACKTOP();
@@ -2632,6 +3207,10 @@ static intptr_t VMpr_Processor_dispatchEvents(int id, volatile int numArgs) {
 
 /* Processor pause: waitForSignal */
 static intptr_t VMpr_Processor_pause(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
 
   _gst_primitives_executed++;
@@ -2645,6 +3224,10 @@ static intptr_t VMpr_Processor_pause(int id, volatile int numArgs) {
 
 /* Behavior flushCache */
 static intptr_t VMpr_Behavior_flushCache(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   _gst_primitives_executed++;
   _gst_invalidate_method_cache();
   PRIM_SUCCEEDED;
@@ -2653,6 +3236,9 @@ static intptr_t VMpr_Behavior_flushCache(int id, volatile int numArgs) {
 /* CompiledCode discardTranslation */
 static intptr_t VMpr_CompiledCode_discardTranslation(int id,
                                                      volatile int numArgs) {
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
 #ifdef ENABLE_JIT_TRANSLATION
   _gst_discard_native_code(STACKTOP());
@@ -2662,6 +3248,10 @@ static intptr_t VMpr_CompiledCode_discardTranslation(int id,
 
 /* Object changeClassTo: */
 static intptr_t VMpr_Object_changeClassTo(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1, oop2;
   gst_object obj1, obj2;
   _gst_primitives_executed++;
@@ -2688,6 +3278,10 @@ error:
 
 /* Time class timezoneBias */
 static intptr_t VMpr_Time_timezoneBias(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   uint64_t t;
 
@@ -2709,6 +3303,10 @@ static intptr_t VMpr_Time_timezoneBias(int id, volatile int numArgs) {
 
 /* Time class timezone */
 static intptr_t VMpr_Time_timezone(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   char *result;
   _gst_primitives_executed++;
@@ -2727,6 +3325,10 @@ static intptr_t VMpr_Time_timezone(int id, volatile int numArgs) {
        seconds since/to Jan 1, 2000 00:00:00
        instead of Jan 1,1901.  */
 static intptr_t VMpr_Time_secondClock(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   _gst_primitives_executed++;
   /* 10957 = days between 1970 and 2000 */
   SET_STACKTOP_INT(_gst_get_time() - 86400 * 10957);
@@ -2735,6 +3337,10 @@ static intptr_t VMpr_Time_secondClock(int id, volatile int numArgs) {
 
 /* Time class nanosecondClock.  */
 static intptr_t VMpr_Time_nanosecondClock(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP nsOOP;
   uint64_t ns;
   _gst_primitives_executed++;
@@ -2746,6 +3352,10 @@ static intptr_t VMpr_Time_nanosecondClock(int id, volatile int numArgs) {
 
 /* Time class millisecondClock.  */
 static intptr_t VMpr_Time_millisecondClock(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP milliOOP;
   uint64_t milli;
   _gst_primitives_executed++;
@@ -2759,6 +3369,10 @@ static intptr_t VMpr_Time_millisecondClock(int id, volatile int numArgs) {
    Processor signal: semaphore atNanosecondClockValue: absNanoseconds
  */
 static intptr_t VMpr_Processor_signalAt(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -2784,6 +3398,10 @@ static intptr_t VMpr_Processor_signalAt(int id, volatile int numArgs) {
 /* Processor isTimeoutProgrammed */
 static intptr_t VMpr_Processor_isTimeoutProgrammed(int id,
                                                    volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
   SET_STACKTOP_BOOLEAN(_gst_is_timeout_programmed());
   PRIM_SUCCEEDED;
@@ -2792,6 +3410,10 @@ static intptr_t VMpr_Processor_isTimeoutProgrammed(int id,
 /* String similarityTo: */
 
 static intptr_t VMpr_String_similarityTo(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   int result, l1, l2;
   gst_uchar *s1, *s2;
   OOP oop1, oop2;
@@ -2825,6 +3447,10 @@ static intptr_t VMpr_String_similarityTo(int id, volatile int numArgs) {
 /* String hash */
 
 static intptr_t VMpr_String_hash(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   uintptr_t hash;
   gst_uchar *base;
   OOP oop1;
@@ -2847,6 +3473,10 @@ static intptr_t VMpr_String_hash(int id, volatile int numArgs) {
    String =
    Array = */
 static intptr_t VMpr_ArrayedCollection_equal(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP srcOOP, dstOOP;
   int dstLen, srcLen;
   gst_uchar *dstBase, *srcBase;
@@ -2888,6 +3518,10 @@ bad:
    String indexOf:startingAt:ifAbsent: */
 static intptr_t VMpr_ArrayedCollection_indexOfStartingAt(int id,
                                                          volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP srcIndexOOP, srcOOP, targetOOP;
   int srcIndex, srcLen, target;
   gst_uchar *srcBase, *srcTarget;
@@ -2932,9 +3566,12 @@ bad:
    ByteArray replaceFrom:to:withString:startingAt:
    String replaceFrom:to:withByteArray:startingAt:
    Array replaceFrom:to:with:startingAt:*/
-static intptr_t
-VMpr_ArrayedCollection_replaceFromToWithStartingAt(int id,
+static intptr_t VMpr_ArrayedCollection_replaceFromToWithStartingAt(int id,
                                                    volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP srcIndexOOP, srcOOP, dstEndIndexOOP, dstStartIndexOOP, dstOOP;
   int dstEndIndex, dstStartIndex, srcIndex, dstLen, srcLen, dstRangeLen;
   gst_uchar *dstBase, *srcBase;
@@ -3003,6 +3640,10 @@ bad:
 /* Object == */
 
 static intptr_t VMpr_Object_identity(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -3015,6 +3656,10 @@ static intptr_t VMpr_Object_identity(int id, volatile int numArgs) {
 
 /* Object class */
 static intptr_t VMpr_Object_class(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -3029,6 +3674,10 @@ static intptr_t VMpr_Object_class(int id, volatile int numArgs) {
 
 /* Object primitive */
 static intptr_t VMpr_Object_primitive(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   intptr_t primitiveIndex;
 
   _gst_primitives_executed++;
@@ -3050,6 +3699,10 @@ static intptr_t VMpr_Object_primitive(int id, volatile int numArgs) {
 /* quit: status
    Always fail because if it succeeds we don't return */
 static intptr_t VMpr_ObjectMemory_quit(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   intptr_t arg1;
   _gst_primitives_executed++;
@@ -3069,12 +3722,20 @@ static intptr_t VMpr_ObjectMemory_quit(int id, volatile int numArgs) {
 
 /* abort */
 static intptr_t VMpr_ObjectMemory_abort(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   _gst_primitives_executed++;
   abort();
 }
 
 /* Dictionary at: */
 static intptr_t VMpr_Dictionary_at(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -3094,6 +3755,10 @@ static intptr_t VMpr_Dictionary_at(int id, volatile int numArgs) {
 /* Object doesNotUnderstand:
  * Object error: */
 static intptr_t VMpr_Object_bootstrapException(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -3114,6 +3779,10 @@ static intptr_t VMpr_Object_bootstrapException(int id, volatile int numArgs) {
 /* Character class value: */
 
 static intptr_t VMpr_Character_create(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop2;
   _gst_primitives_executed++;
 
@@ -3133,6 +3802,10 @@ static intptr_t VMpr_Character_create(int id, volatile int numArgs) {
 /* UnicodeCharacter class value: */
 
 static intptr_t VMpr_UnicodeCharacter_create(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop2;
   _gst_primitives_executed++;
 
@@ -3151,6 +3824,10 @@ static intptr_t VMpr_UnicodeCharacter_create(int id, volatile int numArgs) {
 
 /* Character = */
 static intptr_t VMpr_Character_equal(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -3166,6 +3843,10 @@ static intptr_t VMpr_Character_equal(int id, volatile int numArgs) {
 
 /* Symbol class intern: aString */
 static intptr_t VMpr_Symbol_intern(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop2;
   _gst_primitives_executed++;
 
@@ -3185,6 +3866,10 @@ static intptr_t VMpr_Symbol_intern(int id, volatile int numArgs) {
 
 /* Dictionary new */
 static intptr_t VMpr_Dictionary_new(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1, dictionaryOOP;
   _gst_primitives_executed++;
   oop1 = STACKTOP();
@@ -3196,6 +3881,10 @@ static intptr_t VMpr_Dictionary_new(int id, volatile int numArgs) {
 
 /* Memory addressOfOOP: oop */
 static intptr_t VMpr_Memory_addressOfOOP(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop2;
   _gst_primitives_executed++;
 
@@ -3211,6 +3900,10 @@ static intptr_t VMpr_Memory_addressOfOOP(int id, volatile int numArgs) {
 
 /* Memory addressOf: oop */
 static intptr_t VMpr_Memory_addressOf(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop2;
   _gst_primitives_executed++;
 
@@ -3227,6 +3920,10 @@ static intptr_t VMpr_Memory_addressOf(int id, volatile int numArgs) {
 /* SystemDictionary backtrace */
 
 static intptr_t VMpr_SystemDictionary_backtrace(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   _gst_primitives_executed++;
   _gst_show_backtrace(stdout);
   PRIM_SUCCEEDED;
@@ -3235,6 +3932,10 @@ static intptr_t VMpr_SystemDictionary_backtrace(int id, volatile int numArgs) {
 /* SystemDictionary getTraceFlag: anIndex */
 static intptr_t VMpr_SystemDictionary_getTraceFlag(int id,
                                                    volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -3261,6 +3962,10 @@ static intptr_t VMpr_SystemDictionary_getTraceFlag(int id,
 /* SystemDictionary setTraceFlag: anIndex to: aBoolean */
 static intptr_t VMpr_SystemDictionary_setTraceFlag(int id,
                                                    volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -3283,6 +3988,10 @@ static intptr_t VMpr_SystemDictionary_setTraceFlag(int id,
 
 /* Memory type: aType at: anAddress */
 static intptr_t VMpr_Memory_at(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop2;
   OOP oop3;
   _gst_primitives_executed++;
@@ -3351,6 +4060,10 @@ static intptr_t VMpr_Memory_at(int id, volatile int numArgs) {
 
 /* Memory type: aType at: anAddress put: aValue */
 static intptr_t VMpr_Memory_atPut(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop4;
   OOP oop3;
   OOP oop2;
@@ -3463,6 +4176,10 @@ static intptr_t VMpr_Memory_atPut(int id, volatile int numArgs) {
 
 /* methodsFor: category */
 static intptr_t VMpr_Behavior_methodsFor(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop2 = POP_OOP();
   OOP oop1 = STACKTOP();
 
@@ -3479,6 +4196,10 @@ static intptr_t VMpr_Behavior_methodsFor(int id, volatile int numArgs) {
 
 /* methodsFor: category ifTrue: condition */
 static intptr_t VMpr_Behavior_methodsForIfTrue(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop3 = POP_OOP();
   OOP oop2 = POP_OOP();
   OOP oop1 = STACKTOP();
@@ -3498,6 +4219,10 @@ static intptr_t VMpr_Behavior_methodsForIfTrue(int id, volatile int numArgs) {
 
 static intptr_t VMpr_Processor_disableEnableInterrupts(int id,
                                                        volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP processOOP;
   gst_object process;
   gst_object processor;
@@ -3524,6 +4249,10 @@ static intptr_t VMpr_Processor_disableEnableInterrupts(int id,
 
 /* ProcessorScheduler signal: aSemaphore onInterrupt: anInteger */
 static intptr_t VMpr_Processor_signalOnInterrupt(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -3545,6 +4274,10 @@ static intptr_t VMpr_Processor_signalOnInterrupt(int id, volatile int numArgs) {
 
 static intptr_t VMpr_ObjectMemory_getSpaceGrowRate(int id,
                                                    volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
   SET_STACKTOP(floatd_new((double)_gst_mem.space_grow_rate));
   PRIM_SUCCEEDED;
@@ -3553,6 +4286,10 @@ static intptr_t VMpr_ObjectMemory_getSpaceGrowRate(int id,
 /* ObjectMemory spaceGrowRate: */
 static intptr_t VMpr_ObjectMemory_setSpaceGrowRate(int id,
                                                    volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   intptr_t arg1;
   OOP oop1;
   _gst_primitives_executed++;
@@ -3583,6 +4320,10 @@ static intptr_t VMpr_ObjectMemory_setSpaceGrowRate(int id,
 /* ObjectMemory smoothingFactor */
 static intptr_t VMpr_ObjectMemory_getSmoothingFactor(int id,
                                                      volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
   SET_STACKTOP(floatd_new((double)_gst_mem.factor));
   PRIM_SUCCEEDED;
@@ -3591,6 +4332,10 @@ static intptr_t VMpr_ObjectMemory_getSmoothingFactor(int id,
 /* ObjectMemory smoothingFactor: */
 static intptr_t VMpr_ObjectMemory_setSmoothingFactor(int id,
                                                      volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   intptr_t arg1;
   _gst_primitives_executed++;
@@ -3620,6 +4365,10 @@ static intptr_t VMpr_ObjectMemory_setSmoothingFactor(int id,
 /* ObjectMemory growThresholdPercent */
 static intptr_t
 VMpr_ObjectMemory_getGrowThresholdPercent(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
   SET_STACKTOP(floatd_new((double)_gst_mem.grow_threshold_percent));
   PRIM_SUCCEEDED;
@@ -3628,6 +4377,10 @@ VMpr_ObjectMemory_getGrowThresholdPercent(int id, volatile int numArgs) {
 /* ObjectMemory growThresholdPercent: */
 static intptr_t
 VMpr_ObjectMemory_setGrowThresholdPercent(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   intptr_t arg1;
   _gst_primitives_executed++;
@@ -3657,6 +4410,10 @@ VMpr_ObjectMemory_setGrowThresholdPercent(int id, volatile int numArgs) {
 /* ObjectMemory bigObjectThreshold */
 static intptr_t VMpr_ObjectMemory_getBigObjectThreshold(int id,
                                                         volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
   SET_STACKTOP_INT(_gst_mem.big_object_threshold);
   PRIM_SUCCEEDED;
@@ -3665,6 +4422,10 @@ static intptr_t VMpr_ObjectMemory_getBigObjectThreshold(int id,
 /* ObjectMemory bigObjectThreshold: */
 static intptr_t VMpr_ObjectMemory_setBigObjectThreshold(int id,
                                                         volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
   intptr_t arg1;
   _gst_primitives_executed++;
@@ -3690,6 +4451,10 @@ static intptr_t VMpr_ObjectMemory_setBigObjectThreshold(int id,
 
 /* ObjectMemory growTo: numBytes */
 static intptr_t VMpr_ObjectMemory_growTo(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   intptr_t arg1;
   _gst_primitives_executed++;
@@ -3707,6 +4472,10 @@ static intptr_t VMpr_ObjectMemory_growTo(int id, volatile int numArgs) {
 
 /* ObjectMemory update */
 static intptr_t VMpr_ObjectMemory_update(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   _gst_primitives_executed++;
 
 #ifndef OPTIMIZE
@@ -3721,6 +4490,10 @@ static intptr_t VMpr_ObjectMemory_update(int id, volatile int numArgs) {
 /* CObject class alloc: nbytes type: aType */
 
 static intptr_t VMpr_CObject_allocType(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   OOP oop3;
@@ -3745,6 +4518,10 @@ static intptr_t VMpr_CObject_allocType(int id, volatile int numArgs) {
 
 /* sin */
 static intptr_t VMpr_Float_sin(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -3767,6 +4544,10 @@ static intptr_t VMpr_Float_sin(int id, volatile int numArgs) {
 
 /* cos */
 static intptr_t VMpr_Float_cos(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -3789,6 +4570,10 @@ static intptr_t VMpr_Float_cos(int id, volatile int numArgs) {
 
 /* tan */
 static intptr_t VMpr_Float_tan(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -3811,6 +4596,10 @@ static intptr_t VMpr_Float_tan(int id, volatile int numArgs) {
 
 /* arcSin */
 static intptr_t VMpr_Float_arcSin(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -3833,6 +4622,10 @@ static intptr_t VMpr_Float_arcSin(int id, volatile int numArgs) {
 
 /* arcCos */
 static intptr_t VMpr_Float_arcCos(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -3855,6 +4648,10 @@ static intptr_t VMpr_Float_arcCos(int id, volatile int numArgs) {
 
 /* arcTan */
 static intptr_t VMpr_Float_arcTan(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -3877,6 +4674,10 @@ static intptr_t VMpr_Float_arcTan(int id, volatile int numArgs) {
 
 /* exp */
 static intptr_t VMpr_Float_exp(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -3899,6 +4700,10 @@ static intptr_t VMpr_Float_exp(int id, volatile int numArgs) {
 
 /* ln */
 static intptr_t VMpr_Float_ln(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -3921,6 +4726,10 @@ static intptr_t VMpr_Float_ln(int id, volatile int numArgs) {
 
 /* raisedTo: aNumber -- receiver ** aNumber */
 static intptr_t VMpr_Float_pow(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   double farg1, farg2;
@@ -3985,6 +4794,10 @@ static intptr_t VMpr_Float_pow(int id, volatile int numArgs) {
 
 /* CObject free */
 static intptr_t VMpr_CObject_free(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -4005,6 +4818,10 @@ static intptr_t VMpr_CObject_free(int id, volatile int numArgs) {
 
 /* sqrt */
 static intptr_t VMpr_Float_sqrt(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -4027,6 +4844,10 @@ static intptr_t VMpr_Float_sqrt(int id, volatile int numArgs) {
 
 /* ceiling, floor */
 static intptr_t VMpr_Float_ceil_floor(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   double farg1;
   _gst_primitives_executed++;
@@ -4057,6 +4878,10 @@ static intptr_t VMpr_Float_ceil_floor(int id, volatile int numArgs) {
 
 /* Behavior basicNewInFixedSpace */
 static intptr_t VMpr_Behavior_basicNewFixed(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -4075,6 +4900,10 @@ static intptr_t VMpr_Behavior_basicNewFixed(int id, volatile int numArgs) {
 
 /* Behavior basicNewInFixedSpace: */
 static intptr_t VMpr_Behavior_basicNewFixedColon(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -4100,6 +4929,10 @@ static intptr_t VMpr_Behavior_basicNewFixedColon(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_Object_tenure(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -4120,6 +4953,10 @@ static intptr_t VMpr_Object_tenure(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_Object_makeFixed(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -4135,6 +4972,10 @@ static intptr_t VMpr_Object_makeFixed(int id, volatile int numArgs) {
 /* CObject at: byteoffset type: aType */
 
 static intptr_t VMpr_CObject_at(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   OOP oop3;
@@ -4265,6 +5106,10 @@ fail:
 
 /* CObject at: byteOffset put: aValue type: aType */
 static intptr_t VMpr_CObject_atPut(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   OOP oop3;
@@ -4415,6 +5260,10 @@ fail:
 
 /* CObject address */
 static intptr_t VMpr_CObject_address(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   gst_object cObj;
   uintptr_t ptr;
@@ -4434,6 +5283,10 @@ static intptr_t VMpr_CObject_address(int id, volatile int numArgs) {
 
 /* CObject address: */
 static intptr_t VMpr_CObject_addressColon(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1, oop2;
   gst_object cObj;
   _gst_primitives_executed++;
@@ -4453,6 +5306,10 @@ static intptr_t VMpr_CObject_addressColon(int id, volatile int numArgs) {
 
 /* CString replaceWith: aString */
 static intptr_t VMpr_CString_replaceWith(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -4483,6 +5340,10 @@ static intptr_t VMpr_CString_replaceWith(int id, volatile int numArgs) {
 
 /* ByteArray class fromCdata: aCObject size: anInteger */
 static intptr_t VMpr_ByteArray_fromCData_size(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop2;
   OOP oop3;
   _gst_primitives_executed++;
@@ -4501,6 +5362,10 @@ static intptr_t VMpr_ByteArray_fromCData_size(int id, volatile int numArgs) {
 
 /* String class fromCdata: aCObject size: anInteger */
 static intptr_t VMpr_String_fromCData_size(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop2;
   OOP oop3;
   _gst_primitives_executed++;
@@ -4519,6 +5384,10 @@ static intptr_t VMpr_String_fromCData_size(int id, volatile int numArgs) {
 
 /* String class fromCdata: aCObject */
 static intptr_t VMpr_String_fromCData(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop2;
   OOP stringOOP;
   _gst_primitives_executed++;
@@ -4532,6 +5401,10 @@ static intptr_t VMpr_String_fromCData(int id, volatile int numArgs) {
 /* String asCdata: aCType
  * ByteArray asCdata: aCType */
 static intptr_t VMpr_String_ByteArray_asCData(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -4556,6 +5429,10 @@ static intptr_t VMpr_String_ByteArray_asCData(int id, volatile int numArgs) {
 /* SystemDictionary byteCodeCounter */
 static intptr_t VMpr_SystemDictionary_byteCodeCounter(int id,
                                                       volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
   SET_STACKTOP_INT(_gst_bytecode_counter);
   PRIM_SUCCEEDED;
@@ -4563,6 +5440,10 @@ static intptr_t VMpr_SystemDictionary_byteCodeCounter(int id,
 
 /* SystemDictionary debug */
 static intptr_t VMpr_SystemDictionary_debug(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   _gst_primitives_executed++;
   _gst_debug(); /* used to allow gdb to stop based on
                    Smalltalk execution paths.  */
@@ -4571,6 +5452,10 @@ static intptr_t VMpr_SystemDictionary_debug(int id, volatile int numArgs) {
 
 /* Object isReadOnly */
 static intptr_t VMpr_Object_isReadOnly(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -4581,6 +5466,10 @@ static intptr_t VMpr_Object_isReadOnly(int id, volatile int numArgs) {
 
 /* Object makeReadOnly: */
 static intptr_t VMpr_Object_makeReadOnly(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   _gst_primitives_executed++;
@@ -4604,6 +5493,10 @@ static intptr_t VMpr_Object_makeReadOnly(int id, volatile int numArgs) {
 /* Behavior primCompile: aString */
 
 static intptr_t VMpr_Behavior_primCompile(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   bool interrupted;
@@ -4629,6 +5522,10 @@ static intptr_t VMpr_Behavior_primCompile(int id, volatile int numArgs) {
 
 /* Behavior primCompile: aString ifError: aBlock */
 static intptr_t VMpr_Behavior_primCompileIfError(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   OOP oop2;
   OOP oop3;
@@ -4688,6 +5585,10 @@ static intptr_t VMpr_Behavior_primCompileIfError(int id, volatile int numArgs) {
 
 /* CCallbackDescriptor link */
 static intptr_t VMpr_CCallbackDescriptor_link(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -4700,6 +5601,10 @@ static intptr_t VMpr_CCallbackDescriptor_link(int id, volatile int numArgs) {
 
 /* CFunctionDescriptor addressOf: funcNameString */
 static intptr_t VMpr_CFuncDescriptor_addressOf(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1;
   _gst_primitives_executed++;
 
@@ -4721,6 +5626,10 @@ static intptr_t VMpr_CFuncDescriptor_addressOf(int id, volatile int numArgs) {
 
 /* Object snapshot: aString */
 static intptr_t VMpr_ObjectMemory_snapshot(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   char *fileName;
   OOP oop2;
   interp_jmp_buf jb;
@@ -4763,6 +5672,10 @@ static intptr_t VMpr_ObjectMemory_snapshot(int id, volatile int numArgs) {
 
 /* Object basicPrint */
 static intptr_t VMpr_Object_basicPrint(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   _gst_primitives_executed++;
   printf("Object: %O", STACKTOP());
   fflush(stdout);
@@ -4771,6 +5684,10 @@ static intptr_t VMpr_Object_basicPrint(int id, volatile int numArgs) {
 
 /* Object makeWeak */
 static intptr_t VMpr_Object_makeWeak(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop1 = STACKTOP();
   _gst_primitives_executed++;
 
@@ -4786,6 +5703,10 @@ static intptr_t VMpr_Object_makeWeak(int id, volatile int numArgs) {
 /* Stream fileInLine: lineNum fileName: aString at: charPosInt */
 
 static intptr_t VMpr_Stream_fileInLine(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   OOP oop4 = POP_OOP();
   OOP oop3 = POP_OOP();
   OOP oop2 = (numArgs == 4 ? POP_OOP() : oop3);
@@ -4817,6 +5738,10 @@ static intptr_t VMpr_Stream_fileInLine(int id, volatile int numArgs) {
 /* FileDescriptor>>#fileOp..., variadic */
 
 static intptr_t VMpr_FileDescriptor_fileOp(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
   char *fileName, *fileName2;
   gst_object fileStream;
   int fd, rc;
@@ -5153,6 +6078,13 @@ succeed:
 /* FileDescriptor>>#socketOp..., socket version, variadic */
 
 static intptr_t VMpr_FileDescriptor_socketOp(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   gst_object fileStream;
   int fd, rc;
   OOP oop1, resultOOP;
@@ -5271,6 +6203,13 @@ succeed:
 /* C callout primitives.  */
 
 static intptr_t VMpr_CFuncDescriptor_asyncCall(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP resultOOP;
   volatile gst_object context;
   OOP contextOOP, cFuncOOP, receiverOOP;
@@ -5312,6 +6251,13 @@ static intptr_t VMpr_CFuncDescriptor_asyncCall(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_CFuncDescriptor_call(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   volatile gst_object context;
   gst_object resultHolderObj;
   OOP receiverOOP, contextOOP, cFuncOOP, resultOOP;
@@ -5368,6 +6314,13 @@ static intptr_t VMpr_CFuncDescriptor_call(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_Object_makeEphemeron(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
   if (NUM_OOPS(OOP_TO_OBJ(STACKTOP())) == 0)
     PRIM_FAILED;
@@ -5378,6 +6331,13 @@ static intptr_t VMpr_Object_makeEphemeron(int id, volatile int numArgs) {
 
 /* Namespace current: aNamespace */
 static intptr_t VMpr_Namespace_setCurrent(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1;
 
   _gst_primitives_executed++;
@@ -5392,6 +6352,13 @@ static intptr_t VMpr_Namespace_setCurrent(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_ObjectMemory_gcPrimitives(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
 
   _gst_vm_global_barrier_wait();
@@ -5428,6 +6395,13 @@ static intptr_t VMpr_ObjectMemory_gcPrimitives(int id, volatile int numArgs) {
 /* SystemDictionary profilerOn */
 
 static intptr_t VMpr_SystemDictionary_rawProfile(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1 = POP_OOP();
   if (_gst_raw_profile) {
     _gst_record_profile(_gst_this_method[current_thread_id], NULL, -1);
@@ -5446,6 +6420,13 @@ static intptr_t VMpr_SystemDictionary_rawProfile(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_Random_next(int id, volatile int numArgs) {
+
+UNUSED(id);
+UNUSED(numArgs);
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   OOP oop1, oop2;
   gst_object obj;
   intptr_t spec;
@@ -5492,6 +6473,13 @@ bad:
 #undef BOOL_BIN_OP
 
 static intptr_t VMpr_HOLE(int id, volatile int numArgs) {
+
+UNUSED(id);
+ UNUSED(numArgs);
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
   _gst_errorf("Unhandled primitive operation %d", id);
 

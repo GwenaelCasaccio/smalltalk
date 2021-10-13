@@ -193,8 +193,7 @@ static inline void set_cobject_value(OOP oop, PTR val);
 
 /* Return whether the address of the data stored in a CObject, offsetted
    by OFFSET bytes, is still in bounds.  */
-static inline bool cobject_index_check(OOP oop, intptr_t offset,
-                                              size_t size);
+static inline bool cobject_index_check(OOP oop, intptr_t offset, intptr_t size);
 
 /* Answer true if OOP is a SmallInteger or a LargeInteger of an
    appropriate size.  */
@@ -419,10 +418,10 @@ static inline uint64_t to_c_uint_64(OOP oop);
 /* Return the number of pointer instance variables (both fixed and
    indexed), in the object OBJ.  */
 #define NUM_OOPS(obj)                                                          \
-  ((size_t)(                                                                   \
+  ((                                                                           \
       COMMON(CLASS_IS_SCALAR(OBJ_CLASS((obj))))                                \
-          ? (CLASS_INSTANCE_SPEC(OBJ_CLASS((obj))) >> ISP_NUMFIXEDFIELDS)      \
-          : NUM_WORDS(obj)))
+      ? (size_t)(CLASS_INSTANCE_SPEC(OBJ_CLASS((obj))) >> ISP_NUMFIXEDFIELDS)  \
+      : NUM_WORDS(obj)))
 
 #define FLOATE_OOP_VALUE(floatOOP) ((OBJ_FLOATE_GET_VALUE(OOP_TO_OBJ(floatOOP))))
 
@@ -1177,28 +1176,33 @@ int32_t to_c_int_32(OOP oop) {
 }
 
 OOP from_c_int_32(int32_t i) {
+  #if SIZEOF_OOP == 4
   gst_object ba;
   OOP oop;
   const uint32_t ui = (uint32_t)i;
 
-  if COMMON (i >= MIN_ST_INT && i <= MAX_ST_INT)
-    return (FROM_INT(i));
+  if (COMMON (i >= MIN_ST_INT && i <= MAX_ST_INT)) {
+    return FROM_INT(i);
+  }
 
-  if (i < 0)
-    ba = new_instance_with(_gst_large_negative_integer_class, 4,
-                                           &oop);
-  else
-    ba = new_instance_with(_gst_large_positive_integer_class, 4,
-                                           &oop);
+  if (i < 0) {
+    ba = new_instance_with(_gst_large_negative_integer_class, 4, &oop);
+  } else {
+    ba = new_instance_with(_gst_large_positive_integer_class, 4, &oop);
+  }
 
   OBJ_BYTE_ARRAY_SET_BYTES(ba, 0, (gst_uchar)ui);
   OBJ_BYTE_ARRAY_SET_BYTES(ba, 1, (gst_uchar)(ui >> 8));
   OBJ_BYTE_ARRAY_SET_BYTES(ba, 2, (gst_uchar)(ui >> 16));
   OBJ_BYTE_ARRAY_SET_BYTES(ba, 3, (gst_uchar)(ui >> 24));
   return (oop);
+  #else
+  return FROM_INT(i);
+  #endif
 }
 
 OOP from_c_uint_32(uint32_t ui) {
+  #if SIZEOF_OOP == 4
   gst_object ba;
   OOP oop;
 
@@ -1220,6 +1224,9 @@ OOP from_c_uint_32(uint32_t ui) {
   OBJ_BYTE_ARRAY_SET_BYTES(ba, 3, (gst_uchar)(ui >> 24));
 
   return (oop);
+  #else
+  return FROM_INT(ui);
+  #endif
 }
 
 bool is_c_int_64(OOP oop) {
@@ -1386,8 +1393,7 @@ static inline void set_cobject_value(OOP oop, PTR val) {
 
 /* Return whether the address of the data stored in a CObject, offsetted
    by OFFSET bytes, is still in bounds.  */
-static inline bool cobject_index_check(OOP oop, intptr_t offset,
-                                              size_t size) {
+static inline bool cobject_index_check(OOP oop, intptr_t offset, intptr_t size) {
   gst_object cObj = OOP_TO_OBJ(oop);
   OOP baseOOP = OBJ_COBJECT_GET_STORAGE(cObj);
   intptr_t maxOffset;

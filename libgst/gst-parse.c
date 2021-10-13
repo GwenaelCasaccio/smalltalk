@@ -2101,40 +2101,43 @@ parse_message_expression (gst_parser *p, tree_node receiver, enum expr_kinds kin
   int n;
   for (n = 0; ; n++)
     {
-      switch (token (p, 0))
-	{
-	case IDENTIFIER:
-	  node = parse_unary_expression (p, node, kind & ~EXPR_CASCADE);
-	  break;
+      int t = token (p, 0);
 
-	case '>':
-	  if ((kind & EXPR_GREATER) == 0)
-	    return node;
+      if (t == '>' && (kind & EXPR_GREATER) == 0) {
+        return node;
+      }
 
-	case BINOP:
-	case '<':
+      switch (t)
+        {
+        case IDENTIFIER:
+          node = parse_unary_expression (p, node, kind & ~EXPR_CASCADE);
+          break;
+
+        case '>':
+        case BINOP:
+        case '<':
         case '-':
-	case '|':
-	  if ((kind & EXPR_BINOP) == 0)
-	    return node;
-	  node = parse_binary_expression (p, node, kind & ~EXPR_CASCADE);
-	  break;
+        case '|':
+          if ((kind & EXPR_BINOP) == 0)
+            return node;
+          node = parse_binary_expression (p, node, kind & ~EXPR_CASCADE);
+          break;
 
-	case KEYWORD:
-	  if ((kind & EXPR_KEYWORD) == 0)
-	    return node;
-	  node = parse_keyword_expression (p, node, kind & ~EXPR_CASCADE);
-	  break;
+        case KEYWORD:
+          if ((kind & EXPR_KEYWORD) == 0)
+            return node;
+          node = parse_keyword_expression (p, node, kind & ~EXPR_CASCADE);
+          break;
 
-	case ';':
-	  if (n == 0 || (kind & EXPR_CASCADE) == 0)
-	    return node;
-	  return _gst_make_cascaded_message (&node->location, node,
-					     parse_cascaded_messages (p));
+        case ';':
+          if (n == 0 || (kind & EXPR_CASCADE) == 0)
+            return node;
+          return _gst_make_cascaded_message (&node->location, node,
+                                             parse_cascaded_messages (p));
 
-	default:
-	  return node;
-	}
+        default:
+          return node;
+        }
     }
 
   abort ();
@@ -2174,7 +2177,7 @@ parse_cascaded_messages (gst_parser *p)
 	  expected (p, IDENTIFIER, BINOP, KEYWORD, -1);
 	}
 
-      node = _gst_make_message_list (&node->location, node); 
+      node = _gst_make_message_list (&node->location, node);
       cascade = _gst_add_node (cascade, node);
     }
 
@@ -2187,6 +2190,8 @@ parse_cascaded_messages (gst_parser *p)
 static tree_node
 parse_unary_expression (gst_parser *p, tree_node receiver, enum expr_kinds kind)
 {
+  UNUSED(kind);
+
   YYLTYPE location = receiver ? receiver->location : *loc(p,0);
   char *sel;
   assert (token (p, 0) == IDENTIFIER);
@@ -2195,7 +2200,7 @@ parse_unary_expression (gst_parser *p, tree_node receiver, enum expr_kinds kind)
     _gst_warningf ("sending `%s', most likely you forgot a period", sel);
 
   lex (p);
-  return _gst_make_unary_expr (&location, receiver, sel); 
+  return _gst_make_unary_expr (&location, receiver, sel);
 }
 
 

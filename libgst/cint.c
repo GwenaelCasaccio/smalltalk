@@ -1146,16 +1146,17 @@ ffi_type *smalltalk_to_c(OOP oop, cparam *cp, cdata_type cType) {
 
 bool push_smalltalk_obj(OOP oop, cdata_type cType) {
   if (cType == CDATA_VARIADIC || cType == CDATA_VARIADIC_OOP) {
-    int i;
     if (OOP_INT_CLASS(oop) != _gst_array_class) {
       bad_type(OOP_INT_CLASS(oop), cType);
       return false;
     }
 
     cType = (cType == CDATA_VARIADIC) ? CDATA_UNKNOWN : CDATA_OOP;
-    for (i = 1; i <= NUM_WORDS(OOP_TO_OBJ(oop)); i++)
-      if (!push_smalltalk_obj(ARRAY_AT(oop, i), cType))
+    for (size_t i = 1; i <= NUM_WORDS(OOP_TO_OBJ(oop)); i++) {
+      if (!push_smalltalk_obj(ARRAY_AT(oop, i), cType)) {
         return false;
+      }
+    }
   } else {
     cparam *cp = &c_func_cur->args[c_func_cur->arg_idx];
     ffi_type *type = smalltalk_to_c(oop, cp, cType);
@@ -1294,8 +1295,9 @@ void bad_type(OOP class_oop, cdata_type cType) {
 /* This function does the unmarshaling of the libffi arguments to Smalltalk,
    and calls the block that is stored in the CCallbackDescriptor.  */
 
-static void closure_msg_send(ffi_cif *cif, void *result, void **args,
-                             void *userdata) {
+static void closure_msg_send(ffi_cif *cif, void *result, void **args, void *userdata) {
+  UNUSED(cif);
+
   gst_ffi_closure *closure = userdata;
   OOP callbackOOP = closure->callbackOOP;
   gst_c_callable desc;

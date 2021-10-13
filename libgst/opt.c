@@ -763,90 +763,89 @@ optimize_basic_block (gst_uchar *from,
   do
     {
       /* Perform peephole optimizations.  For simplicity, the optimizations
-	 on line number bytecodes don't take into account the possibility
-	 that the line number bytecode is extended (>256 lines in
-	 a method).  This almost never happens, so we don't bother.  */
-      switch (bp[0])
-	{
-        case PUSH_TEMPORARY_VARIABLE:
-        case PUSH_RECEIVER_VARIABLE:
-	  /* Leave only the store in store/pop/push sequences.  Don't do this
-	     for STORE_LIT_VARIABLE, as it fails if #value: is sent and,
-	     for example, self is returned.  */
-	  if (opt >= from + 4
-	      && (opt == from + 4 || opt[-6] != EXT_BYTE)
-	      && opt[-4] == bp[0] + (STORE_TEMPORARY_VARIABLE - PUSH_TEMPORARY_VARIABLE)
-	      && opt[-3] == bp[1]
-	      && opt[-2] == POP_STACK_TOP
-	      && bp[-2] != EXT_BYTE)
-	    {
-	      opt -= 2;
-	      bp += 2;
-	      continue;
-	    }
+         on line number bytecodes don't take into account the possibility
+         that the line number bytecode is extended (>256 lines in
+         a method).  This almost never happens, so we don't bother.  */
+      switch (bp[0]) {
+      case PUSH_TEMPORARY_VARIABLE:
+      case PUSH_RECEIVER_VARIABLE:
+        /* Leave only the store in store/pop/push sequences.  Don't do this
+           for STORE_LIT_VARIABLE, as it fails if #value: is sent and,
+           for example, self is returned.  */
+        if (opt >= from + 4
+            && (opt == from + 4 || opt[-6] != EXT_BYTE)
+            && opt[-4] == bp[0] + (STORE_TEMPORARY_VARIABLE - PUSH_TEMPORARY_VARIABLE)
+            && opt[-3] == bp[1]
+            && opt[-2] == POP_STACK_TOP
+            && bp[-2] != EXT_BYTE) {
+            opt -= 2;
+            bp += 2;
+            continue;
+          }
 
-	  /* Also rewrite store/pop/line/push to store/line in the middle.  */
-	  if (opt >= from + 6
-	      && (opt == from + 6 || opt[-8] != EXT_BYTE)
-	      && opt[-6] == bp[0] + (STORE_TEMPORARY_VARIABLE - PUSH_TEMPORARY_VARIABLE)
-	      && opt[-5] == bp[1]
-	      && opt[-4] == POP_STACK_TOP
-	      && opt[-2] == LINE_NUMBER_BYTECODE
-	      && bp[-2] != EXT_BYTE)
-	    {
-	      opt[-4] = opt[-2];
-	      opt[-3] = opt[-1];
-	      opt -= 2;
-	      bp += 2;
-	      continue;
-	    }
+        /* Also rewrite store/pop/line/push to store/line in the middle.  */
+        if (opt >= from + 6
+            && (opt == from + 6 || opt[-8] != EXT_BYTE)
+            && opt[-6] == bp[0] + (STORE_TEMPORARY_VARIABLE - PUSH_TEMPORARY_VARIABLE)
+            && opt[-5] == bp[1]
+            && opt[-4] == POP_STACK_TOP
+            && opt[-2] == LINE_NUMBER_BYTECODE
+            && bp[-2] != EXT_BYTE)
+          {
+            opt[-4] = opt[-2];
+            opt[-3] = opt[-1];
+            opt -= 2;
+            bp += 2;
+            continue;
+          }
 
-	  /* fall through to other pushes.  */
+        __attribute__ ((fallthrough));
+        /* fall through to other pushes.  */
 
-        case PUSH_OUTER_TEMP:
-        case PUSH_INTEGER:
-        case PUSH_SELF:
-        case PUSH_SPECIAL:
-        case PUSH_LIT_CONSTANT:
-	  /* Remove a push followed by a pop */
-          if (bp < to - 2
-	      && bp[2] == POP_STACK_TOP)
-	    {
-	      bp += 4;
-	      continue;
-	    }
+      case PUSH_OUTER_TEMP:
+      case PUSH_INTEGER:
+      case PUSH_SELF:
+      case PUSH_SPECIAL:
+      case PUSH_LIT_CONSTANT:
+        /* Remove a push followed by a pop */
+        if (bp < to - 2
+            && bp[2] == POP_STACK_TOP)
+          {
+            bp += 4;
+            continue;
+          }
 
-	  /* Remove the pop in a pop/push/return sequence */
-          if (opt >= from + 2 && bp < to - 2
-	      && bp[2] == RETURN_CONTEXT_STACK_TOP
-	      && opt[-2] == POP_STACK_TOP)
-	    opt -= 2;
+        /* Remove the pop in a pop/push/return sequence */
+        if (opt >= from + 2 && bp < to - 2
+            && bp[2] == RETURN_CONTEXT_STACK_TOP
+            && opt[-2] == POP_STACK_TOP)
+          opt -= 2;
 
-	  /* Rewrite the pop/line number/push sequence to
-	     line number/pop/push because this can be better
-	     optimized by superoperators (making a superoperator
-	     with a nop byte saves on decoding, but not on
-	     scheduling the instructions in the interpreter!).  */
-	  if (opt >= from + 4
-	      && opt[-4] == POP_STACK_TOP
-	      && opt[-2] == LINE_NUMBER_BYTECODE)
-	    {
-	      opt[-4] = LINE_NUMBER_BYTECODE;
-	      opt[-3] = opt[-1];
-	      opt[-2] = POP_STACK_TOP;
-	      opt[-1] = 0;
-	    }
-	  break;
+        /* Rewrite the pop/line number/push sequence to
+           line number/pop/push because this can be better
+           optimized by superoperators (making a superoperator
+           with a nop byte saves on decoding, but not on
+           scheduling the instructions in the interpreter!).  */
+        if (opt >= from + 4
+            && opt[-4] == POP_STACK_TOP
+            && opt[-2] == LINE_NUMBER_BYTECODE)
+          {
+            opt[-4] = LINE_NUMBER_BYTECODE;
+            opt[-3] = opt[-1];
+            opt[-2] = POP_STACK_TOP;
+            opt[-1] = 0;
+          }
+        break;
 
-	case JUMP:
-	case JUMP_BACK:
-	case POP_JUMP_TRUE:
-	case POP_JUMP_FALSE:
-	  abort ();
+      case JUMP:
+      case JUMP_BACK:
+      case POP_JUMP_TRUE:
+      case POP_JUMP_FALSE:
+        abort ();
 
-	default:
-	  break;
-	}
+      default:
+        break;
+      }
 
       /* Else, just copy the bytecode to the optimized area.  */
       *opt++ = *bp++;
