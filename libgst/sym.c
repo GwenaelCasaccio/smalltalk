@@ -964,6 +964,8 @@ void _gst_print_symbol_entry(symbol_entry *ent) {
 }
 
 OOP _gst_find_pragma_handler(OOP classOOP, OOP symbolOOP) {
+  UNUSED(classOOP);
+
   OOP class_oop, myClass;
 
   myClass = _gst_get_class_object(_gst_curr_method->v_method.currentClass);
@@ -1348,7 +1350,7 @@ int _gst_selector_num_args(OOP symbolOOP) {
 
 void _gst_init_symbols_pass1(void) {
   const symbol_info *si;
-  struct builtin_selector *bs;
+  struct builtin_selector *bs = _gst_builtin_selectors_hash;
 
   for (si = sym_info; si->symbolVar; si++)
     *si->symbolVar = alloc_symbol_oop(si->value, strlen(si->value));
@@ -1356,23 +1358,23 @@ void _gst_init_symbols_pass1(void) {
   /* Complete gperf's generated table with each symbol's OOP,
      and prepare a kind of reverse mapping from the 256 bytecodes
      to the hash table entries.  */
-  for (bs = _gst_builtin_selectors_hash;
-       bs - _gst_builtin_selectors_hash <
-       sizeof(_gst_builtin_selectors_hash) /
-           sizeof(_gst_builtin_selectors_hash[0]);
-       bs++)
-    if (bs->offset != -1) {
-      const char *name = bs->offset + _gst_builtin_selectors_names;
-      bs->symbol = alloc_symbol_oop(name, strlen(name));
-      if (strcmp(name, "initialize") == 0)
-        _gst_initialize_symbol = bs->symbol;
-      _gst_builtin_selectors[bs->bytecode] = *bs;
+  for (size_t i = 0;
+       i < sizeof(_gst_builtin_selectors_hash) / sizeof(_gst_builtin_selectors_hash[0]);
+       i++) {
+    if (bs[i].offset != -1) {
+      const char *name = bs[i].offset + _gst_builtin_selectors_names;
+      bs[i].symbol = alloc_symbol_oop(name, strlen(name));
+      if (strcmp(name, "initialize") == 0) {
+        _gst_initialize_symbol = bs[i].symbol;
+      }
+      _gst_builtin_selectors[bs[i].bytecode] = bs[i];
     }
+  }
 }
 
 void _gst_init_symbols_pass2(void) {
   const symbol_info *si;
-  struct builtin_selector *bs;
+  struct builtin_selector *bs = _gst_builtin_selectors_hash;
 
   for (si = sym_info; si->symbolVar; si++)
     alloc_symlink(*si->symbolVar, hash_symbol(si->value, strlen(si->value)));
@@ -1380,15 +1382,14 @@ void _gst_init_symbols_pass2(void) {
   /* Complete gperf's generated table with each symbol's OOP,
      and prepare a kind of reverse mapping from the 256 bytecodes
      to the hash table entries.  */
-  for (bs = _gst_builtin_selectors_hash;
-       bs - _gst_builtin_selectors_hash <
-       sizeof(_gst_builtin_selectors_hash) /
-           sizeof(_gst_builtin_selectors_hash[0]);
-       bs++)
-    if (bs->offset != -1) {
-      const char *name = bs->offset + _gst_builtin_selectors_names;
-      alloc_symlink(bs->symbol, hash_symbol(name, strlen(name)));
+  for (size_t i = 0;
+       i < sizeof(_gst_builtin_selectors_hash) / sizeof(_gst_builtin_selectors_hash[0]);
+       i++) {
+    if (bs[i].offset != -1) {
+      const char *name = bs[i].offset + _gst_builtin_selectors_names;
+      alloc_symlink(bs[i].symbol, hash_symbol(name, strlen(name)));
     }
+  }
 }
 
 static inline OOP intern_string_fast(const char *str, OOP *pTestOOP) {
@@ -1404,7 +1405,7 @@ static inline OOP intern_string_fast(const char *str, OOP *pTestOOP) {
 
 void _gst_restore_symbols(void) {
   const symbol_info *si;
-  struct builtin_selector *bs;
+  struct builtin_selector *bs = _gst_builtin_selectors_hash;
   OOP currentOOP = _gst_symbol_table + 1;
 
   for (si = sym_info; si->symbolVar; si++)
@@ -1413,16 +1414,16 @@ void _gst_restore_symbols(void) {
   /* Complete gperf's generated table with each symbol's OOP,
      and prepare a kind of reverse mapping from the 256 bytecodes
      to the hash table entries.  */
-  for (bs = _gst_builtin_selectors_hash;
-       bs - _gst_builtin_selectors_hash <
-       sizeof(_gst_builtin_selectors_hash) /
-           sizeof(_gst_builtin_selectors_hash[0]);
-       bs++)
-    if (bs->offset != -1) {
-      const char *name = bs->offset + _gst_builtin_selectors_names;
-      bs->symbol = intern_string_fast(name, &currentOOP);
-      if (strcmp(name, "initialize") == 0)
-        _gst_initialize_symbol = bs->symbol;
-      _gst_builtin_selectors[bs->bytecode] = *bs;
+  for (size_t i = 0;
+       i < sizeof(_gst_builtin_selectors_hash) / sizeof(_gst_builtin_selectors_hash[0]);
+       i++) {
+    if (bs[i].offset != -1) {
+      const char *name = bs[i].offset + _gst_builtin_selectors_names;
+      bs[i].symbol = intern_string_fast(name, &currentOOP);
+      if (strcmp(name, "initialize") == 0) {
+        _gst_initialize_symbol = bs[i].symbol;
+      }
+      _gst_builtin_selectors[bs[i].bytecode] = bs[i];
     }
+  }
 }
