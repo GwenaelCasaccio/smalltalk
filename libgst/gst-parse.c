@@ -2177,7 +2177,7 @@ parse_cascaded_messages (gst_parser *p)
 	  expected (p, IDENTIFIER, BINOP, KEYWORD, -1);
 	}
 
-      node = _gst_make_message_list (&node->location, node); 
+      node = _gst_make_message_list (&node->location, node);
       cascade = _gst_add_node (cascade, node);
     }
 
@@ -2190,6 +2190,8 @@ parse_cascaded_messages (gst_parser *p)
 static tree_node
 parse_unary_expression (gst_parser *p, tree_node receiver, enum expr_kinds kind)
 {
+  UNUSED(kind);
+
   YYLTYPE location = receiver ? receiver->location : *loc(p,0);
   char *sel;
   assert (token (p, 0) == IDENTIFIER);
@@ -2198,7 +2200,7 @@ parse_unary_expression (gst_parser *p, tree_node receiver, enum expr_kinds kind)
     _gst_warningf ("sending `%s', most likely you forgot a period", sel);
 
   lex (p);
-  return _gst_make_unary_expr (&location, receiver, sel); 
+  return _gst_make_unary_expr (&location, receiver, sel);
 }
 
 

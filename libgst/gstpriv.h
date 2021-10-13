@@ -120,6 +120,8 @@
 #include "gst.h"
 #include "md-config.h"
 
+#define UNUSED(x)((void)(x))
+
 /* Convenience macros to test the versions of GCC.  Note - they won't
    work for GCC1, since the _MINOR macros were not defined then, but
    we don't have anything interesting to test for that. :-) */
