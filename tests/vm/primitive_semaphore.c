@@ -101,6 +101,8 @@ OOP __wrap_POP_OOP() {
   return (OOP) mock();
 }
 
+#define UNUSED(x) (void)(x)
+
 #include "libgst/primitive_semaphore.inl"
 
 static void should_semaphore_notify_all(void **state) {

@@ -3,6 +3,10 @@
  */
 
 static intptr_t VMpr_Atomic_set(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
 
   const OOP valueOOP = POP_OOP();
@@ -26,6 +30,10 @@ static intptr_t VMpr_Atomic_set(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_Atomic_get(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
 
   const OOP indexOOP = POP_OOP();
@@ -49,6 +57,10 @@ static intptr_t VMpr_Atomic_get(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_Atomic_add(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
 
   const OOP firstTermOOP = POP_OOP();
@@ -85,6 +97,10 @@ static intptr_t VMpr_Atomic_add(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_Atomic_sub(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
 
   const OOP firstTermOOP = POP_OOP();
@@ -121,6 +137,10 @@ static intptr_t VMpr_Atomic_sub(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_Atomic_or(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
 
   const OOP firstTermOOP = POP_OOP();
@@ -157,6 +177,10 @@ static intptr_t VMpr_Atomic_or(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_Atomic_and(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
 
   const OOP firstTermOOP = POP_OOP();
@@ -193,6 +217,10 @@ static intptr_t VMpr_Atomic_and(int id, volatile int numArgs) {
 }
 
 static intptr_t VMpr_Atomic_xor(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
 
   const OOP firstTermOOP = POP_OOP();

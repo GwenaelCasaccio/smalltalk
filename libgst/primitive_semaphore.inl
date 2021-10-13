@@ -4,6 +4,10 @@
 
 /* Semaphore notifyAll */
 static intptr_t VMpr_Semaphore_notifyAll(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
 
   const OOP oop1 = STACKTOP();
@@ -20,6 +24,10 @@ static intptr_t VMpr_Semaphore_notifyAll(int id, volatile int numArgs) {
 
 /* Semaphore signal (id = 0) or Semaphore notify (id = 1) */
 static intptr_t VMpr_Semaphore_signalNotify(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
 
   const OOP oop1 = STACKTOP();
@@ -35,6 +43,10 @@ static intptr_t VMpr_Semaphore_signalNotify(int id, volatile int numArgs) {
 
 /* Semaphore wait lock */
 static intptr_t VMpr_Semaphore_lock(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
 
   const OOP oop1 = STACKTOP();
@@ -50,6 +62,10 @@ static intptr_t VMpr_Semaphore_lock(int id, volatile int numArgs) {
 
 /* Semaphore wait */
 static intptr_t VMpr_Semaphore_wait(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
 
   const OOP oop1 = STACKTOP();
@@ -66,6 +82,10 @@ static intptr_t VMpr_Semaphore_wait(int id, volatile int numArgs) {
 /* Semaphore waitAfterSignalling: aSemaphore */
 static intptr_t VMpr_Semaphore_waitAfterSignalling(int id,
                                                    volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
 
   const OOP oop2 = POP_OOP();

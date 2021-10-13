@@ -6,6 +6,10 @@
 
 /* Process suspend */
 static intptr_t VMpr_Process_suspend(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
 
   const OOP oop1 = STACKTOP();
@@ -24,6 +28,10 @@ static intptr_t VMpr_Process_suspend(int id, volatile int numArgs) {
 
 /* Process resume */
 static intptr_t VMpr_Process_resume(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
 
   const OOP oop1 = STACKTOP();
@@ -44,6 +52,10 @@ static intptr_t VMpr_Process_resume(int id, volatile int numArgs) {
 
 /* Process yield */
 static intptr_t VMpr_Process_yield(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
 
   const OOP oop1 = STACKTOP();
@@ -64,6 +76,10 @@ static intptr_t VMpr_Process_yield(int id, volatile int numArgs) {
 
 /* Process singleStepWaitingOn: */
 static intptr_t VMpr_Process_singleStepWaitingOn(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
   _gst_primitives_executed++;
 
   const OOP oop2 = POP_OOP();
