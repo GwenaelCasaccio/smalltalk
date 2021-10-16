@@ -173,7 +173,7 @@ OOP _gst_weak_identity_set_class = NULL;
 OOP _gst_weak_key_identity_dictionary_class = NULL;
 OOP _gst_weak_value_identity_dictionary_class = NULL;
 OOP _gst_write_stream_class = NULL;
-OOP _gst_processor_oop[100] = { NULL };
+OOP _gst_processor_oop[100] = {NULL};
 OOP _gst_debug_information_class = NULL;
 
 /* Called when a dictionary becomes full, this routine replaces the
@@ -697,7 +697,8 @@ void init_proto_oops() {
   nil_fill(OBJ_NAMESPACE_ASSOC(smalltalkDictionary), INITIAL_SMALLTALK_SIZE);
 
   /* ... and finally Processor */
-  numWords = GST_PROCESSOR_SCHEDULER_NUMBER_INSTANCE_VARIABLES + OBJ_HEADER_SIZE_WORDS;
+  numWords =
+      GST_PROCESSOR_SCHEDULER_NUMBER_INSTANCE_VARIABLES + OBJ_HEADER_SIZE_WORDS;
   processorScheduler = _gst_alloc_words(numWords);
   OOP_SET_OBJECT(_gst_processor_oop[0], processorScheduler);
 
@@ -799,13 +800,13 @@ void create_metaclass(OOP class_oop, int numMetaclassSubClasses,
                                  &OBJ_BEHAVIOR_GET_SUB_CLASSES(class));
   if (numSubClasses > 0) {
     subClasses->data[0] = FROM_INT(numSubClasses);
-}
+  }
 
   subClasses = new_instance_with(_gst_array_class, numMetaclassSubClasses,
                                  &OBJ_BEHAVIOR_GET_SUB_CLASSES(metaclass));
   if (numMetaclassSubClasses > 0) {
     subClasses->data[0] = FROM_INT(numMetaclassSubClasses);
-}
+  }
 }
 
 void init_metaclass(OOP metaclassOOP) {
@@ -821,7 +822,7 @@ void init_metaclass(OOP metaclassOOP) {
     OBJ_BEHAVIOR_SET_SUPER_CLASS(metaclass, _gst_class_class);
   } else {
     OBJ_BEHAVIOR_SET_SUPER_CLASS(metaclass, OOP_CLASS(superClassOOP));
-}
+  }
 
   add_subclass(OBJ_BEHAVIOR_GET_SUPER_CLASS(metaclass), metaclassOOP);
 
@@ -854,7 +855,7 @@ void init_class(OOP class_oop, const class_definition *ci) {
 
   if (!IS_NIL(OBJ_BEHAVIOR_GET_SUPER_CLASS(class))) {
     add_subclass(OBJ_BEHAVIOR_GET_SUPER_CLASS(class), class_oop);
-}
+  }
 
   OBJ_CLASS_SET_ENVIRONMENT(class, _gst_smalltalk_dictionary);
   OBJ_BEHAVIOR_SET_INSTANCE_VARIABLES(
@@ -900,14 +901,14 @@ void init_smalltalk_dictionary(void) {
   _gst_current_namespace = _gst_smalltalk_dictionary;
   for (numFeatures = 0; feature_strings[numFeatures]; numFeatures++) {
     ;
-}
+  }
 
   featuresArray =
       new_instance_with(_gst_array_class, numFeatures, &featuresArrayOOP);
 
   for (i = 0; i < numFeatures; i++) {
     featuresArray->data[i] = _gst_intern_string(feature_strings[i]);
-}
+  }
 
   sprintf(fullVersionString, "GNU Smalltalk version %s",
           VERSION PACKAGE_GIT_REVISION);
@@ -950,7 +951,7 @@ static OOP relocate_path_oop(const char *s) {
     resultOOP = _gst_string_new(path);
   } else {
     resultOOP = _gst_nil_oop;
-}
+  }
 
   free(path);
   return resultOOP;
@@ -1115,10 +1116,11 @@ void add_file_stream_object(int fd, int access, const char *fileObjectName) {
   fileStreamOOP = dictionary_at(_gst_smalltalk_dictionary, keyOOP);
   if (IS_NIL(fileStreamOOP)) {
     instantiate(_gst_file_stream_class, &fileStreamOOP);
-}
+  }
 
   _gst_set_file_stream_file(fileStreamOOP, fd, _gst_string_new(fileObjectName),
-                            _gst_is_pipe(fd) ? _gst_true_oop : _gst_false_oop, access, true);
+                            _gst_is_pipe(fd) ? _gst_true_oop : _gst_false_oop,
+                            access, true);
 
   add_smalltalk(fileObjectName, fileStreamOOP);
 }
@@ -1164,7 +1166,7 @@ bool _gst_init_dictionary_on_image_load(bool prim_table_matches) {
   if (IS_NIL(_gst_processor_oop[0]) || IS_NIL(_gst_symbol_table) ||
       IS_NIL(_gst_smalltalk_dictionary)) {
     return (false);
-}
+  }
 
   _gst_restore_symbols();
 
@@ -1176,7 +1178,7 @@ bool _gst_init_dictionary_on_image_load(bool prim_table_matches) {
       if UNCOMMON (IS_NIL(*ci->classVar))
         return (false);
     }
-}
+  }
 
   _gst_current_namespace =
       dictionary_at(_gst_class_variable_dictionary(_gst_namespace_class),
@@ -1189,7 +1191,7 @@ bool _gst_init_dictionary_on_image_load(bool prim_table_matches) {
            sizeof(_gst_primitive_table));
   } else {
     prepare_primitive_numbers_table();
-}
+  }
 
   init_runtime_objects();
   return (true);
@@ -1204,7 +1206,7 @@ void prepare_primitive_numbers_table() {
 
   for (i = 0; i < NUM_PRIMITIVES; i++) {
     _gst_set_primitive_attributes(i, NULL);
-}
+  }
 
   for (i = 0; i < NUM_PRIMITIVES; i++) {
     prim_table_entry *pte = _gst_get_primitive_attributes(i);
@@ -1213,7 +1215,7 @@ void prepare_primitive_numbers_table() {
 
     if (!pte->name) {
       continue;
-}
+    }
 
     symbolOOP = _gst_intern_string(pte->name);
     valueOOP = dictionary_at(primitivesDictionaryOOP, symbolOOP);
@@ -1221,7 +1223,7 @@ void prepare_primitive_numbers_table() {
     /* Do nothing if the primitive is unknown to the image.  */
     if (IS_NIL(valueOOP)) {
       continue;
-}
+    }
 
     old_index = TO_INT(valueOOP);
     _gst_set_primitive_attributes(old_index, pte);
@@ -1268,13 +1270,13 @@ OOP _gst_find_class_method(OOP class_oop, OOP selector) {
   method_dictionary_oop = OBJ_BEHAVIOR_GET_METHOD_DICTIONARY(class);
   if (IS_NIL(method_dictionary_oop)) {
     return (_gst_nil_oop);
-}
+  }
 
   index = identity_dictionary_find_key(method_dictionary_oop, selector);
 
   if (index < 0) {
     return (_gst_nil_oop);
-}
+  }
 
   methodDictionary = OOP_TO_OBJ(method_dictionary_oop);
   numFixedFields = OOP_FIXED_FIELDS(method_dictionary_oop);
@@ -1312,22 +1314,22 @@ OOP _gst_namespace_association_at(OOP poolOOP, OOP symbol) {
 
   if (is_a_kind_of(OOP_CLASS(poolOOP), _gst_class_class)) {
     poolOOP = _gst_class_variable_dictionary(poolOOP);
-}
+  }
 
   for (;;) {
     if (!is_a_kind_of(OOP_CLASS(poolOOP), _gst_dictionary_class)) {
       return (_gst_nil_oop);
-}
+    }
 
     assocOOP = dictionary_association_at(poolOOP, symbol);
     if (!IS_NIL(assocOOP)) {
       return (assocOOP);
-}
+    }
 
     /* Try to find a super-namespace */
     if (!is_a_kind_of(OOP_CLASS(poolOOP), _gst_abstract_namespace_class)) {
       return (_gst_nil_oop);
-}
+    }
 
     pool = OOP_TO_OBJ(poolOOP);
     poolOOP = OBJ_NAMESPACE_GET_SUPER_SPACE(pool);
@@ -1340,7 +1342,7 @@ OOP _gst_namespace_at(OOP poolOOP, OOP symbol) {
     return assocOOP;
   } else {
     return OBJ_ASSOCIATION_GET_VALUE(OOP_TO_OBJ(assocOOP));
-}
+  }
 }
 
 size_t new_num_fields(size_t oldNumFields) {
@@ -1356,7 +1358,7 @@ size_t new_num_fields(size_t oldNumFields) {
      the leftmost 1 bit to 1, and then incrementing.  */
   for (; oldNumFields & (oldNumFields + 1); n <<= 1) {
     oldNumFields |= oldNumFields >> n;
-}
+  }
 
   return oldNumFields + 1;
 }
@@ -1385,7 +1387,7 @@ static int find_key_or_nil(OOP dictionaryOOP, OOP keyOOP) {
 
     if (OBJ_ASSOCIATION_GET_KEY(association) == keyOOP) {
       return (index);
-}
+    }
 
     /* linear reprobe -- it is simple and guaranteed */
     index++;
@@ -1708,7 +1710,7 @@ OOP _gst_string_new(const char *s) {
     memcpy(OBJ_STRING_GET_CHARS(string), s, len);
   } else {
     string = new_instance_with(_gst_string_class, 0, &stringOOP);
-}
+  }
   return (stringOOP);
 }
 
@@ -1720,19 +1722,18 @@ OOP _gst_unicode_string_new(const wchar_t *s) {
 
   if (s) {
     len = wcslen(s);
-    string = new_instance_with(_gst_unicode_string_class,
-                                                   len, &stringOOP);
+    string = new_instance_with(_gst_unicode_string_class, len, &stringOOP);
 
     if (sizeof(wchar_t) == sizeof(OBJ_UNICODE_STRING_GET_CHARS(string)[0])) {
       memcpy(OBJ_UNICODE_STRING_GET_CHARS(string), s, len * sizeof(wchar_t));
     } else {
       for (i = 0; i < len; i++) {
         OBJ_UNICODE_STRING_SET_CHARS(string, i, *s++);
-}
-}
+      }
+    }
   } else {
     string = new_instance_with(_gst_unicode_string_class, 0, &stringOOP);
-}
+  }
 
   return (stringOOP);
 }
@@ -1745,7 +1746,7 @@ OOP _gst_counted_string_new(const char *s, size_t len) {
 
   if (len) {
     memcpy(OBJ_STRING_GET_CHARS(string), s, len);
-}
+  }
 
   return (stringOOP);
 }
@@ -1793,7 +1794,7 @@ wchar_t *_gst_to_wide_cstring(OOP stringOOP) {
     for (p = result, i = 0; i < len; i++) {
       *p++ = OBJ_UNICODE_STRING_GET_CHARS(string)[i];
     }
-}
+  }
   result[len] = '\0';
 
   return (result);
@@ -1803,8 +1804,7 @@ OOP _gst_byte_array_new(const gst_uchar *bytes, size_t len) {
   gst_object byteArray;
   OOP byteArrayOOP;
 
-  byteArray = new_instance_with(_gst_byte_array_class, len,
-                                                &byteArrayOOP);
+  byteArray = new_instance_with(_gst_byte_array_class, len, &byteArrayOOP);
 
   memcpy(byteArray->data, bytes, len);
   return (byteArrayOOP);
@@ -1853,10 +1853,11 @@ OOP _gst_c_object_new_base(OOP baseOOP, uintptr_t cObjOfs, OOP typeOOP,
 
   if (!IS_NIL(typeOOP)) {
     cType = OOP_TO_OBJ(typeOOP);
-    classOOP = OBJ_ASSOCIATION_GET_VALUE(OOP_TO_OBJ(OBJ_CTYPE_GET_COBJECT_TYPE(cType)));
+    classOOP = OBJ_ASSOCIATION_GET_VALUE(
+        OOP_TO_OBJ(OBJ_CTYPE_GET_COBJECT_TYPE(cType)));
   } else {
     classOOP = defaultClassOOP;
-}
+  }
 
   cObject = instantiate_with(classOOP, 1, &cObjectOOP);
   OBJ_COBJECT_SET_TYPE(cObject, typeOOP);
@@ -1874,15 +1875,14 @@ void _gst_free_cobject(OOP cObjOOP) {
     OBJ_COBJECT_SET_STORAGE(cObject, _gst_nil_oop);
   } else {
     xfree((PTR)COBJECT_OFFSET_OBJ(cObject));
-}
+  }
 
   /* make it not point to falsely valid storage */
   SET_COBJECT_OFFSET_OBJ(cObject, NULL);
 }
 
 void _gst_set_file_stream_file(OOP fileStreamOOP, int fd, OOP fileNameOOP,
-                               OOP isPipe, int access,
-                               bool buffered) {
+                               OOP isPipe, int access, bool buffered) {
   gst_object fileStream;
 
   fileStream = OOP_TO_OBJ(fileStreamOOP);
@@ -1902,7 +1902,8 @@ void _gst_set_file_stream_file(OOP fileStreamOOP, int fd, OOP fileNameOOP,
   if (buffered) {
     char buffer[1024];
     memset(buffer, 0, sizeof(buffer));
-    OBJ_FILE_STREAM_SET_COLLECTION(fileStream, _gst_counted_string_new(buffer, sizeof(buffer)));
+    OBJ_FILE_STREAM_SET_COLLECTION(
+        fileStream, _gst_counted_string_new(buffer, sizeof(buffer)));
     OBJ_FILE_STREAM_SET_PTR(fileStream, FROM_INT(1));
     OBJ_FILE_STREAM_SET_END_PTR(fileStream, FROM_INT(0));
     OBJ_FILE_STREAM_SET_WRITE_PTR(fileStream, _gst_nil_oop);
@@ -1946,7 +1947,7 @@ void _gst_record_profile(OOP oldMethod, OOP newMethod, int ipOffset) {
      the call.  */
   if (ipOffset == 0) {
     _gst_identity_dictionary_at_inc(profile, newMethod, 1);
-}
+  }
 
   INC_RESTORE_POINTER(incPtr);
 }
