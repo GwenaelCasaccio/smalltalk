@@ -5,12 +5,12 @@ void _gst_init_oop_table(PTR address, size_t number_of_forwarding_objects) {
 
   if (_gst_mem.oop_heap) {
     nomemory(true);
-    return ;
+    return;
   }
 
   if ((number_of_forwarding_objects & 0x7FFF) != 0) {
     nomemory(true);
-    return ;
+    return;
   }
 
   for (i = MAX_OOP_TABLE_SIZE; i && !_gst_mem.oop_heap; i >>= 1) {
@@ -19,7 +19,7 @@ void _gst_init_oop_table(PTR address, size_t number_of_forwarding_objects) {
 
   if (!_gst_mem.oop_heap || i < number_of_forwarding_objects) {
     nomemory(true);
-    return ;
+    return;
   }
 
   _gst_alloc_oop_table(number_of_forwarding_objects);
@@ -35,7 +35,7 @@ void _gst_alloc_oop_table(size_t number_of_forwarding_objects) {
   _gst_mem.ot = (struct oop_s *)_gst_heap_sbrk(_gst_mem.oop_heap, bytes);
   if (!_gst_mem.ot) {
     nomemory(true);
-    return ;
+    return;
   }
 
   _gst_mem.num_free_oops = number_of_forwarding_objects;
@@ -61,7 +61,8 @@ size_t _gst_alloc_oop_arena_entry(uint16_t thread_id) {
     return 0;
   }
 
-  if (UNCOMMON (_gst_mem.current_arena[thread_id]->thread_id == thread_id && _gst_mem.current_arena[thread_id]->free_oops > 0)) {
+  if (UNCOMMON(_gst_mem.current_arena[thread_id]->thread_id == thread_id &&
+               _gst_mem.current_arena[thread_id]->free_oops > 0)) {
     return _gst_mem.current_arena[thread_id] - &_gst_mem.ot_arena[0];
   }
 
@@ -73,7 +74,7 @@ size_t _gst_alloc_oop_arena_entry_init(uint16_t thread_id) {
     return 0;
   }
 
-  if (UNCOMMON (_gst_mem.current_arena[thread_id])) {
+  if (UNCOMMON(_gst_mem.current_arena[thread_id])) {
     return _gst_mem.current_arena[thread_id] - &_gst_mem.ot_arena[0];
   }
 
@@ -83,9 +84,11 @@ size_t _gst_alloc_oop_arena_entry_init(uint16_t thread_id) {
 size_t _gst_alloc_oop_arena_entry_unchecked(uint16_t thread_id) {
   const size_t ot_size_as_arena_entries = _gst_mem.ot_size / 32768;
 
-  for (size_t i = 0; i < _gst_mem.ot_arena_size && i < ot_size_as_arena_entries; i++) {
+  for (size_t i = 0; i < _gst_mem.ot_arena_size && i < ot_size_as_arena_entries;
+       i++) {
     uint16_t expected_thread_id = UINT16_MAX;
-    if (atomic_compare_exchange_strong(&_gst_mem.ot_arena[i].thread_id, &expected_thread_id, thread_id)) {
+    if (atomic_compare_exchange_strong(&_gst_mem.ot_arena[i].thread_id,
+                                       &expected_thread_id, thread_id)) {
       if (atomic_load(&_gst_mem.ot_arena[i].free_oops) > 0) {
         _gst_mem.current_arena[thread_id] = &_gst_mem.ot_arena[i];
         return i;
@@ -101,7 +104,7 @@ size_t _gst_alloc_oop_arena_entry_unchecked(uint16_t thread_id) {
 
 void _gst_detach_oop_arena_entry(size_t arena_index) {
   if (arena_index >= _gst_mem.ot_arena_size) {
-    return ;
+    return;
   }
 
   atomic_store(&_gst_mem.ot_arena[arena_index].thread_id, UINT16_MAX);
@@ -124,7 +127,8 @@ bool _gst_realloc_oop_table(size_t number_of_forwarding_objects) {
     return true;
   }
 
-  bytes = (number_of_forwarding_objects - _gst_mem.ot_size) * sizeof(struct oop_s);
+  bytes =
+      (number_of_forwarding_objects - _gst_mem.ot_size) * sizeof(struct oop_s);
 
   if (!_gst_heap_sbrk(_gst_mem.oop_heap, bytes)) {
     /* try to recover. Note that we cannot move
@@ -148,9 +152,9 @@ void _gst_dump_oop_table() {
         _gst_display_oop(oop);
       } else {
         _gst_display_oop_short(oop);
-}
+      }
     }
-}
+  }
 }
 
 void _gst_dump_owners(OOP oop) {
@@ -160,7 +164,7 @@ void _gst_dump_owners(OOP oop) {
        oop2 < lastOOP; OOP_NEXT(oop2)) {
     if UNCOMMON (IS_OOP_VALID(oop2) && is_owner(oop2, oop))
       _gst_display_oop(oop2);
-}
+  }
 }
 
 void _gst_check_oop_table() {
@@ -174,7 +178,7 @@ void _gst_check_oop_table() {
 
     if (!IS_OOP_VALID_GC(oop)) {
       continue;
-}
+    }
 
     object = OOP_TO_OBJ(oop);
     scanPtr = &OBJ_CLASS(object);
@@ -184,14 +188,14 @@ void _gst_check_oop_table() {
           object->data;
     } else {
       n = NUM_OOPS(object) + 1;
-}
+    }
 
     while (n--) {
       OOP pointedOOP = *scanPtr++;
       if (IS_OOP(pointedOOP) &&
           (!IS_OOP_ADDR(pointedOOP) || !IS_OOP_VALID_GC(pointedOOP))) {
         abort();
-}
+      }
     }
   }
 }

@@ -10,9 +10,7 @@ void add_to_grey_list(OOP *base, size_t n) {
     _gst_mem.grey_pages.tail->next = entry;
   } else {
     _gst_mem.grey_pages.head = entry;
-}
+  }
 
   _gst_mem.grey_pages.tail = entry;
 }
-
-

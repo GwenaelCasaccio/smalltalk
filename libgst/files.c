@@ -316,13 +316,13 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
 
   if (!_gst_executable_path) {
     _gst_executable_path = DEFAULT_EXECUTABLE;
-}
+  }
 
   /* By default, apply this kludge for OSes such as Windows and MS-DOS
      which have no concept of home directories.  */
   if (home == NULL) {
     home = xstrdup(currentDirectory);
-}
+  }
 
   asprintf_res = asprintf((char **)&_gst_user_file_base_path, "%s/%s", home,
                           LOCAL_BASE_DIR_NAME);
@@ -383,7 +383,7 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
         _gst_image_file_path = ".";
         break;
       }
-}
+    }
   } else {
     /* No image file given, we use the system default or revert to the
        current directory.  */
@@ -438,7 +438,7 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
     user_init_file = find_user_file(USER_INIT_FILE_NAME);
   } else {
     user_init_file = NULL;
-}
+  }
 
   _gst_init_sysdep();
   _gst_init_signals();
@@ -504,18 +504,18 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
     _gst_regression_testing = willRegressTest;
     if (result) {
       return result;
-}
+    }
 
     if (!_gst_save_to_file(_gst_binary_image_name)) {
       _gst_errorf("Couldn't open file %s", _gst_binary_image_name);
-}
+    }
   }
 
   _gst_kernel_initialized = true;
   _gst_invoke_hook(GST_RETURN_FROM_SNAPSHOT);
   if (user_init_file) {
     _gst_process_file(user_init_file, GST_DIR_ABS);
-}
+  }
 
 #ifdef HAVE_READLINE
   _gst_initialize_readline();
@@ -529,7 +529,7 @@ bool ok_to_load_binary(void) {
 
   if (!_gst_file_is_readable(_gst_binary_image_name)) {
     return (false);
-}
+  }
 
   for (fileName = standard_files; *fileName; fileName += strlen(fileName) + 1) {
     char *fullFileName = _gst_find_file(fileName, GST_DIR_KERNEL);
@@ -537,18 +537,18 @@ bool ok_to_load_binary(void) {
     xfree(fullFileName);
     if (!ok) {
       return (false);
-}
+    }
   }
 
   if (site_pre_image_file &&
       !_gst_file_is_newer(_gst_binary_image_name, site_pre_image_file)) {
     return (false);
-}
+  }
 
   if (user_pre_image_file &&
       !_gst_file_is_newer(_gst_binary_image_name, user_pre_image_file)) {
     return (false);
-}
+  }
 
   return (true);
 }
@@ -569,11 +569,11 @@ int load_standard_files(void) {
 
   if (site_pre_image_file) {
     _gst_process_file(site_pre_image_file, GST_DIR_ABS);
-}
+  }
 
   if (user_pre_image_file) {
     _gst_process_file(user_pre_image_file, GST_DIR_ABS);
-}
+  }
 
   return 0;
 }
@@ -584,7 +584,7 @@ char *_gst_find_file(const char *fileName, enum gst_file_dir dir) {
 
   if (dir == GST_DIR_ABS) {
     return xstrdup(fileName);
-}
+  }
 
   asprintf_res = asprintf(&fullFileName, "%s/%s%s", _gst_kernel_file_path,
                           dir == GST_DIR_KERNEL ? "" : "../", fileName);
@@ -605,12 +605,12 @@ char *_gst_find_file(const char *fileName, enum gst_file_dir dir) {
       return localFileName;
     } else {
       xfree(localFileName);
-}
+    }
   }
 
   if (_gst_file_is_readable(fullFileName)) {
     return fullFileName;
-}
+  }
 
   xfree(fullFileName);
   return NULL;
@@ -622,7 +622,7 @@ char *find_user_file(const char *fileName) {
 
   if (no_user_files) {
     return NULL;
-}
+  }
 
   asprintf_res =
       asprintf(&fullFileName, "%s/%s", _gst_user_file_base_path, fileName);
@@ -635,5 +635,5 @@ char *find_user_file(const char *fileName) {
     return NULL;
   } else {
     return fullFileName;
-}
+  }
 }
