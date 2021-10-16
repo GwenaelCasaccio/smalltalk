@@ -52,10 +52,10 @@
   } while (0)
 
 /* gst_mpz_realloc -- make the gst_mpz have NEW_SIZE digits allocated.  */
-static void *gst_mpz_realloc(gst_mpz *m, mp_size_t new_size);
+static void *gst_mpz_realloc(gst_mpz *m, size_t new_size);
 static void gst_mpz_sub_ui(gst_mpz *dif, const gst_mpz *min, mp_limb_t sub);
 
-static void *gst_mpz_realloc(gst_mpz *m, mp_size_t new_size) {
+static void *gst_mpz_realloc(gst_mpz *m, size_t new_size) {
   /* Never allocate zero space.  */
   if (new_size == 0)
     new_size = 1;
@@ -81,7 +81,7 @@ static void gst_mpz_sub_ui(gst_mpz *dif, const gst_mpz *min, mp_limb_t sub) {
 
   /* If not space for SUM (and possible carry), increase space.  */
   difsize = abs_minsize + 1;
-  if (dif->alloc < difsize)
+  if (difsize >= 0 && dif->alloc < (size_t) difsize)
     gst_mpz_realloc(dif, difsize);
 
   /* These must be after realloc (ADD1 may be the same as SUM).  */
@@ -156,7 +156,7 @@ void _gst_mpz_add(gst_mpz *sum, const gst_mpz *u, const gst_mpz *v) {
 
   /* If not space for sum (and possible carry), increase space.  */
   sumsize = abs_usize + 1;
-  if (sum->alloc < sumsize)
+  if (sumsize >= 0 && sum->alloc < (size_t) sumsize)
     gst_mpz_realloc(sum, sumsize);
 
   /* These must be after realloc (u or v may be the same as sum).  */
@@ -225,7 +225,7 @@ void _gst_mpz_com(gst_mpz *dst, const gst_mpz *src) {
        But this can be simplified using the identity -x = ~x + 1.
        So we're going to compute (~~x) + 1 = x + 1!  */
 
-    if (dst->alloc < size + 1)
+    if (size >= 0 && dst->alloc < (size_t) size + 1)
       gst_mpz_realloc(dst, size + 1);
 
     src_ptr = src->d;
@@ -257,7 +257,7 @@ void _gst_mpz_com(gst_mpz *dst, const gst_mpz *src) {
        So we're going to compute ~~(x - 1) = x - 1!  */
     size = -size;
 
-    if (dst->alloc < size)
+    if (size >= 0 && dst->alloc < (size_t) size)
       gst_mpz_realloc(dst, size);
 
     src_ptr = src->d;
@@ -281,7 +281,7 @@ void _gst_mpz_div_2exp(gst_mpz *w, const gst_mpz *u, unsigned cnt) {
   if (wsize <= 0)
     wsize = 0;
   else {
-    if (w->alloc < wsize)
+    if (wsize >= 0 && w->alloc < (size_t) wsize)
       gst_mpz_realloc(w, wsize);
 
     if (cnt % BITS_PER_MP_LIMB)
@@ -324,10 +324,10 @@ void _gst_mpz_tdiv_qr(gst_mpz *quot, gst_mpz *rem, const gst_mpz *num,
     return;
   }
 
-  if (quot->alloc < qsize)
+  if (qsize >= 0 && quot->alloc < (size_t) qsize)
     gst_mpz_realloc(quot, qsize);
 
-  if (rem->alloc < dsize)
+  if (dsize >= 0 && rem->alloc < (size_t) dsize)
     gst_mpz_realloc(rem, dsize);
 
   qp = quot->d;
@@ -375,7 +375,7 @@ static void _gst_mpz_tdiv_q_ui(gst_mpz *quot, const gst_mpz *num,
     return;
   }
 
-  if (quot->alloc < nsize)
+  if (nsize >= 0 && quot->alloc < (size_t) nsize)
     gst_mpz_realloc(quot, nsize);
 
   qp = quot->d;
@@ -410,7 +410,7 @@ mp_limb_t _gst_mpz_tdiv_qr_si(gst_mpz *quot, const gst_mpz *num, intptr_t den) {
     return 0;
   }
 
-  if (quot->alloc < nsize)
+  if (nsize >= 0 && quot->alloc < (size_t) nsize)
     gst_mpz_realloc(quot, nsize);
 
   qp = quot->d;
@@ -435,7 +435,7 @@ mp_limb_t _gst_mpz_tdiv_qr_si(gst_mpz *quot, const gst_mpz *num, intptr_t den) {
 static inline void gst_mpz_copy_abs(gst_mpz *d, const gst_mpz *s) {
   d->size = ABS(s->size);
   if (d != s) {
-    if (d->alloc < d->size)
+    if (d->size >= 0 && d->alloc < (size_t) d->size)
       gst_mpz_realloc(d, d->size);
     MPN_COPY(d->d, s->d, d->size);
   }
@@ -530,7 +530,7 @@ void _gst_mpz_gcd(gst_mpz *g, const gst_mpz *u, const gst_mpz *v) {
   if (g_zero_bits != 0) {
     mp_limb_t cy_limb;
     gsize += (vp[vsize - 1] >> (BITS_PER_MP_LIMB - g_zero_bits)) != 0;
-    if (g->alloc < gsize)
+    if (gsize >= 0 && g->alloc < (size_t) gsize)
       gst_mpz_realloc(g, gsize);
     MPN_ZERO(g->d, g_zero_limbs);
 
@@ -539,7 +539,7 @@ void _gst_mpz_gcd(gst_mpz *g, const gst_mpz *u, const gst_mpz *v) {
     if (cy_limb != 0)
       tp[vsize] = cy_limb;
   } else {
-    if (g->alloc < gsize)
+    if (gsize >= 0 && g->alloc < (size_t) gsize)
       gst_mpz_realloc(g, gsize);
     MPN_ZERO(g->d, g_zero_limbs);
     MPN_COPY(g->d + g_zero_limbs, vp, vsize);
@@ -624,7 +624,7 @@ void _gst_mpz_mul(gst_mpz *w, const gst_mpz *u, const gst_mpz *v) {
 
   /* Ensure W has space enough to store the result.  */
   wsize = usize + vsize;
-  if (w->alloc < wsize) {
+  if (wsize >= 0 && w->alloc < (size_t) wsize) {
     if (wp == up || wp == vp)
       free_me = wp;
     else
@@ -674,7 +674,7 @@ void _gst_mpz_mul_2exp(gst_mpz *w, const gst_mpz *u, unsigned cnt) {
 
   limb_cnt = cnt / BITS_PER_MP_LIMB;
   wsize = abs_usize + limb_cnt + 1;
-  if (w->alloc < wsize)
+  if (wsize >= 0 && w->alloc < (size_t) wsize)
     gst_mpz_realloc(w, wsize);
   wp = w->d;
 
@@ -706,7 +706,7 @@ void _gst_mpz_set(gst_mpz *w, const gst_mpz *u) {
   abs_usize = ABS(usize);
 
   /* If not space for sum (and possible carry), increase space.  */
-  if (w->alloc < abs_usize)
+  if (abs_usize >= 0 && w->alloc < (size_t) abs_usize)
     gst_mpz_realloc(w, abs_usize);
 
   w->size = usize;
@@ -748,7 +748,7 @@ void _gst_mpz_sub(gst_mpz *w, const gst_mpz *u, const gst_mpz *v) {
 
   /* If not space for sum (and possible carry), increase space.  */
   wsize = abs_usize + 1;
-  if (w->alloc < wsize)
+  if (wsize >= 0 && w->alloc < (size_t) wsize)
     gst_mpz_realloc(w, wsize);
 
   /* These must be after realloc (u or v may be the same as w).  */
@@ -858,7 +858,7 @@ void _gst_mpz_and(gst_mpz *res, const gst_mpz *op1, const gst_mpz *op2) {
 
       /* Handle allocation, now then we know exactly how much space is
          needed for the result.  */
-      if (res->alloc < res_size) {
+      if (res_size >= 0 && res->alloc < (size_t) res_size) {
         gst_mpz_realloc(res, res_size);
         op1_ptr = op1->d;
         op2_ptr = op2->d;
@@ -904,7 +904,7 @@ void _gst_mpz_and(gst_mpz *res, const gst_mpz *op1, const gst_mpz *op2) {
       mpn_sub_1(opx, op2_ptr, op2_size, (mp_limb_t)1);
       op2_ptr = opx;
 
-      if (res->alloc < res_alloc) {
+      if (res_alloc >= 0 && res->alloc < (size_t) res_alloc) {
         gst_mpz_realloc(res, res_alloc);
         res_ptr = res->d;
         /* Don't re-read OP1_PTR and OP2_PTR.  They point to
@@ -973,7 +973,7 @@ void _gst_mpz_and(gst_mpz *res, const gst_mpz *op1, const gst_mpz *op2) {
 
       /* Handle allocation, now then we know exactly how much space is
          needed for the result.  */
-      if (res->alloc < res_size) {
+      if (res_size >= 0 && res->alloc < (size_t) res_size) {
         gst_mpz_realloc(res, res_size);
         res_ptr = res->d;
         op1_ptr = op1->d;
@@ -996,7 +996,7 @@ void _gst_mpz_and(gst_mpz *res, const gst_mpz *op1, const gst_mpz *op2) {
 
       /* Handle allocation, now then we know exactly how much space is
          needed for the result.  */
-      if (res->alloc < res_size) {
+      if (res_size >= 0 && res->alloc < (size_t) res_size) {
         gst_mpz_realloc(res, res_size);
         res_ptr = res->d;
         op1_ptr = op1->d;
@@ -1029,7 +1029,7 @@ void _gst_mpz_ior(gst_mpz *res, const gst_mpz *op1, const gst_mpz *op2) {
   if (op1_size >= 0) {
     if (op2_size >= 0) {
       if (op1_size >= op2_size) {
-        if (res->alloc < op1_size) {
+        if (op1_size >= 0 && res->alloc < (size_t) op1_size) {
           gst_mpz_realloc(res, op1_size);
           op1_ptr = op1->d;
           op2_ptr = op2->d;
@@ -1042,7 +1042,7 @@ void _gst_mpz_ior(gst_mpz *res, const gst_mpz *op1, const gst_mpz *op2) {
           res_ptr[i] = op1_ptr[i] | op2_ptr[i];
         res_size = op1_size;
       } else {
-        if (res->alloc < op2_size) {
+        if (op2_size >= 0 && res->alloc < (size_t) op2_size) {
           gst_mpz_realloc(res, op2_size);
           op1_ptr = op1->d;
           op2_ptr = op2->d;
@@ -1087,7 +1087,7 @@ void _gst_mpz_ior(gst_mpz *res, const gst_mpz *op1, const gst_mpz *op2) {
       mpn_sub_1(opx, op2_ptr, res_size, (mp_limb_t)1);
       op2_ptr = opx;
 
-      if (res->alloc < res_size) {
+      if (res_size >= 0 && res->alloc < (size_t) res_size) {
         gst_mpz_realloc(res, res_size);
         res_ptr = res->d;
         /* Don't re-read OP1_PTR and OP2_PTR.  They point to
@@ -1159,7 +1159,7 @@ void _gst_mpz_ior(gst_mpz *res, const gst_mpz *op1, const gst_mpz *op2) {
     op2_ptr = opx;
     op2_size -= op2_ptr[op2_size - 1] == 0;
 
-    if (res->alloc < res_alloc) {
+    if (res_alloc >= 0 && res->alloc < (size_t) res_alloc) {
       gst_mpz_realloc(res, res_alloc);
       op1_ptr = op1->d;
       res_ptr = res->d;
@@ -1221,7 +1221,7 @@ void _gst_mpz_xor(gst_mpz *res, const gst_mpz *op1, const gst_mpz *op2) {
   if (op1_size >= 0) {
     if (op2_size >= 0) {
       if (op1_size >= op2_size) {
-        if (res->alloc < op1_size) {
+        if (op1_size >= 0 && res->alloc < (size_t) op1_size) {
           gst_mpz_realloc(res, op1_size);
           op1_ptr = op1->d;
           op2_ptr = op2->d;
@@ -1234,7 +1234,7 @@ void _gst_mpz_xor(gst_mpz *res, const gst_mpz *op1, const gst_mpz *op2) {
           res_ptr[i] = op1_ptr[i] ^ op2_ptr[i];
         res_size = op1_size;
       } else {
-        if (res->alloc < op2_size) {
+        if (op2_size >= 0 && res->alloc < (size_t) op2_size) {
           gst_mpz_realloc(res, op2_size);
           op1_ptr = op1->d;
           op2_ptr = op2->d;
@@ -1277,7 +1277,7 @@ void _gst_mpz_xor(gst_mpz *res, const gst_mpz *op1, const gst_mpz *op2) {
       op2_ptr = opx;
 
       res_alloc = MAX(op1_size, op2_size);
-      if (res->alloc < res_alloc) {
+      if (res_alloc >= 0 && res->alloc < (size_t) res_alloc) {
         gst_mpz_realloc(res, res_alloc);
         res_ptr = res->d;
         /* Don't re-read OP1_PTR and OP2_PTR.  They point to
@@ -1336,7 +1336,7 @@ void _gst_mpz_xor(gst_mpz *res, const gst_mpz *op1, const gst_mpz *op2) {
     op2_ptr = opx;
 
     res_alloc = MAX(op1_size, op2_size) + 1;
-    if (res->alloc < res_alloc) {
+    if (res_alloc >= 0 && res->alloc < (size_t) res_alloc) {
       gst_mpz_realloc(res, res_alloc);
       op1_ptr = op1->d;
       res_ptr = res->d;
@@ -1421,7 +1421,7 @@ void _gst_mpz_divexact(gst_mpz *quot, const gst_mpz *num, const gst_mpz *den) {
 
   /* Allocate where we place the result.  It must be nsize limbs big
      because it also acts as a temporary area.  */
-  if (quot->alloc < nsize)
+  if (nsize >= 0 && quot->alloc < (size_t) nsize)
     gst_mpz_realloc(quot, nsize);
   qp = quot->d;
 
