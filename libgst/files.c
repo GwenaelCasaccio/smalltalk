@@ -314,13 +314,15 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
   _gst_smalltalk_initialized = true;
   _gst_init_snprintfv();
 
-  if (!_gst_executable_path)
+  if (!_gst_executable_path) {
     _gst_executable_path = DEFAULT_EXECUTABLE;
+  }
 
   /* By default, apply this kludge for OSes such as Windows and MS-DOS
      which have no concept of home directories.  */
-  if (home == NULL)
+  if (home == NULL) {
     home = xstrdup(currentDirectory);
+  }
 
   asprintf_res = asprintf((char **)&_gst_user_file_base_path, "%s/%s", home,
                           LOCAL_BASE_DIR_NAME);
@@ -331,9 +333,9 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
   /* Check that supplied paths are readable.  If they're not, fail unless
      they told us in advance.  */
   if (kernel_dir && !_gst_file_is_readable(kernel_dir)) {
-    if (flags & GST_IGNORE_BAD_KERNEL_PATH)
+    if (flags & GST_IGNORE_BAD_KERNEL_PATH) {
       kernel_dir = NULL;
-    else {
+    } else {
       _gst_errorf("kernel path %s not readable", kernel_dir);
       exit(1);
     }
@@ -344,9 +346,9 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
   if (image_file &&
       (flags & (GST_REBUILD_IMAGE | GST_MAYBE_REBUILD_IMAGE)) == 0 &&
       !_gst_file_is_readable(image_file)) {
-    if (flags & GST_IGNORE_BAD_IMAGE_PATH)
+    if (flags & GST_IGNORE_BAD_IMAGE_PATH) {
       image_file = NULL;
-    else {
+    } else {
       _gst_errorf("Couldn't open image file %s", image_file);
       exit(1);
     }
@@ -358,7 +360,7 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
     const char *p;
     /* Compute the actual path of the image file */
     p = image_file + strlen(image_file);
-    for (;;)
+    for (;;) {
       if (*--p == '/'
 #if defined(MSDOS) || defined(WIN32) || defined(__OS2__)
           || *p == '\\'
@@ -381,13 +383,14 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
         _gst_image_file_path = ".";
         break;
       }
+    }
   } else {
     /* No image file given, we use the system default or revert to the
        current directory.  */
     str = _gst_relocate_path(IMAGE_PATH);
-    if (_gst_file_is_readable(str))
+    if (_gst_file_is_readable(str)) {
       _gst_image_file_path = str;
-    else {
+    } else {
       free(str);
       _gst_image_file_path = xstrdup(currentDirectory);
     }
@@ -431,10 +434,11 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
 
   user_pre_image_file = find_user_file(USER_PRE_IMAGE_FILE_NAME);
 
-  if (!_gst_regression_testing)
+  if (!_gst_regression_testing) {
     user_init_file = find_user_file(USER_INIT_FILE_NAME);
-  else
+  } else {
     user_init_file = NULL;
+  }
 
   _gst_init_sysdep();
   _gst_init_signals();
@@ -450,9 +454,9 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
     setvbuf(stdout, NULL, _IOLBF, 1024);
   }
 
-  if (rebuild_image_flags == 0)
+  if (rebuild_image_flags == 0) {
     loadBinary = abortOnFailure = true;
-  else {
+  } else {
     loadBinary =
         (rebuild_image_flags == GST_MAYBE_REBUILD_IMAGE && ok_to_load_binary());
     abortOnFailure = false;
@@ -498,17 +502,20 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
 
     result = load_standard_files();
     _gst_regression_testing = willRegressTest;
-    if (result)
+    if (result) {
       return result;
+    }
 
-    if (!_gst_save_to_file(_gst_binary_image_name))
+    if (!_gst_save_to_file(_gst_binary_image_name)) {
       _gst_errorf("Couldn't open file %s", _gst_binary_image_name);
+    }
   }
 
   _gst_kernel_initialized = true;
   _gst_invoke_hook(GST_RETURN_FROM_SNAPSHOT);
-  if (user_init_file)
+  if (user_init_file) {
     _gst_process_file(user_init_file, GST_DIR_ABS);
+  }
 
 #ifdef HAVE_READLINE
   _gst_initialize_readline();
@@ -520,24 +527,28 @@ int _gst_initialize(const char *kernel_dir, const char *image_file, int flags) {
 bool ok_to_load_binary(void) {
   const char *fileName;
 
-  if (!_gst_file_is_readable(_gst_binary_image_name))
+  if (!_gst_file_is_readable(_gst_binary_image_name)) {
     return (false);
+  }
 
   for (fileName = standard_files; *fileName; fileName += strlen(fileName) + 1) {
     char *fullFileName = _gst_find_file(fileName, GST_DIR_KERNEL);
     bool ok = _gst_file_is_newer(_gst_binary_image_name, fullFileName);
     xfree(fullFileName);
-    if (!ok)
+    if (!ok) {
       return (false);
+    }
   }
 
   if (site_pre_image_file &&
-      !_gst_file_is_newer(_gst_binary_image_name, site_pre_image_file))
+      !_gst_file_is_newer(_gst_binary_image_name, site_pre_image_file)) {
     return (false);
+  }
 
   if (user_pre_image_file &&
-      !_gst_file_is_newer(_gst_binary_image_name, user_pre_image_file))
+      !_gst_file_is_newer(_gst_binary_image_name, user_pre_image_file)) {
     return (false);
+  }
 
   return (true);
 }
@@ -556,11 +567,13 @@ int load_standard_files(void) {
 
   _gst_msg_sendf(NULL, "%v %o relocate", _gst_file_segment_class);
 
-  if (site_pre_image_file)
+  if (site_pre_image_file) {
     _gst_process_file(site_pre_image_file, GST_DIR_ABS);
+  }
 
-  if (user_pre_image_file)
+  if (user_pre_image_file) {
     _gst_process_file(user_pre_image_file, GST_DIR_ABS);
+  }
 
   return 0;
 }
@@ -569,8 +582,9 @@ char *_gst_find_file(const char *fileName, enum gst_file_dir dir) {
   char *fullFileName, *localFileName;
   int asprintf_res;
 
-  if (dir == GST_DIR_ABS)
+  if (dir == GST_DIR_ABS) {
     return xstrdup(fileName);
+  }
 
   asprintf_res = asprintf(&fullFileName, "%s/%s%s", _gst_kernel_file_path,
                           dir == GST_DIR_KERNEL ? "" : "../", fileName);
@@ -589,12 +603,14 @@ char *_gst_find_file(const char *fileName, enum gst_file_dir dir) {
     if (_gst_file_is_newer(localFileName, fullFileName)) {
       xfree(fullFileName);
       return localFileName;
-    } else
+    } else {
       xfree(localFileName);
+    }
   }
 
-  if (_gst_file_is_readable(fullFileName))
+  if (_gst_file_is_readable(fullFileName)) {
     return fullFileName;
+  }
 
   xfree(fullFileName);
   return NULL;
@@ -604,8 +620,9 @@ char *find_user_file(const char *fileName) {
   char *fullFileName;
   int asprintf_res;
 
-  if (no_user_files)
+  if (no_user_files) {
     return NULL;
+  }
 
   asprintf_res =
       asprintf(&fullFileName, "%s/%s", _gst_user_file_base_path, fileName);
@@ -616,6 +633,7 @@ char *find_user_file(const char *fileName) {
   if (!_gst_file_is_readable(fullFileName)) {
     xfree(fullFileName);
     return NULL;
-  } else
+  } else {
     return fullFileName;
+  }
 }

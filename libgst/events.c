@@ -51,9 +51,7 @@
  *
  ***********************************************************************/
 
-
 #include "gstpriv.h"
-
 
 /* Holds the semaphores to be signaled when the operating system sends
    us a C-style signal.  */
@@ -61,9 +59,9 @@ async_queue_entry _gst_sem_int_vec[NSIG];
 
 /* Signals _gst_sem_int_vec[SIG] and removes the semaphore from the vector
    (because C-style signal handlers are one-shot).  */
-static RETSIGTYPE signal_handler (int sig);
+static RETSIGTYPE signal_handler(int sig);
 
-#define EVENT_LOOP_POLL_INTERVAL	20
+#define EVENT_LOOP_POLL_INTERVAL 20
 
 enum event_loop_state {
   /* The timer thread has scheduled an asynchronous call to the
@@ -111,14 +109,14 @@ static void event_loop_unlock(void);
 
 /* Set CUR_STATE and signal the event or condition variable
    as appropriate.  */
-static void set_event_loop_state (enum event_loop_state state);
+static void set_event_loop_state(enum event_loop_state state);
 
 /* The current state of the event loop.  */
 static enum event_loop_state cur_state = STATE_RUNNING;
 
 /* The current event loop handlers.  */
-static bool (*event_poll) (int);
-static void (*event_dispatch) (void);
+static bool (*event_poll)(int);
+static void (*event_dispatch)(void);
 
 /* Whether event loop handlers have been set, and the event loop
    thread is running.  */
@@ -133,245 +131,216 @@ static int64_t next_poll_ms;
    VM becomes idle.  The argument can be true for a blocking
    wait, nil for a non-blocking wait, false to wait until
    next_poll_ms.  */
-static void poll_events (OOP blockingOOP);
+static void poll_events(OOP blockingOOP);
 
-
-static void
-event_loop_lock(void)
-{
+static void event_loop_lock(void) {
 #ifdef _WIN32
-  EnterCriticalSection (&state_cs);
+  EnterCriticalSection(&state_cs);
 #else
-  pthread_mutex_lock (&state_mutex);
+  pthread_mutex_lock(&state_mutex);
 #endif
 }
 
-static void
-event_loop_unlock(void)
-{
+static void event_loop_unlock(void) {
 #ifdef _WIN32
-  LeaveCriticalSection (&state_cs);
+  LeaveCriticalSection(&state_cs);
 #else
-  pthread_mutex_unlock (&state_mutex);
+  pthread_mutex_unlock(&state_mutex);
 #endif
 }
 
-static void
-set_event_loop_state (enum event_loop_state state)
-{
+static void set_event_loop_state(enum event_loop_state state) {
   enum event_loop_state old_state;
   old_state = cur_state;
-  if (old_state == state)
+  if (old_state == state) {
     return;
+  }
 
   cur_state = state;
 
 #ifdef _WIN32
-  if (have_event_loop_handlers)
-    {
-      if (state == STATE_RUNNING && old_state != STATE_RUNNING)
-        SetEvent(state_event);
-      else if (state != STATE_RUNNING && old_state == STATE_RUNNING)
-        ResetEvent(state_event);
-    }
+  if (have_event_loop_handlers) {
+    if (state == STATE_RUNNING && old_state != STATE_RUNNING)
+      SetEvent(state_event);
+    else if (state != STATE_RUNNING && old_state == STATE_RUNNING)
+      ResetEvent(state_event);
+  }
 #endif
 
-  switch (state)
-    {
-    case STATE_POLLING:
-      event_loop_unlock ();
-      _gst_async_call (poll_events, _gst_nil_oop);
-      event_loop_lock ();
-      break;
+  switch (state) {
+  case STATE_POLLING:
+    event_loop_unlock();
+    _gst_async_call(poll_events, _gst_nil_oop);
+    event_loop_lock();
+    break;
 
 #ifndef _WIN32
-    case STATE_RUNNING:
-      if (have_event_loop_handlers)
-        pthread_cond_signal (&state_cond);
-      break;
-#endif
+  case STATE_RUNNING:
+    if (have_event_loop_handlers) {
+      pthread_cond_signal(&state_cond);
     }
+    break;
+#endif
+  }
 }
 
 static
 #ifdef _WIN32
-unsigned __stdcall
+    unsigned __stdcall
 #else
-void *
+    void *
 #endif
-poll_timer_thread (void *unused)
-{
-  event_loop_lock ();
-  for (;;)
-    {
-      unsigned ms;
+    poll_timer_thread(void *unused) {
+  event_loop_lock();
+  for (;;) {
+    unsigned ms;
 
-      /* If running, sleep until the next periodic poll.  Otherwise,
-         sleep indefinitely waiting for the VM to require periodic
-	 polls.  */
-      if (cur_state == STATE_RUNNING)
-        {
-	  unsigned cur_time;
-          cur_time = _gst_get_milli_time ();
-          if (cur_time < next_poll_ms)
-            ms = MIN(0, next_poll_ms - cur_time);
-          else
-            {
-              ms = EVENT_LOOP_POLL_INTERVAL;
-              next_poll_ms = cur_time + ms;
-              set_event_loop_state(STATE_POLLING);
-            }
-        }
-      else
-        ms = INFINITE;
+    /* If running, sleep until the next periodic poll.  Otherwise,
+       sleep indefinitely waiting for the VM to require periodic
+       polls.  */
+    if (cur_state == STATE_RUNNING) {
+      unsigned cur_time;
+      cur_time = _gst_get_milli_time();
+      if (cur_time < next_poll_ms) {
+        ms = MIN(0, next_poll_ms - cur_time);
+      } else {
+        ms = EVENT_LOOP_POLL_INTERVAL;
+        next_poll_ms = cur_time + ms;
+        set_event_loop_state(STATE_POLLING);
+      }
+    } else {
+      ms = INFINITE;
+    }
 
 #ifdef _WIN32
-      event_loop_unlock ();
-      WaitForSingleObject (state_event, ms);
-      event_loop_lock ();
+    event_loop_unlock();
+    WaitForSingleObject(state_event, ms);
+    event_loop_lock();
 #else
-      if (ms == INFINITE)
-        pthread_cond_wait (&state_cond, &state_mutex);
-      else if (ms)
-        {
-          event_loop_unlock ();
-          _gst_usleep (ms * 1000);
-          event_loop_lock ();
-        }
-#endif
+    if (ms == INFINITE) {
+      pthread_cond_wait(&state_cond, &state_mutex);
+    } else if (ms) {
+      event_loop_unlock();
+      _gst_usleep(ms * 1000);
+      event_loop_lock();
     }
+#endif
+  }
 
   return 0;
 }
 
-static void
-poll_events (OOP blockingOOP)
-{
+static void poll_events(OOP blockingOOP) {
   unsigned ms;
   gst_object processor;
-  if (blockingOOP == _gst_nil_oop)
+  if (blockingOOP == _gst_nil_oop) {
     ms = 0;
-  else if (blockingOOP == _gst_true_oop)
+  } else if (blockingOOP == _gst_true_oop) {
     ms = -1;
-  else
-    ms = MIN(0, next_poll_ms - _gst_get_milli_time ());
+  } else {
+    ms = MIN(0, next_poll_ms - _gst_get_milli_time());
+  }
 
-  if (event_poll && event_poll (ms))
-    {
-      /* Polling told us they have events ready.  If available, signal the
-         event semaphore and switch to STATE_DISPATCHING.  */
-      processor = OOP_TO_OBJ (_gst_processor_oop[current_thread_id]);
-      if (TO_INT (OBJ_SIZE (processor)) > 8)
-        {
-          event_loop_lock ();
-          set_event_loop_state (STATE_DISPATCHING);
-          event_loop_unlock ();
-          processor = OOP_TO_OBJ (_gst_processor_oop[current_thread_id]);
-          _gst_sync_signal (OBJ_PROCESSOR_SCHEDULER_GET_EVENT_SEMAPHORE(processor), true);
-        }
+  if (event_poll && event_poll(ms)) {
+    /* Polling told us they have events ready.  If available, signal the
+       event semaphore and switch to STATE_DISPATCHING.  */
+    processor = OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
+    if (TO_INT(OBJ_SIZE(processor)) > 8) {
+      event_loop_lock();
+      set_event_loop_state(STATE_DISPATCHING);
+      event_loop_unlock();
+      processor = OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
+      _gst_sync_signal(OBJ_PROCESSOR_SCHEDULER_GET_EVENT_SEMAPHORE(processor),
+                       true);
     }
+  }
 
-  event_loop_lock ();
-  if (cur_state == STATE_POLLING)
-    set_event_loop_state (STATE_RUNNING);
-  event_loop_unlock ();
+  event_loop_lock();
+  if (cur_state == STATE_POLLING) {
+    set_event_loop_state(STATE_RUNNING);
+  }
+  event_loop_unlock();
 }
 
-void
-_gst_dispatch_events (void)
-{
-  if (event_dispatch)
-    event_dispatch ();
+void _gst_dispatch_events(void) {
+  if (event_dispatch) {
+    event_dispatch();
+  }
 
-  event_loop_lock ();
-  set_event_loop_state (STATE_RUNNING);
-  event_loop_unlock ();
+  event_loop_lock();
+  set_event_loop_state(STATE_RUNNING);
+  event_loop_unlock();
 }
 
-void
-_gst_idle (bool blocking)
-{
-  event_loop_lock ();
-  set_event_loop_state (STATE_IDLE);
-  event_loop_unlock ();
+void _gst_idle(bool blocking) {
+  event_loop_lock();
+  set_event_loop_state(STATE_IDLE);
+  event_loop_unlock();
 
-  if (have_event_loop_handlers)
-    poll_events (blocking ? _gst_true_oop : _gst_false_oop);
-  else if (blocking)
-    _gst_pause ();
-  else
-    _gst_usleep (EVENT_LOOP_POLL_INTERVAL * 1000);
+  if (have_event_loop_handlers) {
+    poll_events(blocking ? _gst_true_oop : _gst_false_oop);
+  } else if (blocking) {
+    _gst_pause();
+  } else {
+    _gst_usleep(EVENT_LOOP_POLL_INTERVAL * 1000);
+  }
 }
 
-bool
-_gst_set_event_loop_handlers(bool (*poll) (int ms),
-                             void (*dispatch) (void))
-{
-  if (!have_event_loop_handlers)
-    {
+bool _gst_set_event_loop_handlers(bool (*poll)(int ms),
+                                  void (*dispatch)(void)) {
+  if (!have_event_loop_handlers) {
 #ifdef _WIN32
-      HANDLE hThread;
-      hThread = (HANDLE) _beginthreadex(NULL, 0, poll_timer_thread,
-                                        NULL, 0, NULL);
-      CloseHandle (hThread);
+    HANDLE hThread;
+    hThread = (HANDLE)_beginthreadex(NULL, 0, poll_timer_thread, NULL, 0, NULL);
+    CloseHandle(hThread);
 #else
-      pthread_attr_t attr;
-      pthread_t thread;
-      pthread_attr_init(&attr);
-      pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-      pthread_create(&thread, &attr, poll_timer_thread, NULL);
+    pthread_attr_t attr;
+    pthread_t thread;
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+    pthread_create(&thread, &attr, poll_timer_thread, NULL);
 #endif
-      have_event_loop_handlers = true;
-      event_poll = poll;
-      event_dispatch = dispatch;
-      return true;
-    }
-  else
+    have_event_loop_handlers = true;
+    event_poll = poll;
+    event_dispatch = dispatch;
+    return true;
+  } else {
     return false;
+  }
 }
 
-void
-_gst_init_event_loop()
-{
+void _gst_init_event_loop() {
 #ifdef _WIN32
   InitializeCriticalSection(&state_cs);
   state_event = CreateEvent(NULL, TRUE, TRUE, NULL);
 #endif
 }
-
-RETSIGTYPE
-signal_handler (int sig)
-{
-  if (_gst_sem_int_vec[sig].data)
-    {
-      if (IS_CLASS (_gst_sem_int_vec[sig].data, _gst_semaphore_class))
-        _gst_async_call_internal (&_gst_sem_int_vec[sig]);
-      else
-	{
-	  _gst_errorf
-	    ("C signal trapped, but no semaphore was waiting");
-	  raise (sig);
-	}
-    }
 
-  _gst_set_signal_handler (sig, SIG_DFL);
-  _gst_wakeup ();
+RETSIGTYPE
+signal_handler(int sig) {
+  if (_gst_sem_int_vec[sig].data) {
+    if (IS_CLASS(_gst_sem_int_vec[sig].data, _gst_semaphore_class)) {
+      _gst_async_call_internal(&_gst_sem_int_vec[sig]);
+    } else {
+      _gst_errorf("C signal trapped, but no semaphore was waiting");
+      raise(sig);
+    }
+  }
+
+  _gst_set_signal_handler(sig, SIG_DFL);
+  _gst_wakeup();
 }
 
-void
-_gst_async_interrupt_wait (OOP semaphoreOOP,
-			   int sig)
-{
-  if (sig < 0 || sig >= NSIG)
+void _gst_async_interrupt_wait(OOP semaphoreOOP, int sig) {
+  if (sig < 0 || sig >= NSIG) {
     return;
+  }
 
-  _gst_register_oop (semaphoreOOP);
+  _gst_register_oop(semaphoreOOP);
   _gst_sem_int_vec[sig].func = _gst_do_async_signal_and_unregister;
   _gst_sem_int_vec[sig].data = semaphoreOOP;
-  _gst_set_signal_handler (sig, signal_handler);
+  _gst_set_signal_handler(sig, signal_handler);
 
   /* should probably package up the old interrupt state here for return
      so that it can be undone */
 }
-
-

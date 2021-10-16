@@ -249,8 +249,9 @@ loc (gst_parser *p, int n)
 static inline void
 lex_must_be (gst_parser *p, int req_token)
 {
-  if (token (p, 0) != req_token)
+  if (token (p, 0) != req_token) {
     expected (p, req_token, -1);
+}
 }
 
 /* Lexer interface.  Check that the next token is REQ_TOKEN and eat it;
@@ -259,10 +260,11 @@ lex_must_be (gst_parser *p, int req_token)
 static inline void
 lex_skip_mandatory (gst_parser *p, int req_token)
 {
-  if (token (p, 0) != req_token)
+  if (token (p, 0) != req_token) {
     expected (p, req_token, -1);
-  else
+  } else {
     lex (p);
+}
 }
 
 /* Lexer interface.  If the next token is REQ_TOKEN, eat it and return true;
@@ -273,8 +275,9 @@ lex_skip_if (gst_parser *p, int req_token, bool fail_at_eof)
 {
   if (token (p, 0) != req_token)
     {
-      if (token (p, 0) == EOF && fail_at_eof)
+      if (token (p, 0) == EOF && fail_at_eof) {
 	expected (p, req_token, -1);
+}
       return false;
     }
   else
@@ -291,10 +294,11 @@ _gst_print_tokens (gst_parser *p)
   int i;
   printf ("size: %i\n", p->la_size);
   for (i = 0; i < p->la_size; i++) {
-    if (token (p, i) == 264)
+    if (token (p, i) == 264) {
       printf ("%i - %i - %s\n", i, token (p, i), val (p, i)->sval); 
-    else
+    } else {
       printf ("%i - %i\n", i, token (p, i));
+}
   }
   printf ("\n");
 }
@@ -302,8 +306,9 @@ _gst_print_tokens (gst_parser *p)
 OOP
 _gst_get_current_namespace (void)
 {
-  if (_gst_current_parser)
+  if (_gst_current_parser) {
     return _gst_current_parser->current_namespace;
+}
 
   return _gst_current_namespace;
 }
@@ -333,17 +338,20 @@ set_compilation_namespace (OOP namespaceOOP)
   _gst_current_parser->current_namespace = namespaceOOP;
   if (!IS_NIL (namespaceOOP))
     {
-      if (oldNamespaceOOP != namespaceOOP)
+      if (oldNamespaceOOP != namespaceOOP) {
         _gst_register_oop (namespaceOOP);
-      if (namespaceOOP != _gst_current_namespace)
+}
+      if (namespaceOOP != _gst_current_namespace) {
         _gst_msg_sendf (NULL, "%v %o current: %o",
                         _gst_namespace_class, namespaceOOP);
+}
     }
 
   if (!IS_NIL (oldNamespaceOOP))
     {
-      if (oldNamespaceOOP != namespaceOOP)
+      if (oldNamespaceOOP != namespaceOOP) {
         _gst_unregister_oop (_gst_current_parser->current_namespace);
+}
     }
 
   return oldNamespaceOOP;
@@ -419,18 +427,21 @@ _gst_parse_chunks (OOP currentNamespace)
   _gst_current_parser = &p;
   incPtr = INC_SAVE_POINTER ();
   parser_init (&p);
-  if (currentNamespace)
+  if (currentNamespace) {
     p.current_namespace = currentNamespace;
+}
   p.state = PARSE_DOIT;
 
   lex_init (&p);
-  if (token (&p, 0) == SHEBANG)
+  if (token (&p, 0) == SHEBANG) {
     lex (&p);
+}
 
   setjmp (p.recover);
   _gst_had_error = false;
-  while (token (&p, 0) != EOF)
+  while (token (&p, 0) != EOF) {
     parse_chunks (&p);
+}
 
   _gst_reset_compilation_category ();
   set_compilation_namespace (_gst_nil_oop);
@@ -441,9 +452,9 @@ _gst_parse_chunks (OOP currentNamespace)
 static void
 parse_chunks (gst_parser *p) 
 {
-  if (lex_skip_if (p, '!', false))
+  if (lex_skip_if (p, '!', false)) {
     p->state = PARSE_DOIT;
-  else
+  } else
     {
       OOP oldTemporaries = _gst_push_temporaries_dictionary ();
       jmp_buf old_recover;
@@ -453,10 +464,11 @@ parse_chunks (gst_parser *p)
         {
           /* Pick the production here, so that subsequent 
 	     methods are compiled when we come back from an error above.  */
-          if (p->state == PARSE_METHOD_LIST)
+          if (p->state == PARSE_METHOD_LIST) {
 	    parse_method_list (p);
-          else
+          } else {
 	    parse_doit (p, false);
+}
         }
 
       lex_skip_if (p, '!', false);
@@ -498,8 +510,9 @@ expected (gst_parser *p, int token, ...)
     free (out_tmp);
 	  sep = " or";
 	}
-      else
+      else {
 	named_tokens |= 1 << (token - FIRST_TOKEN);
+}
       token = va_arg (ap, int);
     }
   va_end (ap);
@@ -538,8 +551,9 @@ recover_error (gst_parser *p)
       /* Find the final bang or, if in the REPL, a newline.  */
       while (token (p, 0) != EOF
 	     && token (p, 0) != '!'
-	     && token (p, 0) != ERROR_RECOVERY)
+	     && token (p, 0) != ERROR_RECOVERY) {
 	lex (p);
+}
 
       _gst_error_recovery = false;
       lex_skip_if (p, ERROR_RECOVERY, false);
@@ -562,9 +576,9 @@ execute_doit (gst_parser *p, tree_node temps, tree_node stmts,
   if (!in_class)
     {
       assert (p == _gst_current_parser);
-      if (receiverOOP)
+      if (receiverOOP) {
         _gst_set_compilation_class (OOP_CLASS (receiverOOP));
-      else
+      } else
         {
           /* Let doits access the variables and classes in the current namespace.  */
           set_compilation_namespace (p->current_namespace);
@@ -575,8 +589,9 @@ execute_doit (gst_parser *p, tree_node temps, tree_node stmts,
         }
     }
 
-  if (stmts->nodeType != TREE_STATEMENT_LIST)
+  if (stmts->nodeType != TREE_STATEMENT_LIST) {
     stmts = _gst_make_statement_list (&stmts->location, stmts);
+}
 
   method =
     _gst_make_method (&stmts->location, loc(p, 0),
@@ -590,8 +605,9 @@ execute_doit (gst_parser *p, tree_node temps, tree_node stmts,
   incPtr = INC_SAVE_POINTER ();
   INC_ADD_OOP (resultOOP);
 
-  if (!in_class && p->state != PARSE_METHOD_LIST)
+  if (!in_class && p->state != PARSE_METHOD_LIST) {
     _gst_reset_compilation_category ();
+}
 
   /* Store Smalltalk's notion of current namespace back to the parser.  */
   set_compilation_namespace (_gst_current_namespace);
@@ -608,22 +624,25 @@ parse_doit (gst_parser *p, bool fail_at_eof)
   tree_node statement = NULL;
   bool caret;
 
-  if (token (p, 0) == '|')
+  if (token (p, 0) == '|') {
     parse_temporaries (p, false);
+}
 
-  if (token (p, 0) == EOF && !fail_at_eof)
+  if (token (p, 0) == EOF && !fail_at_eof) {
     return;
+}
 
   caret = lex_skip_if (p, '^', false);
   statement = parse_required_expression (p);
   if (!caret && lex_skip_if (p, '[', false))
     {
-      if (parse_scoped_definition (p, statement))
+      if (parse_scoped_definition (p, statement)) {
         lex_skip_mandatory (p, ']'); 
-      else
+      } else
         {
-          while (!lex_skip_if (p, ']', true))
+          while (!lex_skip_if (p, ']', true)) {
 	    lex (p);
+}
 	}
     }
   else if (statement)
@@ -633,8 +652,9 @@ parse_doit (gst_parser *p, bool fail_at_eof)
       /* Because a '.' could be inserted automagically, the next token
          value might be already on the obstack.  Do not free in that
          case!  */
-      if (p->la_size == 0)
+      if (p->la_size == 0) {
         _gst_free_tree ();
+}
     }
 
   _gst_had_error = false;
@@ -672,8 +692,9 @@ parse_scoped_definition (gst_parser *p, tree_node first_stmt)
       && expression->v_list.next == NULL)
     {
       if (strcmp (receiver->v_list.name, "Namespace") == 0
-	  && strcmp (expression->v_list.name, "current:") == 0)
+	  && strcmp (expression->v_list.name, "current:") == 0) {
 	return parse_namespace_definition (p, first_stmt);
+}
       
       if (strcmp (expression->v_list.name, "subclass:") == 0
 	  && (classOOP = parse_class (p, receiver)) != NULL)
@@ -682,10 +703,11 @@ parse_scoped_definition (gst_parser *p, tree_node first_stmt)
 	  _gst_msg_sendf (&classOOP, "%o %o subclass: %S environment: %o",
                           classOOP, name, p->current_namespace);
 	      
-	  if (IS_NIL (classOOP))
+	  if (IS_NIL (classOOP)) {
 	    _gst_had_error = true;
-	  else
+	  } else {
 	    return parse_class_definition (p, classOOP, false);  
+}
 	}
     }
 
@@ -755,8 +777,9 @@ parse_eval_definition (gst_parser *p)
 
       if (_gst_regression_testing)
         {
-          if (!_gst_had_error)
+          if (!_gst_had_error) {
             printf ("returned value is %O\n", resultOOP);
+}
 	  fflush (stdout);
 	  fflush (stderr);
         }
@@ -768,8 +791,9 @@ parse_eval_definition (gst_parser *p)
   _gst_free_tree ();
   _gst_pop_temporaries_dictionary (oldDictionary);
   memcpy (p->recover, old_recover, sizeof (p->recover));
-  if (_gst_had_error)
+  if (_gst_had_error) {
     longjmp (p->recover, 1);
+}
 }
 
 static OOP
@@ -783,8 +807,9 @@ make_attribute (gst_parser *p, OOP classOOP, tree_node attribute_keywords)
 
   incPtr = INC_SAVE_POINTER ();
   
-  if (_gst_had_error)
+  if (_gst_had_error) {
     return _gst_nil_oop;
+}
 
   selectorOOP = _gst_compute_keyword_selector (attribute_keywords);
   numArgs = _gst_list_length (attribute_keywords);
@@ -855,10 +880,11 @@ parse_namespace_definition (gst_parser *p, tree_node first_stmt)
       INC_ADD_OOP (old_namespace);
       while (token (p, 0) != ']' && token (p, 0) != EOF && token (p, 0) != '!')
 	{
-	  if (token (p, 0) == '<')
+	  if (token (p, 0) == '<') {
 	    parse_and_send_attribute (p, new_namespace, false);
-	  else
+	  } else {
 	    parse_doit (p, true);
+}
 	}
 
       set_compilation_namespace (old_namespace);
@@ -877,12 +903,14 @@ parse_class_definition (gst_parser *p, OOP classOOP, bool extend)
   for (;;)
     {
       int t1, t2, t3;
-      if (_gst_had_error)
+      if (_gst_had_error) {
 	break;
+}
 
       lex_lookahead (p, 1);
-      if (token (p, 0) == ']' || token (p, 0) == EOF)
+      if (token (p, 0) == ']' || token (p, 0) == EOF) {
 	break;
+}
 
 #if 0
       print_tokens (p);      
@@ -938,8 +966,9 @@ parse_class_definition (gst_parser *p, OOP classOOP, bool extend)
  	      OOP name, class_var_dict, result;
 	      tree_node stmt;
 	      OOP the_class = classOOP;
-	      if (IS_A_METACLASS (classOOP))
+	      if (IS_A_METACLASS (classOOP)) {
 		the_class = METACLASS_INSTANCE (classOOP);
+}
 
 	      name = _gst_intern_string (val (p, 0)->sval);
 
@@ -961,14 +990,16 @@ parse_class_definition (gst_parser *p, OOP classOOP, bool extend)
 	          stmt = _gst_make_statement_list (&stmt->location, stmt);
 	          result = execute_doit (p, NULL, stmt, the_class, false, true);
 
-	          if (result)
+	          if (result) {
 		    DICTIONARY_AT_PUT (class_var_dict, name, result);
-		  else
+		  } else {
 		    _gst_had_error = true;
+}
 		}
 
-	      if (token (p, 0) != ']')
+	      if (token (p, 0) != ']') {
 		lex_skip_mandatory(p, '.');
+}
 	      continue;
 	    }
 	  else if (t2 == BINOP)
@@ -1099,10 +1130,11 @@ parse_scoped_method (gst_parser *p, OOP classOOP)
   class_node = parse_variable_primary (p);
   class = parse_class (p, class_node);
 
-  if (OOP_CLASS (classOOP) == _gst_metaclass_class)
+  if (OOP_CLASS (classOOP) == _gst_metaclass_class) {
     classInstanceOOP = METACLASS_INSTANCE (classOOP);
-  else
+  } else {
     classInstanceOOP = classOOP;
+}
 
   if (token (p, 0) == IDENTIFIER)
     {
@@ -1111,15 +1143,17 @@ parse_scoped_method (gst_parser *p, OOP classOOP)
 	  class_method = true;
 	  lex_skip_mandatory (p, IDENTIFIER);
 	}
-      else
+      else {
 	_gst_errorf("expected `class' or `>>'");
+}
     }
   
   lex_must_be (p, BINOP);
-  if (strcmp (val (p, 0)->sval, ">>") == 0)
+  if (strcmp (val (p, 0)->sval, ">>") == 0) {
     lex_skip_mandatory (p, BINOP);
-  else
+  } else {
     _gst_errorf ("expected `>>'");
+}
   
   if (!class_method && OOP_CLASS (classOOP) == _gst_metaclass_class)
     {
@@ -1143,8 +1177,9 @@ parse_scoped_method (gst_parser *p, OOP classOOP)
 
   else
     {
-      if (class_method) 
+      if (class_method) { 
 	class = OOP_CLASS (class);
+}
     }
 
   _gst_set_compilation_class (class);
@@ -1161,8 +1196,9 @@ parse_class (gst_parser *p,
   OOP currentOOP = p->current_namespace;
   tree_node next; 
 
-  if (strcmp (list->v_list.name, "nil") == 0)
+  if (strcmp (list->v_list.name, "nil") == 0) {
       return _gst_nil_oop;
+}
   
   do
     {
@@ -1237,17 +1273,18 @@ parse_namespace (gst_parser *p, tree_node list)
   name = _gst_intern_string (namespc);
   new_namespace = dictionary_at (current_namespace, name);
 
-  if (new_namespace == _gst_nil_oop) 
+  if (new_namespace == _gst_nil_oop) { 
     _gst_msg_sendf (&current_namespace, "%o %o addSubspace: %o",
 		    current_namespace, name);
 
-  else if (_gst_object_is_kind_of (new_namespace, _gst_dictionary_class))
+  } else if (_gst_object_is_kind_of (new_namespace, _gst_dictionary_class)) {
     current_namespace = new_namespace;
 
-  else
+  } else {
     _gst_errorf_at (list->location.first_line, 
 		    "expected namespace named %s, found %O", namespc,
 		    OOP_INT_CLASS (new_namespace));
+}
 
   return current_namespace;
 }
@@ -1315,8 +1352,9 @@ parse_method_list (gst_parser *p)
   memcpy (old_recover, p->recover, sizeof (p->recover));
   if (setjmp (p->recover) == 0)
     {
-      while (token (p, 0) != '!')
+      while (token (p, 0) != '!') {
         parse_method (p, '!');
+}
     }
 
   memcpy (p->recover, old_recover, sizeof (p->recover));
@@ -1337,16 +1375,19 @@ parse_method (gst_parser *p, int at_end)
 
   pat = parse_message_pattern (p);
 
-  if (at_end == ']')
+  if (at_end == ']') {
     lex_skip_mandatory (p, '[');
+}
 
-  if (token (p, 0) == '<')
+  if (token (p, 0) == '<') {
     attrs = parse_attributes (p, NULL);
+}
 
   temps = parse_temporaries (p, false);
 
-  if (token (p, 0) == '<')
+  if (token (p, 0) == '<') {
     attrs = parse_attributes (p, attrs);
+}
 
   stmts = parse_statements (p, NULL, true);
 
@@ -1355,8 +1396,9 @@ parse_method (gst_parser *p, int at_end)
 
   /* Still, include the ']' in the method source code.  */
   current_pos = _gst_get_location ();
-  if (at_end == ']')
+  if (at_end == ']') {
     current_pos.file_offset++;
+}
 
   method = _gst_make_method (&pat->location, &current_pos,
 			     pat, temps, attrs, stmts, NULL,
@@ -1374,8 +1416,9 @@ parse_method (gst_parser *p, int at_end)
   assert (p->la_size <= 1);
   _gst_free_tree ();
   _gst_had_error = false;
-  if (at_end != EOF)
+  if (at_end != EOF) {
     lex (p);
+}
 }
 
 
@@ -1470,8 +1513,9 @@ parse_attributes (gst_parser *p, tree_node prev_attrs)
   while (token (p, 0) == '<')
     {
       tree_node attr = parse_attribute (p);
-      if (attr)
+      if (attr) {
 	prev_attrs = _gst_add_node (prev_attrs, attr);
+}
     }
 
   return prev_attrs;
@@ -1524,14 +1568,16 @@ static tree_node
 parse_temporaries (gst_parser *p, bool implied_pipe)
 {
   tree_node temps = NULL;
-  if (!implied_pipe && !lex_skip_if (p, '|', false))
+  if (!implied_pipe && !lex_skip_if (p, '|', false)) {
     return NULL;
+}
 
   while (!lex_skip_if (p, '|', true))
     {
       tree_node temp;
-      if (token (p, 0) != IDENTIFIER)
+      if (token (p, 0) != IDENTIFIER) {
 	expected (p, '|', IDENTIFIER, -1);
+}
       temp = parse_variable (p);
       temp = _gst_make_variable_list (&temp->location, temp); 
       temps = _gst_add_node (temps, temp);
@@ -1557,11 +1603,13 @@ parse_statements (gst_parser *p, tree_node first_stmt, bool accept_caret)
   if (first_stmt)
     {
       stmts = _gst_make_statement_list (&first_stmt->location, first_stmt);
-      if (!lex_skip_if (p, '.', false))
+      if (!lex_skip_if (p, '.', false)) {
 	return stmts;
+}
     }
-  else
+  else {
     stmts = NULL;
+}
 
   do
     {
@@ -1574,8 +1622,9 @@ parse_statements (gst_parser *p, tree_node first_stmt, bool accept_caret)
       else
 	{
           stmt = parse_expression (p, EXPR_ANY);
-	  if (stmt == NULL)
+	  if (stmt == NULL) {
 	    break;
+}
 	}
 
       stmt = _gst_make_statement_list (&stmt->location, stmt);
@@ -1607,8 +1656,9 @@ parse_expression (gst_parser *p, enum expr_kinds kind)
 	  node = parse_variable_primary (p);
 	  if (!node
 	      || (kind & EXPR_ASSIGNMENT) == 0
-	      || !lex_skip_if (p, ASSIGNMENT, false))
+	      || !lex_skip_if (p, ASSIGNMENT, false)) {
 	    break;
+}
 	}
 
       assigns = _gst_add_node (assigns,
@@ -1628,8 +1678,9 @@ parse_expression (gst_parser *p, enum expr_kinds kind)
       assert (node);
     }
 
-  if (assigns)
+  if (assigns) {
     node = _gst_make_assign (&assigns->location, assigns, node);
+}
 
   return node;
 }
@@ -1712,8 +1763,9 @@ parse_variable_primary_1 (gst_parser *p, YYLTYPE *first_loc,
   for (;;)
     {
       lex (p);
-      if (!lex_skip_if (p, SCOPE_SEPARATOR, false))
+      if (!lex_skip_if (p, SCOPE_SEPARATOR, false)) {
 	break;
+}
 
       lex_must_be (p, IDENTIFIER);
       node = _gst_add_node (node, _gst_make_variable (loc (p, 0), val(p, 0)->sval));
@@ -1760,9 +1812,9 @@ parse_literal (gst_parser *p, bool array)
 	case FLOATE_LITERAL:
 	case FLOATQ_LITERAL:
 	case SCALED_DECIMAL_LITERAL:
-          if (_gst_negate_yylval (tok, val (p, 0)))
+          if (_gst_negate_yylval (tok, val (p, 0))) {
 	    return parse_literal (p, array);
-	  else
+	  } else
 	    {
 	      _gst_errorf ("parse error, expected positive numeric literal");
 	      recover_error (p);
@@ -1884,8 +1936,9 @@ parse_array_literal (gst_parser *p)
   while (!lex_skip_if (p, ')', true))
     {
       tree_node lit = parse_literal (p, true);
-      if (lit == NULL)
+      if (lit == NULL) {
 	return NULL;
+}
       elts = _gst_add_node (elts, _gst_make_array_elt (&lit->location, lit));
     }
 
@@ -1904,16 +1957,16 @@ parse_builtin_identifier (gst_parser *p)
 
   assert (token (p, 0) == IDENTIFIER);
   symbolOOP = _gst_intern_string (val(p, 0)->sval);
-  if (symbolOOP == _gst_true_symbol)
+  if (symbolOOP == _gst_true_symbol) {
     node = _gst_make_oop_constant (&location, _gst_true_oop);
 
-  else if (symbolOOP == _gst_false_symbol)
+  } else if (symbolOOP == _gst_false_symbol) {
     node = _gst_make_oop_constant (&location, _gst_false_oop);
 
-  else if (symbolOOP == _gst_nil_symbol)
+  } else if (symbolOOP == _gst_nil_symbol) {
     node = _gst_make_oop_constant (&location, _gst_nil_oop);
 
-  else
+  } else
     {
       _gst_errorf ("expected true, false or nil");
       recover_error (p);
@@ -1969,13 +2022,15 @@ parse_compile_time_constant (gst_parser *p)
   statements = parse_statements (p, NULL, true);
   lex_skip_mandatory (p, ')');
 
-  if (!statements || _gst_had_error)
+  if (!statements || _gst_had_error) {
     return _gst_make_oop_constant (&location, _gst_nil_oop);
+}
 
   /* This can happen when parsing an Eval statement */
   currentClass = _gst_current_parser->currentClass;
-  if (IS_NIL(_gst_current_parser->currentClass))
+  if (IS_NIL(_gst_current_parser->currentClass)) {
     currentClass = OOP_CLASS(_gst_undefined_object_class);
+}
 
   return _gst_make_method (&location, loc(p, 0),
                            NULL, temps, NULL, statements, NULL,
@@ -2037,18 +2092,19 @@ parse_block (gst_parser *p)
   if (token (p, 0) == ':')
     {
       vars = parse_block_variables (p);
-      if (token (p, 0) == ']')
+      if (token (p, 0) == ']') {
 	implied_pipe = false;
-      else if (lex_skip_if (p, '|', true))
+      } else if (lex_skip_if (p, '|', true)) {
 	implied_pipe = false;
-      else if (token (p, 0) == BINOP
+      } else if (token (p, 0) == BINOP
 	       && val(p, 0)->sval[0] == '|' && val(p, 0)->sval[1] == '|')
 	{
 	  implied_pipe = true;
 	  lex (p);
 	}
-      else
+      else {
 	expected (p, ':', '|', ']', -1);
+}
     }
   else
     {
@@ -2073,8 +2129,9 @@ parse_block_variables (gst_parser *p)
   tree_node vars = NULL;
   assert (token (p, 0) == ':');
 
-  while (lex_skip_if (p, ':', false))
+  while (lex_skip_if (p, ':', false)) {
     vars = _gst_add_node (vars, parse_variable (p));
+}
 
   return vars;
 }
@@ -2118,20 +2175,23 @@ parse_message_expression (gst_parser *p, tree_node receiver, enum expr_kinds kin
         case '<':
         case '-':
         case '|':
-          if ((kind & EXPR_BINOP) == 0)
+          if ((kind & EXPR_BINOP) == 0) {
             return node;
+}
           node = parse_binary_expression (p, node, kind & ~EXPR_CASCADE);
           break;
 
         case KEYWORD:
-          if ((kind & EXPR_KEYWORD) == 0)
+          if ((kind & EXPR_KEYWORD) == 0) {
             return node;
+}
           node = parse_keyword_expression (p, node, kind & ~EXPR_CASCADE);
           break;
 
         case ';':
-          if (n == 0 || (kind & EXPR_CASCADE) == 0)
+          if (n == 0 || (kind & EXPR_CASCADE) == 0) {
             return node;
+}
           return _gst_make_cascaded_message (&node->location, node,
                                              parse_cascaded_messages (p));
 
@@ -2196,8 +2256,9 @@ parse_unary_expression (gst_parser *p, tree_node receiver, enum expr_kinds kind)
   char *sel;
   assert (token (p, 0) == IDENTIFIER);
   sel = val(p, 0)->sval;
-  if (is_unlikely_selector (sel))
+  if (is_unlikely_selector (sel)) {
     _gst_warningf ("sending `%s', most likely you forgot a period", sel);
+}
 
   lex (p);
   return _gst_make_unary_expr (&location, receiver, sel);

@@ -86,23 +86,25 @@ void _gst_print_object(OOP oop) {
 
 int print_char_to_stream(FILE *stream, OOP oop) {
   int val = CHAR_OOP_VALUE(oop);
-  if (OOP_CLASS(oop) == _gst_char_class && val > 127)
+  if (OOP_CLASS(oop) == _gst_char_class && val > 127) {
     return fprintf(stream, "Character value: 16r%02X", val);
 
-  else if (val >= 32 && val <= 126)
+  } else if (val >= 32 && val <= 126) {
     return fprintf(stream, "$%c", val);
-  else if (val < 32)
+  } else if (val < 32) {
     return fprintf(stream, "$<%d>", val);
-  else
+  } else {
     return fprintf(stream, "$<16r%04X>", val);
+  }
 }
 
 int print_string_to_stream(FILE *stream, OOP string) {
   int len;
 
   len = _gst_string_oop_len(string);
-  if (!len)
+  if (!len) {
     return 0;
+  }
 
   return fprintf(stream, "%.*s", len, (char *)(OOP_TO_OBJ(string)->data));
 }
@@ -117,25 +119,27 @@ int print_association_key_to_stream(FILE *stream, OOP associationOOP) {
   }
 
   association = OOP_TO_OBJ(associationOOP);
-  if (OOP_CLASS(OBJ_ASSOCIATION_GET_KEY(association)) != _gst_symbol_class)
+  if (OOP_CLASS(OBJ_ASSOCIATION_GET_KEY(association)) != _gst_symbol_class) {
     return fprintf(stream, "<unprintable key type>");
-  else
+  } else {
     return fprintf(stream, "%#O", OBJ_ASSOCIATION_GET_KEY(association));
+  }
 }
 
 int print_class_name_to_stream(FILE *stream, OOP class_oop) {
   gst_object class;
   class = OOP_TO_OBJ(class_oop);
-  if (IS_A_CLASS(class_oop) && !IS_NIL(OBJ_CLASS_GET_NAME(class)))
+  if (IS_A_CLASS(class_oop) && !IS_NIL(OBJ_CLASS_GET_NAME(class))) {
     return print_string_to_stream(stream, OBJ_CLASS_GET_NAME(class));
-  else if (IS_A_CLASS(OOP_CLASS(class_oop))) {
+  } else if (IS_A_CLASS(OOP_CLASS(class_oop))) {
     int r;
     r = fprintf(stream, "<unnamed ");
     r += print_class_name_to_stream(stream, OOP_CLASS(class_oop));
     r += fprintf(stream, ">");
     return r;
-  } else
+  } else {
     return fprintf(stream, "<unnamed class>");
+  }
 }
 
 int print_oop_constructor_to_stream(FILE *stream, OOP oop) {
@@ -147,16 +151,18 @@ int print_oop_constructor_to_stream(FILE *stream, OOP oop) {
   r += print_class_name_to_stream(stream, class_oop);
 
   instanceSpec = CLASS_INSTANCE_SPEC(class_oop);
-  if (instanceSpec & ISP_ISINDEXABLE)
+  if (instanceSpec & ISP_ISINDEXABLE) {
     r += fprintf(stream, " new: %zu ", NUM_INDEXABLE_FIELDS(oop));
 
-  else
+  } else {
     r += fprintf(stream, " new ");
+  }
 
-  if (_gst_regression_testing)
+  if (_gst_regression_testing) {
     r += fprintf(stream, "\"<0>\"");
-  else
+  } else {
     r += fprintf(stream, "\"<%p>\"", oop);
+  }
 
   return r;
 }
@@ -169,31 +175,32 @@ int printf_oop(FILE *stream, const struct printf_info *info,
     return print_association_key_to_stream(stream, oop);
   }
 
-  if (IS_INT(oop))
+  if (IS_INT(oop)) {
     return fprintf(stream, "%td", TO_INT(oop));
 
-  else if (IS_NIL(oop))
+  } else if (IS_NIL(oop)) {
     return fprintf(stream, "nil");
 
-  else if (oop == _gst_true_oop)
+  } else if (oop == _gst_true_oop) {
     return fprintf(stream, "true");
 
-  else if (oop == _gst_false_oop)
+  } else if (oop == _gst_false_oop) {
     return fprintf(stream, "false");
 
-  else if (OOP_CLASS(oop) == _gst_char_class ||
-           OOP_CLASS(oop) == _gst_unicode_character_class)
+  } else if (OOP_CLASS(oop) == _gst_char_class ||
+             OOP_CLASS(oop) == _gst_unicode_character_class) {
     return print_char_to_stream(stream, oop);
 
-  else if (OOP_CLASS(oop) == _gst_floatd_class) {
+  } else if (OOP_CLASS(oop) == _gst_floatd_class) {
     double f = FLOATD_OOP_VALUE(oop);
     char buf[100], *p;
     p = buf + sprintf(buf, "%#.*g", (_gst_regression_testing ? 6 : DBL_DIG), f);
-    for (; p >= buf; p--)
+    for (; p >= buf; p--) {
       if (*p == 'e') {
         *p = 'd';
         break;
       }
+    }
 
     return fputs(buf, stream);
   }
@@ -208,50 +215,55 @@ int printf_oop(FILE *stream, const struct printf_info *info,
     char buf[100], *p;
     p = buf +
         sprintf(buf, "%#.*Lg", (_gst_regression_testing ? 6 : LDBL_DIG), f);
-    for (; p >= buf; p--)
+    for (; p >= buf; p--) {
       if (*p == 'e') {
         *p = 'q';
         break;
       }
+    }
 
     return fputs(buf, stream);
   }
 
   else if (OOP_CLASS(oop) == _gst_symbol_class) {
     int r = 0;
-    if (!info->alt)
+    if (!info->alt) {
       r += fprintf(stream, "#");
+    }
     return r + print_string_to_stream(stream, oop);
   }
 
   else if (OOP_CLASS(oop) == _gst_string_class) {
     int r = 0;
     /* ### have to quote embedded quote chars */
-    if (!info->alt)
+    if (!info->alt) {
       r += fprintf(stream, "'");
+    }
     r += print_string_to_stream(stream, oop);
-    if (!info->alt)
+    if (!info->alt) {
       r += fprintf(stream, "'");
+    }
     return r;
   }
 
   else if (IS_A_METACLASS(oop)) {
     int r = 0;
     OOP class_oop = _gst_find_an_instance(oop);
-    if (IS_NIL(class_oop))
+    if (IS_NIL(class_oop)) {
       r += print_oop_constructor_to_stream(stream, oop);
-    else {
+    } else {
       r += print_class_name_to_stream(stream, class_oop);
       r += fprintf(stream, " class");
     }
     return r;
   }
 
-  else if (IS_A_CLASS(oop))
+  else if (IS_A_CLASS(oop)) {
     return print_class_name_to_stream(stream, oop);
 
-  else
+  } else {
     return print_oop_constructor_to_stream(stream, oop);
+  }
 }
 
 int printf_oop_arginfo(const struct printf_info *info, size_t n, int *argtypes,
@@ -266,50 +278,41 @@ int printf_oop_arginfo(const struct printf_info *info, size_t n, int *argtypes,
 }
 
 void _gst_classify_addr(void *addr) {
-  if (IS_INT(addr))
+  if (IS_INT(addr)) {
     printf("Smalltalk SmallInteger %td\n", TO_INT(addr));
 
-  else if (IS_OOP_ADDR(addr))
+  } else if (IS_OOP_ADDR(addr)) {
     _gst_display_oop(addr);
 
-  else
+  } else {
     _gst_display_object(addr);
+  }
 
   fflush(stdout);
 }
 
 void _gst_display_oop_short(OOP oop) {
-  if (IS_OOP_FREE(oop))
+  if (IS_OOP_FREE(oop)) {
     printf("%-10p   Free\n", oop);
-  else {
+  } else {
     printf("%-10p   %-10p  %-10s %-10s %-10s\n", oop, OOP_TO_OBJ(oop),
-           OOP_GET_FLAGS(oop) & F_CONTEXT
-               ? "Context"
-               : OOP_GET_FLAGS(oop) & F_WEAK
-                     ? "Weak"
-                     : OOP_GET_FLAGS(oop) & F_EPHEMERON ? "Ephemeron" : "",
+           OOP_GET_FLAGS(oop) & F_CONTEXT     ? "Context"
+           : OOP_GET_FLAGS(oop) & F_WEAK      ? "Weak"
+           : OOP_GET_FLAGS(oop) & F_EPHEMERON ? "Ephemeron"
+                                              : "",
 
-           OOP_GET_FLAGS(oop) & F_FIXED
-               ? "Fixed"
-               : OOP_GET_FLAGS(oop) & F_LOADED
-                     ? "Permanent"
-                     : OOP_GET_FLAGS(oop) & F_OLD
-                           ? "Old"
-                           : OOP_GET_FLAGS(oop) & _gst_mem.active_flag
-                                 ? "To-space"
-                                 : "From-space",
+           OOP_GET_FLAGS(oop) & F_FIXED                ? "Fixed"
+           : OOP_GET_FLAGS(oop) & F_LOADED             ? "Permanent"
+           : OOP_GET_FLAGS(oop) & F_OLD                ? "Old"
+           : OOP_GET_FLAGS(oop) & _gst_mem.active_flag ? "To-space"
+                                                       : "From-space",
 
-           IS_EDEN_ADDR(OOP_TO_OBJ(oop))
-               ? "Eden"
-               : IS_SURVIVOR_ADDR(OOP_TO_OBJ(oop), 0)
-                     ? "Surv (Even)"
-                     : IS_SURVIVOR_ADDR(OOP_TO_OBJ(oop), 1)
-                           ? "Surv (Odd)"
-                           : OOP_GET_FLAGS(oop) & F_POOLED
-                                 ? "Pooled"
-                                 : OOP_GET_FLAGS(oop) & F_REACHABLE
-                                       ? "Old/marked"
-                                       : "Old");
+           IS_EDEN_ADDR(OOP_TO_OBJ(oop))          ? "Eden"
+           : IS_SURVIVOR_ADDR(OOP_TO_OBJ(oop), 0) ? "Surv (Even)"
+           : IS_SURVIVOR_ADDR(OOP_TO_OBJ(oop), 1) ? "Surv (Odd)"
+           : OOP_GET_FLAGS(oop) & F_POOLED        ? "Pooled"
+           : OOP_GET_FLAGS(oop) & F_REACHABLE     ? "Old/marked"
+                                                  : "Old");
   }
 }
 
@@ -319,43 +322,34 @@ void _gst_display_oop(OOP oop) {
     return;
   }
 
-  if (IS_OOP_FREE(oop))
+  if (IS_OOP_FREE(oop)) {
     printf("%-10p   Free\n", oop);
-  else {
+  } else {
     printf("%-10p   %-10p  %-10s %-10s %-10s", oop, OOP_TO_OBJ(oop),
-           OOP_GET_FLAGS(oop) & F_CONTEXT
-               ? "Context"
-               : OOP_GET_FLAGS(oop) & F_WEAK
-                     ? "Weak"
-                     : OOP_GET_FLAGS(oop) & F_EPHEMERON ? "Ephemeron" : "",
+           OOP_GET_FLAGS(oop) & F_CONTEXT     ? "Context"
+           : OOP_GET_FLAGS(oop) & F_WEAK      ? "Weak"
+           : OOP_GET_FLAGS(oop) & F_EPHEMERON ? "Ephemeron"
+                                              : "",
 
-           OOP_GET_FLAGS(oop) & F_FIXED
-               ? "Fixed"
-               : OOP_GET_FLAGS(oop) & F_LOADED
-                     ? "Permanent"
-                     : OOP_GET_FLAGS(oop) & F_OLD
-                           ? "Old"
-                           : OOP_GET_FLAGS(oop) & _gst_mem.active_flag
-                                 ? "To-space"
-                                 : "From-space",
+           OOP_GET_FLAGS(oop) & F_FIXED                ? "Fixed"
+           : OOP_GET_FLAGS(oop) & F_LOADED             ? "Permanent"
+           : OOP_GET_FLAGS(oop) & F_OLD                ? "Old"
+           : OOP_GET_FLAGS(oop) & _gst_mem.active_flag ? "To-space"
+                                                       : "From-space",
 
-           IS_EDEN_ADDR(OOP_TO_OBJ(oop))
-               ? "Eden"
-               : IS_SURVIVOR_ADDR(OOP_TO_OBJ(oop), 0)
-                     ? "Surv (Even)"
-                     : IS_SURVIVOR_ADDR(OOP_TO_OBJ(oop), 1)
-                           ? "Surv (Odd)"
-                           : OOP_GET_FLAGS(oop) & F_POOLED
-                                 ? "Pooled"
-                                 : OOP_GET_FLAGS(oop) & F_REACHABLE
-                                       ? "Old/marked"
-                                       : "Old");
+           IS_EDEN_ADDR(OOP_TO_OBJ(oop))          ? "Eden"
+           : IS_SURVIVOR_ADDR(OOP_TO_OBJ(oop), 0) ? "Surv (Even)"
+           : IS_SURVIVOR_ADDR(OOP_TO_OBJ(oop), 1) ? "Surv (Odd)"
+           : OOP_GET_FLAGS(oop) & F_POOLED        ? "Pooled"
+           : OOP_GET_FLAGS(oop) & F_REACHABLE     ? "Old/marked"
+                                                  : "Old");
 
-    if (IS_OOP_ADDR(OBJ_CLASS(OOP_TO_OBJ(oop))))
+    if (IS_OOP_ADDR(OBJ_CLASS(OOP_TO_OBJ(oop)))) {
       printf("   %O (%O)\n", OBJ_CLASS(OOP_TO_OBJ(oop)),
-             OBJ_SIZE (OOP_TO_OBJ(oop)));
-    else
+             OBJ_SIZE(OOP_TO_OBJ(oop)));
+    } else {
       printf("   (invalid class)\n");
+    }
   }
 }
 
@@ -366,16 +360,17 @@ void _gst_display_object(gst_object obj) {
   }
 
   printf("Object at %p (%s)", obj,
-         IS_EDEN_ADDR(obj) ? "Eden"
-                           : IS_SURVIVOR_ADDR(obj, 0)
-                                 ? "Even"
-                                 : IS_SURVIVOR_ADDR(obj, 1) ? "Odd" : "Old");
+         IS_EDEN_ADDR(obj)          ? "Eden"
+         : IS_SURVIVOR_ADDR(obj, 0) ? "Even"
+         : IS_SURVIVOR_ADDR(obj, 1) ? "Odd"
+                                    : "Old");
 
-  if (IS_OOP_ADDR(OBJ_CLASS(obj)))
-    printf(", size %O (%zu OOPs), class %O\n", OBJ_SIZE (obj), NUM_OOPS(obj),
+  if (IS_OOP_ADDR(OBJ_CLASS(obj))) {
+    printf(", size %O (%zu OOPs), class %O\n", OBJ_SIZE(obj), NUM_OOPS(obj),
            OBJ_CLASS(obj));
-  else
+  } else {
     printf(", contains invalid data\n");
+  }
 }
 
 void _gst_init_snprintfv() {

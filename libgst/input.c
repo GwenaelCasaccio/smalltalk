@@ -207,13 +207,15 @@ void _gst_pop_stream(bool closeIt) {
 
   case STREAM_FILE:
     xfree(stream->st_file.buf);
-    if (closeIt)
+    if (closeIt) {
       close(stream->st_file.fd);
+    }
     break;
   }
 
-  if (stream->freeFileName)
+  if (stream->freeFileName) {
     xfree((char *)stream->fileName);
+  }
   xfree(stream);
 }
 
@@ -247,7 +249,7 @@ void _gst_push_smalltalk_string(OOP stringOOP) {
 
   newStream = push_new_stream(STREAM_STRING);
 
-  newStream->st_str.strBase = (char *)_gst_to_cstring(stringOOP);
+  newStream->st_str.strBase = _gst_to_cstring(stringOOP);
   newStream->st_str.str = newStream->st_str.strBase;
   newStream->fileName = "a Smalltalk string";
 }
@@ -273,8 +275,9 @@ void _gst_push_stdin_string(void) {
 #ifdef HAVE_READLINE
   }
 
-  if (count == 0)
+  if (count == 0) {
     _gst_add_all_symbol_completions();
+  }
 
   newStream = push_new_stream(STREAM_READLINE);
   newStream->fileOffset = 0;
@@ -333,8 +336,9 @@ void refill_stream(input_stream stream, char *buf, int new_line) {
   if (new_line) {
     stream->st_oop.ptr[size - old_size] = '\n';
     stream->st_oop.ptr[size - old_size + 1] = '\0';
-  } else
+  } else {
     stream->st_oop.ptr[size - old_size] = '\0';
+  }
 
   free(buf);
 }
@@ -345,10 +349,11 @@ int my_getc(input_stream stream) {
   switch (stream->type) {
   case STREAM_STRING:
     ic = (unsigned char)*stream->st_str.str;
-    if (!ic)
+    if (!ic) {
       return EOF;
-    else
+    } else {
       stream->st_str.str++;
+    }
 
     return ic;
 
@@ -376,8 +381,9 @@ int my_getc(input_stream stream) {
     /* Refill the buffer...  */
     if (stream->st_file.ptr == stream->st_file.end) {
       int n = poll_and_read(stream->st_file.fd, stream->st_file.buf, 1024);
-      if (n < 0)
+      if (n < 0) {
         n = 0;
+      }
 
       stream->fileOffset += stream->st_file.ptr - stream->st_file.buf;
       stream->st_file.end = stream->st_file.buf + n;
@@ -394,8 +400,9 @@ int my_getc(input_stream stream) {
     if (stream->st_oop.ptr == stream->st_oop.end) {
       char *buf =
           readline(in_stream->prompt ? (char *)in_stream->prompt : (char *)"");
-      if (!buf)
+      if (!buf) {
         return EOF;
+      }
 
       add_history(buf);
       refill_stream(stream, buf, true);
@@ -411,16 +418,15 @@ int my_getc(input_stream stream) {
   return (ic);
 }
 
-bool _gst_get_cur_stream_prompt(void) {
-  return in_stream && in_stream->prompt;
-}
+bool _gst_get_cur_stream_prompt(void) { return in_stream && in_stream->prompt; }
 
 stream_type _gst_get_cur_stream_type(void) {
-  if (in_stream)
+  if (in_stream) {
     return (in_stream->type);
 
-  else
+  } else {
     return (STREAM_UNKNOWN);
+  }
 }
 
 OOP _gst_get_source_string(off_t startPos, off_t endPos) {
@@ -428,8 +434,9 @@ OOP _gst_get_source_string(off_t startPos, off_t endPos) {
   OOP result;
   int size;
 
-  if (!in_stream)
+  if (!in_stream) {
     return (_gst_nil_oop);
+  }
 
   /* FIXME: check isPipe too? */
   if (startPos != -1 && !_gst_get_cur_stream_prompt()) {
@@ -476,15 +483,17 @@ OOP _gst_get_source_string(off_t startPos, off_t endPos) {
 
   if (startPos == -1) {
     result = _gst_string_new(p);
-  } else
+  } else {
     result = _gst_counted_string_new(p + (startPos - in_stream->fileOffset),
                                      endPos - startPos);
+  }
 
   if (in_stream->type != STREAM_STRING) {
     /* Copy back to the beginning of the buffer to save memory.  */
     size = in_stream->st_oop.end - in_stream->st_oop.ptr;
-    if (size)
+    if (size) {
       memmove(in_stream->st_oop.buf, in_stream->st_oop.ptr, size);
+    }
     in_stream->st_oop.buf[size] = 0;
     in_stream->fileOffset += in_stream->st_oop.ptr - in_stream->st_oop.buf;
     in_stream->st_oop.ptr = in_stream->st_oop.buf;
@@ -497,19 +506,23 @@ OOP _gst_get_source_string(off_t startPos, off_t endPos) {
 OOP get_cur_file(void) {
   char *fullFileName;
 
-  if (!in_stream)
+  if (!in_stream) {
     return _gst_nil_oop;
+  }
 
-  if (!IS_NIL(in_stream->fileOOP))
+  if (!IS_NIL(in_stream->fileOOP)) {
     return in_stream->fileOOP;
+  }
 
-  if (in_stream->type != STREAM_FILE)
+  if (in_stream->type != STREAM_FILE) {
     return (_gst_nil_oop);
+  }
 
-  if (strcmp(in_stream->fileName, "stdin") == 0)
+  if (strcmp(in_stream->fileName, "stdin") == 0) {
     fullFileName = strdup(in_stream->fileName);
-  else
+  } else {
     fullFileName = _gst_get_full_file_name(in_stream->fileName);
+  }
 
   in_stream->fileOOP = _gst_string_new(fullFileName);
   xfree(fullFileName);
@@ -522,8 +535,9 @@ void _gst_warningf_at(int line, const char *str, ...) {
 
   va_start(ap, str);
 
-  if (!_gst_report_errors)
+  if (!_gst_report_errors) {
     return;
+  }
 
   fflush(stdout);
   line_stamp(line);
@@ -538,8 +552,9 @@ void _gst_warningf(const char *str, ...) {
 
   va_start(ap, str);
 
-  if (!_gst_report_errors)
+  if (!_gst_report_errors) {
     return;
+  }
 
   fflush(stdout);
   line_stamp(0);
@@ -554,8 +569,9 @@ void _gst_errorf_at(int line, const char *str, ...) {
 
   va_start(ap, str);
 
-  if (_gst_report_errors)
+  if (_gst_report_errors) {
     fflush(stdout);
+  }
 
   line_stamp(line);
   if (_gst_report_errors) {
@@ -563,8 +579,9 @@ void _gst_errorf_at(int line, const char *str, ...) {
     fprintf(stderr, "\n");
     fflush(stderr);
   } else {
-    if (_gst_first_error_str == NULL)
+    if (_gst_first_error_str == NULL) {
       vasprintf(&_gst_first_error_str, str, ap);
+    }
   }
 
   va_end(ap);
@@ -575,8 +592,9 @@ void _gst_errorf(const char *str, ...) {
 
   va_start(ap, str);
 
-  if (_gst_report_errors)
+  if (_gst_report_errors) {
     fflush(stdout);
+  }
 
   line_stamp(0);
   if (_gst_report_errors) {
@@ -584,8 +602,9 @@ void _gst_errorf(const char *str, ...) {
     fprintf(stderr, "\n");
     fflush(stderr);
   } else {
-    if (_gst_first_error_str == NULL)
+    if (_gst_first_error_str == NULL) {
       vasprintf(&_gst_first_error_str, str, ap);
+    }
   }
 
   va_end(ap);
@@ -599,37 +618,43 @@ _gst_get_location(void) {
   loc.first_line = in_stream->line;
   loc.first_column = in_stream->column;
 
-  if (!in_stream || in_stream->fileOffset == -1)
+  if (!in_stream || in_stream->fileOffset == -1) {
     loc.file_offset = -1;
-  else
+  } else {
     /* Subtract 1 to mark the position of the last character we read.  */
     loc.file_offset = (in_stream->st_file.ptr - in_stream->st_file.buf +
                        in_stream->fileOffset - 1);
+  }
 
   return loc;
 }
 
 void line_stamp(int line) {
-  if (line <= 0 && in_stream)
+  if (line <= 0 && in_stream) {
     line = in_stream->line;
+  }
 
   if (_gst_report_errors) {
-    if (in_stream)
+    if (in_stream) {
       fprintf(stderr, "%s:%d: ", in_stream->fileName, line);
-    else
+    } else {
       fprintf(stderr, "gst: ");
+    }
   } else { /* called internally with error
               handling */
     if (in_stream) {
       if (in_stream->fileName) {
-        if (_gst_first_error_str == NULL)
+        if (_gst_first_error_str == NULL) {
           _gst_first_error_file = strdup(in_stream->fileName);
+        }
       }
-      if (_gst_first_error_str == NULL)
+      if (_gst_first_error_str == NULL) {
         _gst_first_error_line = line;
+      }
     } else {
-      if (_gst_first_error_str == NULL)
+      if (_gst_first_error_str == NULL) {
         _gst_first_error_line = -1;
+      }
     }
   }
 }
@@ -646,16 +671,18 @@ int _gst_next_char(void) {
     if (ic == '\n') { /* a new line that was not pushed back */
       in_stream->line++;
       in_stream->column = 0;
-    } else
+    } else {
       in_stream->column++;
+    }
 
     return (ic);
   }
 }
 
 void _gst_unread_char(int ic) {
-  if (ic != EOF)
+  if (ic != EOF) {
     in_stream->pushedBackChars[in_stream->pushedBackCount++] = ic;
+  }
 }
 
 /* These two are not used, but are provided for additional flexibility.  */
@@ -673,8 +700,9 @@ int poll_and_read(int fd, char *buf, int n) {
       result = _gst_read(fd, buf, n);
     } while ((result == -1) && (errno == EINTR));
     return result;
-  } else
+  } else {
     return -1;
+  }
 }
 
 void _gst_process_stdin(const char *prompt) {
@@ -685,8 +713,9 @@ void _gst_process_stdin(const char *prompt) {
 
   _gst_non_interactive = false;
   _gst_push_stdin_string();
-  if (isatty(0))
+  if (isatty(0)) {
     in_stream->prompt = prompt;
+  }
   _gst_parse_stream(NULL);
   _gst_pop_stream(true);
   _gst_non_interactive = true;
@@ -705,8 +734,9 @@ bool _gst_process_file(const char *fileName, enum gst_file_dir dir) {
   errno = 0;
   fd = _gst_open_file(f, "r");
   if (fd != -1) {
-    if (_gst_verbosity == 3)
+    if (_gst_verbosity == 3) {
       printf("Processing %s\n", f);
+    }
 
     _gst_push_unix_file(fd, f);
     _gst_parse_stream(NULL);
@@ -728,13 +758,15 @@ char *readline_quote_filename(const char *s, int rtype, const char *qcp) {
 
   r = base;
   quote = *qcp;
-  if (!quote)
+  if (!quote) {
     quote = *rl_completer_quote_characters;
+  }
 
   *r++ = quote;
   for (p = s; *p;) {
-    if (*p == quote)
+    if (*p == quote) {
       *r++ = quote;
+    }
 
     *r++ = *p++;
   }
@@ -747,13 +779,15 @@ char *readline_dequote_filename(const char *s, char qc) {
   char *r, *base = alloca(strlen(s) + 2);
   const char *p;
 
-  if (!qc)
+  if (!qc) {
     return strdup(s);
+  }
 
   r = base;
   for (p = s; *p;) {
-    if (*p == qc)
+    if (*p == qc) {
       p++;
+    }
 
     *r++ = *p++;
   }
@@ -780,8 +814,9 @@ void _gst_add_symbol_completion(const char *str, int len) {
   const char *base = str;
   const char *p = str;
 
-  if (completions_enabled < 1)
+  if (completions_enabled < 1) {
     return;
+  }
 
   while (len-- && *p) {
     if (*p++ == ':' && (base != p - 1)) {
@@ -791,21 +826,22 @@ void _gst_add_symbol_completion(const char *str, int len) {
   }
 
   /* We enter all unary and binary symbols in the table, too */
-  if (base == str)
+  if (base == str) {
     add_completion(base, p - base);
+  }
 }
 
 /* Merge the contents of a1 with the contents of a2,
  * storing the result in a2.  If a1 and a2 overlap,
  * reallocate must be true.
  */
-void merge(char **a1, int count1, char **a2, int count2,
-           bool reallocate) {
+void merge(char **a1, int count1, char **a2, int count2, bool reallocate) {
   char *source, *dest;
 
   /* Check if an array is empty */
-  if (!count1)
+  if (!count1) {
     return;
+  }
 
   if (!count2) {
     memmove(a1, a2, count1 * sizeof(char *));
@@ -834,8 +870,9 @@ void merge(char **a1, int count1, char **a2, int count2,
     } else {
       /* Take it from the source array */
       a2[count2 + count1 - 1] = source;
-      if (--count1 == 0)
+      if (--count1 == 0) {
         return;
+      }
 
       source = a1[count1 - 1];
     }
@@ -854,8 +891,9 @@ int compare_strings(const PTR a, const PTR b) {
 static int matches_left, current_index;
 
 char *symbol_generator(const char *text, int state) {
-  if (matches_left == 0)
+  if (matches_left == 0) {
     return (NULL);
+  }
 
   /* Since we have to sort the array to perform the binary search, we
      remove duplicates and avoid that readline resorts the result.  */
@@ -901,10 +939,11 @@ char **readline_match_symbols(char *text, int start, int end) {
   high = count;
   while (low + 1 != high) {
     middle = (low + high) / 2;
-    if (strncmp(completions[middle], text, len) < 0)
+    if (strncmp(completions[middle], text, len) < 0) {
       low = middle;
-    else
+    } else {
       high = middle;
+    }
   }
   current_index = high;
 
@@ -913,10 +952,11 @@ char **readline_match_symbols(char *text, int start, int end) {
   high = count;
   while (low + 1 != high) {
     middle = (low + high) / 2;
-    if (strncmp(completions[middle], text, len) <= 0)
+    if (strncmp(completions[middle], text, len) <= 0) {
       low = middle;
-    else
+    } else {
       high = middle;
+    }
   }
 
   matches_left = high - current_index;
@@ -939,8 +979,9 @@ void _gst_initialize_readline(void) {
   rl_readline_name = (char *)"Smalltalk";
 
   /* Always put filenames in quotes */
-  for (i = 0; i < 255; i++)
+  for (i = 0; i < 255; i++) {
     everything[i] = i + 1;
+  }
 
   rl_filename_quote_characters = everything;
   rl_completer_quote_characters = (char *)"'\"";

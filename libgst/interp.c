@@ -211,21 +211,22 @@ static ip_type method_base[100];
    message.  */
 
 /* The virtual machine's stack and instruction pointers.  */
-OOP *sp[100] = { NULL };
+OOP *sp[100] = {NULL};
 ip_type ip[100];
 
-OOP *_gst_temporaries[100] = { NULL };
-OOP *_gst_literals[100] = { NULL };
-OOP _gst_self[100] = { NULL };
-OOP _gst_this_context_oop[100] = { NULL };
-OOP _gst_this_method[100] = { NULL };
+OOP *_gst_temporaries[100] = {NULL};
+OOP *_gst_literals[100] = {NULL};
+OOP _gst_self[100] = {NULL};
+OOP _gst_this_context_oop[100] = {NULL};
+OOP _gst_this_method[100] = {NULL};
 
 /* Signal this semaphore at the following instruction.  */
 static OOP single_step_semaphore = NULL;
 
 /* CompiledMethod cache which memoizes the methods and some more
    information for each class->selector pairs.  */
-static thread_local method_cache_entry method_cache[METHOD_CACHE_SIZE] CACHELINE_ALIGNED;
+static thread_local method_cache_entry
+    method_cache[METHOD_CACHE_SIZE] CACHELINE_ALIGNED;
 
 /* The number of the last primitive called.  */
 static thread_local int last_primitive;
@@ -250,10 +251,12 @@ static thread_local int class_cache_prim;
 #endif
 
 /* Queue for async (outside the interpreter) semaphore signals */
-static bool async_queue_enabled[100] = { true };
+static bool async_queue_enabled[100] = {true};
 static async_queue_entry queued_async_signals_tail[100];
-static async_queue_entry *queued_async_signals[100] = { &queued_async_signals_tail[0] };
-static async_queue_entry *queued_async_signals_sig[100] = { &queued_async_signals_tail[0] };
+static async_queue_entry *queued_async_signals[100] = {
+    &queued_async_signals_tail[0]};
+static async_queue_entry *queued_async_signals_sig[100] = {
+    &queued_async_signals_tail[0]};
 
 /* When not NULL, this causes the byte code interpreter to immediately
    send the message whose selector is here to the current stack
@@ -283,13 +286,12 @@ static inline intptr_t execute_primitive_operation(int primitive,
 
 /* Execute a #at: primitive, with arguments REC and IDX, knowing that
    the receiver's class has an instance specification SPEC.  */
-static inline bool cached_index_oop_primitive(OOP rec, OOP idx,
-                                                     intptr_t spec);
+static inline bool cached_index_oop_primitive(OOP rec, OOP idx, intptr_t spec);
 
 /* Execute a #at:put: primitive, with arguments REC/IDX/VAL, knowing that
    the receiver's class has an instance specification SPEC.  */
-static inline bool
-cached_index_oop_put_primitive(OOP rec, OOP idx, OOP val, intptr_t spec);
+static inline bool cached_index_oop_put_primitive(OOP rec, OOP idx, OOP val,
+                                                  intptr_t spec);
 
 /* This functions accepts an OOP for a Semaphore object and puts the
    PROCESSOOP to sleep, unless the semaphore has excess signals
@@ -340,8 +342,8 @@ static bool parse_stream_with_protection(OOP currentNamespace);
 /* Same as _gst_parse_method_from_stream, but creating a reentrancy_jmpbuf.
    Returns true if interrupted, pushes the last compiled method on the
    stack. */
-static bool
-parse_method_from_stream_with_protection(OOP currentClass, OOP currentCategory);
+static bool parse_method_from_stream_with_protection(OOP currentClass,
+                                                     OOP currentCategory);
 
 /* Put the given process to sleep by rotating the list of processes for
    PROCESSOOP's priority (i.e. it was the head of the list and becomes
@@ -436,9 +438,8 @@ static bool send_block_value(int numArgs, int cull_up_to);
    information on the lookup into METHODDATA.  Unlike
    _gst_send_message_internal, this function is generic and valid for
    both the interpreter and the JIT compiler.  */
-static bool lookup_method(OOP sendSelector,
-                                 method_cache_entry *methodData, int sendArgs,
-                                 OOP method_class);
+static bool lookup_method(OOP sendSelector, method_cache_entry *methodData,
+                          int sendArgs, OOP method_class);
 
 /* This tenures context objects from the stack to the context pools
    (see below for a description).  */
@@ -483,7 +484,7 @@ static inline void unwind_context(void);
    number of colons).  If you don't know a receiver you can just pass
    _gst_nil_oop or directly call _gst_selector_num_args.  */
 static inline bool check_send_correctness(OOP receiver, OOP sendSelector,
-                                                 int numArgs);
+                                          int numArgs);
 
 /* Unwind the contexts up until the caller of the method that
    created the block context, no matter how many levels of message
@@ -545,25 +546,27 @@ static void stop_execution(void);
 /* Answer an OOP for a Smalltalk object of class Array, holding the
    different process lists for each priority.  */
 #define GET_PROCESS_LISTS()                                                    \
-  ((OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_LISTS(OOP_TO_OBJ(_gst_processor_oop[current_thread_id]))))
+  ((OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_LISTS(                                 \
+      OOP_TO_OBJ(_gst_processor_oop[current_thread_id]))))
 
 /* Tell the interpreter that special actions are needed as soon as a
    sequence point is reached.  */
 static thread_local void *const *global_monitored_bytecodes;
 static thread_local void *const *global_normal_bytecodes;
 
-static _Atomic(void *const *) dispatch_vec_per_thread[100] = { NULL };
+static _Atomic(void *const *) dispatch_vec_per_thread[100] = {NULL};
 thread_local size_t current_thread_id = 0;
 
 volatile _Atomic(size_t) _gst_interpret_thread_counter = 1;
 
-static bool _gst_interp_need_to_wait[100] = { false };
+static bool _gst_interp_need_to_wait[100] = {false};
 
 static pthread_mutex_t dispatch_vec_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void global_lock_for_gc(void) {
   pthread_mutex_lock(&dispatch_vec_mutex);
-  // FIXME the array implementation is not a good idea because we can remove an item list is better ?
+  // FIXME the array implementation is not a good idea because we can remove an
+  // item list is better ?
   for (size_t i = 0; i < atomic_load(&_gst_interpret_thread_counter); i++) {
     if (i == current_thread_id) {
       atomic_store(&dispatch_vec_per_thread[i], global_normal_bytecodes);
@@ -578,36 +581,41 @@ void global_lock_for_gc(void) {
   pthread_mutex_unlock(&dispatch_vec_mutex);
 }
 
-#define SET_EXCEPT_FLAG_FOR_SIGNAL(x)                                   \
-  do {                                                                  \
-    __sync_bool_compare_and_swap(&dispatch_vec_per_thread[current_thread_id], global_normal_bytecodes, global_monitored_bytecodes); \
-    __sync_synchronize();                                               \
+#define SET_EXCEPT_FLAG_FOR_SIGNAL(x)                                          \
+  do {                                                                         \
+    __sync_bool_compare_and_swap(&dispatch_vec_per_thread[current_thread_id],  \
+                                 global_normal_bytecodes,                      \
+                                 global_monitored_bytecodes);                  \
+    __sync_synchronize();                                                      \
   } while (0)
 
-#define SET_EXCEPT_FLAG_FOR_SIGNAL_FOR_THREAD(x, thread_id)             \
-  do {                                                                  \
-    __sync_bool_compare_and_swap(&dispatch_vec_per_thread[thread_id], global_normal_bytecodes, global_monitored_bytecodes); \
-    __sync_synchronize();                                               \
+#define SET_EXCEPT_FLAG_FOR_SIGNAL_FOR_THREAD(x, thread_id)                    \
+  do {                                                                         \
+    __sync_bool_compare_and_swap(&dispatch_vec_per_thread[thread_id],          \
+                                 global_normal_bytecodes,                      \
+                                 global_monitored_bytecodes);                  \
+    __sync_synchronize();                                                      \
   } while (0)
 
-#define SET_EXCEPT_FLAG(x)                                              \
-  do {                                                                  \
-    pthread_mutex_lock(&dispatch_vec_mutex);                            \
-    atomic_store(&dispatch_vec_per_thread[current_thread_id], (x) ? global_monitored_bytecodes : global_normal_bytecodes); \
-    __sync_synchronize();                                               \
-    pthread_mutex_unlock(&dispatch_vec_mutex);                          \
+#define SET_EXCEPT_FLAG(x)                                                     \
+  do {                                                                         \
+    pthread_mutex_lock(&dispatch_vec_mutex);                                   \
+    atomic_store(&dispatch_vec_per_thread[current_thread_id],                  \
+                 (x) ? global_monitored_bytecodes : global_normal_bytecodes);  \
+    __sync_synchronize();                                                      \
+    pthread_mutex_unlock(&dispatch_vec_mutex);                                 \
   } while (0)
 
-#define SET_EXCEPT_FLAG_FOR_THREAD(x, thread_id)                        \
-  do {                                                                  \
-    atomic_store(&dispatch_vec_per_thread[(thread_id)], (x) ? global_monitored_bytecodes : global_normal_bytecodes); \
-    __sync_synchronize();                                               \
+#define SET_EXCEPT_FLAG_FOR_THREAD(x, thread_id)                               \
+  do {                                                                         \
+    atomic_store(&dispatch_vec_per_thread[(thread_id)],                        \
+                 (x) ? global_monitored_bytecodes : global_normal_bytecodes);  \
+    __sync_synchronize();                                                      \
   } while (0)
 
 void set_except_flag_for_thread(bool reset, size_t thread_id) {
   SET_EXCEPT_FLAG_FOR_THREAD(reset, thread_id);
 }
-
 
 /* Answer an hash value for a send of the SENDSELECTOR message, when
    the CompiledMethod is found in class METHODCLASS.  */
@@ -676,7 +684,8 @@ void set_except_flag_for_thread(bool reset, size_t thread_id) {
 /* CHUNK points to an item of CHUNKS.  CUR_CHUNK_BEGIN is equal
    to *CHUNK (i.e. points to the base of the current chunk) and
    CUR_CHUNK_END is equal to CUR_CHUNK_BEGIN + CHUNK_SIZE.  */
-static gst_context_part cur_chunk_begin[100] = { NULL }, cur_chunk_end[100] = { NULL };
+static gst_context_part cur_chunk_begin[100] = {NULL},
+                        cur_chunk_end[100] = {NULL};
 static gst_context_part chunks[100][MAX_CHUNKS_IN_MEMORY] CACHELINE_ALIGNED;
 static gst_context_part *chunk[100];
 
@@ -721,8 +730,9 @@ void _gst_empty_context_pool_for_thread(size_t thread_id) {
   if (*chunks[thread_id]) {
     chunk[thread_id] = chunks[thread_id];
     cur_chunk_begin[thread_id] = *chunk[thread_id];
-    cur_chunk_end[thread_id] = (gst_context_part)(((char *)cur_chunk_begin[thread_id]) +
-                                                          SIZE_TO_BYTES(CHUNK_SIZE));
+    cur_chunk_end[thread_id] =
+        (gst_context_part)(((char *)cur_chunk_begin[thread_id]) +
+                           SIZE_TO_BYTES(CHUNK_SIZE));
   } else {
     chunk[thread_id] = chunks[thread_id] - 1;
     cur_chunk_begin[thread_id] = cur_chunk_end[thread_id] = NULL;
@@ -735,9 +745,12 @@ void empty_context_stack(void) {
 
   /* printf("[[[[ Gosh, not lifo anymore! (free = %p, base = %p)\n",
      free_lifo_context, lifo_contexts); */
-  if COMMON (free_lifo_context[current_thread_id] != lifo_contexts[current_thread_id])
-    for (free_lifo_context[current_thread_id] = contextOOP = lifo_contexts[current_thread_id],
-        last = _gst_this_context_oop[current_thread_id], context = OOP_TO_OBJ(contextOOP);
+  if COMMON (free_lifo_context[current_thread_id] !=
+             lifo_contexts[current_thread_id])
+    for (free_lifo_context[current_thread_id] = contextOOP =
+             lifo_contexts[current_thread_id],
+        last = _gst_this_context_oop[current_thread_id],
+        context = OOP_TO_OBJ(contextOOP);
          ;) {
       oop =
           alloc_oop(context, OOP_GET_FLAGS(contextOOP) | _gst_mem.active_flag);
@@ -767,8 +780,9 @@ void empty_context_stack(void) {
       OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT(context, oop);
     }
   else {
-    if (IS_NIL(_gst_this_context_oop[current_thread_id]))
+    if (IS_NIL(_gst_this_context_oop[current_thread_id])) {
       return;
+    }
 
     context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
   }
@@ -779,8 +793,11 @@ void empty_context_stack(void) {
   OBJ_METHOD_CONTEXT_SET_METHOD(context, _gst_this_method[current_thread_id]);
   OBJ_METHOD_CONTEXT_SET_RECEIVER(context, _gst_self[current_thread_id]);
   OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
-      context, FROM_INT(sp[current_thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)));
-  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(context, FROM_INT(ip[current_thread_id] - method_base[current_thread_id]));
+      context, FROM_INT(sp[current_thread_id] -
+                        OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)));
+  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(
+      context,
+      FROM_INT(ip[current_thread_id] - method_base[current_thread_id]));
 
   /* Even if the JIT is active, the current context might have no
      attached native_ip -- in fact it has one only if we are being
@@ -788,8 +805,9 @@ void empty_context_stack(void) {
      one. We test for a valid native_ip first, though; this test must
      have no false positives, i.e. it won't ever overwrite a valid
      native_ip, and won't leave a bogus OOP for the native_ip.  */
-  if (!IS_INT(OBJ_METHOD_CONTEXT_NATIVE_IP(context)))
+  if (!IS_INT(OBJ_METHOD_CONTEXT_NATIVE_IP(context))) {
     OBJ_METHOD_CONTEXT_SET_NATIVE_IP(context, DUMMY_NATIVE_IP);
+  }
 }
 
 void empty_context_stack_for_thread(size_t thread_id) {
@@ -800,7 +818,8 @@ void empty_context_stack_for_thread(size_t thread_id) {
      free_lifo_context, lifo_contexts); */
   if COMMON (free_lifo_context[thread_id] != lifo_contexts[thread_id])
     for (free_lifo_context[thread_id] = contextOOP = lifo_contexts[thread_id],
-        last = _gst_this_context_oop[thread_id], context = OOP_TO_OBJ(contextOOP);
+        last = _gst_this_context_oop[thread_id],
+        context = OOP_TO_OBJ(contextOOP);
          ;) {
       oop =
           alloc_oop(context, OOP_GET_FLAGS(contextOOP) | _gst_mem.active_flag);
@@ -830,8 +849,9 @@ void empty_context_stack_for_thread(size_t thread_id) {
       OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT(context, oop);
     }
   else {
-    if (IS_NIL(_gst_this_context_oop[thread_id]))
+    if (IS_NIL(_gst_this_context_oop[thread_id])) {
       return;
+    }
 
     context = OOP_TO_OBJ(_gst_this_context_oop[thread_id]);
   }
@@ -842,8 +862,10 @@ void empty_context_stack_for_thread(size_t thread_id) {
   OBJ_METHOD_CONTEXT_SET_METHOD(context, _gst_this_method[thread_id]);
   OBJ_METHOD_CONTEXT_SET_RECEIVER(context, _gst_self[thread_id]);
   OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
-      context, FROM_INT(sp[thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)));
-  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(context, FROM_INT(ip[thread_id] - method_base[thread_id]));
+      context,
+      FROM_INT(sp[thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)));
+  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(
+      context, FROM_INT(ip[thread_id] - method_base[thread_id]));
 
   /* Even if the JIT is active, the current context might have no
      attached native_ip -- in fact it has one only if we are being
@@ -851,23 +873,25 @@ void empty_context_stack_for_thread(size_t thread_id) {
      one. We test for a valid native_ip first, though; this test must
      have no false positives, i.e. it won't ever overwrite a valid
      native_ip, and won't leave a bogus OOP for the native_ip.  */
-  if (!IS_INT(OBJ_METHOD_CONTEXT_NATIVE_IP(context)))
+  if (!IS_INT(OBJ_METHOD_CONTEXT_NATIVE_IP(context))) {
     OBJ_METHOD_CONTEXT_SET_NATIVE_IP(context, DUMMY_NATIVE_IP);
+  }
 }
 
 void alloc_new_chunk(void) {
-  if UNCOMMON (++chunk[current_thread_id] >= &chunks[current_thread_id][MAX_CHUNKS_IN_MEMORY]) {
+  if UNCOMMON (++chunk[current_thread_id] >=
+               &chunks[current_thread_id][MAX_CHUNKS_IN_MEMORY]) {
     /* No more chunks available - GC */
 
-      _gst_vm_global_barrier_wait();
+    _gst_vm_global_barrier_wait();
 
-      set_except_flag_for_thread(false, current_thread_id);
+    set_except_flag_for_thread(false, current_thread_id);
 
-     _gst_scavenge();
+    _gst_scavenge();
 
-     _gst_vm_end_barrier_wait();
+    _gst_vm_end_barrier_wait();
 
-      return;
+    return;
   }
 
   empty_context_stack();
@@ -876,11 +900,13 @@ void alloc_new_chunk(void) {
      _gst_empty_context_pool resets the status but doesn't free
      the memory.  */
   if UNCOMMON (!*chunk[current_thread_id])
-    *chunk[current_thread_id] = (gst_context_part)xcalloc(1, SIZE_TO_BYTES(CHUNK_SIZE));
+    *chunk[current_thread_id] =
+        (gst_context_part)xcalloc(1, SIZE_TO_BYTES(CHUNK_SIZE));
 
   cur_chunk_begin[current_thread_id] = *chunk[current_thread_id];
   cur_chunk_end[current_thread_id] =
-      (gst_context_part)(((char *)cur_chunk_begin[current_thread_id]) + SIZE_TO_BYTES(CHUNK_SIZE));
+      (gst_context_part)(((char *)cur_chunk_begin[current_thread_id]) +
+                         SIZE_TO_BYTES(CHUNK_SIZE));
 }
 
 gst_object alloc_stack_context(int size) {
@@ -890,9 +916,10 @@ gst_object alloc_stack_context(int size) {
   for (;;) {
     newContext = (gst_object)cur_chunk_begin[current_thread_id];
     cur_chunk_begin[current_thread_id] += size;
-    if COMMON (cur_chunk_begin[current_thread_id] < cur_chunk_end[current_thread_id]) {
+    if COMMON (cur_chunk_begin[current_thread_id] <
+               cur_chunk_end[current_thread_id]) {
       OBJ_SET_SIZE(newContext, FROM_INT(size));
-      OBJ_SET_IDENTITY (newContext, FROM_INT(0));
+      OBJ_SET_IDENTITY(newContext, FROM_INT(0));
       return (newContext);
     }
 
@@ -923,19 +950,23 @@ gst_object activate_new_context(int size, int sendArgs) {
      size, newContext, oop); */
   OOP_SET_OBJECT(oop, newContext);
 
-  OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT(newContext, _gst_this_context_oop[current_thread_id]);
+  OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT(
+      newContext, _gst_this_context_oop[current_thread_id]);
 
   /* save old context information */
   /* leave sp pointing to receiver, which is replaced on return with
      value */
   thisContext = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
-  OBJ_METHOD_CONTEXT_SET_METHOD(thisContext, _gst_this_method[current_thread_id]);
+  OBJ_METHOD_CONTEXT_SET_METHOD(thisContext,
+                                _gst_this_method[current_thread_id]);
   OBJ_METHOD_CONTEXT_SET_RECEIVER(thisContext, _gst_self[current_thread_id]);
   OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
+      thisContext, FROM_INT((sp[current_thread_id] -
+                             OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext)) -
+                            sendArgs));
+  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(
       thisContext,
-      FROM_INT((sp[current_thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext)) -
-               sendArgs));
-  OBJ_METHOD_CONTEXT_SET_IP_OFFSET(thisContext, FROM_INT(ip[current_thread_id] - method_base[current_thread_id]));
+      FROM_INT(ip[current_thread_id] - method_base[current_thread_id]));
 
   _gst_this_context_oop[current_thread_id] = oop;
 
@@ -944,8 +975,10 @@ gst_object activate_new_context(int size, int sendArgs) {
 
 void dealloc_stack_context(gst_context_part context) {
 #ifndef OPTIMIZE
-  if (free_lifo_context[current_thread_id] == lifo_contexts[current_thread_id] ||
-      (OOP_TO_OBJ(free_lifo_context[current_thread_id] - 1) != (gst_object)context)) {
+  if (free_lifo_context[current_thread_id] ==
+          lifo_contexts[current_thread_id] ||
+      (OOP_TO_OBJ(free_lifo_context[current_thread_id] - 1) !=
+       (gst_object)context)) {
     _gst_errorf("Deallocating a non-LIFO context!!!");
     abort();
   }
@@ -967,8 +1000,9 @@ void prepare_context(gst_context_part context, int args, int temps) {
       stackBase[1] = src[1];
       if (args > 2) {
         stackBase[2] = src[2];
-        if (args > 3)
+        if (args > 3) {
           memcpy(&stackBase[3], &src[3], (args - 3) * sizeof(OOP));
+        }
       }
     }
     stackBase += args;
@@ -981,9 +1015,9 @@ void prepare_context(gst_context_part context, int args, int temps) {
       stackBase[1] = src;
       if (temps > 2) {
         int n = 2;
-        do
+        do {
           stackBase[n] = src;
-        while UNCOMMON(n++ < temps);
+        } while UNCOMMON(n++ < temps);
       }
     }
     stackBase += temps;
@@ -991,8 +1025,9 @@ void prepare_context(gst_context_part context, int args, int temps) {
   sp[current_thread_id] = stackBase - 1;
 }
 
-bool _gst_send_cannot_interpret_message(OOP sendSelector, method_cache_entry *methodData,
-                          int sendArgs, OOP method_class) {
+bool _gst_send_cannot_interpret_message(OOP sendSelector,
+                                        method_cache_entry *methodData,
+                                        int sendArgs, OOP method_class) {
   inc_ptr inc;
   OOP argsArrayOOP;
   gst_object messageLookup;
@@ -1002,8 +1037,7 @@ bool _gst_send_cannot_interpret_message(OOP sendSelector, method_cache_entry *me
   argsArrayOOP = create_args_array(sendArgs);
   INC_ADD_OOP(argsArrayOOP);
 
-  messageLookup = new_instance(_gst_message_lookup_class,
-                               &messageLookupOOP);
+  messageLookup = new_instance(_gst_message_lookup_class, &messageLookupOOP);
 
   OBJ_MESSAGE_LOOKUP_SET_SELECTOR(messageLookup, sendSelector);
   OBJ_MESSAGE_LOOKUP_SET_ARGS(messageLookup, argsArrayOOP);
@@ -1011,25 +1045,26 @@ bool _gst_send_cannot_interpret_message(OOP sendSelector, method_cache_entry *me
   PUSH_OOP(messageLookupOOP);
   INC_RESTORE_POINTER(inc);
 
-  return _gst_find_method(method_class, _gst_cannot_interpret_symbol, methodData);
+  return _gst_find_method(method_class, _gst_cannot_interpret_symbol,
+                          methodData);
 }
 
 bool lookup_method(OOP sendSelector, method_cache_entry *methodData,
-                          int sendArgs, OOP method_class) {
+                   int sendArgs, OOP method_class) {
   inc_ptr inc;
   OOP argsArrayOOP;
   gst_object messageLookup;
   OOP messageLookupOOP;
 
-  if (_gst_find_method(method_class, sendSelector, methodData))
+  if (_gst_find_method(method_class, sendSelector, methodData)) {
     return (true);
+  }
 
   inc = INC_SAVE_POINTER();
   argsArrayOOP = create_args_array(sendArgs);
   INC_ADD_OOP(argsArrayOOP);
 
-  messageLookup = new_instance(_gst_message_lookup_class,
-                                                   &messageLookupOOP);
+  messageLookup = new_instance(_gst_message_lookup_class, &messageLookupOOP);
 
   OBJ_MESSAGE_LOOKUP_SET_SELECTOR(messageLookup, sendSelector);
   OBJ_MESSAGE_LOOKUP_SET_ARGS(messageLookup, argsArrayOOP);
@@ -1041,7 +1076,7 @@ bool lookup_method(OOP sendSelector, method_cache_entry *methodData,
 }
 
 bool _gst_find_method(OOP receiverClass, OOP sendSelector,
-                             method_cache_entry *methodData) {
+                      method_cache_entry *methodData) {
   OOP method_class = receiverClass;
   for (; !IS_NIL(method_class); method_class = SUPERCLASS(method_class)) {
     OOP methodOOP = _gst_find_class_method(method_class, sendSelector);
@@ -1065,15 +1100,15 @@ OOP create_args_array(int numArgs) {
   int i;
 
   argsArray = new_instance_with(_gst_array_class, numArgs, &argsArrayOOP);
-  for (i = 0; i < numArgs; i++)
+  for (i = 0; i < numArgs; i++) {
     argsArray->data[i] = STACK_AT(numArgs - i - 1);
+  }
 
   POP_N_OOPS(numArgs);
   return argsArrayOOP;
 }
 
-bool check_send_correctness(OOP receiver, OOP sendSelector,
-                                   int numArgs) {
+bool check_send_correctness(OOP receiver, OOP sendSelector, int numArgs) {
   int hashIndex;
   method_cache_entry *methodData;
   OOP receiverClass;
@@ -1086,8 +1121,9 @@ bool check_send_correctness(OOP receiver, OOP sendSelector,
       methodData->startingClassOOP != receiverClass) {
     /* If we do not find the method, don't worry and fire
        #doesNotUnderstand:  */
-    if (!_gst_find_method(receiverClass, sendSelector, methodData))
+    if (!_gst_find_method(receiverClass, sendSelector, methodData)) {
       return (true);
+    }
 
     methodData = &method_cache[hashIndex];
   }
@@ -1108,7 +1144,8 @@ void unwind_context(void) {
     /* Descend in the chain...  */
     newContextOOP = OBJ_METHOD_CONTEXT_PARENT_CONTEXT(oldContext);
 
-    if COMMON (free_lifo_context[current_thread_id] > lifo_contexts[current_thread_id])
+    if COMMON (free_lifo_context[current_thread_id] >
+               lifo_contexts[current_thread_id])
       dealloc_stack_context((gst_context_part)oldContext);
 
     /* This context cannot be deallocated in a LIFO way.  We must
@@ -1143,9 +1180,10 @@ void unwind_context(void) {
                         (~(MCF_IS_DISABLED_CONTEXT | MCF_IS_UNWIND_CONTEXT))));
 
   _gst_this_context_oop[current_thread_id] = newContextOOP;
-  _gst_temporaries[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext);
+  _gst_temporaries[current_thread_id] =
+      OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext);
   sp[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext) +
-       TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(newContext));
+                          TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(newContext));
   _gst_self[current_thread_id] = OBJ_METHOD_CONTEXT_RECEIVER(newContext);
 
   SET_THIS_METHOD(OBJ_METHOD_CONTEXT_METHOD(newContext),
@@ -1247,9 +1285,10 @@ bool unwind_to(OOP returnContextOOP) {
                         (~(MCF_IS_DISABLED_CONTEXT | MCF_IS_UNWIND_CONTEXT))));
 
   _gst_this_context_oop[current_thread_id] = newContextOOP;
-  _gst_temporaries[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext);
+  _gst_temporaries[current_thread_id] =
+      OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext);
   sp[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(newContext) +
-       TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(newContext));
+                          TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(newContext));
   _gst_self[current_thread_id] = OBJ_METHOD_CONTEXT_RECEIVER(newContext);
 
   SET_THIS_METHOD(OBJ_METHOD_CONTEXT_METHOD(newContext),
@@ -1346,8 +1385,9 @@ OOP _gst_make_block_closure(OOP blockOOP) {
   if (block->header.clean > 1) {
     empty_context_stack();
     closure->outerContext = _gst_this_context_oop[current_thread_id];
-  } else
+  } else {
     closure->outerContext = _gst_nil_oop;
+  }
 
   closure->block = blockOOP;
   closure->receiver = _gst_self[current_thread_id];
@@ -1376,13 +1416,15 @@ void change_process_context(OOP newProcess) {
   if (processOOP != newProcess) {
     process = OOP_TO_OBJ(processOOP);
 
-    if (!IS_NIL(processOOP) && !is_process_terminating(processOOP))
-      OBJ_PROCESS_SET_SUSPENDED_CONTEXT(process, _gst_this_context_oop[current_thread_id]);
+    if (!IS_NIL(processOOP) && !is_process_terminating(processOOP)) {
+      OBJ_PROCESS_SET_SUSPENDED_CONTEXT(
+          process, _gst_this_context_oop[current_thread_id]);
+    }
 
     OBJ_PROCESSOR_SCHEDULER_SET_ACTIVE_PROCESS(processor, newProcess);
     process = OOP_TO_OBJ(newProcess);
-    enable_async_queue =
-        IS_NIL(OBJ_PROCESS_GET_INTERRUPTS(process)) || TO_INT(OBJ_PROCESS_GET_INTERRUPTS(process)) >= 0;
+    enable_async_queue = IS_NIL(OBJ_PROCESS_GET_INTERRUPTS(process)) ||
+                         TO_INT(OBJ_PROCESS_GET_INTERRUPTS(process)) >= 0;
 
     resume_suspended_context(OBJ_PROCESS_GET_SUSPENDED_CONTEXT(process));
 
@@ -1411,19 +1453,21 @@ void resume_suspended_context(OOP oop) {
   _gst_this_context_oop[current_thread_id] = oop;
   thisContext = OOP_TO_OBJ(oop);
   sp[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext) +
-       TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(thisContext));
+                          TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(thisContext));
   SET_THIS_METHOD(OBJ_METHOD_CONTEXT_METHOD(thisContext),
                   GET_CONTEXT_IP(thisContext));
-  _gst_temporaries[current_thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
+  _gst_temporaries[current_thread_id] =
+      OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
   _gst_self[current_thread_id] = OBJ_METHOD_CONTEXT_RECEIVER(thisContext);
   free_lifo_context[current_thread_id] = lifo_contexts[current_thread_id];
 }
 
 OOP get_active_process(void) {
-  if (!IS_NIL(switch_to_process[current_thread_id]))
+  if (!IS_NIL(switch_to_process[current_thread_id])) {
     return (switch_to_process[current_thread_id]);
-  else
+  } else {
     return (get_scheduled_process());
+  }
 }
 
 OOP get_scheduled_process(void) {
@@ -1439,8 +1483,9 @@ static void remove_process_from_list(OOP processOOP) {
   gst_object process, lastProcess;
   OOP lastProcessOOP;
 
-  if (IS_NIL(processOOP))
+  if (IS_NIL(processOOP)) {
     return;
+  }
 
   process = OOP_TO_OBJ(processOOP);
   if (!IS_NIL(OBJ_PROCESS_GET_MY_LIST(process))) {
@@ -1448,9 +1493,10 @@ static void remove_process_from_list(OOP processOOP) {
     sem = OOP_TO_OBJ(OBJ_PROCESS_GET_MY_LIST(process));
     if (OBJ_SEMAPHORE_GET_FIRST_LINK(sem) == processOOP) {
       OBJ_SEMAPHORE_SET_FIRST_LINK(sem, OBJ_PROCESS_GET_NEXT_LINK(process));
-      if (OBJ_SEMAPHORE_GET_LAST_LINK(sem) == processOOP)
+      if (OBJ_SEMAPHORE_GET_LAST_LINK(sem) == processOOP) {
         /* It was the only process in the list */
         OBJ_SEMAPHORE_SET_LAST_LINK(sem, _gst_nil_oop);
+      }
     } else {
       /* Find the new prev node */
       lastProcessOOP = OBJ_SEMAPHORE_GET_FIRST_LINK(sem);
@@ -1460,9 +1506,11 @@ static void remove_process_from_list(OOP processOOP) {
         lastProcess = OOP_TO_OBJ(lastProcessOOP);
       }
 
-      OBJ_PROCESS_SET_NEXT_LINK(lastProcess, OBJ_PROCESS_GET_NEXT_LINK(process));
-      if (OBJ_SEMAPHORE_GET_LAST_LINK(sem) == processOOP)
+      OBJ_PROCESS_SET_NEXT_LINK(lastProcess,
+                                OBJ_PROCESS_GET_NEXT_LINK(process));
+      if (OBJ_SEMAPHORE_GET_LAST_LINK(sem) == processOOP) {
         OBJ_SEMAPHORE_SET_LAST_LINK(sem, lastProcessOOP);
+      }
     }
 
     OBJ_PROCESS_SET_MY_LIST(process, _gst_nil_oop);
@@ -1483,14 +1531,16 @@ void add_first_link(OOP semaphoreOOP, OOP processOOP) {
   OBJ_PROCESS_SET_NEXT_LINK(process, OBJ_SEMAPHORE_GET_FIRST_LINK(sem));
 
   OBJ_SEMAPHORE_SET_FIRST_LINK(sem, processOOP);
-  if (IS_NIL(OBJ_SEMAPHORE_GET_LAST_LINK(sem)))
+  if (IS_NIL(OBJ_SEMAPHORE_GET_LAST_LINK(sem))) {
     OBJ_SEMAPHORE_SET_LAST_LINK(sem, processOOP);
+  }
 }
 
 void suspend_process(OOP processOOP) {
   remove_process_from_list(processOOP);
-  if (get_scheduled_process() == processOOP)
+  if (get_scheduled_process() == processOOP) {
     ACTIVE_PROCESS_YIELD();
+  }
 }
 
 void _gst_terminate_process(OOP processOOP) {
@@ -1537,8 +1587,9 @@ void active_process_yield(void) {
   OOP activeProcess = get_active_process();
   OOP newProcess = highest_priority_process();
 
-  if (is_process_ready(activeProcess))
+  if (is_process_ready(activeProcess)) {
     sleep_process(activeProcess); /* move to the end of the list */
+  }
 
   activate_process(IS_NIL(newProcess) ? activeProcess : newProcess);
 }
@@ -1565,16 +1616,20 @@ bool _gst_sync_signal(OOP semaphoreOOP, bool incr_if_empty) {
 
     isTerminatingProcess = is_process_terminating(processOOP);
     if (!isTerminatingProcess) {
-      OOP processorSchedulerOOP = OBJ_PROCESS_GET_PROCESSOR_SCHEDULER(OOP_TO_OBJ(processOOP));
-      int threadId = TO_INT(OBJ_PROCESSOR_SCHEDULER_GET_VM_THREAD_ID(OOP_TO_OBJ(processorSchedulerOOP)));
+      OOP processorSchedulerOOP =
+          OBJ_PROCESS_GET_PROCESSOR_SCHEDULER(OOP_TO_OBJ(processOOP));
+      int threadId = TO_INT(OBJ_PROCESSOR_SCHEDULER_GET_VM_THREAD_ID(
+          OOP_TO_OBJ(processorSchedulerOOP)));
 
       if (threadId == current_thread_id) {
         wait_for_processor_scheduler(processorSchedulerOOP, current_thread_id);
         resume_process(processOOP, false);
-        signal_and_broadcast_for_processor_scheduler(processorSchedulerOOP, current_thread_id);
+        signal_and_broadcast_for_processor_scheduler(processorSchedulerOOP,
+                                                     current_thread_id);
       } else {
         _gst_register_oop(processOOP);
-        _gst_async_call_on_thread(_gst_do_resume_and_unregister, processOOP, threadId);
+        _gst_async_call_on_thread(_gst_do_resume_and_unregister, processOOP,
+                                  threadId);
       }
     }
 
@@ -1614,10 +1669,13 @@ void _gst_async_call_internal(async_queue_entry *e) {
   /* For async-signal safety, we need to check that the entry is not
      already in the list.  Checking that atomically with CAS is the
      simplest way.  */
-  do
-    if (__sync_val_compare_and_swap(&e->next, NULL, queued_async_signals_sig[0]))
+  do {
+    if (__sync_val_compare_and_swap(&e->next, NULL,
+                                    queued_async_signals_sig[0])) {
       return;
-  while (!__sync_bool_compare_and_swap(&queued_async_signals_sig[0], e->next, e));
+    }
+  } while (
+      !__sync_bool_compare_and_swap(&queued_async_signals_sig[0], e->next, e));
   SET_EXCEPT_FLAG_FOR_SIGNAL_FOR_THREAD(true, 0);
 }
 
@@ -1628,9 +1686,10 @@ void _gst_async_call_on_thread(void (*func)(OOP), OOP arg, size_t thread_id) {
   sig->func = func;
   sig->data = arg;
 
-  do
+  do {
     sig->next = queued_async_signals[thread_id];
-  while (!__sync_bool_compare_and_swap(&queued_async_signals[thread_id], sig->next, sig));
+  } while (!__sync_bool_compare_and_swap(&queued_async_signals[thread_id],
+                                         sig->next, sig));
   _gst_wakeup();
   SET_EXCEPT_FLAG_FOR_THREAD(true, thread_id);
 }
@@ -1640,8 +1699,10 @@ void _gst_async_call(void (*func)(OOP), OOP arg) {
 }
 
 bool _gst_have_pending_async_calls() {
-  return (queued_async_signals[current_thread_id] != &queued_async_signals_tail[current_thread_id] ||
-          queued_async_signals_sig[current_thread_id] != &queued_async_signals_tail[current_thread_id]);
+  return (queued_async_signals[current_thread_id] !=
+              &queued_async_signals_tail[current_thread_id] ||
+          queued_async_signals_sig[current_thread_id] !=
+              &queued_async_signals_tail[current_thread_id]);
 }
 
 void empty_async_queue() {
@@ -1650,7 +1711,8 @@ void empty_async_queue() {
   /* Process a batch of asynchronous requests.  These are pushed
      in LIFO order by _gst_async_call.  By reversing the list
      in place before walking it, we get FIFO order.  */
-  sig = __sync_swap(&queued_async_signals[current_thread_id], &queued_async_signals_tail[current_thread_id]);
+  sig = __sync_swap(&queued_async_signals[current_thread_id],
+                    &queued_async_signals_tail[current_thread_id]);
   sig_reversed = &queued_async_signals_tail[current_thread_id];
   while (sig != &queued_async_signals_tail[current_thread_id]) {
     async_queue_entry *next = sig->next;
@@ -1670,7 +1732,8 @@ void empty_async_queue() {
   /* For async-signal-safe processing, we need to avoid entering
      the same item twice into the list.  So we use NEXT to mark
      items that have been added...  */
-  sig = __sync_swap(&queued_async_signals_sig[current_thread_id], &queued_async_signals_tail[current_thread_id]);
+  sig = __sync_swap(&queued_async_signals_sig[current_thread_id],
+                    &queued_async_signals_tail[current_thread_id]);
   sig_reversed = &queued_async_signals_tail[current_thread_id];
   while (sig != &queued_async_signals_tail[current_thread_id]) {
     async_queue_entry *next = sig->next;
@@ -1725,18 +1788,22 @@ void sync_wait_process(OOP semaphoreOOP, OOP processOOP) {
        be called from a primitive.  */
     SET_STACKTOP(_gst_nil_oop);
 
-    OOP processorOOP = OBJ_PROCESS_GET_PROCESSOR_SCHEDULER(OOP_TO_OBJ(processOOP));
+    OOP processorOOP =
+        OBJ_PROCESS_GET_PROCESSOR_SCHEDULER(OOP_TO_OBJ(processOOP));
     wait_for_processor_scheduler(processorOOP, current_thread_id);
     remove_process_from_list(processOOP);
-    signal_and_broadcast_for_processor_scheduler(processorOOP, current_thread_id);
+    signal_and_broadcast_for_processor_scheduler(processorOOP,
+                                                 current_thread_id);
 
     add_last_link(semaphoreOOP, processOOP);
     if (isActive && IS_NIL(ACTIVE_PROCESS_YIELD())) {
-      perror("No runnable process Thread ID can be different than current thread id");
+      perror("No runnable process Thread ID can be different than current "
+             "thread id");
       nomemory(true);
     }
   } else {
-    OBJ_SEMAPHORE_SET_SIGNALS(semaphore, DECR_INT(OBJ_SEMAPHORE_GET_SIGNALS(semaphore)));
+    OBJ_SEMAPHORE_SET_SIGNALS(semaphore,
+                              DECR_INT(OBJ_SEMAPHORE_GET_SIGNALS(semaphore)));
   }
 }
 
@@ -1788,7 +1855,8 @@ bool resume_process(OOP processOOP, bool alwaysPreempt) {
   if (processOOP == activeOOP) {
     assert(!alwaysPreempt);
     remove_process_from_list(processOOP);
-  } else if (priority >= TO_INT(OBJ_PROCESS_GET_PRIORITY(active)) /* && ints_enabled */) {
+  } else if (priority >=
+             TO_INT(OBJ_PROCESS_GET_PRIORITY(active)) /* && ints_enabled */) {
     alwaysPreempt = true;
   }
 
@@ -1824,8 +1892,9 @@ OOP activate_process(OOP processOOP) {
   OOP processLists;
   OOP processList;
 
-  if (IS_NIL(processOOP))
+  if (IS_NIL(processOOP)) {
     return processOOP;
+  }
 
   /* 2002-19-12: tried get_active_process instead of get_scheduled_process.  */
   if (processOOP != get_active_process()) {
@@ -1894,8 +1963,9 @@ bool would_reschedule_process() {
   gst_object process;
   gst_object processList;
 
-  if (!IS_NIL(switch_to_process[current_thread_id]))
+  if (!IS_NIL(switch_to_process[current_thread_id])) {
     return false;
+  }
 
   processOOP = get_scheduled_process();
   process = OOP_TO_OBJ(processOOP);
@@ -1938,8 +2008,9 @@ OOP highest_priority_process(void) {
            priority.  */
         processList = OOP_TO_OBJ(processListOOP);
         if (OBJ_SEMAPHORE_GET_FIRST_LINK(processList) ==
-            OBJ_SEMAPHORE_GET_LAST_LINK(processList))
+            OBJ_SEMAPHORE_GET_LAST_LINK(processList)) {
           continue;
+        }
 
         processOOP = remove_first_link(processListOOP);
       }
@@ -1956,11 +2027,13 @@ OOP next_scheduled_process(void) {
 
   processOOP = highest_priority_process();
 
-  if (!IS_NIL(processOOP))
+  if (!IS_NIL(processOOP)) {
     return (processOOP);
+  }
 
-  if (is_process_ready(get_scheduled_process()))
+  if (is_process_ready(get_scheduled_process())) {
     return (_gst_nil_oop);
+  }
 
   processor = OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
   OBJ_PROCESSOR_SCHEDULER_SET_ACTIVE_PROCESS(processor, _gst_nil_oop);
@@ -1981,19 +2054,23 @@ void _gst_check_process_state(void) {
     processList = OOP_TO_OBJ(processListOOP);
 
     if (IS_NIL(OBJ_SEMAPHORE_GET_FIRST_LINK(processList)) &&
-        IS_NIL(OBJ_SEMAPHORE_GET_LAST_LINK(processList)))
+        IS_NIL(OBJ_SEMAPHORE_GET_LAST_LINK(processList))) {
       continue;
+    }
 
     /* Sanity check the first and last link in the process list.  */
     if (IS_NIL(OBJ_SEMAPHORE_GET_FIRST_LINK(processList)) ||
-        IS_NIL(OBJ_SEMAPHORE_GET_LAST_LINK(processList)))
+        IS_NIL(OBJ_SEMAPHORE_GET_LAST_LINK(processList))) {
       abort();
+    }
 
     for (processOOP = OBJ_SEMAPHORE_GET_FIRST_LINK(processList);
-         !IS_NIL(processOOP); processOOP = OBJ_PROCESS_GET_NEXT_LINK(process), n++) {
+         !IS_NIL(processOOP);
+         processOOP = OBJ_PROCESS_GET_NEXT_LINK(process), n++) {
       process = OOP_TO_OBJ(processOOP);
-      if (OBJ_PROCESS_GET_MY_LIST(process) != processListOOP)
+      if (OBJ_PROCESS_GET_MY_LIST(process) != processListOOP) {
         abort();
+      }
 
 #if 0
 	  /* This is false when a process has just finished initializing
@@ -2004,12 +2081,14 @@ void _gst_check_process_state(void) {
 
       /* Sanity check the last link in the process list.  */
       if (IS_NIL(OBJ_PROCESS_GET_NEXT_LINK(process)) &&
-          processOOP != OBJ_SEMAPHORE_GET_LAST_LINK(processList))
+          processOOP != OBJ_SEMAPHORE_GET_LAST_LINK(processList)) {
         abort();
+      }
 
       /* Check (rather brutally) for loops in the process lists.  */
-      if (++n > _gst_mem.ot_size)
+      if (++n > _gst_mem.ot_size) {
         abort();
+      }
     }
   }
 }
@@ -2026,29 +2105,33 @@ void _gst_print_process_state(void) {
 
   processOOP = get_scheduled_process();
   process = OOP_TO_OBJ(processOOP);
-  if (processOOP == _gst_nil_oop)
+  if (processOOP == _gst_nil_oop) {
     fprintf(stderr, "No active process\n");
-  else
+  } else {
     fprintf(stderr, "Active process: <Proc %p prio: %td next %p context %p>\n",
-           processOOP, TO_INT(OBJ_PROCESS_GET_PRIORITY(process)), OBJ_PROCESS_GET_NEXT_LINK(process),
-           OBJ_PROCESS_GET_SUSPENDED_CONTEXT(process));
+            processOOP, TO_INT(OBJ_PROCESS_GET_PRIORITY(process)),
+            OBJ_PROCESS_GET_NEXT_LINK(process),
+            OBJ_PROCESS_GET_SUSPENDED_CONTEXT(process));
+  }
 
   for (; priority > 0; priority--) {
     processListOOP = ARRAY_AT(processLists, priority);
     processList = OOP_TO_OBJ(processListOOP);
 
-    if (IS_NIL(OBJ_SEMAPHORE_GET_FIRST_LINK(processList)))
+    if (IS_NIL(OBJ_SEMAPHORE_GET_FIRST_LINK(processList))) {
       continue;
+    }
 
     fprintf(stderr, "  Priority %d: First %p last %p ", priority,
-           OBJ_SEMAPHORE_GET_FIRST_LINK(processList),
-           OBJ_SEMAPHORE_GET_LAST_LINK(processList));
+            OBJ_SEMAPHORE_GET_FIRST_LINK(processList),
+            OBJ_SEMAPHORE_GET_LAST_LINK(processList));
 
     for (processOOP = OBJ_SEMAPHORE_GET_FIRST_LINK(processList);
          !IS_NIL(processOOP); processOOP = OBJ_PROCESS_GET_NEXT_LINK(process)) {
       process = OOP_TO_OBJ(processOOP);
       fprintf(stderr, "\n    <Proc %p prio: %td context %p> ", processOOP,
-             TO_INT(OBJ_PROCESS_GET_PRIORITY(process)), OBJ_PROCESS_GET_SUSPENDED_CONTEXT(process));
+              TO_INT(OBJ_PROCESS_GET_PRIORITY(process)),
+              OBJ_PROCESS_GET_SUSPENDED_CONTEXT(process));
     }
 
     fprintf(stderr, "\n");
@@ -2075,15 +2158,19 @@ void _gst_init_process_system(void) {
   if (IS_NIL(OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_LISTS(processor))) {
     gst_object processLists;
 
-    processLists = instantiate_with(_gst_array_class, NUM_PRIORITIES,
-                                    &OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_LISTS(processor));
+    processLists =
+        instantiate_with(_gst_array_class, NUM_PRIORITIES,
+                         &OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_LISTS(processor));
 
-    for (i = 0; i < NUM_PRIORITIES; i++)
+    for (i = 0; i < NUM_PRIORITIES; i++) {
       processLists->data[i] = semaphore_new(0);
+    }
   }
 
-  if (IS_NIL(OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_TIME_SLICE(processor)))
-    OBJ_PROCESSOR_SCHEDULER_SET_PROCESS_TIME_SLICE(processor, FROM_INT(DEFAULT_PREEMPTION_TIMESLICE));
+  if (IS_NIL(OBJ_PROCESSOR_SCHEDULER_GET_PROCESS_TIME_SLICE(processor))) {
+    OBJ_PROCESSOR_SCHEDULER_SET_PROCESS_TIME_SLICE(
+        processor, FROM_INT(DEFAULT_PREEMPTION_TIMESLICE));
+  }
 
   /* No process is active -- so highest_priority_process() need not
      worry about discarding an active process.  */
@@ -2107,15 +2194,15 @@ OOP create_callin_process(OOP contextOOP) {
   nameOOP = _gst_string_new("call-in process");
   INC_ADD_OOP(nameOOP);
 
-  initialProcess =
-      instantiate(_gst_callin_process_class, &initialProcessOOP);
+  initialProcess = instantiate(_gst_callin_process_class, &initialProcessOOP);
 
   INC_ADD_OOP(initialProcessOOP);
   OBJ_PROCESS_SET_PRIORITY(initialProcess, FROM_INT(USER_SCHEDULING_PRIORITY));
   OBJ_PROCESS_SET_INTERRUPT_LOCK(initialProcess, _gst_nil_oop);
   OBJ_PROCESS_SET_SUSPENDED_CONTEXT(initialProcess, contextOOP);
   OBJ_PROCESS_SET_NAME(initialProcess, nameOOP);
-  OBJ_PROCESS_SET_PROCESSOR_SCHEDULER(initialProcess, _gst_processor_oop[current_thread_id]);
+  OBJ_PROCESS_SET_PROCESSOR_SCHEDULER(initialProcess,
+                                      _gst_processor_oop[current_thread_id]);
   INC_RESTORE_POINTER(inc);
 
   /* Put initialProcessOOP in the root set */
@@ -2149,8 +2236,9 @@ int _gst_get_var(enum gst_var_index index) {
 
 int _gst_set_var(enum gst_var_index index, int value) {
   int old = _gst_get_var(index);
-  if (value < 0)
+  if (value < 0) {
     return -1;
+  }
 
   switch (index) {
   case GST_DECLARE_TRACING:
@@ -2195,8 +2283,9 @@ void _gst_init_interpreter(void) {
 #endif
 
   _gst_this_context_oop[current_thread_id] = _gst_nil_oop;
-  for (i = 0; i < MAX_LIFO_DEPTH; i++)
+  for (i = 0; i < MAX_LIFO_DEPTH; i++) {
     lifo_contexts[current_thread_id][i].flags = F_POOLED | F_CONTEXT;
+  }
 
   _gst_init_async_events();
   _gst_init_process_system();
@@ -2259,28 +2348,32 @@ OOP _gst_nvmsg_send(OOP receiver, OOP sendSelector, OOP *args, int sendArgs) {
   /* _gst_print_process_state (); */
   /* _gst_show_backtrace (stdout); */
 
-  if (reentrancy_jmp_buf && !reentrancy_jmp_buf->suspended++)
+  if (reentrancy_jmp_buf && !reentrancy_jmp_buf->suspended++) {
     suspend_process(reentrancy_jmp_buf->processOOP);
+  }
 
   currentProcessOOP = get_active_process();
   change_process_context(processOOP);
 
   PUSH_OOP(receiver);
-  for (i = 0; i < sendArgs; i++)
+  for (i = 0; i < sendArgs; i++) {
     PUSH_OOP(args[i]);
+  }
 
-  if (!sendSelector)
+  if (!sendSelector) {
     send_block_value(sendArgs, sendArgs);
-  else if (OOP_CLASS(sendSelector) == _gst_symbol_class)
+  } else if (OOP_CLASS(sendSelector) == _gst_symbol_class) {
     SEND_MESSAGE(sendSelector, sendArgs);
-  else
+  } else {
     _gst_send_method(sendSelector);
+  }
 
   process = OOP_TO_OBJ(currentProcessOOP);
 
   if (!IS_NIL(currentProcessOOP) &&
-      TO_INT(OBJ_PROCESS_GET_PRIORITY(process)) > USER_SCHEDULING_PRIORITY)
+      TO_INT(OBJ_PROCESS_GET_PRIORITY(process)) > USER_SCHEDULING_PRIORITY) {
     ACTIVE_PROCESS_YIELD();
+  }
 
   result = _gst_interpret(processOOP);
   INC_ADD_OOP(result);
@@ -2291,8 +2384,9 @@ OOP _gst_nvmsg_send(OOP receiver, OOP sendSelector, OOP *args, int sendArgs) {
   if (reentrancy_jmp_buf && !--reentrancy_jmp_buf->suspended &&
       !is_process_terminating(reentrancy_jmp_buf->processOOP)) {
     resume_process(reentrancy_jmp_buf->processOOP, true);
-    if (!IS_NIL(switch_to_process[current_thread_id]))
+    if (!IS_NIL(switch_to_process[current_thread_id])) {
       change_process_context(switch_to_process[current_thread_id]);
+    }
   }
 
   INC_RESTORE_POINTER(inc);
@@ -2304,7 +2398,8 @@ void set_preemption_timer(void) {
   gst_processor_scheduler processor;
   int timeSlice;
 
-  processor = (gst_processor_scheduler)OOP_TO_OBJ(_gst_processor_oop[current_thread_id]);
+  processor = (gst_processor_scheduler)OOP_TO_OBJ(
+      _gst_processor_oop[current_thread_id]);
   timeSlice = TO_INT(processor->processTimeslice);
 
   time_to_preempt = false;
@@ -2318,8 +2413,9 @@ void _gst_invalidate_method_cache(void) {
 
   /* Only do this if some code was run since the last cache cleanup,
      as it is quite expensive.  */
-  if (!_gst_sample_counter)
+  if (!_gst_sample_counter) {
     return;
+  }
 
 #ifdef ENABLE_JIT_TRANSLATION
   _gst_reset_inline_caches();
@@ -2340,8 +2436,9 @@ void _gst_copy_processor_registers(void) {
 
   for (size_t i = 0; i < _gst_interpret_thread_counter; i++) {
     /* Get everything into the main OOP table first.  */
-    if (_gst_this_context_oop[i])
+    if (_gst_this_context_oop[i]) {
       MAYBE_COPY_OOP(_gst_this_context_oop[i]);
+    }
   }
   /* everything else is pointed to by _gst_this_context_oop, either
      directly or indirectly, or has been copyed when scanning the
@@ -2350,16 +2447,17 @@ void _gst_copy_processor_registers(void) {
 
 void copy_semaphore_oops(void) {
   /* there does seem to be a window where this is not valid */
-  if (single_step_semaphore)
+  if (single_step_semaphore) {
     MAYBE_COPY_OOP(single_step_semaphore);
+  }
 
   for (size_t i = 0; i < _gst_interpret_thread_counter; i++) {
-    for (async_queue_entry *sig = queued_async_signals[i]; sig != &queued_async_signals_tail[i];
-         sig = sig->next) {
+    for (async_queue_entry *sig = queued_async_signals[i];
+         sig != &queued_async_signals_tail[i]; sig = sig->next) {
       MAYBE_COPY_OOP(sig->data);
     }
-    for (async_queue_entry *sig = queued_async_signals_sig[i]; sig != &queued_async_signals_tail[i];
-         sig = sig->next) {
+    for (async_queue_entry *sig = queued_async_signals_sig[i];
+         sig != &queued_async_signals_tail[i]; sig = sig->next) {
       MAYBE_COPY_OOP(sig->data);
     }
 
@@ -2383,17 +2481,18 @@ void _gst_mark_processor_registers(void) {
 
 void mark_semaphore_oops(void) {
   /* there does seem to be a window where this is not valid */
-  if (single_step_semaphore)
+  if (single_step_semaphore) {
     MAYBE_MARK_OOP(single_step_semaphore);
+  }
 
   for (size_t i = 0; i < _gst_interpret_thread_counter; i++) {
-    for (async_queue_entry *sig = queued_async_signals[i]; sig != &queued_async_signals_tail[i];
-       sig = sig->next) {
+    for (async_queue_entry *sig = queued_async_signals[i];
+         sig != &queued_async_signals_tail[i]; sig = sig->next) {
       MAYBE_MARK_OOP(sig->data);
     }
 
-    for (async_queue_entry *sig = queued_async_signals_sig[i]; sig != &queued_async_signals_tail[i];
-       sig = sig->next) {
+    for (async_queue_entry *sig = queued_async_signals_sig[i];
+         sig != &queued_async_signals_tail[i]; sig = sig->next) {
       MAYBE_MARK_OOP(sig->data);
     }
 
@@ -2409,7 +2508,7 @@ void _gst_fixup_object_pointers(void) {
 }
 
 void _gst_fixup_object_pointers_for_thread(size_t thread_id) {
-    gst_object thisContext;
+  gst_object thisContext;
 
   if (!IS_NIL(_gst_this_context_oop[thread_id])) {
     /* Create real OOPs for the contexts here.  If we do it while copying,
@@ -2420,11 +2519,11 @@ void _gst_fixup_object_pointers_for_thread(size_t thread_id) {
     OBJ_METHOD_CONTEXT_SET_METHOD(thisContext, _gst_this_method[thread_id]);
     OBJ_METHOD_CONTEXT_SET_RECEIVER(thisContext, _gst_self[thread_id]);
     OBJ_METHOD_CONTEXT_SET_SP_OFFSET(
-        thisContext,
-        FROM_INT(sp[thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext)));
-    OBJ_METHOD_CONTEXT_SET_IP_OFFSET(thisContext, FROM_INT(ip[thread_id] - method_base[thread_id]));
+        thisContext, FROM_INT(sp[thread_id] -
+                              OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext)));
+    OBJ_METHOD_CONTEXT_SET_IP_OFFSET(
+        thisContext, FROM_INT(ip[thread_id] - method_base[thread_id]));
   }
-
 }
 
 void _gst_restore_object_pointers(void) {
@@ -2446,34 +2545,35 @@ void _gst_restore_object_pointers_for_thread(size_t thread_id) {
     thisContext = OOP_TO_OBJ(_gst_this_context_oop[thread_id]);
     _gst_temporaries[thread_id] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
 
-    SET_THIS_METHOD_FOR_THREAD(thread_id, _gst_this_method[thread_id], GET_CONTEXT_IP(thisContext));
+    SET_THIS_METHOD_FOR_THREAD(thread_id, _gst_this_method[thread_id],
+                               GET_CONTEXT_IP(thisContext));
     sp[thread_id] = TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(thisContext)) +
-         OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
+                    OBJ_METHOD_CONTEXT_CONTEXT_STACK(thisContext);
   }
 }
 
 static RETSIGTYPE interrupt_on_signal(int sig) {
-  if (reentrancy_jmp_buf)
+  if (reentrancy_jmp_buf) {
     stop_execution();
-  else {
+  } else {
     _gst_set_signal_handler(sig, SIG_DFL);
     raise(sig);
   }
 }
 
-static void backtrace_on_signal_1(bool is_serious_error,
-                                  bool c_backtrace) {
+static void backtrace_on_signal_1(bool is_serious_error, bool c_backtrace) {
   static int reentering = -1;
 
   /* Avoid recursive signals */
   reentering++;
 
   if ((reentrancy_jmp_buf && reentrancy_jmp_buf->interpreter) && !reentering &&
-      ip[current_thread_id] && !_gst_gc_running)
+      ip[current_thread_id] && !_gst_gc_running) {
     _gst_show_backtrace(stderr);
-  else {
-    if (is_serious_error)
+  } else {
+    if (is_serious_error) {
       _gst_errorf("Error occurred while not in byte code interpreter!!");
+    }
 
 #ifdef HAVE_EXECINFO_H
     /* Don't print a backtrace, for example, if exiting during a
@@ -2526,45 +2626,52 @@ void _gst_show_backtrace(FILE *fp) {
   gst_method_info methodInfo;
 
   empty_context_stack();
-  for (contextOOP = _gst_this_context_oop[current_thread_id]; !IS_NIL(contextOOP);
+  for (contextOOP = _gst_this_context_oop[current_thread_id];
+       !IS_NIL(contextOOP);
        contextOOP = OBJ_METHOD_CONTEXT_PARENT_CONTEXT(context)) {
     context = OOP_TO_OBJ(contextOOP);
     if ((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) ==
-        (MCF_IS_METHOD_CONTEXT | MCF_IS_DISABLED_CONTEXT))
+        (MCF_IS_METHOD_CONTEXT | MCF_IS_DISABLED_CONTEXT)) {
       continue;
+    }
 
     /* printf ("(OOP %p)", context->method); */
-    fprintf(fp, "(ip[current_thread_id] %d)", TO_INT(OBJ_METHOD_CONTEXT_IP_OFFSET(context)));
+    fprintf(fp, "(ip[current_thread_id] %ld)",
+            TO_INT(OBJ_METHOD_CONTEXT_IP_OFFSET(context)));
     if ((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) & MCF_IS_METHOD_CONTEXT) {
       OOP receiver, receiverClass;
 
       if ((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) &
           MCF_IS_EXECUTION_ENVIRONMENT) {
-        if (IS_NIL(OBJ_METHOD_CONTEXT_PARENT_CONTEXT(context)))
+        if (IS_NIL(OBJ_METHOD_CONTEXT_PARENT_CONTEXT(context))) {
           fprintf(fp, "<bottom>\n");
-        else
+        } else {
           fprintf(fp, "<unwind point>\n");
+        }
         continue;
       }
 
-      if ((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) & MCF_IS_UNWIND_CONTEXT)
+      if ((intptr_t)OBJ_METHOD_CONTEXT_FLAGS(context) & MCF_IS_UNWIND_CONTEXT) {
         fprintf(fp, "<unwind> ");
+      }
 
       /* a method context */
       method =
           (gst_compiled_method)OOP_TO_OBJ(OBJ_METHOD_CONTEXT_METHOD(context));
       methodInfo = (gst_method_info)OOP_TO_OBJ(method->descriptor);
       receiver = OBJ_METHOD_CONTEXT_RECEIVER(context);
-      if (IS_INT(receiver))
+      if (IS_INT(receiver)) {
         receiverClass = gst_small_integer_class;
 
-      else
+      } else {
         receiverClass = OOP_CLASS(receiver);
+      }
 
-      if (receiverClass == methodInfo->class)
+      if (receiverClass == methodInfo->class) {
         fprintf(fp, "%O", receiverClass);
-      else
+      } else {
         fprintf(fp, "%O(%O)", receiverClass, methodInfo->class);
+      }
     } else {
       /* a block context */
       block =
@@ -2583,25 +2690,27 @@ void _gst_show_stack_contents(void) {
   OOP *walk;
   bool first;
 
-  if (IS_NIL(_gst_this_context_oop[current_thread_id]))
+  if (IS_NIL(_gst_this_context_oop[current_thread_id])) {
     return;
+  }
 
   context = OOP_TO_OBJ(_gst_this_context_oop[current_thread_id]);
   for (first = true, walk = OBJ_METHOD_CONTEXT_CONTEXT_STACK(context);
        walk <= sp[current_thread_id]; first = false, walk++) {
-    if (!first)
+    if (!first) {
       printf(", ");
+    }
 
     printf("%O", *walk);
   }
   printf("\n\n");
 }
 
-static inline bool cached_index_oop_primitive(OOP rec, OOP idx,
-                                                     intptr_t spec) {
+static inline bool cached_index_oop_primitive(OOP rec, OOP idx, intptr_t spec) {
   OOP result;
-  if (!IS_INT(idx))
+  if (!IS_INT(idx)) {
     return (true);
+  }
 
   result = index_oop_spec(rec, OOP_TO_OBJ(rec), TO_INT(idx), spec);
   if UNCOMMON (!result)
@@ -2612,10 +2721,11 @@ static inline bool cached_index_oop_primitive(OOP rec, OOP idx,
   return (false);
 }
 
-static inline bool
-cached_index_oop_put_primitive(OOP rec, OOP idx, OOP val, intptr_t spec) {
-  if (!IS_INT(idx))
+static inline bool cached_index_oop_put_primitive(OOP rec, OOP idx, OOP val,
+                                                  intptr_t spec) {
+  if (!IS_INT(idx)) {
     return (true);
+  }
 
   if UNCOMMON (!index_oop_put_spec(rec, OOP_TO_OBJ(rec), TO_INT(idx), val,
                                    spec))
@@ -2640,10 +2750,11 @@ prim_table_entry *_gst_get_primitive_attributes(int primitive) {
 }
 
 void _gst_set_primitive_attributes(int primitive, prim_table_entry *pte) {
-  if (pte)
+  if (pte) {
     _gst_primitive_table[primitive] = *pte;
-  else
+  } else {
     _gst_primitive_table[primitive] = _gst_default_primitive_table[0];
+  }
 }
 
 void push_jmp_buf(interp_jmp_buf *jb, int for_interpreter, OOP processOOP) {
@@ -2660,8 +2771,9 @@ bool pop_jmp_buf(void) {
   interp_jmp_buf *jb = reentrancy_jmp_buf;
   reentrancy_jmp_buf = jb->next;
 
-  if (jb->interpreter && !is_process_terminating(jb->processOOP))
+  if (jb->interpreter && !is_process_terminating(jb->processOOP)) {
     _gst_terminate_process(jb->processOOP);
+  }
 
   _gst_unregister_oop(jb->processOOP);
   return jb->interrupted && reentrancy_jmp_buf;
@@ -2674,22 +2786,25 @@ void stop_execution(void) {
       !is_process_terminating(reentrancy_jmp_buf->processOOP)) {
     _gst_abort_execution = "userInterrupt";
     SET_EXCEPT_FLAG(true);
-    if (get_active_process() != reentrancy_jmp_buf->processOOP)
+    if (get_active_process() != reentrancy_jmp_buf->processOOP) {
       resume_process(reentrancy_jmp_buf->processOOP, true);
-  } else
+    }
+  } else {
     longjmp(reentrancy_jmp_buf->jmpBuf, 1);
+  }
 }
 
 bool parse_method_from_stream_with_protection(OOP currentClass,
-                                                     OOP currentCategory) {
+                                              OOP currentCategory) {
   interp_jmp_buf jb;
   OOP methodOOP;
 
   push_jmp_buf(&jb, false, get_active_process());
-  if (setjmp(jb.jmpBuf) == 0)
+  if (setjmp(jb.jmpBuf) == 0) {
     methodOOP = _gst_parse_method_from_stream(currentClass, currentCategory);
-  else
+  } else {
     methodOOP = _gst_nil_oop;
+  }
 
   PUSH_OOP(methodOOP);
   return pop_jmp_buf();
@@ -2699,8 +2814,9 @@ bool parse_stream_with_protection(OOP currentNamespace) {
   interp_jmp_buf jb;
 
   push_jmp_buf(&jb, false, get_active_process());
-  if (setjmp(jb.jmpBuf) == 0)
+  if (setjmp(jb.jmpBuf) == 0) {
     _gst_parse_stream(currentNamespace);
+  }
 
   return pop_jmp_buf();
 }

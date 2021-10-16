@@ -225,9 +225,7 @@ heap_data *init_old_space(size_t size) {
   return h;
 }
 
-void _gst_init_mem_default() {
-  _gst_init_mem(0, 0, 0, 0, 0, 0);
-}
+void _gst_init_mem_default() { _gst_init_mem(0, 0, 0, 0, 0, 0); }
 
 void _gst_init_mem(size_t eden, size_t survivor, size_t old,
                    size_t big_object_threshold, int grow_threshold_percent,
@@ -238,27 +236,36 @@ void _gst_init_mem(size_t eden, size_t survivor, size_t old,
 #ifndef NO_SIGSEGV_HANDLING
     sigsegv_install_handler(oldspace_sigsegv_handler);
 #endif
-    if (!eden)
+    if (!eden) {
       eden = 3 * K * K;
-    if (!survivor)
+    }
+    if (!survivor) {
       survivor = 128 * K;
-    if (!old)
+    }
+    if (!old) {
       old = 4 * K * K;
-    if (!big_object_threshold)
+    }
+    if (!big_object_threshold) {
       big_object_threshold = 4 * K;
-    if (!grow_threshold_percent)
+    }
+    if (!grow_threshold_percent) {
       grow_threshold_percent = 80;
-    if (!space_grow_rate)
+    }
+    if (!space_grow_rate) {
       space_grow_rate = 30;
+    }
   } else {
-    if (eden || survivor)
+    if (eden || survivor) {
       _gst_scavenge();
+    }
 
-    if (survivor)
+    if (survivor) {
       _gst_tenure_all_survivors();
+    }
 
-    if (old && old != _gst_mem.old->heap_total)
+    if (old && old != _gst_mem.old->heap_total) {
       _gst_grow_memory_to(old);
+    }
   }
 
   _gst_heap_new_area(&_gst_mem.gen0, 12 * K * K);
@@ -284,17 +291,21 @@ void _gst_init_mem(size_t eden, size_t survivor, size_t old,
                         survivor / OBJ_HEADER_SIZE_WORDS);
   }
 
-  if (big_object_threshold)
+  if (big_object_threshold) {
     _gst_mem.big_object_threshold = big_object_threshold;
+  }
 
-  if (_gst_mem.eden.totalSize < _gst_mem.big_object_threshold)
+  if (_gst_mem.eden.totalSize < _gst_mem.big_object_threshold) {
     _gst_mem.big_object_threshold = _gst_mem.eden.totalSize;
+  }
 
-  if (grow_threshold_percent)
+  if (grow_threshold_percent) {
     _gst_mem.grow_threshold_percent = grow_threshold_percent;
+  }
 
-  if (space_grow_rate)
+  if (space_grow_rate) {
     _gst_mem.space_grow_rate = space_grow_rate;
+  }
 
   if (!_gst_mem.old) {
     if (old) {
@@ -390,7 +401,8 @@ void _gst_init_basic_objects() {
   for (unsigned int i = 0; i < NUM_CHAR_OBJECTS; i++) {
     OOP oop;
 
-    _gst_char_object_table[i] = alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &oop);
+    _gst_char_object_table[i] =
+        alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &oop);
     _gst_char_object_table[i]->data[0] = FROM_INT(i);
 
     _gst_register_oop(oop);
@@ -399,11 +411,13 @@ void _gst_init_basic_objects() {
   alloc_fixed_obj(OBJ_HEADER_SIZE_WORDS * SIZEOF_OOP, &_gst_nil_oop);
   _gst_register_oop(_gst_nil_oop);
 
-  _gst_boolean_objects[0] = alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &_gst_true_oop);
-   _gst_boolean_objects[0]->data[0] = _gst_true_oop;
+  _gst_boolean_objects[0] =
+      alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &_gst_true_oop);
+  _gst_boolean_objects[0]->data[0] = _gst_true_oop;
   _gst_register_oop(_gst_true_oop);
 
-  _gst_boolean_objects[1] = alloc_fixed_obj((OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &_gst_false_oop);
+  _gst_boolean_objects[1] = alloc_fixed_obj(
+      (OBJ_HEADER_SIZE_WORDS + 1) * SIZEOF_OOP, &_gst_false_oop);
   _gst_boolean_objects[1]->data[0] = _gst_false_oop;
   _gst_register_oop(_gst_false_oop);
 }
@@ -421,7 +435,6 @@ void _gst_init_builtin_objects_classes(void) {
   for (unsigned int i = 0; i < NUM_CHAR_OBJECTS; i++) {
     OBJ_SET_CLASS(OOP_TO_OBJ(&_gst_mem.ot[i]), _gst_char_class);
   }
-
 }
 
 OOP _gst_find_an_instance(OOP class_oop) {
@@ -430,8 +443,9 @@ OOP _gst_find_an_instance(OOP class_oop) {
   PREFETCH_START(_gst_mem.ot, PREF_READ | PREF_NTA);
   for (oop = _gst_mem.ot; oop <= _gst_mem.last_allocated_oop; OOP_NEXT(oop)) {
     PREFETCH_LOOP(oop, PREF_READ | PREF_NTA);
-    if (IS_OOP_VALID(oop) && (OOP_CLASS(oop) == class_oop))
+    if (IS_OOP_VALID(oop) && (OOP_CLASS(oop) == class_oop)) {
       return (oop);
+    }
   }
 
   return (_gst_nil_oop);
@@ -465,12 +479,13 @@ void _gst_make_oop_weak(OOP oop) {
   while (*p) {
     node = (weak_area_tree *)*p;
 
-    if (oop < node->oop)
+    if (oop < node->oop) {
       p = &(*p)->rb_left;
-    else if (oop > node->oop)
+    } else if (oop > node->oop) {
       p = &(*p)->rb_right;
-    else
+    } else {
       return;
+    }
   }
 
   entry = (weak_area_tree *)xmalloc(sizeof(weak_area_tree));
@@ -501,17 +516,20 @@ void _gst_swap_objects(OOP oop1, OOP oop2) {
   INC_ADD_OOP(oop1);
   INC_ADD_OOP(oop2);
 
-  if (OOP_GET_FLAGS(oop2) & F_WEAK)
+  if (OOP_GET_FLAGS(oop2) & F_WEAK) {
     _gst_make_oop_non_weak(oop2);
+  }
 
-  if (OOP_GET_FLAGS(oop1) & F_WEAK)
+  if (OOP_GET_FLAGS(oop1) & F_WEAK) {
     _gst_make_oop_non_weak(oop1);
+  }
 
   /* Put the two objects in the same generation.  FIXME: this can be
      a cause of early tenuring, especially since one of them is often
      garbage!  */
-  if ((OOP_GET_FLAGS(oop1) & F_OLD) ^ (OOP_GET_FLAGS(oop2) & F_OLD))
+  if ((OOP_GET_FLAGS(oop1) & F_OLD) ^ (OOP_GET_FLAGS(oop2) & F_OLD)) {
     _gst_tenure_oop((OOP_GET_FLAGS(oop1) & F_OLD) ? oop2 : oop1);
+  }
 
   tempOOP = *oop2; /* note structure assignment going on here */
   *oop2 = *oop1;
@@ -530,11 +548,13 @@ void _gst_swap_objects(OOP oop1, OOP oop2) {
     OOP_SET_FLAGS(oop2, OOP_GET_FLAGS(oop2) ^ F_REACHABLE);
   }
 
-  if (OOP_GET_FLAGS(oop2) & F_WEAK)
+  if (OOP_GET_FLAGS(oop2) & F_WEAK) {
     _gst_make_oop_weak(oop2);
+  }
 
-  if (OOP_GET_FLAGS(oop1) & F_WEAK)
+  if (OOP_GET_FLAGS(oop1) & F_WEAK) {
     _gst_make_oop_weak(oop1);
+  }
 
   INC_RESTORE_POINTER(incPtr);
 
@@ -549,24 +569,25 @@ void _gst_make_oop_fixed(OOP oop) {
 
   set_except_flag_for_thread(false, current_thread_id);
 
-  if (OOP_GET_FLAGS(oop) & F_FIXED)
-    {
-      _gst_vm_end_barrier_wait();
+  if (OOP_GET_FLAGS(oop) & F_FIXED) {
+    _gst_vm_end_barrier_wait();
 
-      return;
-    }
+    return;
+  }
 
   if ((OOP_GET_FLAGS(oop) & F_LOADED) == 0) {
-    size = SIZE_TO_BYTES(TO_INT(OBJ_SIZE (OOP_TO_OBJ(oop))));
+    size = SIZE_TO_BYTES(TO_INT(OBJ_SIZE(OOP_TO_OBJ(oop))));
     newObj = (gst_object)_gst_mem_alloc(_gst_mem.fixed, size);
-    if (!newObj)
+    if (!newObj) {
       abort();
+    }
 
     memcpy(newObj, OOP_TO_OBJ(oop), size);
-    if ((OOP_GET_FLAGS(oop) & F_OLD) == 0)
+    if ((OOP_GET_FLAGS(oop) & F_OLD) == 0) {
       _gst_mem.numOldOOPs++;
-    else
+    } else {
       _gst_mem_free(_gst_mem.old, OOP_TO_OBJ(oop));
+    }
 
     OOP_SET_OBJECT(oop, newObj);
   }
@@ -579,14 +600,16 @@ void _gst_make_oop_fixed(OOP oop) {
 
 void _gst_tenure_oop(OOP oop) {
   gst_object newObj;
-  if (OOP_GET_FLAGS(oop) & F_OLD)
+  if (OOP_GET_FLAGS(oop) & F_OLD) {
     return;
+  }
 
   if (!(OOP_GET_FLAGS(oop) & F_FIXED)) {
-    int size = SIZE_TO_BYTES(TO_INT(OBJ_SIZE (OOP_TO_OBJ(oop))));
+    int size = SIZE_TO_BYTES(TO_INT(OBJ_SIZE(OOP_TO_OBJ(oop))));
     newObj = (gst_object)_gst_mem_alloc(_gst_mem.old, size);
-    if (!newObj)
+    if (!newObj) {
       abort();
+    }
 
     memcpy(newObj, OOP_TO_OBJ(oop), size);
     _gst_mem.numOldOOPs++;
@@ -602,22 +625,26 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
   gst_object p_instance;
 
   /* Force a GC as soon as possible if we're low on OOPs or memory.  */
-  if UNCOMMON (_gst_mem.num_free_oops < LOW_WATER_OOP_THRESHOLD  * atomic_load(&_gst_interpret_thread_counter) * 4 ||
-               _gst_mem.old->heap_total * 100.0 / _gst_mem.old->heap_limit > _gst_mem.grow_threshold_percent ||
-               _gst_mem.fixed->heap_total * 100.0 / _gst_mem.fixed->heap_limit > _gst_mem.grow_threshold_percent) {
-      _gst_vm_global_barrier_wait();
+  if UNCOMMON (_gst_mem.num_free_oops <
+                   LOW_WATER_OOP_THRESHOLD *
+                       atomic_load(&_gst_interpret_thread_counter) * 4 ||
+               _gst_mem.old->heap_total * 100.0 / _gst_mem.old->heap_limit >
+                   _gst_mem.grow_threshold_percent ||
+               _gst_mem.fixed->heap_total * 100.0 / _gst_mem.fixed->heap_limit >
+                   _gst_mem.grow_threshold_percent) {
+    _gst_vm_global_barrier_wait();
 
-      set_except_flag_for_thread(false, current_thread_id);
+    set_except_flag_for_thread(false, current_thread_id);
 
-      _gst_global_gc(0);
-      _gst_incremental_gc_step();
+    _gst_global_gc(0);
+    _gst_incremental_gc_step();
 
-      _gst_vm_end_barrier_wait();
-    }
+    _gst_vm_end_barrier_wait();
+  }
 
   size = ROUNDED_BYTES(size);
 
-  if (UNCOMMON (size >= _gst_mem.big_object_threshold)) {
+  if (UNCOMMON(size >= _gst_mem.big_object_threshold)) {
     _gst_vm_global_barrier_wait();
 
     set_except_flag_for_thread(false, current_thread_id);
@@ -629,10 +656,9 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
     return p_instance;
   }
 
-  p_instance = (gst_object) gst_allocate_in_lab(_gst_mem.gen0,
-                                                &_gst_mem.tlab_per_thread[current_thread_id],
-                                                current_thread_id,
-                                                BYTES_TO_SIZE(size));
+  p_instance = (gst_object)gst_allocate_in_lab(
+      _gst_mem.gen0, &_gst_mem.tlab_per_thread[current_thread_id],
+      current_thread_id, BYTES_TO_SIZE(size));
   if (UNCOMMON(NULL == p_instance)) {
     // Check Too Big
     // Reallocate new TLAB Entry
@@ -641,8 +667,8 @@ gst_object _gst_alloc_obj(size_t size, OOP *p_oop) {
   }
 
   *p_oop = alloc_oop(p_instance, _gst_mem.active_flag);
-  OBJ_SET_SIZE (p_instance, FROM_INT(BYTES_TO_SIZE(size)));
-  OBJ_SET_IDENTITY (p_instance, FROM_INT(0));
+  OBJ_SET_SIZE(p_instance, FROM_INT(BYTES_TO_SIZE(size)));
+  OBJ_SET_IDENTITY(p_instance, FROM_INT(0));
 
   return p_instance;
 }
@@ -672,8 +698,8 @@ gst_object alloc_fixed_obj(size_t size, OOP *p_oop) {
 
 ok:
   *p_oop = alloc_oop(p_instance, F_OLD | F_FIXED);
-  OBJ_SET_SIZE (p_instance, FROM_INT(BYTES_TO_SIZE(size)));
-  OBJ_SET_IDENTITY (p_instance, FROM_INT(0));
+  OBJ_SET_SIZE(p_instance, FROM_INT(BYTES_TO_SIZE(size)));
+  OBJ_SET_IDENTITY(p_instance, FROM_INT(0));
 
   return p_instance;
 }
@@ -681,14 +707,13 @@ ok:
 gst_object _gst_alloc_words(size_t size) {
   gst_object p_instance;
 
-  if (UNCOMMON (size >= _gst_mem.big_object_threshold)) {
+  if (UNCOMMON(size >= _gst_mem.big_object_threshold)) {
     abort();
   }
 
-  p_instance = (gst_object) gst_allocate_in_lab(_gst_mem.gen0,
-                                                &_gst_mem.tlab_per_thread[current_thread_id],
-                                                current_thread_id,
-                                                size);
+  p_instance = (gst_object)gst_allocate_in_lab(
+      _gst_mem.gen0, &_gst_mem.tlab_per_thread[current_thread_id],
+      current_thread_id, size);
   if (UNCOMMON(NULL == p_instance)) {
     // Check Too Big
     // Reallocate new TLAB Entry
@@ -696,8 +721,8 @@ gst_object _gst_alloc_words(size_t size) {
     return NULL;
   }
 
-  OBJ_SET_SIZE (p_instance, FROM_INT(size));
-  OBJ_SET_IDENTITY (p_instance, FROM_INT(0));
+  OBJ_SET_SIZE(p_instance, FROM_INT(size));
+  OBJ_SET_IDENTITY(p_instance, FROM_INT(0));
   return p_instance;
 }
 
@@ -723,7 +748,7 @@ void oldspace_before_freeing(heap_data *h, heap_block *blk, size_t sz) {
 #endif
 
   /* Remove related entries from the remembered table.  */
-  for (last = NULL, next = &_gst_mem.grey_pages.head; (node = *next);)
+  for (last = NULL, next = &_gst_mem.grey_pages.head; (node = *next);) {
     if (node->base >= (OOP *)blk &&
         node->base + node->n <= (OOP *)(((char *)blk) + sz)) {
 #ifdef MMAN_DEBUG_OUTPUT
@@ -738,6 +763,7 @@ void oldspace_before_freeing(heap_data *h, heap_block *blk, size_t sz) {
       last = node;
       next = &(node->next);
     }
+  }
 
   _gst_mem.grey_pages.tail = last;
   _gst_mem_protect((PTR)blk, sz, PROT_READ | PROT_WRITE);
@@ -749,9 +775,9 @@ heap_data *oldspace_nomemory(heap_data *h, size_t sz) {
   assert(h == _gst_mem.old || h == _gst_mem.fixed);
   p_heap = (h == _gst_mem.old ? &_gst_mem.old : &_gst_mem.fixed);
 
-  if (!_gst_gc_running)
+  if (!_gst_gc_running) {
     _gst_global_gc(sz);
-  else {
+  } else {
     /* Already garbage collecting, emergency growth just to satisfy
        tenuring necessities.  */
     int grow_amount_to_satisfy_rate =
@@ -808,13 +834,15 @@ int oldspace_sigsegv_handler(void *fault_address, int serious) {
 void update_stats(unsigned long *last, double *between, double *duration) {
   unsigned long now = _gst_get_milli_time();
   unsigned long since = now - *last;
-  if (between)
+  if (between) {
     *between = _gst_mem.factor * *between + (1 - _gst_mem.factor) * since;
+  }
 
-  if (duration)
+  if (duration) {
     *duration = _gst_mem.factor * *duration + (1 - _gst_mem.factor) * since;
-  else
+  } else {
     *last = now;
+  }
 }
 
 void _gst_grow_memory_to(size_t spaceSize) { compact(spaceSize); }
@@ -851,7 +879,7 @@ void compact(size_t new_heap_limit) {
     PREFETCH_LOOP(oop, PREF_READ | PREF_NTA);
     if ((OOP_GET_FLAGS(oop) & (F_OLD | F_FIXED | F_LOADED)) == F_OLD) {
       gst_object new;
-      size_t size = SIZE_TO_BYTES(TO_INT(OBJ_SIZE (OOP_TO_OBJ(oop))));
+      size_t size = SIZE_TO_BYTES(TO_INT(OBJ_SIZE(OOP_TO_OBJ(oop))));
       new = _gst_mem_alloc(new_heap, size);
       memcpy(new, OOP_TO_OBJ(oop), size);
       _gst_mem_free(_gst_mem.old, OOP_TO_OBJ(oop));
@@ -969,8 +997,9 @@ void _gst_global_gc(int next_allocation) {
   }
 
   /* If the heap was grown, don't reset the old limit! */
-  if (!_gst_mem.old->heap_limit)
+  if (!_gst_mem.old->heap_limit) {
     _gst_mem.old->heap_limit = old_limit;
+  }
 
   _gst_invalidate_croutine_cache();
   mourn_objects();
@@ -988,9 +1017,9 @@ void _gst_scavenge(void) {
                    _gst_mem.grow_threshold_percent ||
                _gst_mem.fixed->heap_total * 100.0 / _gst_mem.fixed->heap_limit >
                    _gst_mem.grow_threshold_percent) {
-      _gst_global_gc(0);
-      _gst_incremental_gc_step();
-      return;
+    _gst_global_gc(0);
+    _gst_incremental_gc_step();
+    return;
   }
 
   if (!_gst_gc_running++ && _gst_gc_message && _gst_verbosity > 2 &&
@@ -1028,8 +1057,9 @@ void _gst_scavenge(void) {
   update_stats(&stats.timeOfLastScavenge, NULL, &_gst_mem.timeToScavenge);
 
   reclaimedBytes = oldBytes - _gst_mem.active_half->allocated;
-  if (reclaimedBytes < 0)
+  if (reclaimedBytes < 0) {
     reclaimedBytes = 0;
+  }
 
   tenuredBytes = _gst_mem.active_half->allocated - _gst_mem.active_half->filled;
   reclaimedPercent = 100.0 * reclaimedBytes / oldBytes;
@@ -1040,7 +1070,7 @@ void _gst_scavenge(void) {
     fflush(stderr);
   }
 
- _gst_mem.reclaimedBytesPerScavenge =
+  _gst_mem.reclaimedBytesPerScavenge =
       _gst_mem.factor * reclaimedBytes +
       (1 - _gst_mem.factor) * _gst_mem.reclaimedBytesPerScavenge;
 
@@ -1087,8 +1117,9 @@ void _gst_finish_incremental_gc() {
     } else {
       _gst_sweep_oop(oop);
       _gst_mem.num_free_oops++;
-      if (oop == _gst_mem.last_allocated_oop)
+      if (oop == _gst_mem.last_allocated_oop) {
         OOP_PREV(_gst_mem.last_allocated_oop);
+      }
     }
   }
 
@@ -1097,8 +1128,9 @@ void _gst_finish_incremental_gc() {
 }
 
 void _gst_finished_incremental_gc(void) {
-  if (_gst_mem.live_flags & F_OLD)
+  if (_gst_mem.live_flags & F_OLD) {
     return;
+  }
 
   _gst_mem.live_flags &= ~F_REACHABLE;
   _gst_mem.live_flags |= F_OLD;
@@ -1132,8 +1164,9 @@ bool _gst_incremental_gc_step() {
     } else {
       _gst_sweep_oop(oop);
       _gst_mem.num_free_oops++;
-      if (oop == _gst_mem.last_allocated_oop)
+      if (oop == _gst_mem.last_allocated_oop) {
         OOP_PREV(_gst_mem.last_allocated_oop);
+      }
       if (++i == INCREMENTAL_SWEEP_STEP) {
         _gst_mem.next_oop_to_sweep = OOP_PREV(oop);
         return false;
@@ -1166,8 +1199,11 @@ void reset_incremental_gc(OOP firstOOP) {
       _gst_mem.ot_size - (_gst_mem.last_allocated_oop - _gst_mem.ot);
 
   /* Check if it's time to grow the OOP table.  */
-  if (_gst_mem.num_free_oops * 100.0 / _gst_mem.ot_size < 100 - _gst_mem.grow_threshold_percent) {
-    _gst_realloc_oop_table(((_gst_mem.ot_size * (100 + _gst_mem.space_grow_rate) / 100) + 0x8000) & ~0x7FFF);
+  if (_gst_mem.num_free_oops * 100.0 / _gst_mem.ot_size <
+      100 - _gst_mem.grow_threshold_percent) {
+    _gst_realloc_oop_table(
+        ((_gst_mem.ot_size * (100 + _gst_mem.space_grow_rate) / 100) + 0x8000) &
+        ~0x7FFF);
   }
 
 #if defined(GC_DEBUG_OUTPUT)
@@ -1179,8 +1215,9 @@ void reset_incremental_gc(OOP firstOOP) {
 }
 
 void _gst_sweep_oop(OOP oop) {
-  if (IS_OOP_FREE(oop))
+  if (IS_OOP_FREE(oop)) {
     return;
+  }
 
   if UNCOMMON (OOP_GET_FLAGS(oop) & F_WEAK)
     _gst_make_oop_non_weak(oop);
@@ -1189,15 +1226,17 @@ void _gst_sweep_oop(OOP oop) {
   if UNCOMMON (OOP_GET_FLAGS(oop) & F_FIXED) {
     _gst_mem.numOldOOPs--;
     stats.reclaimedOldSpaceBytesSinceLastGlobalGC +=
-        SIZE_TO_BYTES(TO_INT(OBJ_SIZE (OOP_TO_OBJ(oop))));
-    if ((OOP_GET_FLAGS(oop) & F_LOADED) == 0)
+        SIZE_TO_BYTES(TO_INT(OBJ_SIZE(OOP_TO_OBJ(oop))));
+    if ((OOP_GET_FLAGS(oop) & F_LOADED) == 0) {
       _gst_mem_free(_gst_mem.fixed, OOP_TO_OBJ(oop));
+    }
   } else if UNCOMMON (OOP_GET_FLAGS(oop) & F_OLD) {
     _gst_mem.numOldOOPs--;
     stats.reclaimedOldSpaceBytesSinceLastGlobalGC +=
-        SIZE_TO_BYTES(TO_INT(OBJ_SIZE (OOP_TO_OBJ(oop))));
-    if ((OOP_GET_FLAGS(oop) & F_LOADED) == 0)
+        SIZE_TO_BYTES(TO_INT(OBJ_SIZE(OOP_TO_OBJ(oop))));
+    if ((OOP_GET_FLAGS(oop) & F_LOADED) == 0) {
       _gst_mem_free(_gst_mem.old, OOP_TO_OBJ(oop));
+    }
   }
 
   OOP_SET_FLAGS(oop, 0);
@@ -1209,7 +1248,8 @@ void _gst_sweep_oop(OOP oop) {
   }
 }
 
-gst_object unsafe_new_instance_with(OOP class_oop, size_t numIndexFields, OOP *p_oop) {
+gst_object unsafe_new_instance_with(OOP class_oop, size_t numIndexFields,
+                                    OOP *p_oop) {
   size_t numBytes, alignedBytes;
   intptr_t instanceSpec;
   gst_object p_instance;
@@ -1234,8 +1274,9 @@ void mourn_objects(void) {
   gst_object processor;
 
   size = _gst_buffer_size() / sizeof(OOP);
-  if (!size)
+  if (!size) {
     return;
+  }
 
   processor = OOP_TO_OBJ(_gst_processor_oop[0]);
   if (!IS_NIL(OBJ_PROCESSOR_SCHEDULER_GET_GC_ARRAY(processor))) {
@@ -1243,7 +1284,9 @@ void mourn_objects(void) {
     _gst_errorf("This is a bug, please report.");
   } else {
     /* Copy the buffer into an Array */
-    array = unsafe_new_instance_with(_gst_array_class, size, &OBJ_PROCESSOR_SCHEDULER_GET_GC_ARRAY(processor));
+    array = unsafe_new_instance_with(
+        _gst_array_class, size,
+        &OBJ_PROCESSOR_SCHEDULER_GET_GC_ARRAY(processor));
     _gst_copy_buffer(array->data);
     if (!IS_NIL(OBJ_PROCESSOR_SCHEDULER_GET_GC_SEMAPHORE(processor))) {
       static async_queue_entry e;
@@ -1307,12 +1350,13 @@ OOP *queue_put(surv_space *q, OOP *src, int n) {
     break;
   }
 
-  if (!IS_QUEUE_SPLIT(q))
+  if (!IS_QUEUE_SPLIT(q)) {
     /* We are still extending towards the top.  Push further the
        valid area (which is space...topPtr and minPtr...allocPtr
        if topPtr != allocPtr (not circular yet), space...allocPtr
        if topPtr == allocPtr (circular).  */
     q->topPtr = newAlloc;
+  }
 
   q->filled += n * sizeof(PTR);
   q->allocated += n * sizeof(PTR);
@@ -1349,16 +1393,18 @@ void tenure_one_object() {
        to wrap!  */
     _gst_mem.scan.queue_at++;
     if (_gst_mem.scan.queue_at >= _gst_mem.tenuring_queue.topPtr &&
-        IS_QUEUE_SPLIT(&_gst_mem.tenuring_queue))
+        IS_QUEUE_SPLIT(&_gst_mem.tenuring_queue)) {
       _gst_mem.scan.queue_at = _gst_mem.tenuring_queue.minPtr;
+    }
 
     _gst_tenure_oop(oop);
     add_grey_object(oop);
-  } else
+  } else {
     _gst_tenure_oop(oop);
+  }
 
   queue_get(&_gst_mem.tenuring_queue, 1);
-  queue_get(_gst_mem.active_half, TO_INT(OBJ_SIZE (OOP_TO_OBJ(oop))));
+  queue_get(_gst_mem.active_half, TO_INT(OBJ_SIZE(OOP_TO_OBJ(oop))));
 }
 
 void _gst_grey_oop_range(PTR from, size_t size) {
@@ -1376,20 +1422,22 @@ void add_grey_object(OOP oop) {
   grey_area_node *entry;
   gst_object obj = OOP_TO_OBJ(oop);
   size_t numFields = scanned_fields_in(obj, OOP_GET_FLAGS(oop));
-  OOP *base = (OOP *) obj;
+  OOP *base = (OOP *)obj;
 
-  if (!numFields)
+  if (!numFields) {
     return;
+  }
 
   entry = (grey_area_node *)xmalloc(sizeof(grey_area_node));
   entry->base = base;
   entry->n = numFields;
   entry->oop = oop;
   entry->next = NULL;
-  if (_gst_mem.grey_areas.tail)
+  if (_gst_mem.grey_areas.tail) {
     _gst_mem.grey_areas.tail->next = entry;
-  else
+  } else {
     _gst_mem.grey_areas.head = entry;
+  }
 
   _gst_mem.grey_areas.tail = entry;
 }
@@ -1400,10 +1448,11 @@ void add_to_grey_list(OOP *base, size_t n) {
   entry->n = n;
   entry->oop = NULL;
   entry->next = NULL;
-  if (_gst_mem.grey_pages.tail)
+  if (_gst_mem.grey_pages.tail) {
     _gst_mem.grey_pages.tail->next = entry;
-  else
+  } else {
     _gst_mem.grey_pages.head = entry;
+  }
 
   _gst_mem.grey_pages.tail = entry;
 }
@@ -1432,15 +1481,17 @@ void check_weak_refs() {
     int n;
 
     oop = area->oop;
-    if (!IS_OOP_VALID_GC(oop))
+    if (!IS_OOP_VALID_GC(oop)) {
       continue;
+    }
 
     for (field = (OOP *)OOP_TO_OBJ(oop) + OBJ_HEADER_SIZE_WORDS,
         n = NUM_OOPS(OOP_TO_OBJ(oop));
          n--; field++) {
       OOP oop = *field;
-      if (IS_INT(oop))
+      if (IS_INT(oop)) {
         continue;
+      }
 
       if (!IS_OOP_VALID_GC(oop)) {
         mourn = true;
@@ -1448,8 +1499,9 @@ void check_weak_refs() {
       }
     }
 
-    if (mourn)
+    if (mourn) {
       _gst_add_buf_pointer(area->oop);
+    }
   }
 }
 
@@ -1494,28 +1546,33 @@ void _gst_print_grey_list(bool check_pointers) {
 
   for (n = 0, node = _gst_mem.grey_pages.head; node; node = node->next, n++) {
     int new_pointers = 0;
-    if (check_pointers)
+    if (check_pointers) {
       for (new_pointers = 0, pOOP = node->base, i = node->n; i--; pOOP++) {
         PREFETCH_LOOP(pOOP, PREF_READ | PREF_NTA);
         oop = *pOOP;
 
         /* Not all addresses are known to contain valid OOPs! */
-        if (!IS_OOP_ADDR(oop))
+        if (!IS_OOP_ADDR(oop)) {
           continue;
+        }
 
-        if (!IS_OOP_NEW(oop))
+        if (!IS_OOP_NEW(oop)) {
           continue;
+        }
 
         new_pointers++;
       }
+    }
 
     printf("%11p%c ", node->base, new_pointers == 0 ? ' ' : '*');
-    if ((n & 3) == 3)
+    if ((n & 3) == 3) {
       putchar('\n');
+    }
   }
 
-  if (_gst_mem.grey_pages.tail)
+  if (_gst_mem.grey_pages.tail) {
     printf("  (tail = %12p)", _gst_mem.grey_pages.tail->base);
+  }
 
   printf("\n");
 }
@@ -1546,15 +1603,18 @@ void scan_grey_pages() {
       oop = *pOOP;
 
       /* Not all addresses are known to contain valid OOPs! */
-      if (!IS_OOP_ADDR(oop))
+      if (!IS_OOP_ADDR(oop)) {
         continue;
+      }
 
-      if (!IS_OOP_NEW(oop))
+      if (!IS_OOP_NEW(oop)) {
         continue;
+      }
 
       n++;
-      if (!IS_OOP_COPIED(oop))
+      if (!IS_OOP_COPIED(oop)) {
         _gst_copy_an_oop(oop);
+      }
     }
 
 #if !defined(NO_SIGSEGV_HANDLING)
@@ -1605,8 +1665,8 @@ void scan_grey_objects() {
 
     if (OOP_GET_FLAGS(oop) & F_EPHEMERON) {
       OOP key = obj->data[0];
-      _gst_copy_oop_range((OOP *)obj, ((OOP *) obj) + OBJ_HEADER_SIZE_WORDS);
-      _gst_copy_oop_range(&obj->data[1], ((OOP *) obj) + node->n);
+      _gst_copy_oop_range((OOP *)obj, ((OOP *)obj) + OBJ_HEADER_SIZE_WORDS);
+      _gst_copy_oop_range(&obj->data[1], ((OOP *)obj) + node->n);
 
       /* Copy the key, mourn the object if it was not reachable.  */
       if (!IS_OOP_COPIED(key)) {
@@ -1619,14 +1679,16 @@ void scan_grey_objects() {
 
     _gst_mem.grey_areas.head = next = node->next;
     xfree(node);
-    if (!next)
+    if (!next) {
       _gst_mem.grey_areas.tail = NULL;
+    }
 
     cheney_scan();
 
     /* The scan might have greyed more areas.  */
-    if (!next)
+    if (!next) {
       next = _gst_mem.grey_areas.head;
+    }
   }
 }
 
@@ -1653,11 +1715,13 @@ void cheney_scan(void) {
     OOP oop;
     int i, numFields;
 
-    if (_gst_mem.scan.queue_at >= _gst_mem.tenuring_queue.topPtr)
+    if (_gst_mem.scan.queue_at >= _gst_mem.tenuring_queue.topPtr) {
       _gst_mem.scan.queue_at = _gst_mem.tenuring_queue.minPtr;
+    }
 
-    if (_gst_mem.scan.queue_at == _gst_mem.tenuring_queue.allocPtr)
+    if (_gst_mem.scan.queue_at == _gst_mem.tenuring_queue.allocPtr) {
       break;
+    }
 
     oop = *_gst_mem.scan.queue_at;
 
@@ -1674,8 +1738,9 @@ void cheney_scan(void) {
     _gst_mem.scan.current = oop;
     _gst_mem.scan.queue_at++;
 
-    if (OOP_GET_FLAGS(oop) & F_EPHEMERON)
+    if (OOP_GET_FLAGS(oop) & F_EPHEMERON) {
       continue;
+    }
 
     _gst_mem.scan.at = (OOP *)OOP_TO_OBJ(oop);
     numFields = scanned_fields_in(OOP_TO_OBJ(oop), OOP_GET_FLAGS(oop));
@@ -1692,8 +1757,9 @@ void cheney_scan(void) {
 
 void _gst_copy_oop_range(OOP *curOOP, OOP *atEndOOP) {
   OOP *pOOP;
-  for (pOOP = curOOP; pOOP < atEndOOP; pOOP++)
+  for (pOOP = curOOP; pOOP < atEndOOP; pOOP++) {
     MAYBE_COPY_OOP(*pOOP);
+  }
 }
 
 void _gst_copy_an_oop(OOP oop) {
@@ -1711,12 +1777,12 @@ void _gst_copy_an_oop(OOP oop) {
 #endif
 
 #if defined(GC_DEBUGGING)
-    if UNCOMMON (!IS_INT(OBJ_SIZE (obj))) {
+    if UNCOMMON (!IS_INT(OBJ_SIZE(obj))) {
       printf("Size not an integer in OOP %p (%p)\n", oop, obj);
       abort();
     }
 
-    if UNCOMMON (TO_INT(OBJ_SIZE (obj)) < 2) {
+    if UNCOMMON (TO_INT(OBJ_SIZE(obj)) < 2) {
       printf("Invalid size for OOP %p (%p)\n", oop, obj);
       abort();
     }
@@ -1737,7 +1803,7 @@ void _gst_copy_an_oop(OOP oop) {
 
     queue_put(&_gst_mem.tenuring_queue, &oop, 1);
     OOP_SET_OBJECT(oop, obj = (gst_object)queue_put(_gst_mem.active_half, pData,
-                                                    TO_INT(OBJ_SIZE (obj))));
+                                                    TO_INT(OBJ_SIZE(obj))));
 
     OOP_SET_FLAGS(oop, OOP_GET_FLAGS(oop) & ~(F_SPACES | F_POOLED));
     OOP_SET_FLAGS(oop, OOP_GET_FLAGS(oop) | _gst_mem.active_flag);
@@ -1788,8 +1854,9 @@ void mark_ephemeron_oops(void) {
     gst_object obj = OOP_TO_OBJ(oop);
     OOP key = obj->data[0];
 
-    if (OOP_GET_FLAGS(key) & F_REACHABLE)
+    if (OOP_GET_FLAGS(key) & F_REACHABLE) {
       OOP_SET_FLAGS(oop, OOP_GET_FLAGS(oop) & ~F_EPHEMERON);
+    }
 
     OOP_SET_FLAGS(key, OOP_GET_FLAGS(key) | F_REACHABLE);
   }
@@ -1805,13 +1872,15 @@ void mark_ephemeron_oops(void) {
        we can mourn the ephemeron if this is not so).  */
     OOP_SET_FLAGS(key, OOP_GET_FLAGS(key) & ~F_REACHABLE);
 
-    for (j = 1; j < num; j++)
+    for (j = 1; j < num; j++) {
       MAYBE_MARK_OOP(obj->data[j]);
+    }
 
     /* Remember that above we cleared F_EPHEMERON if the key
        is alive.  */
-    if (!IS_OOP_MARKED(key) && (OOP_GET_FLAGS(oop) & F_EPHEMERON))
+    if (!IS_OOP_MARKED(key) && (OOP_GET_FLAGS(oop) & F_EPHEMERON)) {
       *pDeadOOP++ = oop;
+    }
 
     /* Ok, now mark the key.  */
     MAYBE_MARK_OOP(key);
@@ -1821,8 +1890,9 @@ void mark_ephemeron_oops(void) {
   }
 
   /* If more ephemerons were reachable from the object, go on...  */
-  if (_gst_buffer_size())
+  if (_gst_buffer_size()) {
     mark_ephemeron_oops();
+  }
 
   _gst_add_buf_data(base, (char *)pDeadOOP - (char *)base);
 }
@@ -1899,8 +1969,9 @@ markRange : {
     curOOP++;
   }
 
-  if (!firstOOP)
+  if (!firstOOP) {
     goto pop;
+  }
 
   TAIL_MARK_OOP(firstOOP);
 }
@@ -1936,8 +2007,9 @@ markOne : {
                        OBJ_METHOD_CONTEXT_CONTEXT_STACK(object) + methodSP + 1);
 
   } else if UNCOMMON (OOP_GET_FLAGS(oop) & (F_EPHEMERON | F_WEAK)) {
-    if (OOP_GET_FLAGS(oop) & F_EPHEMERON)
+    if (OOP_GET_FLAGS(oop) & F_EPHEMERON) {
       _gst_add_buf_pointer(oop);
+    }
 
     /* In general, there will be many instances of a class,
        but only the first time will it be unmarked.  So I'm
@@ -1964,8 +2036,9 @@ pop : {
 
 void _gst_mark_oop_range(OOP *curOOP, OOP *atEndOOP) {
   OOP *pOOP;
-  for (pOOP = curOOP; pOOP < atEndOOP; pOOP++)
+  for (pOOP = curOOP; pOOP < atEndOOP; pOOP++) {
     MAYBE_MARK_OOP(*pOOP);
+  }
 }
 
 void _gst_inc_init_registry(void) {

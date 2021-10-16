@@ -6,12 +6,11 @@ void add_to_grey_list(OOP *base, size_t n) {
   entry->n = n;
   entry->oop = NULL;
   entry->next = NULL;
-  if (_gst_mem.grey_pages.tail)
+  if (_gst_mem.grey_pages.tail) {
     _gst_mem.grey_pages.tail->next = entry;
-  else
+  } else {
     _gst_mem.grey_pages.head = entry;
+  }
 
   _gst_mem.grey_pages.tail = entry;
 }
-
-
