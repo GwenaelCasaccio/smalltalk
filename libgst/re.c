@@ -133,8 +133,9 @@ markRegexAsMRU (int i)
   int j;
 
   saved = cache[i];
-  for (j = i; j > 0; j--)
+  for (j = i; j > 0; j--) {
     cache[j] = cache[j - 1];
+}
 
   cache[0] = saved;
 }
@@ -162,30 +163,34 @@ lookupRegex (OOP patternOOP, struct pre_pattern_buffer **pRegex)
     }
 
   /* Search for the Regex object in the cache */
-  for (i = 0; i < REGEX_CACHE_SIZE; i++)
-    if (cache[i].patternOOP == patternOOP)
+  for (i = 0; i < REGEX_CACHE_SIZE; i++) {
+    if (cache[i].patternOOP == patternOOP) {
       break;
+}
+}
 
-  if (i < REGEX_CACHE_SIZE)
+  if (i < REGEX_CACHE_SIZE) {
     result = REGEX_CACHE_HIT;
 
-  else
+  } else
     {
       /* Kick out the least recently used regexp */
       i--;
       result = REGEX_CACHE_MISS;
 
       /* Register the objects we're caching with the virtual machine */
-      if (cache[i].patternOOP)
+      if (cache[i].patternOOP) {
 	_gst_unregister_oop (cache[i].patternOOP);
+}
 
       _gst_register_oop (patternOOP);
       cache[i].patternOOP = patternOOP;
     }
 
   /* Mark the object as most recently used */
-  if (!cache[i].regex)
+  if (!cache[i].regex) {
     cache[i].regex = allocateNewRegex ();
+}
 
   markRegexAsMRU (i);
   *pRegex = cache[0].regex;
@@ -207,11 +212,13 @@ _gst_re_make_cacheable (OOP patternOOP)
   int patternLength;
   int i;
 
-  if (!regexClassOOP)
+  if (!regexClassOOP) {
     init_re ();
+}
 
-  if (IS_OOP_READONLY (patternOOP))
+  if (IS_OOP_READONLY (patternOOP)) {
     return patternOOP;
+}
 
   /* Search in the cache */
   patternLength = _gst_basic_size (patternOOP);
@@ -219,8 +226,9 @@ _gst_re_make_cacheable (OOP patternOOP)
 
   for (i = 0; i < REGEX_CACHE_SIZE; i++)
     {
-      if (!cache[i].regex)
+      if (!cache[i].regex) {
 	break;
+}
 
       regexOOP = cache[i].patternOOP;
       regex = &OBJ_STRING_AT (OOP_TO_OBJ (regexOOP), 1);
@@ -241,10 +249,11 @@ _gst_re_make_cacheable (OOP patternOOP)
    * is well-formed).
    */
   lookupRegex (regexOOP, &compiled);
-  if (compileRegex (patternOOP, compiled) != NULL)
+  if (compileRegex (patternOOP, compiled) != NULL) {
     return _gst_nil_oop;
-  else
+  } else {
     return regexOOP;
+}
 }
 
 
@@ -274,8 +283,9 @@ make_re_results (OOP srcOOP, struct pre_registers *regs)
   gst_registers results;
 
   int i;
-  if (!regs->beg || regs->beg[0] == -1)
+  if (!regs->beg || regs->beg[0] == -1) {
     return _gst_nil_oop;
+}
 
   resultsOOP = _gst_object_alloc (resultsClassOOP, 0);
   results = (gst_registers) OOP_TO_OBJ (resultsOOP);
@@ -292,9 +302,9 @@ make_re_results (OOP srcOOP, struct pre_registers *regs)
   for (i = 1; i < regs->num_regs; i++)
     {
       OOP intervalOOP;
-      if (regs->beg[i] == -1)
+      if (regs->beg[i] == -1) {
 	intervalOOP = _gst_nil_oop;
-      else
+      } else
 	{
           gst_interval interval;
 	  intervalOOP = _gst_object_alloc (_gst_interval_class, 0);
@@ -323,20 +333,23 @@ _gst_re_search (OOP srcOOP, OOP patternOOP, int from, int to)
   RegexCaching caching;
   OOP resultOOP;
 
-  if (!regexClassOOP)
+  if (!regexClassOOP) {
     init_re ();
+}
 
   caching = lookupRegex (patternOOP, &regex);
-  if (caching != REGEX_CACHE_HIT && compileRegex (patternOOP, regex) != NULL)
+  if (caching != REGEX_CACHE_HIT && compileRegex (patternOOP, regex) != NULL) {
     return NULL;
+}
 
   /* now search */
   src = &OBJ_STRING_AT (OOP_TO_OBJ (srcOOP), 1);
   regs = (struct pre_registers *) calloc (1, sizeof (struct pre_registers));
   pre_search (regex, src, to, from - 1, to - from + 1, regs);
 
-  if (caching == REGEX_NOT_CACHED)
+  if (caching == REGEX_NOT_CACHED) {
     pre_free_pattern (regex);
+}
 
   resultOOP = make_re_results (srcOOP, regs);
   pre_free_registers(regs);
@@ -355,19 +368,22 @@ _gst_re_match (OOP srcOOP, OOP patternOOP, int from, int to)
   struct pre_pattern_buffer *regex;
   RegexCaching caching;
 
-  if (!regexClassOOP)
+  if (!regexClassOOP) {
     init_re ();
+}
 
   caching = lookupRegex (patternOOP, &regex);
-  if (caching != REGEX_CACHE_HIT && compileRegex (patternOOP, regex) != NULL)
+  if (caching != REGEX_CACHE_HIT && compileRegex (patternOOP, regex) != NULL) {
     return -100;
+}
 
   /* now search */
   src = &OBJ_STRING_AT (OOP_TO_OBJ (srcOOP), 1);
   res = pre_match (regex, src, to, from - 1, NULL);
 
-  if (caching == REGEX_NOT_CACHED)
+  if (caching == REGEX_NOT_CACHED) {
     pre_free_pattern (regex);
+}
 
   return res;
 }

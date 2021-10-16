@@ -112,8 +112,9 @@ _gst_heap_create (PTR address, size_t size)
       pageround = pagesize - 1;
     }
 
-  if (address)
+  if (address) {
     address = (char *) address - HEAP_DELTA;
+}
 
   /* We start off with the heap descriptor allocated on the stack,
      until we build it up enough to call heap_sbrk_internal() to
@@ -126,8 +127,9 @@ _gst_heap_create (PTR address, size_t size)
   hdp->areasize = size;
   hdp->base = _gst_osmem_reserve (address, size);
 
-  if (!hdp->base)
+  if (!hdp->base) {
     return NULL;
+}
 
   /* Now try to map in the first page, copy the heap descriptor
      structure there, and arrange to return a pointer to this new copy. 
@@ -164,10 +166,10 @@ _gst_heap_destroy (heap hd)
   /* Now unmap all the pages associated with this region by asking
      for a negative increment equal to the current size of the
      region.  */
-  if ((heap_sbrk_internal (&mtemp, mtemp.base - mtemp.top)) == NULL)
+  if ((heap_sbrk_internal (&mtemp, mtemp.base - mtemp.top)) == NULL) {
     /* Update the original heap descriptor with any changes */
     *(struct heap *) (hd - HEAP_DELTA) = mtemp;
-  else
+  } else
     {
       _gst_osmem_release (mtemp.base, mtemp.areasize);
       hd = NULL;
@@ -197,11 +199,11 @@ heap_sbrk_internal (struct heap * hdp,
 				   value" to */
   char *mapto;			/* Address we actually mapped to */
 
-  if (size == 0)
+  if (size == 0) {
     /* Just return the current "break" value.  */
     result = hdp->breakval;
 
-  else if (size < 0)
+  } else if (size < 0)
     {
       /* We are deallocating memory.  If the amount requested would
          cause us to try to deallocate back past the base of the mmap'd 
@@ -228,9 +230,9 @@ heap_sbrk_internal (struct heap * hdp,
       moveto = PAGE_ALIGN (hdp->breakval + size);
       mapbytes = moveto - hdp->top;
       mapto = _gst_osmem_commit (hdp->top, mapbytes);
-      if (!mapto)
+      if (!mapto) {
 	errno = ENOMEM;
-      else
+      } else
 	{
 	  hdp->top = moveto;
 	  result = (PTR) hdp->breakval;

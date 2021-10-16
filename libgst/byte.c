@@ -95,15 +95,17 @@ compile_byte (gst_uchar byte, int arg)
   int num_bytes;
   long n;
 
-  for (num_bytes = 2, n = arg; n > 255; n >>= 8)
+  for (num_bytes = 2, n = arg; n > 255; n >>= 8) {
     num_bytes += 2;
+}
 
   assert (_gst_cur_bytecodes);
 
   if ((_gst_cur_bytecodes->ptr - _gst_cur_bytecodes->base) >
-	   _gst_cur_bytecodes->maxLen - num_bytes)
+	   _gst_cur_bytecodes->maxLen - num_bytes) {
 
     realloc_bytecodes (_gst_cur_bytecodes, BYTECODE_CHUNK_SIZE);
+}
 
 
   while (num_bytes > 2)
@@ -120,8 +122,9 @@ compile_byte (gst_uchar byte, int arg)
 void
 _gst_line_number (int n, int flags)
 {
-  if (n > 65535)
+  if (n > 65535) {
     n = 65535;
+}
 
   if (flags & LN_RESET)
     {
@@ -129,8 +132,9 @@ _gst_line_number (int n, int flags)
       assert (n > 0);
       if (flags & LN_ABSOLUTE)
 	{
-          if (!_gst_omit_line_numbers)
+          if (!_gst_omit_line_numbers) {
 	    compile_byte (LINE_NUMBER_BYTECODE, n);
+}
 	  _gst_compiler_state->prev_line = n;
 	}
       _gst_compiler_state->line_offset = n - 1;
@@ -161,8 +165,9 @@ _gst_compile_byte (gst_uchar byte, int arg)
 {
   if (next_line_number != -1)
     {
-      if (!_gst_omit_line_numbers)
+      if (!_gst_omit_line_numbers) {
         compile_byte (LINE_NUMBER_BYTECODE, next_line_number);
+}
       next_line_number = -1;
     }
 
@@ -224,8 +229,9 @@ _gst_restore_bytecode_array (bc_vector bytecodes)
 int
 _gst_bytecode_length (bc_vector bytecodes)
 {
-  if (bytecodes == NULL)
+  if (bytecodes == NULL) {
     return (0);
+}
 
   return (bytecodes->ptr - bytecodes->base);
 }
@@ -234,8 +240,9 @@ _gst_bytecode_length (bc_vector bytecodes)
 int
 _gst_current_bytecode_length (void)
 {
-  if (_gst_cur_bytecodes == NULL)
+  if (_gst_cur_bytecodes == NULL) {
     return (0);
+}
 
   return (_gst_cur_bytecodes->ptr - _gst_cur_bytecodes->base);
 }
@@ -263,8 +270,9 @@ _gst_print_bytecodes (bc_vector bytecodes,
   gst_uchar *b;
   int ip;
 
-  if (bytecodes == NULL)
+  if (bytecodes == NULL) {
     return;
+}
 
   for (b = bytecodes->base; b < bytecodes->ptr; )
     {
@@ -448,9 +456,10 @@ _gst_compile_bytecodes (gst_uchar * from,
   free = _gst_cur_bytecodes->maxLen -
     (_gst_cur_bytecodes->ptr - _gst_cur_bytecodes->base);
 
-  if (free < (to - from))
+  if (free < (to - from)) {
       realloc_bytecodes (_gst_cur_bytecodes,
 		         BYTECODE_CHUNK_SIZE + (to - from) - free);
+}
 
   memcpy (_gst_cur_bytecodes->ptr, from, to - from);
   _gst_cur_bytecodes->ptr += to - from;

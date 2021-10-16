@@ -235,16 +235,18 @@ _gst_is_simple_return (bc_vector bytecodes,
   int i;
 
   *literalOOP = NULL;
-  if (bytecodes == NULL)
+  if (bytecodes == NULL) {
     return (MTH_NORMAL);
+}
 
   bytes = bytecodes->base;
 
   for (i = 1; i <= 4; i++)
     {
       int should_have_been_return = (maybe != MTH_NORMAL);
-      if (bytes == bytecodes->ptr)
+      if (bytes == bytecodes->ptr) {
         return (MTH_NORMAL);
+}
 
       MATCH_BYTECODES (IS_SIMPLE_RETURN, bytes, (
         PUSH_SELF { maybe = MTH_RETURN_SELF; }
@@ -283,8 +285,9 @@ _gst_is_simple_return (bc_vector bytecodes,
         INVALID { abort(); }
       ));
 
-      if (should_have_been_return)
+      if (should_have_been_return) {
 	return (MTH_NORMAL);
+}
     }
 
   return (MTH_NORMAL);
@@ -358,8 +361,9 @@ check_inner_block (OOP blockOOP)
   int newStatus;
   gst_compiled_block block;
 
-  if (!IS_CLASS (blockOOP, _gst_compiled_block_class))
+  if (!IS_CLASS (blockOOP, _gst_compiled_block_class)) {
     return (0);
+}
 
   /* Check the cleanness of the inner block and adequately change the status. 
      full block: no way dude -- exit immediately
@@ -390,14 +394,15 @@ compare_blocks (const PTR a, const PTR b)
   const block_boundary *bb = (const block_boundary *) b;
 
   /* Sort by bytecode.  */
-  if (ba->end != bb->end)
+  if (ba->end != bb->end) {
     return (ba->end - bb->end);
 
   /* Put first the element representing the jump.  */
-  else if (ba->kind != -1 && bb->kind == -1)
+  } else if (ba->kind != -1 && bb->kind == -1) {
     return -1;
-  else if (bb->kind != -1 && ba->kind == -1)
+  } else if (bb->kind != -1 && ba->kind == -1) {
     return 1;
+}
 
   return 0;
 }
@@ -419,14 +424,15 @@ compute_jump_length (int ofs)
      the jump offset increases in absolute value when jumping back).  This
      means the actual range for backwards jumps is a little less than 2^8k
      bytes, while for forwards jumps it is a little more than 2^8k bytes.  */
-  if (ofs > -254 && ofs < 258)
+  if (ofs > -254 && ofs < 258) {
     return 2;
-  else if (ofs > -65532 && ofs < 65540)
+  } else if (ofs > -65532 && ofs < 65540) {
     return 4;
-  else if (ofs > -16777210 && ofs < 16777222)
+  } else if (ofs > -16777210 && ofs < 16777222) {
     return 6;
-  else
+  } else {
     return 8;
+}
 }
 
 bc_vector
@@ -553,8 +559,9 @@ _gst_optimize_bytecodes (bc_vector bytecodes)
 	}
       while (canOptimizeJump);
 
-      while (*bp == EXT_BYTE)
+      while (*bp == EXT_BYTE) {
 	bp += BYTECODE_SIZE;
+}
       bp += BYTECODE_SIZE;
 
       if (split)
@@ -589,25 +596,28 @@ _gst_optimize_bytecodes (bc_vector bytecodes)
   for (block = blocks; block != last; block++)
     {
       block->start = i;
-      if (block->end == i)
+      if (block->end == i) {
 	continue;
+}
 
       i = block->end;
       bp = bytecodes->base + block->end;
       if (bp[-2] == JUMP || bp[-2] == JUMP_BACK
 	  || bp[-2] == POP_JUMP_TRUE || bp[-2] == POP_JUMP_FALSE)
 	{
-	  do
+	  do {
 	    block->end -= BYTECODE_SIZE, bp -= BYTECODE_SIZE;
-	  while (block->end != block->start && bp[-2] == EXT_BYTE);
+	  } while (block->end != block->start && bp[-2] == EXT_BYTE);
 	}
     }
 
   /* ... and computing the destination of the jump as a basic block */
-  for (block = blocks; block != last; block++)
-    if (block->kind != -1)
+  for (block = blocks; block != last; block++) {
+    if (block->kind != -1) {
       block->dest_bb = bsearch (&block->dest, blocks, last - blocks,
 				sizeof (block_boundary), search_block);
+}
+}
 
   /* Optimize the single basic blocks.  */
   i = 0;
@@ -652,12 +662,13 @@ _gst_optimize_bytecodes (bc_vector bytecodes)
 	      block->final_byte = i;
 	      changed = true;
 	    }
-          if (block->kind != -1)
+          if (block->kind != -1) {
 	    jump_length =
 	      compute_jump_length (block->dest_bb->final_byte
 				   - (block->final_byte + block->opt_length));
-          else
+          } else {
 	    jump_length = 0;
+}
           i += block->opt_length + jump_length;
 	}
     }
@@ -677,8 +688,9 @@ _gst_optimize_bytecodes (bc_vector bytecodes)
           int ofs = block->dest_bb->final_byte
 		    - (block->final_byte + block->opt_length + jump_length);
 
-	  if (ofs < 0)
+	  if (ofs < 0) {
 	    ofs = -ofs;
+}
 	  _gst_compile_byte (block->kind, ofs);
 	}
     }
@@ -708,14 +720,16 @@ search_superop_fixed_arg_1(int bc1, int arg, int bc2)
 
   register const struct superop_with_fixed_arg_1_type *k;
 
-  if (key > MAX_HASH_VALUE)
+  if (key > MAX_HASH_VALUE) {
     return -1;
+}
 
   k = &keylist[key];
-  if (bc1 == k->bytes[0] && bc2 == k->bytes[1] && arg == k->bytes[2])
+  if (bc1 == k->bytes[0] && bc2 == k->bytes[1] && arg == k->bytes[2]) {
     return k->superop;
-  else
+  } else {
     return -1;
+}
 }
 
 
@@ -737,14 +751,16 @@ search_superop_fixed_arg_2(int bc1, int bc2, int arg)
 
   register const struct superop_with_fixed_arg_2_type *k;
 
-  if (key > MAX_HASH_VALUE)
+  if (key > MAX_HASH_VALUE) {
     return -1;
+}
 
   k = &keylist[key];
-  if (bc1 == k->bytes[0] && bc2 == k->bytes[1] && arg == k->bytes[2])
+  if (bc1 == k->bytes[0] && bc2 == k->bytes[1] && arg == k->bytes[2]) {
     return k->superop;
-  else
+  } else {
     return -1;
+}
 }
 
 int
@@ -757,8 +773,9 @@ optimize_basic_block (gst_uchar *from,
   /* Points to the unoptimized bytecodes as they are read.  */
   gst_uchar *bp = from;
 
-  if (from == to)
+  if (from == to) {
     return 0;
+}
 
   do
     {
@@ -818,8 +835,9 @@ optimize_basic_block (gst_uchar *from,
         /* Remove the pop in a pop/push/return sequence */
         if (opt >= from + 2 && bp < to - 2
             && bp[2] == RETURN_CONTEXT_STACK_TOP
-            && opt[-2] == POP_STACK_TOP)
+            && opt[-2] == POP_STACK_TOP) {
           opt -= 2;
+}
 
         /* Rewrite the pop/line number/push sequence to
            line number/pop/push because this can be better
@@ -871,8 +889,9 @@ optimize_superoperators (gst_uchar * from,
 
   int new_bc;
 
-  if (from == to)
+  if (from == to) {
     return from;
+}
 
   *opt++ = *bp++;
   *opt++ = *bp++;
@@ -1126,8 +1145,9 @@ _gst_compute_stack_positions (gst_uchar * bp,
 	  worklist = susp_head;
 	  susp_head = susp_head->next;
 	  worklist->next = NULL;
-	  if (!susp_head)
+	  if (!susp_head) {
 	    susp_tail = &susp_head;
+}
 	}
     }
 }
@@ -1267,9 +1287,10 @@ merge_stacks (OOP *dest, int dest_sp,
       OOP newDest = *src;
       if (newDest != *src)
 	{
-	  if (*dest != FROM_INT (UNDEFINED))
+	  if (*dest != FROM_INT (UNDEFINED)) {
 	    /* If different, mark as overdefined.  */
 	    newDest = FROM_INT (VARYING);
+}
 
 	  if (newDest != *dest)
 	    {
@@ -1291,8 +1312,9 @@ _gst_verify_sent_method (OOP methodOOP)
   if (error)
     {
       _gst_errorf ("Bytecode verification failed: %s", error);
-      if (OOP_CLASS (methodOOP) == _gst_compiled_block_class)
+      if (OOP_CLASS (methodOOP) == _gst_compiled_block_class) {
         methodOOP = GET_BLOCK_METHOD (methodOOP);
+}
 
       _gst_errorf ("Method verification failed for %O>>%O",
                    GET_METHOD_CLASS (methodOOP),

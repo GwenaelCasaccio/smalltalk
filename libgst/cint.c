@@ -247,8 +247,9 @@ int _gst_errno = 0;
 void marli(int n) {
   int i;
 
-  for (i = 0; i < n; i++)
+  for (i = 0; i < n; i++) {
     printf("Marli loves Steve!!!\n");
+}
 }
 
 int get_errno(void) {
@@ -260,10 +261,11 @@ int get_errno(void) {
      the primitive still fails and the file/socket is closed by the
      Smalltalk code.  */
   if (old == ESHUTDOWN || old == ECONNRESET || old == ECONNABORTED ||
-      old == ENETRESET || old == EPIPE)
+      old == ENETRESET || old == EPIPE) {
     return 0;
-  else
+  } else {
     return (old);
+}
 }
 
 static inline int adjust_time(time_t t) {
@@ -366,8 +368,9 @@ int my_chdir(const char *dir) {
 
   status = chdir(dir);
 
-  if (status == 0)
+  if (status == 0) {
     errno = 0;
+}
   return (status);
 }
 
@@ -388,8 +391,9 @@ DIR *my_opendir(const char *dir) {
 
   result = opendir(dir);
 
-  if (result != 0)
+  if (result != 0) {
     errno = 0;
+}
   return (result);
 }
 
@@ -432,8 +436,9 @@ PTR dld_open(const char *filename) {
 
   /* Not all shared libraries have .xyz extensions! */
   handle = lt_dlopen(filename);
-  if (!handle)
+  if (!handle) {
     handle = lt_dlopenext(filename);
+}
 #ifdef __APPLE__
   if (!handle) {
     /* For some reason, lt_dlopenext on OS X doesn't try ".dylib" as
@@ -446,8 +451,9 @@ PTR dld_open(const char *filename) {
 #endif
   if (handle) {
     initModule = lt_dlsym(handle, "gst_initModule");
-    if (initModule)
+    if (initModule) {
       initModule(_gst_get_vmproxy());
+}
   }
 
   return (handle);
@@ -465,9 +471,10 @@ struct search_path_stack *search_paths;
 
 bool _gst_dlopen(const char *path, bool module) {
   PTR h = dld_open(path);
-  if (h && !module)
+  if (h && !module) {
     _gst_msg_sendf(NULL, "%v %o addLibraryHandle: %C",
                    _gst_class_name_to_oop("DLD"), h);
+}
   return !!h;
 }
 
@@ -485,8 +492,9 @@ void _gst_dlpushsearchpath(void) {
 
 void _gst_dlpopsearchpath(void) {
   struct search_path_stack *path = search_paths;
-  if (!path)
+  if (!path) {
     return;
+}
 
   lt_dlsetsearchpath(path->saved_search_path);
   search_paths = path->next;
@@ -502,8 +510,9 @@ void init_dld(void) {
   lt_dladdsearchdir(modules);
   free(modules);
 
-  if ((modules = getenv("SMALLTALK_MODULES")))
+  if ((modules = getenv("SMALLTALK_MODULES"))) {
     lt_dladdsearchdir(modules);
+}
 
   /* Too hard to support dlpreopen... LTDL_SET_PRELOADED_SYMBOLS(); */
 
@@ -593,11 +602,11 @@ void _gst_define_cfunc(const char *funcName, PTR funcAddr) {
     cfi = (cfunc_info *)*p;
 
     cmp = strcmp(funcName, cfi->funcName);
-    if (cmp < 0)
+    if (cmp < 0) {
       p = &(*p)->avl_left;
-    else if (cmp > 0)
+    } else if (cmp > 0) {
       p = &(*p)->avl_right;
-    else {
+    } else {
       cfi->funcAddr = funcAddr;
       return;
     }
@@ -620,8 +629,9 @@ PTR _gst_lookup_function(const char *funcName) {
     int cmp;
 
     cmp = strcmp(funcName, cfi->funcName);
-    if (cmp == 0)
+    if (cmp == 0) {
       return (PTR)cfi->funcAddr;
+}
 
     cfi = (cfunc_info *)(cmp < 0 ? cfi->avl.avl_left : cfi->avl.avl_right);
   }
@@ -716,12 +726,14 @@ OOP _gst_invoke_croutine(OOP cFuncOOP, OOP receiver, OOP *args) {
   INC_ADD_OOP(receiver);
 
   funcAddr = cobject_value(cFuncOOP);
-  if (!funcAddr)
+  if (!funcAddr) {
     return (NULL);
+}
 
   p_slot = pointer_map_insert(cif_cache, cFuncOOP);
-  if (!*p_slot)
+  if (!*p_slot) {
     *p_slot = xcalloc(1, sizeof(cfunc_cif_cache));
+}
 
   desc = (gst_c_callable)OOP_TO_OBJ(cFuncOOP);
   argTypes = OOP_TO_OBJ(desc->argTypesOOP)->data;
@@ -780,23 +792,25 @@ OOP _gst_invoke_croutine(OOP cFuncOOP, OOP receiver, OOP *args) {
 
   c_func_cur->arg_idx = 0;
 
-  for (i = 0; i < totalArgs; i++)
+  for (i = 0; i < totalArgs; i++) {
     ffi_arg_vec[i] = &local_arg_vec[i].u;
+}
 
   /* Push the arguments */
   for (si = i = 0; i < fixedArgs; i++) {
     bool res;
 
     cType = IS_OOP(argTypes[i]) ? CDATA_COBJECT : TO_INT(argTypes[i]);
-    if (cType == CDATA_VOID)
+    if (cType == CDATA_VOID) {
       continue;
 
-    else if (cType == CDATA_SELF || cType == CDATA_SELF_OOP)
+    } else if (cType == CDATA_SELF || cType == CDATA_SELF_OOP) {
       res = push_smalltalk_obj(receiver,
                                cType == CDATA_SELF ? CDATA_UNKNOWN : CDATA_OOP);
-    else
+    } else {
       /* Do nothing if it is a void */
       res = push_smalltalk_obj(args[si++], cType);
+}
 
     if (!res) {
       oop = NULL;
@@ -813,8 +827,9 @@ OOP _gst_invoke_croutine(OOP cFuncOOP, OOP receiver, OOP *args) {
 
     /* For variadic functions, we cannot cache the ffi_cif because
        the argument types change every time.  */
-    if (!haveVariadic)
+    if (!haveVariadic) {
       c_func_cur->cacheGeneration = cif_cache_generation;
+}
   }
 
   errno = 0;
@@ -829,30 +844,35 @@ OOP _gst_invoke_croutine(OOP cFuncOOP, OOP receiver, OOP *args) {
 
 out:
   /* Fixup all returned string variables */
-  if (needPostprocessing)
+  if (needPostprocessing) {
     for (i = 0, arg = local_arg_vec; i < filledArgs; i++, arg++) {
-      if (!arg->oop)
+      if (!arg->oop) {
         continue;
+}
 
       switch (arg->cType) {
       case CDATA_COBJECT_PTR:
-        if (oop)
+        if (oop) {
           set_cobject_value(arg->oop, arg->u.cObjectPtrVal.ptrVal);
+}
         continue;
 
       case CDATA_WSTRING_OUT:
-        if (oop)
+        if (oop) {
           _gst_set_oop_unicode_string(arg->oop, arg->u.ptrVal);
+}
         break;
 
       case CDATA_STRING_OUT:
-        if (oop)
+        if (oop) {
           _gst_set_oopstring(arg->oop, arg->u.ptrVal);
+}
         break;
 
       case CDATA_BYTEARRAY_OUT:
-        if (oop)
+        if (oop) {
           _gst_set_oop_bytes(arg->oop, arg->u.ptrVal);
+}
         break;
 
       default:
@@ -861,14 +881,16 @@ out:
 
       xfree(arg->u.ptrVal);
     }
+}
 
   INC_RESTORE_POINTER(incPtr);
   return (oop);
 }
 
 ffi_type *get_ffi_type(OOP returnTypeOOP) {
-  if (!IS_INT(returnTypeOOP))
+  if (!IS_INT(returnTypeOOP)) {
     return &ffi_type_pointer;
+}
 
   switch (TO_INT(returnTypeOOP)) {
   case CDATA_OOP:
@@ -931,7 +953,7 @@ ffi_type *get_ffi_type(OOP returnTypeOOP) {
 ffi_type *smalltalk_to_c(OOP oop, cparam *cp, cdata_type cType) {
   OOP class = OOP_INT_CLASS(oop);
 
-  if (cType == CDATA_UNKNOWN)
+  if (cType == CDATA_UNKNOWN) {
     cType =
         (oop == _gst_true_oop || oop == _gst_false_oop)
             ? CDATA_BOOLEAN
@@ -961,6 +983,7 @@ ffi_type *smalltalk_to_c(OOP oop, cparam *cp, cdata_type cType) {
                                                                   _gst_float_class)
                                                                   ? CDATA_DOUBLE
                                                                   : CDATA_OOP;
+}
 
   memset(cp, 0, sizeof(cparam));
   cp->cType = cType;
@@ -1062,10 +1085,11 @@ ffi_type *smalltalk_to_c(OOP oop, cparam *cp, cdata_type cType) {
             (cType == CDATA_SYMBOL || cType == CDATA_STRING))) {
     cp->oop = oop;
 
-    if (cp->cType == CDATA_BYTEARRAY || cp->cType == CDATA_BYTEARRAY_OUT)
+    if (cp->cType == CDATA_BYTEARRAY || cp->cType == CDATA_BYTEARRAY_OUT) {
       cp->u.ptrVal = _gst_to_byte_array(oop);
-    else
+    } else {
       cp->u.ptrVal = (gst_uchar *)_gst_to_cstring(oop);
+}
 
     return &ffi_type_pointer;
   }
@@ -1160,12 +1184,14 @@ bool push_smalltalk_obj(OOP oop, cdata_type cType) {
   } else {
     cparam *cp = &c_func_cur->args[c_func_cur->arg_idx];
     ffi_type *type = smalltalk_to_c(oop, cp, cType);
-    if (cp->oop && !IS_NIL(cp->oop))
+    if (cp->oop && !IS_NIL(cp->oop)) {
       INC_ADD_OOP(cp->oop);
-    if (type)
+}
+    if (type) {
       c_func_cur->types[c_func_cur->arg_idx++] = type;
-    else
+    } else {
       return false;
+}
   }
 
   return true;
@@ -1175,10 +1201,11 @@ OOP c_to_smalltalk(cparam *result, OOP receiverOOP, OOP returnTypeOOP) {
   cdata_type returnType;
   OOP resultOOP;
 
-  if (IS_INT(returnTypeOOP))
+  if (IS_INT(returnTypeOOP)) {
     returnType = (cdata_type)TO_INT(returnTypeOOP);
-  else
+  } else {
     returnType = CDATA_COBJECT;
+}
 
   switch (returnType) {
   case CDATA_VOID:
@@ -1238,30 +1265,35 @@ OOP c_to_smalltalk(cparam *result, OOP receiverOOP, OOP returnTypeOOP) {
   case CDATA_SYMBOL_OUT:
   case CDATA_COBJECT:
   case CDATA_OOP:
-    if (!result->u.ptrVal)
+    if (!result->u.ptrVal) {
       resultOOP = _gst_nil_oop;
-    else if (returnType == CDATA_OOP)
+    } else if (returnType == CDATA_OOP) {
       resultOOP = (OOP)result->u.ptrVal;
 
-    else if (returnType == CDATA_SYMBOL || returnType == CDATA_SYMBOL_OUT) {
+    } else if (returnType == CDATA_SYMBOL || returnType == CDATA_SYMBOL_OUT) {
       resultOOP = _gst_intern_string((char *)result->u.ptrVal);
-      if (returnType == CDATA_SYMBOL_OUT)
+      if (returnType == CDATA_SYMBOL_OUT) {
         xfree(result->u.ptrVal);
+}
     } else if (returnType == CDATA_COBJECT) {
-      if (IS_INT(returnTypeOOP))
+      if (IS_INT(returnTypeOOP)) {
         returnTypeOOP = _gst_nil_oop;
+}
       resultOOP =
           COBJECT_NEW(result->u.ptrVal, returnTypeOOP, _gst_c_object_class);
     } else if (returnType == CDATA_STRING || returnType == CDATA_STRING_OUT) {
       resultOOP = _gst_string_new((char *)result->u.ptrVal);
-      if (returnType == CDATA_STRING_OUT)
+      if (returnType == CDATA_STRING_OUT) {
         xfree(result->u.ptrVal);
+}
     } else if (returnType == CDATA_WSTRING || returnType == CDATA_WSTRING_OUT) {
       resultOOP = _gst_unicode_string_new((wchar_t *)result->u.ptrVal);
-      if (returnType == CDATA_WSTRING_OUT)
+      if (returnType == CDATA_WSTRING_OUT) {
         xfree(result->u.ptrVal);
-    } else
+}
+    } else {
       abort();
+}
     break;
 
   case CDATA_DOUBLE:
@@ -1284,12 +1316,13 @@ OOP c_to_smalltalk(cparam *result, OOP receiverOOP, OOP returnTypeOOP) {
 }
 
 void bad_type(OOP class_oop, cdata_type cType) {
-  if (IS_A_METACLASS(class_oop))
+  if (IS_A_METACLASS(class_oop)) {
     _gst_errorf("Attempt to pass the %O object as a %s", class_oop,
                 c_type_name[cType]);
-  else
+  } else {
     _gst_errorf("Attempt to pass an instance of %O as a %s", class_oop,
                 c_type_name[cType]);
+}
 }
 
 /* This function does the unmarshaling of the libffi arguments to Smalltalk,
@@ -1323,10 +1356,11 @@ static void closure_msg_send(ffi_cif *cif, void *result, void **args, void *user
   desc = (gst_c_callable)OOP_TO_OBJ(callbackOOP);
   cType =
       IS_OOP(desc->returnTypeOOP) ? CDATA_COBJECT : TO_INT(desc->returnTypeOOP);
-  if (cType != CDATA_VOID && smalltalk_to_c(resultOOP, &cp, cType))
+  if (cType != CDATA_VOID && smalltalk_to_c(resultOOP, &cp, cType)) {
     memcpy(result, &cp.u, sizeof(ffi_arg));
-  else
+  } else {
     memset(result, 0, sizeof(ffi_arg));
+}
 }
 
 void _gst_make_closure(OOP callbackOOP) {
@@ -1336,8 +1370,9 @@ void _gst_make_closure(OOP callbackOOP) {
   gst_ffi_closure *closure;
   int numArgs, i;
 
-  if (cobject_value(callbackOOP))
+  if (cobject_value(callbackOOP)) {
     return;
+}
 
   desc = (gst_c_callable)OOP_TO_OBJ(callbackOOP);
   numArgs = NUM_INDEXABLE_FIELDS(desc->argTypesOOP);
@@ -1348,8 +1383,9 @@ void _gst_make_closure(OOP callbackOOP) {
   closure->address = closure;
   closure->callbackOOP = callbackOOP;
   closure->return_type = get_ffi_type(desc->returnTypeOOP);
-  for (i = 0; i < numArgs; i++)
+  for (i = 0; i < numArgs; i++) {
     closure->arg_types[i] = get_ffi_type(argTypes[i]);
+}
 
   ffi_prep_cif(&closure->cif, FFI_DEFAULT_ABI, numArgs, closure->return_type,
                closure->arg_types);
@@ -1414,11 +1450,11 @@ int my_chown(const char *file, const char *user, const char *group) {
     }
   }
 
-  if (!user)
+  if (!user) {
     uid = -1;
-  else if (save_user && !strcmp(save_user, user))
+  } else if (save_user && !strcmp(save_user, user)) {
     uid = save_uid;
-  else {
+  } else {
     struct passwd *pw;
     pw = getpwnam(user);
     if (!pw) {
@@ -1428,18 +1464,19 @@ int my_chown(const char *file, const char *user, const char *group) {
 
     uid = pw->pw_uid;
     if (recursive_depth) {
-      if (save_user)
+      if (save_user) {
         free(save_user);
+}
       save_user = strdup(user);
       save_uid = uid;
     }
   }
 
-  if (!group)
+  if (!group) {
     gid = -1;
-  else if (save_group && !strcmp(save_group, group))
+  } else if (save_group && !strcmp(save_group, group)) {
     gid = save_gid;
-  else {
+  } else {
     struct group *gr;
     gr = getgrnam(group);
     if (!gr) {
@@ -1449,17 +1486,19 @@ int my_chown(const char *file, const char *user, const char *group) {
 
     gid = gr->gr_gid;
     if (recursive_depth) {
-      if (save_group)
+      if (save_group) {
         free(save_group);
+}
       save_group = strdup(group);
       save_gid = gid;
     }
   }
 
-  if (!file)
+  if (!file) {
     return 0;
-  else
+  } else {
     return chown(file, uid, gid);
+}
 #else
   return 0;
 #endif

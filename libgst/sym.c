@@ -353,8 +353,9 @@ void _gst_pop_old_scope(void) {
 }
 
 void _gst_pop_all_scopes(void) {
-  while (_gst_compiler_state->cur_scope)
+  while (_gst_compiler_state->cur_scope) {
     _gst_pop_old_scope();
+}
 }
 
 void _gst_free_linearized_pools() {
@@ -370,17 +371,19 @@ void _gst_free_linearized_pools() {
 int _gst_declare_arguments(tree_node args) {
   scope cur_scope = _gst_compiler_state->cur_scope;
 
-  if (args->nodeType == TREE_UNARY_EXPR)
+  if (args->nodeType == TREE_UNARY_EXPR) {
     return (0);
 
-  else if (args->nodeType == TREE_BINARY_EXPR)
+  } else if (args->nodeType == TREE_BINARY_EXPR) {
     _gst_declare_name(args->v_expr.expression->v_list.name, false, false);
 
-  else {
-    for (args = args->v_expr.expression; args != NULL; args = args->v_list.next)
+  } else {
+    for (args = args->v_expr.expression; args != NULL; args = args->v_list.next) {
       if (_gst_declare_name(args->v_list.value->v_list.name, false, false) ==
-          -1)
+          -1) {
         return -1;
+}
+}
   }
 
   /* Arguments are always declared first! */
@@ -391,9 +394,11 @@ int _gst_declare_arguments(tree_node args) {
 
 int _gst_declare_temporaries(tree_node temps) {
   int n;
-  for (n = 0; temps != NULL; n++, temps = temps->v_list.next)
-    if (_gst_declare_name(temps->v_list.name, true, false) == -1)
+  for (n = 0; temps != NULL; n++, temps = temps->v_list.next) {
+    if (_gst_declare_name(temps->v_list.name, true, false) == -1) {
       return -1;
+}
+}
 
   return (n);
 }
@@ -401,9 +406,11 @@ int _gst_declare_temporaries(tree_node temps) {
 int _gst_declare_block_arguments(tree_node args) {
   scope cur_scope = _gst_compiler_state->cur_scope;
 
-  for (; args != NULL; args = args->v_list.next)
-    if (_gst_declare_name(args->v_list.name, false, false) == -1)
+  for (; args != NULL; args = args->v_list.next) {
+    if (_gst_declare_name(args->v_list.name, false, false) == -1) {
       return -1;
+}
+}
 
   /* Arguments are always declared first! */
   cur_scope->numArguments = cur_scope->numTemporaries;
@@ -426,8 +433,9 @@ int _gst_declare_name(const char *name, bool writeable,
   OOP symbol = _gst_intern_string(name);
   scope cur_scope = _gst_compiler_state->cur_scope;
 
-  if (!allowDup && find_local_var(cur_scope, symbol) != NULL)
+  if (!allowDup && find_local_var(cur_scope, symbol) != NULL) {
     return -1;
+}
 
   newList = (symbol_list)xmalloc(sizeof(struct symbol_list));
   newList->symbol = symbol;
@@ -555,12 +563,14 @@ static void free_scope_symbols(scope scope) {
     that actually exist in that namespace (including its subspaces).  */
 
 OOP _gst_get_class_object(OOP classOOP) {
-  if (OOP_CLASS(classOOP) == _gst_metaclass_class)
+  if (OOP_CLASS(classOOP) == _gst_metaclass_class) {
     classOOP = METACLASS_INSTANCE(classOOP);
+}
 
   while (OOP_CLASS(classOOP) == _gst_behavior_class ||
-         OOP_CLASS(classOOP) == _gst_class_description_class)
+         OOP_CLASS(classOOP) == _gst_class_description_class) {
     classOOP = SUPERCLASS(classOOP);
+}
 
   return classOOP;
 }
@@ -570,8 +580,9 @@ OOP _gst_get_class_object(OOP classOOP) {
 
 static pool_list *add_pool(OOP poolOOP, pool_list *p_end) {
   pool_list entry;
-  if (IS_NIL(poolOOP))
+  if (IS_NIL(poolOOP)) {
     return p_end;
+}
 
   entry = xmalloc(sizeof(struct pool_list));
   entry->poolOOP = poolOOP;
@@ -585,8 +596,9 @@ static pool_list *add_pool(OOP poolOOP, pool_list *p_end) {
 
 static struct pointer_set_t *make_with_all_superspaces_set(OOP poolOOP) {
   struct pointer_set_t *pset = pointer_set_create();
-  if (is_a_kind_of(OOP_CLASS(poolOOP), _gst_class_class))
+  if (is_a_kind_of(OOP_CLASS(poolOOP), _gst_class_class)) {
     poolOOP = _gst_class_variable_dictionary(poolOOP);
+}
 
   while (is_a_kind_of(OOP_CLASS(poolOOP), _gst_abstract_namespace_class)) {
     gst_object pool;
@@ -596,8 +608,9 @@ static struct pointer_set_t *make_with_all_superspaces_set(OOP poolOOP) {
   }
 
   /* Add the last if not nil.  */
-  if (is_a_kind_of(OOP_CLASS(poolOOP), _gst_dictionary_class))
+  if (is_a_kind_of(OOP_CLASS(poolOOP), _gst_dictionary_class)) {
     pointer_set_insert(pset, poolOOP);
+}
   return pset;
 }
 
@@ -612,21 +625,25 @@ static pool_list *combine_local_pools(OOP sharedPoolsOOP,
 
 static pool_list *add_namespace(OOP poolOOP, struct pointer_set_t *except,
                                 pool_list *p_end) {
-  if (is_a_kind_of(OOP_CLASS(poolOOP), _gst_class_class))
+  if (is_a_kind_of(OOP_CLASS(poolOOP), _gst_class_class)) {
     poolOOP = _gst_class_variable_dictionary(poolOOP);
+}
 
   for (;;) {
     gst_object pool;
     OOP importsOOP;
-    if (!is_a_kind_of(OOP_CLASS(poolOOP), _gst_dictionary_class))
+    if (!is_a_kind_of(OOP_CLASS(poolOOP), _gst_dictionary_class)) {
       return p_end;
+}
 
-    if (!except || !pointer_set_contains(except, poolOOP))
+    if (!except || !pointer_set_contains(except, poolOOP)) {
       p_end = add_pool(poolOOP, p_end);
+}
 
     /* Add imports and try to find a super-namespace */
-    if (!is_a_kind_of(OOP_CLASS(poolOOP), _gst_abstract_namespace_class))
+    if (!is_a_kind_of(OOP_CLASS(poolOOP), _gst_abstract_namespace_class)) {
       return p_end;
+}
 
     pool = OOP_TO_OBJ(poolOOP);
     importsOOP = OBJ_NAMESPACE_GET_SHARED_POOLS(pool);
@@ -663,13 +680,16 @@ static void visit_pool(OOP poolOOP, struct pointer_set_t *grey,
                        pool_list *p_tail) {
   pool_list entry;
 
-  if (is_a_kind_of(OOP_CLASS(poolOOP), _gst_class_class))
+  if (is_a_kind_of(OOP_CLASS(poolOOP), _gst_class_class)) {
     poolOOP = _gst_class_variable_dictionary(poolOOP);
-  if (!is_a_kind_of(OOP_CLASS(poolOOP), _gst_dictionary_class))
+}
+  if (!is_a_kind_of(OOP_CLASS(poolOOP), _gst_dictionary_class)) {
     return;
+}
 
-  if (pointer_set_contains(white, poolOOP))
+  if (pointer_set_contains(white, poolOOP)) {
     return;
+}
 
   if (pointer_set_contains(grey, poolOOP)) {
     _gst_errorf("circular dependency in pool dictionaries");
@@ -681,8 +701,9 @@ static void visit_pool(OOP poolOOP, struct pointer_set_t *grey,
   pointer_set_insert(grey, poolOOP);
   if (is_a_kind_of(OOP_CLASS(poolOOP), _gst_abstract_namespace_class)) {
     gst_object pool = OOP_TO_OBJ(poolOOP);
-    if (!IS_NIL(OBJ_NAMESPACE_GET_SUPER_SPACE(pool)))
+    if (!IS_NIL(OBJ_NAMESPACE_GET_SUPER_SPACE(pool))) {
       visit_pool(OBJ_NAMESPACE_GET_SUPER_SPACE(pool), grey, white, p_head, p_tail);
+}
   }
   pointer_set_insert(white, poolOOP);
 
@@ -693,8 +714,9 @@ static void visit_pool(OOP poolOOP, struct pointer_set_t *grey,
   entry->poolOOP = poolOOP;
   entry->next = *p_head;
   *p_head = entry;
-  if (!*p_tail)
+  if (!*p_tail) {
     *p_tail = entry;
+}
 }
 
 /* Run visit_pool on all the shared pools, starting with WHITE as
@@ -724,8 +746,9 @@ static pool_list *combine_local_pools(OOP sharedPoolsOOP,
        the new tail.  */
     *p_end = head;
     return &tail->next;
-  } else
+  } else {
     return p_end;
+}
 }
 
 /* Add the list of resolved pools for CLASS_OOP.  This includes:
@@ -749,14 +772,16 @@ static pool_list *add_shared_pool_resolution(OOP class_oop, OOP environmentOOP,
   /* Then search in the `environments', except those that are already
      reachable from the superclass. */
   class_oop = SUPERCLASS(class_oop);
-  if (!IS_NIL(class_oop))
+  if (!IS_NIL(class_oop)) {
     pset = make_with_all_superspaces_set(CLASS_ENVIRONMENT(class_oop));
-  else
+  } else {
     pset = NULL;
+}
 
   p_end = add_namespace(environmentOOP, pset, p_end);
-  if (pset)
+  if (pset) {
     pointer_set_destroy(pset);
+}
   return p_end;
 }
 
@@ -765,10 +790,11 @@ void _gst_compute_linearized_pools(gst_parser *parser, bool forDoit) {
   OOP myClass, classOOP;
   OOP environmentOOP = parser->current_namespace;
 
-  if (IS_NIL(parser->currentClass))
+  if (IS_NIL(parser->currentClass)) {
     myClass = _gst_undefined_object_class;
-  else
+  } else {
     myClass = _gst_get_class_object(parser->currentClass);
+}
 
   assert(_gst_current_parser->linearized_pools == NULL);
 
@@ -792,8 +818,9 @@ OOP find_class_variable(OOP varName) {
   for (pool = _gst_current_parser->linearized_pools; pool; pool = pool->next) {
     assocOOP = dictionary_association_at(pool->poolOOP, varName);
 
-    if (!IS_NIL(assocOOP))
+    if (!IS_NIL(assocOOP)) {
       return (assocOOP);
+}
   }
 
   return (_gst_nil_oop);
@@ -824,21 +851,24 @@ tree_node _gst_find_variable_binding(tree_node list) {
     assocOOP = _gst_namespace_association_at(root, symbol);
   }
 
-  if (!IS_NIL(assocOOP))
+  if (!IS_NIL(assocOOP)) {
     return _gst_make_oop_constant(&list->location, assocOOP);
+}
 
   /* For temporaries, make a deferred binding so that we can try using
      a global variable.  Unlike namespaces, the temporaries dictionary
      does not know anything about Undeclared.  */
-  if (_gst_compiler_state->undeclared_temporaries)
+  if (_gst_compiler_state->undeclared_temporaries) {
     return _gst_make_deferred_binding_constant(&list->location, list);
+}
 
   if (!elt->v_list.next && isupper(*STRING_OOP_CHARS(symbol))) {
     OOP dictOOP =
         dictionary_at(_gst_smalltalk_dictionary, _gst_undeclared_symbol);
     assocOOP = _gst_namespace_association_at(dictOOP, symbol);
-    if (IS_NIL(assocOOP))
+    if (IS_NIL(assocOOP)) {
       assocOOP = NAMESPACE_AT_PUT(dictOOP, symbol, _gst_nil_oop);
+}
     return _gst_make_oop_constant(&list->location, assocOOP);
   }
 
@@ -894,8 +924,9 @@ bool _gst_find_variable(symbol_entry *se, tree_node list) {
   }
 
   resolved = _gst_find_variable_binding(list);
-  if (!resolved)
+  if (!resolved) {
     return (false);
+}
 
   varAssoc = _gst_make_constant_oop(resolved);
   index = _gst_add_forced_object(varAssoc);
@@ -912,9 +943,11 @@ static int instance_variable_index(OOP symbol) {
       _gst_instance_variable_array(_gst_curr_method->v_method.currentClass);
   numVars = NUM_OOPS(OOP_TO_OBJ(arrayOOP));
 
-  for (index = numVars; index >= 1; index--)
-    if (ARRAY_AT(arrayOOP, index) == symbol)
+  for (index = numVars; index >= 1; index--) {
+    if (ARRAY_AT(arrayOOP, index) == symbol) {
       return (index - 1);
+}
+}
 
   return (-1);
 }
@@ -922,8 +955,9 @@ static int instance_variable_index(OOP symbol) {
 static symbol_list find_local_var(scope scope, OOP symbol) {
   symbol_list s;
 
-  for (s = scope->symbols; s != NULL && symbol != s->symbol; s = s->prevSymbol)
+  for (s = scope->symbols; s != NULL && symbol != s->symbol; s = s->prevSymbol) {
     ;
+}
 
   return (s);
 }
@@ -951,8 +985,9 @@ void _gst_print_symbol_entry(symbol_entry *ent) {
 
   case SCOPE_TEMPORARY:
     printf(" (temp.var. #");
-    if (ent->scopeDistance)
+    if (ent->scopeDistance) {
       printf("%d.", ent->scopeDistance);
+}
 
     printf("%d)", ent->varIndex);
     break;
@@ -976,12 +1011,14 @@ OOP _gst_find_pragma_handler(OOP classOOP, OOP symbolOOP) {
     gst_object class = OOP_TO_OBJ(class_oop);
     OOP handlerOOP;
 
-    if (IS_NIL(OBJ_CLASS_GET_PRAGMA_HANDLERS(class)))
+    if (IS_NIL(OBJ_CLASS_GET_PRAGMA_HANDLERS(class))) {
       continue;
+}
 
     handlerOOP = _gst_identity_dictionary_at(OBJ_CLASS_GET_PRAGMA_HANDLERS(class), symbolOOP);
-    if (!IS_NIL(handlerOOP))
+    if (!IS_NIL(handlerOOP)) {
       return handlerOOP;
+}
   }
 
   return (_gst_nil_oop);
@@ -995,8 +1032,9 @@ OOP _gst_make_instance_variable_array(OOP superclassOOP,
   inc_ptr incPtr;
   gst_object array;
 
-  if (variableString == NULL)
+  if (variableString == NULL) {
     variableString = "";
+}
 
   if (IS_NIL(superclassOOP)) {
     superArrayOOP = _gst_nil_oop;
@@ -1009,12 +1047,14 @@ OOP _gst_make_instance_variable_array(OOP superclassOOP,
   for (p = variableString; *p;) {
     /* skip intervening whitespace */
     name = scan_name(&p);
-    if (!IS_NIL(name))
+    if (!IS_NIL(name)) {
       numInstanceVars++;
+}
   }
 
-  if (numInstanceVars == 0)
+  if (numInstanceVars == 0) {
     return (_gst_nil_oop); /* no instances here */
+}
 
   incPtr = INC_SAVE_POINTER();
 
@@ -1022,8 +1062,9 @@ OOP _gst_make_instance_variable_array(OOP superclassOOP,
   INC_ADD_OOP(arrayOOP);
 
   /* inherit variables from parent */
-  for (index = 1; index <= superInstanceVars; index++)
+  for (index = 1; index <= superInstanceVars; index++) {
     array->data[index - 1] = ARRAY_AT(superArrayOOP, index);
+}
 
   /* now add our own variables */
   for (p = variableString; *p; index++) {
@@ -1033,8 +1074,9 @@ OOP _gst_make_instance_variable_array(OOP superclassOOP,
        already held onto */
 
     array = OOP_TO_OBJ(arrayOOP);
-    if (!IS_NIL(name))
+    if (!IS_NIL(name)) {
       array->data[index - 1] = name;
+}
   }
 
   INC_RESTORE_POINTER(incPtr);
@@ -1047,8 +1089,9 @@ OOP _gst_make_class_variable_dictionary(const char *variableNames,
   const char *p;
   inc_ptr incPtr;
 
-  if (variableNames == NULL)
+  if (variableNames == NULL) {
     variableNames = "";
+}
 
   incPtr = INC_SAVE_POINTER();
 
@@ -1079,8 +1122,9 @@ OOP _gst_make_pool_array(const char *poolNames) {
   const char *p, *e;
   inc_ptr incPtr;
 
-  if (poolNames == NULL)
+  if (poolNames == NULL) {
     poolNames = (char *)"";
+}
 
   /* count the number of new pool names */
   for (p = poolNames, numPools = 0; *p;) {
@@ -1128,8 +1172,9 @@ static OOP scan_name(const char **pp) {
 
   parse_variable_name(pp, &end);
   len = end - *pp;
-  if (len == 0)
+  if (len == 0) {
     return (_gst_nil_oop);
+}
 
   str = (char *)alloca(len + 1);
   strncpy(str, *pp, len);
@@ -1144,8 +1189,9 @@ static void parse_variable_name(const char **pp, const char **endp) {
   const char *p, *e;
 
   p = *pp;
-  while (is_white_space(*p))
+  while (is_white_space(*p)) {
     p++;
+}
   *pp = p;
 
   /* check for non-null here and not alnum; we've jammed on a bogus
@@ -1153,13 +1199,16 @@ static void parse_variable_name(const char **pp, const char **endp) {
 
   if (isalpha(*p)) {
     /* variable name extends from p to e-1 */
-    for (e = p; *e; e++)
-      if (!isalnum(*e) && *e != '_')
+    for (e = p; *e; e++) {
+      if (!isalnum(*e) && *e != '_') {
         break;
+}
+}
 
     *endp = e;
-  } else
+  } else {
     *endp = p;
+}
 }
 
 static bool is_white_space(char c) {
@@ -1180,17 +1229,19 @@ OOP _gst_intern_string_oop(OOP stringOOP) {
      it allocates, and the gc runs, stringOOP can move, meaning the
      dereferenced set of chars becomes invalid.  So instead we make a
      non-moving copy and use that.  */
-  if (len < sizeof(copyBuf))
+  if (len < sizeof(copyBuf)) {
     copyPtr = copyBuf;
-  else
+  } else {
     copyPtr = (char *)xmalloc(len);
+}
 
   memcpy(copyPtr, STRING_OOP_CHARS(stringOOP), len);
 
   symbolOOP = intern_counted_string(copyPtr, len);
 
-  if (len >= sizeof(copyBuf))
+  if (len >= sizeof(copyBuf)) {
     xfree(copyPtr);
+}
 
   return symbolOOP;
 }
@@ -1233,8 +1284,9 @@ static OOP intern_counted_string(const char *str, int len) {
   for (linkOOP = ARRAY_AT(_gst_symbol_table, index); !IS_NIL(linkOOP);
        linkOOP = link->nextLink) {
     link = (sym_link)OOP_TO_OBJ(linkOOP);
-    if (is_same_string(str, link->symbol, len))
+    if (is_same_string(str, link->symbol, len)) {
       return (link->symbol);
+}
   }
 
   /* no match, have to add it to head of list */
@@ -1268,8 +1320,9 @@ static OOP alloc_symbol_oop(const char *str, int len) {
 }
 
 static bool is_same_string(const char *str, OOP oop, int len) {
-  if (_gst_string_oop_len(oop) == len)
+  if (_gst_string_oop_len(oop) == len) {
     return (strncmp(str, ((gst_symbol)OOP_TO_OBJ(oop))->symString, len) == 0);
+}
 
   return (false);
 }
@@ -1337,11 +1390,14 @@ int _gst_selector_num_args(OOP symbolOOP) {
   bytes = (char *)(OOP_TO_OBJ(symbolOOP)->data);
   if ((bytes[0] >= 'A' && bytes[0] <= 'Z') ||
       (bytes[0] >= 'a' && bytes[0] <= 'z') || bytes[0] == '_') {
-    for (numArgs = 0; len;)
-      if (bytes[--len] == ':')
+    for (numArgs = 0; len;) {
+      if (bytes[--len] == ':') {
         numArgs++;
-  } else
+}
+}
+  } else {
     numArgs = 1;
+}
 
   return (numArgs);
 }
@@ -1352,8 +1408,9 @@ void _gst_init_symbols_pass1(void) {
   const symbol_info *si;
   struct builtin_selector *bs = _gst_builtin_selectors_hash;
 
-  for (si = sym_info; si->symbolVar; si++)
+  for (si = sym_info; si->symbolVar; si++) {
     *si->symbolVar = alloc_symbol_oop(si->value, strlen(si->value));
+}
 
   /* Complete gperf's generated table with each symbol's OOP,
      and prepare a kind of reverse mapping from the 256 bytecodes
@@ -1376,8 +1433,9 @@ void _gst_init_symbols_pass2(void) {
   const symbol_info *si;
   struct builtin_selector *bs = _gst_builtin_selectors_hash;
 
-  for (si = sym_info; si->symbolVar; si++)
+  for (si = sym_info; si->symbolVar; si++) {
     alloc_symlink(*si->symbolVar, hash_symbol(si->value, strlen(si->value)));
+}
 
   /* Complete gperf's generated table with each symbol's OOP,
      and prepare a kind of reverse mapping from the 256 bytecodes
@@ -1399,8 +1457,9 @@ static inline OOP intern_string_fast(const char *str, OOP *pTestOOP) {
   if (is_same_string(str, testOOP, len)) {
     (*pTestOOP)++;
     return testOOP;
-  } else
+  } else {
     return intern_counted_string(str, len);
+}
 }
 
 void _gst_restore_symbols(void) {
@@ -1408,8 +1467,9 @@ void _gst_restore_symbols(void) {
   struct builtin_selector *bs = _gst_builtin_selectors_hash;
   OOP currentOOP = _gst_symbol_table + 1;
 
-  for (si = sym_info; si->symbolVar; si++)
+  for (si = sym_info; si->symbolVar; si++) {
     *si->symbolVar = intern_string_fast(si->value, &currentOOP);
+}
 
   /* Complete gperf's generated table with each symbol's OOP,
      and prepare a kind of reverse mapping from the 256 bytecodes

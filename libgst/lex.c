@@ -391,15 +391,17 @@ _gst_yylex (PTR lvalp, YYLTYPE *llocp)
 	{
 	  *llocp = _gst_get_location ();
 	  assert (ct->lexFunc || ct->retToken);
-	  if (ct->lexFunc)
+	  if (ct->lexFunc) {
 	    result = (*ct->lexFunc) (ic, (YYSTYPE *) lvalp);
-	  else
+	  } else {
 	    result = ct->retToken;
+}
 
 	  if (result)
 	    {
-	      if (_gst_get_cur_stream_prompt ())
+	      if (_gst_get_cur_stream_prompt ()) {
 		last_token = result;
+}
 	      return (result);
 	    }
 	}
@@ -425,9 +427,9 @@ invalid (int c, YYSTYPE * lvalp)
       cp[1] = c ^ 64;		/* uncontrolify */
       cp[2] = '\0';
     }
-  else if (c & 128)
+  else if (c & 128) {
     sprintf (cp, "%#02x", c & 255);
-  else
+  } else
     {
       cp[0] = c;
       cp[1] = '\0';
@@ -444,8 +446,9 @@ scan_reset_paren (int c, YYSTYPE * lvalp)
 {
   UNUSED(lvalp);
 
-  if (_gst_get_cur_stream_prompt ())
+  if (_gst_get_cur_stream_prompt ()) {
     parenthesis_depth = 0;
+}
   return c;
 }
 
@@ -454,8 +457,9 @@ scan_open_paren (int c, YYSTYPE * lvalp)
 {
   UNUSED(lvalp);
 
-  if (_gst_get_cur_stream_prompt ())
+  if (_gst_get_cur_stream_prompt ()) {
     parenthesis_depth++;
+}
   return c;
 }
 
@@ -464,8 +468,9 @@ scan_close_paren (int c, YYSTYPE * lvalp)
 {
   UNUSED(lvalp);
 
-  if (_gst_get_cur_stream_prompt ())
+  if (_gst_get_cur_stream_prompt ()) {
     parenthesis_depth--;
+}
   return c;
 }
 
@@ -478,16 +483,18 @@ scan_newline (int c, YYSTYPE * lvalp)
   if (_gst_get_cur_stream_prompt ())
     {
       /* Newline is special-cased in the REPL.  */
-      if (_gst_error_recovery)
+      if (_gst_error_recovery) {
         return ERROR_RECOVERY;
+}
 
       if (parenthesis_depth == 0
           && last_token != 0
           && last_token != '.' && last_token != '!' && last_token != KEYWORD
           && last_token != BINOP && last_token != '|' && last_token != '<'
           && last_token != '>' && last_token != ';'
-          && last_token != ASSIGNMENT && last_token != SCOPE_SEPARATOR)
+          && last_token != ASSIGNMENT && last_token != SCOPE_SEPARATOR) {
         return ('.');
+}
     }
 
   return 0;
@@ -554,12 +561,13 @@ scan_colon (int c, YYSTYPE * lvalp)
   int ic;
 
   ic = _gst_next_char ();
-  if (ic == '=')
+  if (ic == '=') {
     return (ASSIGNMENT);
-  else if (ic == ':')
+  } else if (ic == ':') {
     return (SCOPE_SEPARATOR);
-  else
+  } else {
     _gst_unread_char (ic);
+}
 
   return (':');
 }
@@ -574,8 +582,9 @@ scan_symbol (int c, YYSTYPE *lvalp)
   int ic;
 
   ic = _gst_next_char ();
-  if (ic == EOF)
+  if (ic == EOF) {
     return '#';
+}
 
   /* Look for a shebang (#! /).  */
   if (ic == '!')
@@ -584,8 +593,9 @@ scan_symbol (int c, YYSTYPE *lvalp)
       if (loc.first_line == 1 && loc.first_column == 2)
         {
           while (((ic = _gst_next_char ()) != EOF)
-                 && ic != '\r' && ic != '\n')
+                 && ic != '\r' && ic != '\n') {
             continue;
+}
           return (SHEBANG);
         }
     }
@@ -614,8 +624,9 @@ scan_symbol (int c, YYSTYPE *lvalp)
   obstack_1grow (_gst_compilation_obstack, ic);
 
   while (((ic = _gst_next_char ()) != EOF)
-         && (CHAR_TAB (ic)->char_class & SYMBOL_CHAR))
+         && (CHAR_TAB (ic)->char_class & SYMBOL_CHAR)) {
     obstack_1grow (_gst_compilation_obstack, ic);
+}
 
   _gst_unread_char (ic);
   obstack_1grow (_gst_compilation_obstack, '\0');
@@ -663,11 +674,12 @@ scan_bin_op_1 (int c,
   lvalp->sval = obstack_copy0(_gst_compilation_obstack, buf, strlen(buf));
 
   if ((buf[0] == '|' || buf[0] == '<' || buf[0] == '>' || buf[0] == '-')
-      && buf[1] == '\0')
+      && buf[1] == '\0') {
     return (buf[0]);
 
-  else
+  } else {
     return (BINOP);
+}
 }
 
 int
@@ -720,8 +732,9 @@ scan_ident (int c,
   identType = IDENTIFIER;
 
   while (((ic = _gst_next_char ()) != EOF)
-	 && (CHAR_TAB (ic)->char_class & ID_CHAR))
+	 && (CHAR_TAB (ic)->char_class & ID_CHAR)) {
     obstack_1grow (_gst_compilation_obstack, ic);
+}
 
   /* Read a dot as '::' if followed by a letter.  */
   if (ic == '.')
@@ -733,25 +746,27 @@ scan_ident (int c,
 	  _gst_unread_char (':');
 	  _gst_unread_char (':');
         }
-      else
+      else {
 	_gst_unread_char ('.');
+}
     }
 
   else if (ic == ':')
     {
       ic = _gst_next_char ();
       _gst_unread_char (ic);
-      if (ic == ':' || ic == '=') /* foo:: and foo:= split before colon */
+      if (ic == ':' || ic == '=') { /* foo:: and foo:= split before colon */
 	_gst_unread_char (':');
-      else
+      } else
 	{
           obstack_1grow (_gst_compilation_obstack, ':');
           identType = KEYWORD;
 	}
     }
 
-  else
+  else {
     _gst_unread_char (ic);
+}
 
   obstack_1grow (_gst_compilation_obstack, '\0');
   lvalp->sval = obstack_finish (_gst_compilation_obstack);
@@ -792,8 +807,9 @@ scan_number (int c,
           _gst_errorf ("Numeric base too large %d", base);
           _gst_had_error = true;
         }
-      else
+      else {
         base = intNum;
+}
       ic = _gst_next_char ();
 
       /* Having to support things like 16r-123 is a pity :-) because we
@@ -828,7 +844,7 @@ scan_number (int c,
 	}
     }
 
-  if (ic == 's')
+  if (ic == 's') {
     do
       {
         /* By default the same as the number of decimal points
@@ -836,9 +852,9 @@ scan_number (int c,
 	floatExponent = -exponent;
 
 	ic = _gst_next_char ();
-	if (ic == EOF)
+	if (ic == EOF) {
 	  ;
-	else if (CHAR_TAB (ic)->char_class & DIGIT)
+	} else if (CHAR_TAB (ic)->char_class & DIGIT)
 	  {
 	    /* 123s4 format -- parse the exponent */
 	    floatExponent = scan_digits (ic, false, 10, &dummy, NULL);
@@ -850,8 +866,9 @@ scan_number (int c,
 	    ic = 's';
 	    break;
 	  }
-	else
+	else {
 	  _gst_unread_char (ic);
+}
 
         if (largeInteger)
           {
@@ -861,8 +878,9 @@ scan_number (int c,
 	    gst_object result = instantiate_with (bo->class, bo->size, &intNumOOP);
             memcpy (result->data, bo->body, bo->size);
 	  }
-        else
+        else {
           intNumOOP = FROM_INT((intptr_t) (isNegative ? -intNum : intNum));
+}
 
 	/* too much of a chore to create a Fraction, so we call-in. We
 	   lose the ability to create ScaledDecimals during the very
@@ -884,6 +902,7 @@ scan_number (int c,
 	return (SCALED_DECIMAL_LITERAL);
       }
     while (0);
+}
 
   if (ic == 'e' || ic == 'd' || ic == 'q')
     {
@@ -896,17 +915,17 @@ scan_number (int c,
       }
 
       ic = _gst_next_char ();
-      if (ic == EOF) 
+      if (ic == EOF) { 
         ;
-      else if (ic == '-') {
+      } else if (ic == '-') {
 	  floatExponent =
 	    scan_digits (_gst_next_char (), true, 10, &dummy, NULL);
-	  exponent -= (int) floatExponent;
+	  exponent -= floatExponent;
 	}
       else if (CHAR_TAB (ic)->char_class & DIGIT)
 	{
 	  floatExponent = scan_digits (ic, false, 10, &dummy, NULL);
-	  exponent += (int) floatExponent;
+	  exponent += floatExponent;
 	}
       else if (CHAR_TAB (ic)->char_class & ID_CHAR)
 	{
@@ -914,12 +933,14 @@ scan_number (int c,
 	  _gst_unread_char (ic);
 	  ic = exp_char;
 	}
-      else
+      else {
 	_gst_unread_char (ic);
+}
 
     }
-  else
+  else {
     _gst_unread_char (ic);
+}
 
   if (float_type)
     {
@@ -931,14 +952,16 @@ scan_number (int c,
 	  struct real r;
 	  _gst_real_from_int (&r, base);
 	  _gst_real_powi (&r, &r, exponent < 0 ? -exponent : exponent);
-	  if (exponent < 0)
+	  if (exponent < 0) {
 	    _gst_real_div (&num, &num, &r);
-	  else
+	  } else {
 	    _gst_real_mul (&num, &r);
+}
 	}
       lvalp->fval = _gst_real_get_ld (&num);
-      if (isNegative)
+      if (isNegative) {
 	lvalp->fval = -lvalp->fval;
+}
       return (float_type);
     }
   else if (largeInteger)
@@ -965,8 +988,9 @@ scan_digits (int c,
   uintptr_t result;
   bool oneDigit = false;
 
-  while (c == '_')
+  while (c == '_') {
     c = _gst_next_char ();
+}
 
   memset (n, 0, sizeof (*n));
   for (result = 0.0; is_base_digit (c, base); )
@@ -979,8 +1003,9 @@ scan_digits (int c,
 	      (negative
 	       /* We want (uintptr_t) -MIN_ST_INT, but it's the same.  */
 	       ? (uintptr_t) MIN_ST_INT - value
-	       : (uintptr_t) MAX_ST_INT - value) / base)
+	       : (uintptr_t) MAX_ST_INT - value) / base) {
 	    *largeInteger = true;
+}
 	}
 
       _gst_real_mul_int (n, base);
@@ -988,9 +1013,9 @@ scan_digits (int c,
       oneDigit = true;
       result *= base;
       result += value;
-      do
+      do {
 	c = _gst_next_char ();
-      while (c == '_');
+      } while (c == '_');
     }
 
   if (!oneDigit)
@@ -1017,8 +1042,9 @@ scan_fraction (int c,
 
   scale = 0;
 
-  while (c == '_')
+  while (c == '_') {
     c = _gst_next_char ();
+}
 
   for (intNum = *intNumPtr; is_base_digit (c, base); )
     {
@@ -1030,8 +1056,9 @@ scan_fraction (int c,
 	      (negative
 	       /* We want (uintptr_t) -MIN_ST_INT, but it's the same.  */
 	       ? (uintptr_t) MIN_ST_INT - value
-	       : (uintptr_t) MAX_ST_INT - value) / base)
+	       : (uintptr_t) MAX_ST_INT - value) / base) {
 	    *largeInteger = true;
+}
 	}
 
       _gst_real_mul_int (numPtr, base);
@@ -1040,9 +1067,9 @@ scan_fraction (int c,
       intNum += value;
       scale--;
 
-      do
+      do {
 	c = _gst_next_char ();
-      while (c == '_');
+      } while (c == '_');
     }
 
   _gst_unread_char (c);
@@ -1063,11 +1090,12 @@ digit_to_int (int c,
       return (0);
     }
 
-  if (c >= 'A')
+  if (c >= 'A') {
     c = c - 'A' + 10;
 
-  else
+  } else {
     c -= '0';
+}
 
   if (c >= base)
     {
@@ -1083,14 +1111,16 @@ bool
 is_base_digit (int c,
 	       int base)
 {
-  if (c < '0' || (c > '9' && c < 'A') || c > 'Z')
+  if (c < '0' || (c > '9' && c < 'A') || c > 'Z') {
     return (false);
+}
 
-  if (c >= 'A')
+  if (c >= 'A') {
     c = c - 'A' + 10;
 
-  else
+  } else {
     c -= '0';
+}
 
   return (c < base);
 }
@@ -1148,8 +1178,9 @@ scan_large_integer (bool negative,
     {
       /* Do two's complement -- first invert, then increment with carry 
        */
-      for (i = 0; i < size; i++)
+      for (i = 0; i < size; i++) {
 	result[i] ^= 255;
+}
 
       for (i = 0; (++result[i]) == 0; i++);
 
@@ -1157,8 +1188,9 @@ scan_large_integer (bool negative,
          bytes but remember, the most significant bit of the last digit
          must be 1! */
       for (; size > 0 && result[size - 1] == 255; size--);
-      if (result[size - 1] < 128)
+      if (result[size - 1] < 128) {
 	size++;
+}
     }
   else
     {
@@ -1166,8 +1198,9 @@ scan_large_integer (bool negative,
          bytes but remember, the most significant bit of the last digit 
          must be 0! */
       for (; size > 0 && result[size - 1] == 0; size--);
-      if (result[size - 1] > 127)
+      if (result[size - 1] > 127) {
 	size++;
+}
     }
 
   /* Only now can we set the size! */
@@ -1335,9 +1368,10 @@ _gst_yyprint (FILE * file,
       fprintf (file, ": %Lg", yylval->fval);
       break;
     case CHAR_LITERAL:
-      fprintf (file, ": %d", yylval->ival);
-      if (yylval->ival >= 32 && yylval->ival <= 126)
+      fprintf (file, ": %ld", yylval->ival);
+      if (yylval->ival >= 32 && yylval->ival <= 126) {
 	fprintf (file, " ($%c)", (char) yylval->ival);
+}
       fprintf (file, "\n");
       break;
     default:
@@ -1351,15 +1385,17 @@ _gst_negate_yylval (int token, YYSTYPE *yylval)
   switch (token)
     {
     case INTEGER_LITERAL:
-      if (yylval->ival < 0)
+      if (yylval->ival < 0) {
 	return false;
+}
       yylval->ival = -yylval->ival;
       break;
     case FLOATD_LITERAL:
     case FLOATE_LITERAL:
     case FLOATQ_LITERAL:
-      if (yylval->fval < 0)
+      if (yylval->fval < 0) {
 	return false;
+}
       yylval->fval = -yylval->fval;
       break;
 
@@ -1367,8 +1403,9 @@ _gst_negate_yylval (int token, YYSTYPE *yylval)
       {
 	int sign;
         _gst_msg_sendf (&sign, "%i %o sign", yylval->oval);
-	if (sign < 0)
+	if (sign < 0) {
 	  return false;
+}
 
         _gst_msg_sendf (&yylval->oval, "%o %o negated", yylval->oval);
         INC_ADD_OOP (yylval->oval);
@@ -1384,12 +1421,14 @@ _gst_negate_yylval (int token, YYSTYPE *yylval)
         int i;
 	
 	/* The input value must be positive.  */
-        if (digits[size - 1] >= 128)
+        if (digits[size - 1] >= 128) {
 	  return false;
+}
 
         /* Do two's complement -- first invert, then increment with carry */
-        for (i = 0; i < size; i++)
+        for (i = 0; i < size; i++) {
 	  digits[i] ^= 255;
+}
 
         for (i = 0; (++digits[i]) == 0; i++);
 
@@ -1397,8 +1436,9 @@ _gst_negate_yylval (int token, YYSTYPE *yylval)
            bytes but remember, the most significant bit of the last digit
            must be 1! */
         for (; size > 0 && digits[size - 1] == 255; size--);
-        if (digits[size - 1] < 128)
+        if (digits[size - 1] < 128) {
 	  size++;
+}
 
         assert (size <= bo->size);
 	bo->size = size;

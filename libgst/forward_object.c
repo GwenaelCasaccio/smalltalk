@@ -142,22 +142,25 @@ bool _gst_realloc_oop_table(size_t number_of_forwarding_objects) {
 void _gst_dump_oop_table() {
   OOP oop;
 
-  for (oop = _gst_mem.ot; oop <= _gst_mem.last_allocated_oop; OOP_NEXT(oop))
+  for (oop = _gst_mem.ot; oop <= _gst_mem.last_allocated_oop; OOP_NEXT(oop)) {
     if (!IS_OOP_FREE(oop)) {
-      if (IS_OOP_VALID(oop))
+      if (IS_OOP_VALID(oop)) {
         _gst_display_oop(oop);
-      else
+      } else {
         _gst_display_oop_short(oop);
+}
     }
+}
 }
 
 void _gst_dump_owners(OOP oop) {
   OOP oop2, lastOOP;
 
   for (oop2 = _gst_mem.ot, lastOOP = &_gst_mem.ot[_gst_mem.ot_size];
-       oop2 < lastOOP; OOP_NEXT(oop2))
+       oop2 < lastOOP; OOP_NEXT(oop2)) {
     if UNCOMMON (IS_OOP_VALID(oop2) && is_owner(oop2, oop))
       _gst_display_oop(oop2);
+}
 }
 
 void _gst_check_oop_table() {
@@ -169,8 +172,9 @@ void _gst_check_oop_table() {
     OOP *scanPtr;
     int n;
 
-    if (!IS_OOP_VALID_GC(oop))
+    if (!IS_OOP_VALID_GC(oop)) {
       continue;
+}
 
     object = OOP_TO_OBJ(oop);
     scanPtr = &OBJ_CLASS(object);
@@ -178,14 +182,16 @@ void _gst_check_oop_table() {
       const intptr_t methodSP = TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(object));
       n = OBJ_METHOD_CONTEXT_CONTEXT_STACK(object) + methodSP + 1 -
           object->data;
-    } else
+    } else {
       n = NUM_OOPS(object) + 1;
+}
 
     while (n--) {
       OOP pointedOOP = *scanPtr++;
       if (IS_OOP(pointedOOP) &&
-          (!IS_OOP_ADDR(pointedOOP) || !IS_OOP_VALID_GC(pointedOOP)))
+          (!IS_OOP_ADDR(pointedOOP) || !IS_OOP_VALID_GC(pointedOOP))) {
         abort();
+}
     }
   }
 }

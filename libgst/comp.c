@@ -449,8 +449,9 @@ static void
 invoke_hook_smalltalk (enum gst_vm_hook hook)
 {
   const char *hook_name;
-  if (!_gst_kernel_initialized)
+  if (!_gst_kernel_initialized) {
     return;
+}
 
   switch (hook) {
   case GST_BEFORE_EVAL:
@@ -490,8 +491,9 @@ _gst_invoke_hook (enum gst_vm_hook hook)
 {
   int save_execution;
   save_execution = _gst_execution_tracing;
-  if (_gst_execution_tracing == 1)
+  if (_gst_execution_tracing == 1) {
     _gst_execution_tracing = 0;
+}
   invoke_hook_smalltalk (hook);
   _gst_execution_tracing = save_execution;
 }
@@ -516,8 +518,9 @@ _gst_execute_statements (OOP receiverOOP,
 
   if (_gst_regression_testing
       || _gst_verbosity < 2
-      || !_gst_get_cur_stream_prompt ())
+      || !_gst_get_cur_stream_prompt ()) {
     quiet = true;
+}
 
   incPtr = INC_SAVE_POINTER ();
   statements = method->v_method.statements;
@@ -543,8 +546,9 @@ _gst_execute_statements (OOP receiverOOP,
           resultOOP = _gst_make_constant_oop (statements->v_list.value);
           INC_ADD_OOP (resultOOP);
         }
-      else
+      else {
         _gst_had_error = true;
+}
 
       _gst_curr_method = outer_method;
       _gst_compiler_state = outer_state;
@@ -552,8 +556,9 @@ _gst_execute_statements (OOP receiverOOP,
     }
   else
     {
-      if (_gst_declare_tracing)
+      if (_gst_declare_tracing) {
         printf ("Compiling doit code for %O\n", method->v_method.currentClass);
+}
 
       methodOOP = _gst_compile_method (method, true, false, undeclared);
       resultOOP = _gst_nil_oop;
@@ -567,10 +572,11 @@ _gst_execute_statements (OOP receiverOOP,
 
   INC_ADD_OOP (methodOOP);
 
-  if (!_gst_raw_profile)
+  if (!_gst_raw_profile) {
     _gst_bytecode_counter = _gst_primitives_executed =
       _gst_self_returns = _gst_inst_var_returns = _gst_literal_returns =
       _gst_sample_counter = 0;
+}
 
   if (!IS_NIL (methodOOP))
     {
@@ -639,10 +645,11 @@ _gst_execute_statements (OOP receiverOOP,
               cacheHits = _gst_sample_counter - _gst_cache_misses;
               printf ("%lu method cache hits, %lu misses", cacheHits,
                       _gst_cache_misses);
-              if (cacheHits || _gst_cache_misses)
+              if (cacheHits || _gst_cache_misses) {
                 printf (", %.2f percent hits\n", (100.0 * cacheHits) / _gst_sample_counter);
-              else
+              } else {
                 printf ("\n");
+}
             }
         }
     }
@@ -659,21 +666,24 @@ _gst_execute_statements (OOP receiverOOP,
         }
 
       save_execution = _gst_execution_tracing;
-      if (_gst_execution_tracing == 1)
+      if (_gst_execution_tracing == 1) {
         _gst_execution_tracing = 0;
+}
       if (_gst_responds_to (resultOOP, _gst_intern_string ("printNl"))
-          || _gst_responds_to (resultOOP, _gst_does_not_understand_symbol))
+          || _gst_responds_to (resultOOP, _gst_does_not_understand_symbol)) {
         _gst_str_msg_send (resultOOP, "printNl", NULL);
-      else
+      } else {
 	printf ("%O\n", resultOOP);
+}
 
       fflush (stdout);
       fflush (stderr);
       _gst_execution_tracing = save_execution;
     }
 
-  if (!IS_NIL (methodOOP))
+  if (!IS_NIL (methodOOP)) {
     _gst_invoke_hook (GST_AFTER_EVAL);
+}
 
   INC_RESTORE_POINTER (incPtr);
   _gst_last_returned_value = resultOOP;
@@ -738,13 +748,15 @@ _gst_compile_method (tree_node method,
 
      Also, do not emit line numbers if the method has no statements.  */
   if ((method->location.file_offset != -1 && _gst_get_cur_stream_prompt ())
-      || !method->v_method.statements)
+      || !method->v_method.statements) {
     _gst_line_number (method->location.first_line, LN_RESET);
-  else
+  } else {
     _gst_line_number (method->location.first_line, LN_RESET | LN_ABSOLUTE);
+}
 
-  if (_gst_declare_tracing)
+  if (_gst_declare_tracing) {
     printf ("  class %O, selector %O\n", method->v_method.currentClass, selector);
+}
 
   methodOOP = _gst_nil_oop;
   if (setjmp (_gst_compiler_state->bad_method) == 0)
@@ -773,8 +785,9 @@ _gst_compile_method (tree_node method,
 	  compile_statement (statement->v_list.value);
 
 	  statement = statement->v_list.next;
-	  if (wasReturn)
+	  if (wasReturn) {
 	    continue;
+}
 
 	  if (!statement && returnLast)
 	    {
@@ -880,9 +893,10 @@ _gst_compile_method (tree_node method,
       compiledMethod = (gst_compiled_method) OOP_TO_OBJ (methodOOP);
       compiledMethod->header.isOldSyntax = method->v_method.isOldSyntax;
 
-      if (install)
+      if (install) {
 	install_method (methodOOP,
 			_gst_curr_method->v_method.currentClass);
+}
     }
   else
     {
@@ -933,8 +947,9 @@ compile_expression (tree_node expr)
       compile_simple_expression (expr->v_expr.expression);
       compile_assignments (expr->v_expr.receiver);
     }
-  else
+  else {
     compile_simple_expression (expr);
+}
 }
 
 void
@@ -1003,17 +1018,18 @@ compile_variable (tree_node varName)
   INCR_STACK_DEPTH ();
   if (!_gst_find_variable (&variable, varName))
     {
-      if (varName->v_list.next)
+      if (varName->v_list.next) {
         _gst_errorf_at (varName->location.first_line,
 			"invalid scope resolution");
-      else
+      } else {
 	_gst_errorf_at (varName->location.first_line,
 			"undefined variable %s referenced",
 		        varName->v_list.name);
+}
       EXIT_COMPILATION ();
     }
 
-  if (variable.scope == SCOPE_SPECIAL)
+  if (variable.scope == SCOPE_SPECIAL) {
     switch (variable.varIndex)
       {
       case THIS_CONTEXT_INDEX:
@@ -1040,6 +1056,7 @@ compile_variable (tree_node varName)
 	_gst_compile_byte (PUSH_SPECIAL, variable.varIndex);
         return;
       }
+}
 
   if (variable.scope != SCOPE_GLOBAL && varName->v_list.next)
     {
@@ -1048,19 +1065,20 @@ compile_variable (tree_node varName)
       EXIT_COMPILATION ();
     }
 
-  if (variable.scopeDistance != 0)
+  if (variable.scopeDistance != 0) {
     /* must be a temporary from an outer scope */
     _gst_compile_byte (PUSH_OUTER_TEMP,
 		       variable.varIndex * 256 + variable.scopeDistance);
 
-  else if (variable.scope == SCOPE_TEMPORARY)
+  } else if (variable.scope == SCOPE_TEMPORARY) {
     _gst_compile_byte (PUSH_TEMPORARY_VARIABLE, variable.varIndex);
 
-  else if (variable.scope == SCOPE_RECEIVER)
+  } else if (variable.scope == SCOPE_RECEIVER) {
     _gst_compile_byte (PUSH_RECEIVER_VARIABLE, variable.varIndex);
 
-  else
+  } else {
     _gst_compile_byte (PUSH_LIT_VARIABLE, variable.varIndex);
+}
 }
 
 void
@@ -1074,12 +1092,13 @@ compile_constant (tree_node constExpr)
   /* Scan the current literal frame, looking for a constant equal
      to the one that is being compiled.  */
   for (lit = _gst_compiler_state->literal_vec;
-       lit < _gst_compiler_state->literal_vec_curr; lit++)
+       lit < _gst_compiler_state->literal_vec_curr; lit++) {
     if (equal_constant (*lit, constExpr))
       {
 	index = lit - _gst_compiler_state->literal_vec;
 	break;
       }
+}
 
   /* If not found, check if it can be compiled with a PUSH_INTEGER
      bytecode, or add it to the literals.  */
@@ -1185,16 +1204,18 @@ compile_block (tree_node blockExpr)
 
   INCR_STACK_DEPTH ();
   block = (gst_compiled_block) OOP_TO_OBJ (blockOOP);
-  if (block->header.clean == 0)
+  if (block->header.clean == 0) {
     litOOP = make_clean_block_closure (blockOOP);
-  else
+  } else {
     litOOP = blockOOP;
+}
 
   INC_RESTORE_POINTER (incPtr);
 
   _gst_compile_byte (PUSH_LIT_CONSTANT, add_literal (litOOP));
-  if (block->header.clean != 0)
+  if (block->header.clean != 0) {
     _gst_compile_byte (MAKE_DIRTY_BLOCK, 0);
+}
 }
 
 
@@ -1209,8 +1230,9 @@ compile_statements (tree_node statementList,
       INCR_STACK_DEPTH ();
       _gst_compile_byte (PUSH_SPECIAL, NIL_INDEX);
 
-      if (isBlock)
+      if (isBlock) {
 	_gst_compile_byte (RETURN_CONTEXT_STACK_TOP, 0);
+}
 
       return (false);
     }
@@ -1224,8 +1246,9 @@ compile_statements (tree_node statementList,
   for (stmt = statementList;; stmt = stmt->v_list.next)
     {
       compile_statement (stmt->v_list.value);
-      if (!stmt->v_list.next)
+      if (!stmt->v_list.next) {
 	break;
+}
 
       /* throw away the value on the top of the stack...we don't need
          it for all but the last one.  */
@@ -1237,8 +1260,9 @@ compile_statements (tree_node statementList,
      return the value on the stack as the result.  For inlined blocks,
      the returned value is the top of the stack (which is already
      there), so we are already done.  */
-  if (stmt->v_list.value->nodeType != TREE_RETURN_EXPR && isBlock)
+  if (stmt->v_list.value->nodeType != TREE_RETURN_EXPR && isBlock) {
     _gst_compile_byte (RETURN_CONTEXT_STACK_TOP, 0);
+}
 
   if (isBlock)
     {
@@ -1302,13 +1326,15 @@ compile_unary_expr (tree_node expr,
       if (selector == _gst_while_true_symbol
           || selector == _gst_while_false_symbol)
         {
-          if (compile_while_loop (selector, expr))
+          if (compile_while_loop (selector, expr)) {
             return;
+}
         }
       else if (selector == _gst_repeat_symbol)
         {
-          if (compile_repeat (expr->v_expr.receiver))
+          if (compile_repeat (expr->v_expr.receiver)) {
             return;
+}
         }
 
       compile_expression (expr->v_expr.receiver);
@@ -1325,11 +1351,13 @@ compile_binary_expr (tree_node expr,
 
   selector = expr->v_expr.selector;
 
-  if (!omit_receiver)
+  if (!omit_receiver) {
     compile_expression (expr->v_expr.receiver);
+}
 
-  if (expr->v_expr.expression)
+  if (expr->v_expr.expression) {
     compile_expression (expr->v_expr.expression);
+}
 
   compile_send (expr, selector, 1);
 }
@@ -1349,8 +1377,9 @@ compile_keyword_expr (tree_node expr,
       if (selector == _gst_while_true_colon_symbol
           || selector == _gst_while_false_colon_symbol)
         {
-          if (compile_while_loop (selector, expr))
+          if (compile_while_loop (selector, expr)) {
             return;
+}
         }
 
       compile_expression (expr->v_expr.receiver);
@@ -1358,39 +1387,45 @@ compile_keyword_expr (tree_node expr,
       if (selector == _gst_if_true_symbol
           || selector == _gst_if_false_symbol)
         {
-          if (compile_if_statement (selector, expr->v_expr.expression))
+          if (compile_if_statement (selector, expr->v_expr.expression)) {
             return;
+}
         }
       else if (selector == _gst_if_true_if_false_symbol
                || selector == _gst_if_false_if_true_symbol)
         {
           if (compile_if_true_false_statement
-              (selector, expr->v_expr.expression))
+              (selector, expr->v_expr.expression)) {
             return;
+}
         }
       else if (selector == _gst_and_symbol
                || selector == _gst_or_symbol)
         {
-          if (compile_and_or_statement (selector, expr->v_expr.expression))
+          if (compile_and_or_statement (selector, expr->v_expr.expression)) {
             return;
+}
         }
       else if (selector == _gst_times_repeat_symbol)
         {
-          if (compile_times_repeat (expr->v_expr.expression))
+          if (compile_times_repeat (expr->v_expr.expression)) {
             return;
+}
         }
       else if (selector == _gst_to_do_symbol)
         {
           if (compile_to_by_do (expr->v_expr.expression->v_list.value, NULL,
-                                expr->v_expr.expression->v_list.next->v_list.value))
+                                expr->v_expr.expression->v_list.next->v_list.value)) {
             return;
+}
         }
       else if (selector == _gst_to_by_do_symbol)
         {
           if (compile_to_by_do (expr->v_expr.expression->v_list.value,
                                 expr->v_expr.expression->v_list.next->v_list.value,
-                                expr->v_expr.expression->v_list.next->v_list.next->v_list.value))
+                                expr->v_expr.expression->v_list.next->v_list.next->v_list.value)) {
             return;
+}
         }
     }
 
@@ -1420,18 +1455,20 @@ compile_send (tree_node expr,
       EXIT_COMPILATION ();
     }
 
-  if (super)
+  if (super) {
     compile_constant (_gst_make_oop_constant (&expr->location, superclassOOP));
+}
 
   if (!bs)
     {
       int selectorIndex = _gst_add_forced_object (selector);
       _gst_compile_byte (SEND | super, (selectorIndex << 8) | numArgs);
     }
-  else if (!super && bs->bytecode < 32)
+  else if (!super && bs->bytecode < 32) {
     _gst_compile_byte (bs->bytecode, 0);
-  else
+  } else {
     _gst_compile_byte (SEND_IMMEDIATE | super, bs->bytecode);
+}
 
   SUB_STACK_DEPTH (numArgs);
 }
@@ -1439,8 +1476,9 @@ compile_send (tree_node expr,
 void
 compile_keyword_list (tree_node list)
 {
-  for (; list; list = list->v_list.next)
+  for (; list; list = list->v_list.next) {
     compile_expression (list->v_list.value);
+}
 }
 
 
@@ -1462,13 +1500,15 @@ compile_while_loop (OOP selector,
   if (expr->v_expr.receiver->nodeType != TREE_BLOCK_NODE ||
       (colon
        && expr->v_expr.expression->v_list.value->nodeType !=
-       TREE_BLOCK_NODE))
+       TREE_BLOCK_NODE)) {
     return (false);
+}
 
   if (HAS_PARAMS_OR_TEMPS (expr->v_expr.receiver) ||
       (colon
-       && HAS_PARAMS_OR_TEMPS (expr->v_expr.expression->v_list.value)))
+       && HAS_PARAMS_OR_TEMPS (expr->v_expr.expression->v_list.value))) {
     return (false);
+}
 
 
   receiverExprCodes = compile_sub_expression (expr->v_expr.receiver);
@@ -1482,8 +1522,9 @@ compile_while_loop (OOP selector,
 
       jumpAroundOfs = _gst_bytecode_length (whileExprCodes) + 2;
     }
-  else
+  else {
     jumpAroundOfs = 0;
+}
 
   for (oldJumpAroundLen = finalJumpLen = 0; ; oldJumpAroundLen = jumpAroundLen)
     {
@@ -1494,8 +1535,9 @@ compile_while_loop (OOP selector,
 		      finalJumpOfs + finalJumpLen >= 256 ? 4 : 2);
       jumpAroundLen = (jumpAroundOfs + finalJumpLen >= 65536 ? 6 :
 		       jumpAroundOfs + finalJumpLen >= 256 ? 4 : 2);
-      if (jumpAroundLen == oldJumpAroundLen)
+      if (jumpAroundLen == oldJumpAroundLen) {
         break;
+}
     }
 
   /* skip to the while loop if the receiver block yields the proper 
@@ -1530,11 +1572,13 @@ compile_repeat (tree_node receiver)
   int repeatedLoopLen, finalJumpLen;
   bc_vector receiverExprCodes;
 
-  if (receiver->nodeType != TREE_BLOCK_NODE)
+  if (receiver->nodeType != TREE_BLOCK_NODE) {
     return (false);
+}
 
-  if (HAS_PARAMS_OR_TEMPS (receiver))
+  if (HAS_PARAMS_OR_TEMPS (receiver)) {
     return (false);
+}
 
   receiverExprCodes = compile_sub_expression (receiver);
   repeatedLoopLen = _gst_bytecode_length (receiverExprCodes);
@@ -1567,11 +1611,13 @@ compile_times_repeat (tree_node expr)
   int finalJumpOfs, finalJumpLen;
   bc_vector loopExprCodes;
 
-  if (expr->v_list.value->nodeType != TREE_BLOCK_NODE)
+  if (expr->v_list.value->nodeType != TREE_BLOCK_NODE) {
     return (false);
+}
 
-  if (HAS_PARAMS_OR_TEMPS (expr->v_list.value))
+  if (HAS_PARAMS_OR_TEMPS (expr->v_list.value)) {
     return (false);
+}
 
   /* save the receiver for the return value */
   _gst_compile_byte (DUP_STACK_TOP, 0);
@@ -1597,8 +1643,9 @@ compile_times_repeat (tree_node expr)
 		      finalJumpOfs + finalJumpLen > 256 ? 4 : 2);
       jumpAroundLen = (jumpAroundOfs + finalJumpLen > 65536 ? 6 :
 		       jumpAroundOfs + finalJumpLen > 256 ? 4 : 2);
-      if (jumpAroundLen == oldJumpAroundLen)
+      if (jumpAroundLen == oldJumpAroundLen) {
         break;
+}
     }
 
   compile_jump (jumpAroundOfs + finalJumpLen, false);
@@ -1631,17 +1678,20 @@ compile_to_by_do (tree_node to,
   bc_vector loopExprCodes, stepCodes = NULL;	/* initialize to please 
 						   gcc */
 
-  if (block->nodeType != TREE_BLOCK_NODE)
+  if (block->nodeType != TREE_BLOCK_NODE) {
     return (false);
+}
 
-  if (HAS_NOT_ONE_PARAM_OR_TEMPS (block))
+  if (HAS_NOT_ONE_PARAM_OR_TEMPS (block)) {
     return (false);
+}
 
   if (by)
     {
       if (by->nodeType != TREE_CONST_EXPR
-	  || by->v_const.constType != CONST_INT)
+	  || by->v_const.constType != CONST_INT) {
 	return (false);
+}
     }
 
   index =
@@ -1662,8 +1712,9 @@ compile_to_by_do (tree_node to,
       _gst_restore_bytecode_array (current_bytecodes);
       jumpAroundOfs = _gst_bytecode_length (stepCodes);
     }
-  else
+  else {
     jumpAroundOfs = 2;
+}
 
   loopExprCodes = compile_sub_expression (block);
   jumpAroundOfs += _gst_bytecode_length (loopExprCodes) + 10;
@@ -1677,8 +1728,9 @@ compile_to_by_do (tree_node to,
 		      finalJumpOfs + finalJumpLen > 256 ? 4 : 2);
       jumpAroundLen = (jumpAroundOfs + finalJumpLen > 65536 ? 6 :
 		       jumpAroundOfs + finalJumpLen > 256 ? 4 : 2);
-      if (jumpAroundLen == oldJumpAroundLen)
+      if (jumpAroundLen == oldJumpAroundLen) {
         break;
+}
     }
 
   /* skip the loop if there are no more occurrences */
@@ -1696,9 +1748,9 @@ compile_to_by_do (tree_node to,
   _gst_compile_byte (PUSH_TEMPORARY_VARIABLE, index);
   INCR_STACK_DEPTH ();
 
-  if (by)
+  if (by) {
     _gst_compile_and_free_bytecodes (stepCodes);
-  else
+  } else
     {
       _gst_compile_byte (PUSH_INTEGER, 1);
       INCR_STACK_DEPTH ();
@@ -1725,12 +1777,14 @@ compile_if_true_false_statement (OOP selector,
   bc_vector trueByteCodes, falseByteCodes;
 
   if (expr->v_list.value->nodeType != TREE_BLOCK_NODE
-      || expr->v_list.next->v_list.value->nodeType != TREE_BLOCK_NODE)
+      || expr->v_list.next->v_list.value->nodeType != TREE_BLOCK_NODE) {
     return (false);
+}
 
   if (HAS_PARAMS_OR_TEMPS (expr->v_list.value)
-      || HAS_PARAMS_OR_TEMPS (expr->v_list.next->v_list.value))
+      || HAS_PARAMS_OR_TEMPS (expr->v_list.next->v_list.value)) {
     return (false);
+}
 
   if (selector == _gst_if_true_if_false_symbol)
     {
@@ -1764,8 +1818,9 @@ compile_if_statement (OOP selector,
   bc_vector thenByteCodes;
 
   if (expr->v_list.value->nodeType != TREE_BLOCK_NODE
-      || HAS_PARAMS_OR_TEMPS (expr->v_list.value))
+      || HAS_PARAMS_OR_TEMPS (expr->v_list.value)) {
     return (false);
+}
 
   /* The second parameter (2) is the size of a `push nil' bytecode */
   thenByteCodes =
@@ -1799,8 +1854,9 @@ compile_and_or_statement (OOP selector,
   int blockLen;
 
   if (expr->v_list.value->nodeType != TREE_BLOCK_NODE
-      || HAS_PARAMS_OR_TEMPS (expr->v_list.value))
+      || HAS_PARAMS_OR_TEMPS (expr->v_list.value)) {
     return (false);
+}
 
   blockByteCodes = compile_sub_expression (expr->v_list.value);
   blockLen = _gst_bytecode_length (blockByteCodes);
@@ -1822,8 +1878,9 @@ compile_sub_expression (tree_node expr)
 
   current_bytecodes = _gst_save_bytecode_array ();
   returns = compile_statements (expr->v_block.statements, false);
-  if (returns)
+  if (returns) {
     INCR_STACK_DEPTH ();
+}
 
   subExprByteCodes = _gst_get_bytecodes ();
   _gst_restore_bytecode_array (current_bytecodes);
@@ -1841,11 +1898,13 @@ compile_sub_expression_and_jump (tree_node expr,
 
   current_bytecodes = _gst_save_bytecode_array ();
   returns = compile_statements (expr->v_block.statements, false);
-  if (returns)
+  if (returns) {
     INCR_STACK_DEPTH ();
+}
 
-  if (!returns)
+  if (!returns) {
     _gst_compile_byte (JUMP, branchLen);
+}
 
   subExprByteCodes = _gst_get_bytecodes ();
   _gst_restore_bytecode_array (current_bytecodes);
@@ -1903,10 +1962,11 @@ compile_cascaded_message (tree_node cascadedExpr)
        message = message->v_list.next)
     {
       _gst_compile_byte (POP_STACK_TOP, 0);
-      if (message->v_list.next)
+      if (message->v_list.next) {
 	_gst_compile_byte (DUP_STACK_TOP, 0);
-      else
+      } else {
 	SUB_STACK_DEPTH (1);
+}
 
       compile_cascaded_expression (message->v_list.value);
     }
@@ -1925,13 +1985,14 @@ compile_assignments (tree_node varList)
       _gst_line_number (varList->location.first_line, 0);
       if (!_gst_find_variable (&variable, varName))
 	{
-          if (varName->v_list.next)
+          if (varName->v_list.next) {
             _gst_errorf_at (varName->location.first_line,
 			    "invalid scope resolution");
-          else
+          } else {
             _gst_errorf_at (varName->location.first_line,
     	    		    "assignment to undeclared variable %s",
 		            varName->v_list.name);
+}
 	  EXIT_COMPILATION ();
 	}
 
@@ -1956,16 +2017,16 @@ compile_assignments (tree_node varList)
           EXIT_COMPILATION ();
         }
 
-      if (variable.scopeDistance > 0)
+      if (variable.scopeDistance > 0) {
 	_gst_compile_byte (STORE_OUTER_TEMP, (variable.varIndex << 8) | variable.scopeDistance);
 
-      else if (variable.scope == SCOPE_TEMPORARY)
+      } else if (variable.scope == SCOPE_TEMPORARY) {
 	_gst_compile_byte (STORE_TEMPORARY_VARIABLE, variable.varIndex);
 
-      else if (variable.scope == SCOPE_RECEIVER)
+      } else if (variable.scope == SCOPE_RECEIVER) {
 	_gst_compile_byte (STORE_RECEIVER_VARIABLE, variable.varIndex);
 
-      else
+      } else
 	{
 	  /* This can become a message send, which might not return the
 	     value.  Compile it in a way that can be easily peephole
@@ -1997,11 +2058,11 @@ equal_constant (OOP oop,
 
   /* ??? this kind of special casing of the elements of arrays bothers
      me...it should all be in one neat place.  */
-  if (constExpr->nodeType == TREE_SYMBOL_NODE)	/* symbol in array
+  if (constExpr->nodeType == TREE_SYMBOL_NODE) {	/* symbol in array
 						   constant */
     return (oop == constExpr->v_expr.selector);
 
-  else if (constExpr->nodeType == TREE_ARRAY_ELT_LIST)
+  } else if (constExpr->nodeType == TREE_ARRAY_ELT_LIST)
     {
       if (IS_OOP (oop) && OOP_CLASS (oop) == _gst_array_class)
 	{
@@ -2014,8 +2075,9 @@ equal_constant (OOP oop,
 		   i++, arrayElt = arrayElt->v_list.next)
 		{
 		  if (!equal_constant
-		      (ARRAY_AT (oop, i), arrayElt->v_list.value))
+		      (ARRAY_AT (oop, i), arrayElt->v_list.value)) {
 		    return (false);
+}
 		}
 	      return (true);
 	    }
@@ -2027,22 +2089,25 @@ equal_constant (OOP oop,
   switch (constExpr->v_const.constType)
     {
     case CONST_INT:
-      if (oop == FROM_INT (constExpr->v_const.val.iVal))
+      if (oop == FROM_INT (constExpr->v_const.val.iVal)) {
 	return (true);
+}
       break;
 
     case CONST_CHAR:
       if (IS_OOP (oop) && is_a_kind_of (OOP_CLASS (oop), _gst_char_class)
-	  && CHAR_OOP_VALUE (oop) == constExpr->v_const.val.iVal)
+	  && CHAR_OOP_VALUE (oop) == constExpr->v_const.val.iVal) {
 	return (true);
+}
       break;
 
     case CONST_FLOATD:
       if (IS_OOP (oop) && OOP_CLASS (oop) == _gst_floatd_class)
 	{
 	  double d = (double) constExpr->v_const.val.fVal;
-	  if (!memcmp (&d, &OOP_TO_OBJ (oop)->data, sizeof (double)))
+	  if (!memcmp (&d, &OOP_TO_OBJ (oop)->data, sizeof (double))) {
 	    return (true);
+}
 	}
       break;
 
@@ -2050,17 +2115,19 @@ equal_constant (OOP oop,
       if (IS_OOP (oop) && OOP_CLASS (oop) == _gst_floate_class)
 	{
 	  float f = (float) constExpr->v_const.val.fVal;
-	  if (!memcmp (&f, &OOP_TO_OBJ (oop)->data, sizeof (float)))
+	  if (!memcmp (&f, &OOP_TO_OBJ (oop)->data, sizeof (float))) {
 	    return (true);
+}
 	}
       break;
 
     case CONST_FLOATQ:
       if (IS_OOP (oop) && OOP_CLASS (oop) == _gst_floatq_class)
 	{
-	  long double ld = (long double) constExpr->v_const.val.fVal;
-	  if (!memcmp (&ld, &OOP_TO_OBJ (oop)->data, sizeof (long double)))
+	  long double ld = constExpr->v_const.val.fVal;
+	  if (!memcmp (&ld, &OOP_TO_OBJ (oop)->data, sizeof (long double))) {
 	    return (true);
+}
 	}
       break;
 
@@ -2072,8 +2139,9 @@ equal_constant (OOP oop,
 	    {
 	      if (strncmp
 		  ((char *) OOP_TO_OBJ (oop)->data,
-		   constExpr->v_const.val.sVal, len) == 0)
+		   constExpr->v_const.val.sVal, len) == 0) {
 		return (true);
+}
 	    }
 	}
       break;
@@ -2091,8 +2159,9 @@ equal_constant (OOP oop,
 	  for (i = 0, pKey = &OBJ_DEFERRED_VARIABLE_BINDING_GET_KEY(binding); i <= size; pKey = &path->data[i++])
 	    {
 	      if (!varNode
-		  || *pKey != _gst_intern_string (varNode->v_list.name))
+		  || *pKey != _gst_intern_string (varNode->v_list.name)) {
 		return (false);
+}
 
 	      varNode = varNode->v_list.next;
 	    }
@@ -2101,15 +2170,17 @@ equal_constant (OOP oop,
 
     case CONST_BINDING:
       constExpr = _gst_find_variable_binding (constExpr->v_const.val.aVal);
-      if (!constExpr)
+      if (!constExpr) {
 	return (false);
+}
 
       assert (constExpr->v_const.constType != CONST_BINDING);
       return equal_constant (oop, constExpr);
 
     case CONST_OOP:
-      if (oop == constExpr->v_const.val.oopVal)
+      if (oop == constExpr->v_const.val.oopVal) {
 	return (true);
+}
       break;
 
     case CONST_ARRAY:
@@ -2124,8 +2195,9 @@ equal_constant (OOP oop,
 		   i <= len; i++, arrayElt = arrayElt->v_list.next)
 		{
 		  if (!equal_constant
-		      (ARRAY_AT (oop, i), arrayElt->v_list.value))
+		      (ARRAY_AT (oop, i), arrayElt->v_list.value)) {
 		    return (false);
+}
 		}
 	      return (true);
 	    }
@@ -2149,14 +2221,15 @@ _gst_make_constant_oop (tree_node constExpr)
   byte_object bo;
   gst_object result;
 
-  if (constExpr == NULL)
+  if (constExpr == NULL) {
     return (_gst_nil_oop);	/* special case empty array literals */
+}
 
-  if (constExpr->nodeType == TREE_SYMBOL_NODE)	/* symbol in array
+  if (constExpr->nodeType == TREE_SYMBOL_NODE) {	/* symbol in array
 						   constant */
     return (constExpr->v_expr.selector);
 
-  else if (constExpr->nodeType == TREE_ARRAY_ELT_LIST)
+  } else if (constExpr->nodeType == TREE_ARRAY_ELT_LIST)
     {
       for (len = 0, subexpr = constExpr; subexpr;
 	   len++, subexpr = subexpr->v_list.next);
@@ -2233,8 +2306,9 @@ _gst_make_constant_oop (tree_node constExpr)
 	      instantiate_with (_gst_array_class, size, &arrayOOP);
 
 	    OBJ_DEFERRED_VARIABLE_BINDING_SET_PATH(dvb, arrayOOP);
-	    for (i = 0; i < size; i++, varNode = varNode->v_list.next)
+	    for (i = 0; i < size; i++, varNode = varNode->v_list.next) {
 	      array->data[i] = _gst_intern_string (varNode->v_list.name);
+}
 	  }
 
         INC_RESTORE_POINTER (incPtr);
@@ -2297,8 +2371,9 @@ make_block (int args,
     }
   bytecodes = _gst_optimize_bytecodes (bytecodes);
 
-  if (_gst_declare_tracing)
+  if (_gst_declare_tracing) {
     _gst_print_bytecodes (bytecodes, _gst_compiler_state->literal_vec);
+}
 
   blockOOP =
     _gst_block_new (args, temps, bytecodes, stack_depth,
@@ -2333,10 +2408,11 @@ OOP
 compute_selector (tree_node selectorExpr)
 {
   if (selectorExpr->nodeType == TREE_UNARY_EXPR
-      || selectorExpr->nodeType == TREE_BINARY_EXPR)
+      || selectorExpr->nodeType == TREE_BINARY_EXPR) {
     return (selectorExpr->v_expr.selector);
-  else
+  } else {
     return (_gst_compute_keyword_selector (selectorExpr->v_expr.expression));
+}
 }
 
 OOP
@@ -2348,8 +2424,9 @@ _gst_compute_keyword_selector (tree_node keywordList)
 
   len = 0;
   for (keyword = keywordList; keyword != NULL;
-       keyword = keyword->v_list.next)
+       keyword = keyword->v_list.next) {
     len += strlen (keyword->v_list.name);
+}
 
   p = nameBuf = (char *) alloca (len + 1);
   for (keyword = keywordList; keyword != NULL;
@@ -2433,8 +2510,9 @@ int
 add_literal (OOP oop)
 {
   int i;
-  if (_gst_compiler_state->literal_vec_curr >= _gst_compiler_state->literal_vec_max)
+  if (_gst_compiler_state->literal_vec_curr >= _gst_compiler_state->literal_vec_max) {
     realloc_literal_vec ();
+}
 
   i =_gst_compiler_state->literal_vec_curr - _gst_compiler_state->literal_vec;
   *_gst_compiler_state->literal_vec_curr++ = oop;
@@ -2451,9 +2529,11 @@ _gst_add_forced_object (OOP oop)
 
   for (lit = _gst_compiler_state->literal_vec;
        lit < _gst_compiler_state->literal_vec_curr;
-       lit++)
-    if (*lit == oop)
+       lit++) {
+    if (*lit == oop) {
       return (lit - _gst_compiler_state->literal_vec);
+}
+}
 
   return (add_literal (oop));
 }
@@ -2466,8 +2546,9 @@ get_literals_array (void)
   int n;
 
   n = _gst_compiler_state->literal_vec_curr - _gst_compiler_state->literal_vec;
-  if (!n)
+  if (!n) {
     return _gst_nil_oop;
+}
 
   methodLiterals = new_instance_with (_gst_array_class, n,
 		                      &methodLiteralsOOP);
@@ -2530,11 +2611,12 @@ install_method (OOP methodOOP, OOP classOOP)
     _gst_valid_class_method_dictionary (classOOP);
 
   MAKE_OOP_READONLY (methodOOP, true);
-  if (_gst_kernel_initialized)
+  if (_gst_kernel_initialized) {
       _gst_msg_sendf (&oldMethod, "%o %o at: %o put: %o", methodDictionaryOOP, selector, methodOOP);
-  else
+  } else {
     oldMethod = _gst_identity_dictionary_at_put (methodDictionaryOOP,
     					       selector, methodOOP);
+}
 
 #ifdef ENABLE_JIT_TRANSLATION
   if (oldMethod != _gst_nil_oop)
@@ -2544,8 +2626,9 @@ install_method (OOP methodOOP, OOP classOOP)
 #ifdef VERIFY_COMPILED_METHODS
   _gst_verify_sent_method (methodOOP);
 #endif
-  if (!_gst_kernel_initialized)
+  if (!_gst_kernel_initialized) {
     _gst_invalidate_method_cache ();
+}
 }
 
 OOP
@@ -2596,8 +2679,9 @@ _gst_make_new_method (int numArgs,
               return _gst_nil_oop;
             }
           primitiveIndex = TO_INT (arguments->data[0]);
-          if (_gst_declare_tracing)
+          if (_gst_declare_tracing) {
             printf ("  Primitive Index %d\n", primitiveIndex);
+}
 
           if (primitiveIndex <= 0 || primitiveIndex >= NUM_PRIMITIVES)
             {
@@ -2611,19 +2695,20 @@ _gst_make_new_method (int numArgs,
           categoryOOP = arguments->data[0];
           INC_ADD_OOP (categoryOOP);
         }
-      else
+      else {
         record_attribute (messageOOP);
+}
     }
 
   maximumStackDepth += numArgs + numTemps;
   memset (&header, 0, sizeof (method_header));
 
-  if (primitiveIndex)
+  if (primitiveIndex) {
     header.headerFlag = MTH_PRIMITIVE;
-  else if (method_attrs)
+  } else if (method_attrs) {
     header.headerFlag = MTH_ANNOTATED;
 
-  else if (numArgs == 0
+  } else if (numArgs == 0
 	   && numTemps == 0
 	   && (newFlags = _gst_is_simple_return (bytecodes, &literalOOP)) != 0)
     {
@@ -2648,8 +2733,9 @@ _gst_make_new_method (int numArgs,
         }
     }
 
-  else
+  else {
     header.headerFlag = MTH_NORMAL;
+}
 
   if (bytecodes)
     {
@@ -2660,11 +2746,13 @@ _gst_make_new_method (int numArgs,
       bytecodes = _gst_optimize_bytecodes (bytecodes);
     }
 
-  if (_gst_declare_tracing)
+  if (_gst_declare_tracing) {
     printf ("  Allocated stack slots %d\n", maximumStackDepth);
+}
 
-  if (_gst_declare_tracing)
+  if (_gst_declare_tracing) {
     _gst_print_bytecodes (bytecodes, OOP_TO_OBJ (literalsOOP)->data);
+}
 
   maximumStackDepth += (1 << DEPTH_SCALE) - 1;	/* round */
   maximumStackDepth >>= DEPTH_SCALE;
@@ -2676,9 +2764,9 @@ _gst_make_new_method (int numArgs,
   header.numTemps = numTemps;
   header.intMark = 1;
 
-  if (IS_NIL (class))
+  if (IS_NIL (class)) {
     sourceCode = _gst_nil_oop;
-  else
+  } else
     {
       sourceCode = _gst_get_source_string (startPos, endPos);
       INC_ADD_OOP (sourceCode);
@@ -2708,10 +2796,11 @@ method_new (method_header header,
   gst_object lit;
   int i;
 
-  if (bytecodes != NULL)
+  if (bytecodes != NULL) {
     numByteCodes = _gst_bytecode_length (bytecodes);
-  else
+  } else {
     numByteCodes = 0;
+}
 
   method = (gst_compiled_method) instantiate_with (_gst_compiled_method_class,
 						   numByteCodes, &methodOOP);
@@ -2730,10 +2819,11 @@ method_new (method_header header,
 	  bc = (gst_block_closure) OOP_TO_OBJ (lit->data[i]);
           blockOOP = bc->block;
 	}
-      else if (IS_CLASS (lit->data[i], _gst_compiled_block_class))
+      else if (IS_CLASS (lit->data[i], _gst_compiled_block_class)) {
 	blockOOP = lit->data[i];
-      else
+      } else {
 	continue;
+}
 
       block = (gst_compiled_block) OOP_TO_OBJ (blockOOP);
       if (IS_NIL (block->method))

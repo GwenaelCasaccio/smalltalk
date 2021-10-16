@@ -161,8 +161,9 @@ set_event_loop_state (enum event_loop_state state)
 {
   enum event_loop_state old_state;
   old_state = cur_state;
-  if (old_state == state)
+  if (old_state == state) {
     return;
+}
 
   cur_state = state;
 
@@ -186,8 +187,9 @@ set_event_loop_state (enum event_loop_state state)
 
 #ifndef _WIN32
     case STATE_RUNNING:
-      if (have_event_loop_handlers)
+      if (have_event_loop_handlers) {
         pthread_cond_signal (&state_cond);
+}
       break;
 #endif
     }
@@ -213,26 +215,27 @@ poll_timer_thread (void *unused)
         {
 	  unsigned cur_time;
           cur_time = _gst_get_milli_time ();
-          if (cur_time < next_poll_ms)
+          if (cur_time < next_poll_ms) {
             ms = MIN(0, next_poll_ms - cur_time);
-          else
+          } else
             {
               ms = EVENT_LOOP_POLL_INTERVAL;
               next_poll_ms = cur_time + ms;
               set_event_loop_state(STATE_POLLING);
             }
         }
-      else
+      else {
         ms = INFINITE;
+}
 
 #ifdef _WIN32
       event_loop_unlock ();
       WaitForSingleObject (state_event, ms);
       event_loop_lock ();
 #else
-      if (ms == INFINITE)
+      if (ms == INFINITE) {
         pthread_cond_wait (&state_cond, &state_mutex);
-      else if (ms)
+      } else if (ms)
         {
           event_loop_unlock ();
           _gst_usleep (ms * 1000);
@@ -249,12 +252,13 @@ poll_events (OOP blockingOOP)
 {
   unsigned ms;
   gst_object processor;
-  if (blockingOOP == _gst_nil_oop)
+  if (blockingOOP == _gst_nil_oop) {
     ms = 0;
-  else if (blockingOOP == _gst_true_oop)
+  } else if (blockingOOP == _gst_true_oop) {
     ms = -1;
-  else
+  } else {
     ms = MIN(0, next_poll_ms - _gst_get_milli_time ());
+}
 
   if (event_poll && event_poll (ms))
     {
@@ -272,16 +276,18 @@ poll_events (OOP blockingOOP)
     }
 
   event_loop_lock ();
-  if (cur_state == STATE_POLLING)
+  if (cur_state == STATE_POLLING) {
     set_event_loop_state (STATE_RUNNING);
+}
   event_loop_unlock ();
 }
 
 void
 _gst_dispatch_events (void)
 {
-  if (event_dispatch)
+  if (event_dispatch) {
     event_dispatch ();
+}
 
   event_loop_lock ();
   set_event_loop_state (STATE_RUNNING);
@@ -295,12 +301,13 @@ _gst_idle (bool blocking)
   set_event_loop_state (STATE_IDLE);
   event_loop_unlock ();
 
-  if (have_event_loop_handlers)
+  if (have_event_loop_handlers) {
     poll_events (blocking ? _gst_true_oop : _gst_false_oop);
-  else if (blocking)
+  } else if (blocking) {
     _gst_pause ();
-  else
+  } else {
     _gst_usleep (EVENT_LOOP_POLL_INTERVAL * 1000);
+}
 }
 
 bool
@@ -326,8 +333,9 @@ _gst_set_event_loop_handlers(bool (*poll) (int ms),
       event_dispatch = dispatch;
       return true;
     }
-  else
+  else {
     return false;
+}
 }
 
 void
@@ -344,9 +352,9 @@ signal_handler (int sig)
 {
   if (_gst_sem_int_vec[sig].data)
     {
-      if (IS_CLASS (_gst_sem_int_vec[sig].data, _gst_semaphore_class))
+      if (IS_CLASS (_gst_sem_int_vec[sig].data, _gst_semaphore_class)) {
         _gst_async_call_internal (&_gst_sem_int_vec[sig]);
-      else
+      } else
 	{
 	  _gst_errorf
 	    ("C signal trapped, but no semaphore was waiting");
@@ -362,8 +370,9 @@ void
 _gst_async_interrupt_wait (OOP semaphoreOOP,
 			   int sig)
 {
-  if (sig < 0 || sig >= NSIG)
+  if (sig < 0 || sig >= NSIG) {
     return;
+}
 
   _gst_register_oop (semaphoreOOP);
   _gst_sem_int_vec[sig].func = _gst_do_async_signal_and_unregister;

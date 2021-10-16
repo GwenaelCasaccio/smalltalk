@@ -154,14 +154,17 @@ static void init_heap(heap_data *h, size_t heap_allocation_size,
 
     /* Use the preinitialized freelist table to initialize
        the sztable.  */
-    for (sz = i = 0; freelist_size[i] > 0 && freelist_size[i] < pagesize; i++)
-      for (; sz <= freelist_size[i]; sz++)
+    for (sz = i = 0; freelist_size[i] > 0 && freelist_size[i] < pagesize; i++) {
+      for (; sz <= freelist_size[i]; sz++) {
         sztable[sz] = i;
+      }
+    }
     max_small_object_size = sz - 1;
   }
 
-  for (i = 0; freelist_size[i] > 0; i++)
+  for (i = 0; freelist_size[i] > 0; i++) {
     h->freelist[i] = NULL;
+  }
 
   h->heap_allocation_size =
       (heap_allocation_size ? ROUNDUPPAGESIZE(heap_allocation_size)
@@ -232,8 +235,9 @@ rerun:
     /* Once we use all the sub-blocks up, remove the whole block
        from the freelist.  */
     blk->vSmall.avail--;
-    if (!blk->vSmall.free)
+    if (!blk->vSmall.free) {
       *mptr = blk->vSmall.nfree;
+    }
   }
 
   else {
@@ -241,8 +245,9 @@ rerun:
     blk = heap_large_block(h, nsz);
     nsz += LARGE_OBJ_HEADER_SIZE;
     nsz = ROUNDUPPAGESIZE(nsz);
-    if (blk == 0)
+    if (blk == 0) {
       goto nospace;
+    }
 
     mem = (heap_freeobj *)blk->vLarge.data;
   }
@@ -252,8 +257,9 @@ rerun:
     abort();
 #endif
 
-  if (h->after_allocating)
+  if (h->after_allocating) {
     h->after_allocating(h, blk, sz);
+  }
 
   return (mem);
 
@@ -267,17 +273,19 @@ nospace:
     if (h->heap_limit && h->heap_total <= h->heap_limit &&
         h->heap_total + nsz > h->heap_limit && h->nomemory) {
       h = h->nomemory(h, nsz);
-      if (h)
+      if (h) {
         break;
-      else
+      } else {
         return NULL;
+      }
     }
 
   case 2:
     /* Get from the system */
     if (!h->heap_limit || h->heap_total < h->heap_limit) {
-      if (nsz < h->heap_allocation_size)
+      if (nsz < h->heap_allocation_size) {
         nsz = h->heap_allocation_size;
+      }
 
       heap_system_alloc(h, nsz);
       h->failures++;
@@ -297,8 +305,9 @@ PTR _gst_mem_realloc(heap_data *h, PTR mem, size_t size) {
   int pages_to_free;
   unsigned mmap_block;
 
-  if (mem == NULL)
+  if (mem == NULL) {
     return _gst_mem_alloc(h, size);
+  }
 
   if (size == 0) {
     _gst_mem_free(h, mem);
@@ -315,13 +324,15 @@ PTR _gst_mem_realloc(heap_data *h, PTR mem, size_t size) {
     return p;
   }
 
-  if (IS_SMALL_SIZE(info->size))
+  if (IS_SMALL_SIZE(info->size)) {
     return mem;
+  }
 
   mmap_block = info->mmap_block;
   pages_to_free = (info->size - size) / pagesize;
-  if (!pages_to_free)
+  if (!pages_to_free) {
     return mem;
+  }
 
   info->size -= pages_to_free * pagesize;
 
@@ -341,8 +352,9 @@ void _gst_mem_free(heap_data *h, PTR mem) {
   int lnr;
   int msz;
 
-  if (!mem)
+  if (!mem) {
     return;
+  }
 
   info = MEM2BLOCK(mem);
   msz = info->size;
@@ -410,8 +422,9 @@ static heap_block *heap_small_block(heap_data *h, size_t sz) {
   int i;
   int nr;
   info = heap_primitive_alloc(h, pagesize);
-  if (!info)
+  if (!info) {
     return (NULL);
+  }
 
   /* Calculate number of objects in this block */
   nr = (pagesize - SMALL_OBJ_HEADER_SIZE) / sz;
@@ -421,8 +434,9 @@ static heap_block *heap_small_block(heap_data *h, size_t sz) {
   info->vSmall.avail = nr;
 
   /* Build the objects into a free list */
-  for (i = nr - 1; i >= 0; i--)
+  for (i = nr - 1; i >= 0; i--) {
     SMALL2FREE(info, i)->next = SMALL2FREE(info, i + 1);
+  }
 
   SMALL2FREE(info, nr - 1)->next = 0;
   info->vSmall.free = SMALL2FREE(info, 0);
@@ -440,8 +454,9 @@ static heap_block *heap_large_block(heap_data *h, size_t sz) {
   msz = ROUNDUPPAGESIZE(msz);
 
   info = heap_primitive_alloc(h, msz);
-  if (!info)
+  if (!info) {
     return (NULL);
+  }
 
   info->size = msz - LARGE_OBJ_HEADER_SIZE;
   return (info);
@@ -456,8 +471,9 @@ static heap_block *heap_primitive_alloc(heap_data *h, size_t sz) {
   /* If we will pass the heap boundary, return 0 to indicate that
      we're run out.  */
   if (h->heap_limit && h->heap_total <= h->heap_limit &&
-      h->heap_total + sz > h->heap_limit)
+      h->heap_total + sz > h->heap_limit) {
     return (NULL);
+  }
 
 #ifndef OPTIMIZE
   if (sz & (pagesize - 1))
@@ -467,8 +483,9 @@ static heap_block *heap_primitive_alloc(heap_data *h, size_t sz) {
   if (sz > MMAP_THRESHOLD) {
     ptr = _gst_osmem_alloc(sz);
     if (ptr) {
-      if (h->after_prim_allocating)
+      if (h->after_prim_allocating) {
         h->after_prim_allocating(h, ptr, sz);
+      }
 
       h->heap_total += sz;
       h->mmap_count++;
@@ -477,8 +494,9 @@ static heap_block *heap_primitive_alloc(heap_data *h, size_t sz) {
       ptr->mmap_block = 1;
       ptr->user = 0;
       ptr->size = sz;
-      if (((intptr_t)ptr) & (pagesize - 1))
+      if (((intptr_t)ptr) & (pagesize - 1)) {
         abort();
+      }
 
       return ptr;
     }
@@ -507,16 +525,18 @@ static heap_block *heap_primitive_alloc(heap_data *h, size_t sz) {
         nptr->vFree.next = ptr->vFree.next;
         ptr->vFree.next = nptr;
         h->splits++;
-      } else
+      } else {
         h->matches++;
+      }
 
       *pptr = ptr->vFree.next;
 
       ptr->mmap_block = 0;
       ptr->user = 0;
       h->heap_total += sz;
-      if (h->after_prim_allocating)
+      if (h->after_prim_allocating) {
         h->after_prim_allocating(h, ptr, sz);
+      }
 
       return (ptr);
     }
@@ -533,8 +553,9 @@ static void heap_primitive_free(heap_data *h, heap_block *mem) {
     abort();
 #endif
 
-  if (h->before_prim_freeing)
+  if (h->before_prim_freeing) {
     h->before_prim_freeing(h, mem, mem->size);
+  }
 
   h->heap_total -= mem->size;
   if (mem->mmap_block) {
@@ -564,8 +585,9 @@ static void heap_add_to_free_list(heap_data *h, heap_block *mem) {
     if (BLOCKEND(mem) == heap_prim_freelist) {
       mem->size += heap_prim_freelist->size;
       mem->vFree.next = heap_prim_freelist->vFree.next;
-    } else
+    } else {
       mem->vFree.next = heap_prim_freelist;
+    }
 
     heap_prim_freelist = mem;
     return;
@@ -589,9 +611,10 @@ static void heap_add_to_free_list(heap_data *h, heap_block *mem) {
           /* Merge with last and next */
           lptr->size += mem->size + nptr->size;
           lptr->vFree.next = nptr->vFree.next;
-        } else
+        } else {
           /* Merge with last but not next */
           lptr->size += mem->size;
+        }
       }
 
       else {
@@ -614,10 +637,11 @@ static void heap_add_to_free_list(heap_data *h, heap_block *mem) {
   /* If 'mem' goes directly after the last block, merge it in.
      Otherwise, just add in onto the list at the end.  */
   mem->vFree.next = NULL;
-  if (BLOCKEND(lptr) == mem)
+  if (BLOCKEND(lptr) == mem) {
     lptr->size += mem->size;
-  else
+  } else {
     lptr->vFree.next = mem;
+  }
 }
 
 static void heap_system_alloc(heap_data *h, size_t sz) {
@@ -628,8 +652,9 @@ static void heap_system_alloc(heap_data *h, size_t sz) {
 #endif
 
   mem = (heap_block *)morecore(sz);
-  if (!mem)
+  if (!mem) {
     nomemory(true);
+  }
   mem->mmap_block = 0;
   mem->size = sz;
 
@@ -647,8 +672,9 @@ PTR morecore(size_t size) {
 
   if (current_heap == NULL) {
     just_allocated_heap = _gst_heap_create(NULL, MMAP_AREA_SIZE);
-    if (!just_allocated_heap)
+    if (!just_allocated_heap) {
       return (NULL);
+    }
     current_heap = just_allocated_heap;
   }
 
@@ -663,20 +689,23 @@ PTR morecore(size_t size) {
         ptr = _gst_heap_sbrk(current_heap, size);
       }
 
-      if (ptr != NULL)
+      if (ptr != NULL) {
         return (ptr);
+      }
     }
 
     /* The data segment we're using might bang against an mmap-ed
        area (the sbrk segment for example cannot grow more than
        960M on Linux).  We try using a new mmap-ed area, but be
        careful not to loop!  */
-    if (just_allocated_heap)
+    if (just_allocated_heap) {
       return (NULL);
+    }
 
     just_allocated_heap = _gst_heap_create(NULL, MMAP_AREA_SIZE);
-    if (!just_allocated_heap)
+    if (!just_allocated_heap) {
       return (NULL);
+    }
 
     current_heap = just_allocated_heap;
   }
@@ -693,8 +722,9 @@ PTR xmalloc(size_t n) {
   PTR block;
 
   block = malloc(n);
-  if (!block && n)
+  if (!block && n) {
     nomemory(true);
+  }
 
   return (block);
 }
@@ -703,8 +733,9 @@ PTR xcalloc(size_t n, size_t s) {
   PTR block;
 
   block = calloc(n, s);
-  if (!block && n && s)
+  if (!block && n && s) {
     nomemory(true);
+  }
 
   return (block);
 }
@@ -713,15 +744,17 @@ PTR xrealloc(PTR p, size_t n) {
   PTR block;
 
   block = realloc(p, n);
-  if (!block && n)
+  if (!block && n) {
     nomemory(true);
+  }
 
   return (block);
 }
 
 void xfree(PTR p) {
-  if (p)
+  if (p) {
     free(p);
+  }
 }
 
 void nomemory(bool fatal) {

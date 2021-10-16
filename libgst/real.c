@@ -124,8 +124,9 @@ rshift_sig (struct real *out, struct real *in, int delta)
 	}
     }
 
-  while (i < SIGSZ)
+  while (i < SIGSZ) {
     out->sig[i++] = 0;
+}
   return nonzero;
 }
 
@@ -152,39 +153,46 @@ normalize (struct real *out, struct real *in)
   /* TODO: convert this to clz.  */
   msb = in->sig[i];
   lshift = 15;
-  if (msb & 0xFF00)
+  if (msb & 0xFF00) {
     lshift -= 8;
-  else
+  } else {
     msb <<= 8;
-  if (msb & 0xF000)
+}
+  if (msb & 0xF000) {
     lshift -= 4;
-  else
+  } else {
     msb <<= 4;
-  if (msb & 0xC000)
+}
+  if (msb & 0xC000) {
     lshift -= 2;
-  else
+  } else {
     msb <<= 2;
-  if (msb & 0x8000)
+}
+  if (msb & 0x8000) {
     lshift -= 1;
+}
 
   rshift = 16 - lshift;
   out->exp = out_exp - lshift;
   out->sign = in->sign;
   if (lshift)
     {
-      for (i = SIGSZ; --i - delta >= 1; )
+      for (i = SIGSZ; --i - delta >= 1; ) {
         out->sig[i] = ((in->sig[i - delta] << lshift)
 		       | (in->sig[i - delta - 1] >> rshift));
+}
       out->sig[i] = in->sig[0] << lshift;
     }
   else
     {
-      for (i = SIGSZ; --i - delta >= 0; )
+      for (i = SIGSZ; --i - delta >= 0; ) {
         out->sig[i] = in->sig[i - delta];
+}
     }
 
-  while (--i >= 0)
+  while (--i >= 0) {
     out->sig[i] = 0;
+}
 }
 
 /* Adjust IN to have exponent EXP by shifting its significand right.
@@ -195,10 +203,12 @@ adjust_exp (struct real *out, struct real *in, int exp)
   int in_exp;
   in_exp = in->exp;
   assert (exp > in_exp);
-  if (exp == in_exp)
+  if (exp == in_exp) {
     return true;
-  if (exp - in_exp >= NUM_SIG_BITS)
+}
+  if (exp - in_exp >= NUM_SIG_BITS) {
     return false;
+}
 
   out->exp = exp;
   return rshift_sig (out, in, exp - in_exp);
@@ -214,26 +224,31 @@ _gst_real_from_int (struct real *out, int s)
       out->sign = -1;
       s = -s;
     }
-  else
+  else {
     out->sign = 1;
+}
 
   /* TODO: convert this to clz.  */
-  if (s & 0xFF00)
+  if (s & 0xFF00) {
     out->exp += 8;
-  else
+  } else {
     s <<= 8;
-  if (s & 0xF000)
+}
+  if (s & 0xF000) {
     out->exp += 4;
-  else
+  } else {
     s <<= 4;
-  if (s & 0xC000)
+}
+  if (s & 0xC000) {
     out->exp += 2;
-  else
+  } else {
     s <<= 2;
-  if (s & 0x8000)
+}
+  if (s & 0x8000) {
     out->exp += 1;
-  else
+  } else {
     s <<= 1;
+}
 
   out->sig[SIGSZ - 1] = s;
 }
@@ -256,9 +271,11 @@ static int
 cmp_significands (struct real *r, struct real *s)
 {
   int i;
-  for (i = SIGSZ; --i >= 0; )
-    if (r->sig[i] != s->sig[i])
+  for (i = SIGSZ; --i >= 0; ) {
+    if (r->sig[i] != s->sig[i]) {
       return (r->sig[i] - s->sig[i]);
+}
+}
 
   return 0;
 }
@@ -293,8 +310,9 @@ do_add (struct real *r, struct real *s)
   else if (r->exp > s->exp)
     {
       /* We cannot modify S in place, use a temporary.  */
-      if (!adjust_exp (&tmp, s, r->exp))
+      if (!adjust_exp (&tmp, s, r->exp)) {
 	return;
+}
       s = &tmp;
     }
 
@@ -310,30 +328,34 @@ do_add (struct real *r, struct real *s)
 void
 _gst_real_add (struct real *r, struct real *s)
 {
-  if (!s->sign)
+  if (!s->sign) {
     return;
-  if (!r->sign)
+}
+  if (!r->sign) {
     memcpy (r, s, sizeof (struct real));
-  else if (s->sign == r->sign)
+  } else if (s->sign == r->sign) {
     return do_add (r, s);
-  else
+  } else {
     abort ();
+}
 }
 
 void
 _gst_real_add_int (struct real *r, int s)
 {
   struct real s_real;
-  if (!s)
+  if (!s) {
     return;
+}
 
   _gst_real_from_int (&s_real, s);
-  if (!r->sign)
+  if (!r->sign) {
     memcpy (r, &s_real, sizeof (struct real));
-  else if (s_real.sign == r->sign)
+  } else if (s_real.sign == r->sign) {
     return do_add (r, &s_real);
-  else
+  } else {
     abort ();
+}
 }
 
 static void
@@ -360,8 +382,9 @@ do_mul (struct real *r, struct real *s, int lsb)
 
       /* Dividing rr by 2 matches the weight s->sig[n] & mask.  Exit
 	 early in case of underflow.  */
-      if (!rshift_sig (&rr, &rr, 1))
+      if (!rshift_sig (&rr, &rr, 1)) {
         break;
+}
 
       if (s->sig[n] & mask)
 	{
@@ -371,8 +394,9 @@ do_mul (struct real *r, struct real *s, int lsb)
 	      rshift_sig (r, r, 1);
 	      r->sig[SIGSZ - 1] |= SIG_MSB;
 	      r->exp++;
-	      if (!rshift_sig (&rr, &rr, 1))
+	      if (!rshift_sig (&rr, &rr, 1)) {
 		break;
+}
 	      rr.exp++;
 	    }
 	}
@@ -384,18 +408,21 @@ _gst_real_mul (struct real *r, struct real *s)
 {
   int i;
   struct real tmp;
-  if (r->sign == 0)
+  if (r->sign == 0) {
     return;
+}
   if (r == s)
     {
       tmp = *s;
       s = &tmp;
     }
-  if (s->sign == 0)
+  if (s->sign == 0) {
      memset (r, 0, sizeof (struct real));
+}
 
-  for (i = 0; i < SIGSZ && s->sig[i] == 0; )
+  for (i = 0; i < SIGSZ && s->sig[i] == 0; ) {
     i++;
+}
   do_mul (r, s, i);
 }
 
@@ -404,10 +431,12 @@ _gst_real_mul_int (struct real *r, int s)
 {
   struct real s_real;
 
-  if (s == 0)
+  if (s == 0) {
      memset (r, 0, sizeof (struct real));
-  if (r->sign == 0)
+}
+  if (r->sign == 0) {
     return;
+}
 
   _gst_real_from_int (&s_real, s);
   do_mul (r, &s_real, SIGSZ - 1);
@@ -427,8 +456,9 @@ _gst_real_powi (struct real *out, struct real *r, int s)
 
   assert (s > 0);
   _gst_real_from_int (out, 1);
-  if (!s)
+  if (!s) {
     return;
+}
 
   for (k = 1;; k <<= 1)
     {
@@ -436,8 +466,9 @@ _gst_real_powi (struct real *out, struct real *r, int s)
         {
           _gst_real_mul (out, r);
           s ^= k;
-          if (!s)
+          if (!s) {
 	    break;
+}
         }
       _gst_real_mul (r, r);
     }
@@ -460,8 +491,9 @@ do_div (struct real *out, struct real *r, struct real *s)
     {
       /* Get the MSB of U and shift it left by one.  */
       msb = r->sig[SIGSZ-1] & SIG_MSB;
-      for (i = SIGSZ; --i >= 1; )
+      for (i = SIGSZ; --i >= 1; ) {
         r->sig[i] = (r->sig[i] << 1) | (r->sig[i - 1] >> 15);
+}
       r->sig[0] <<= 1;
 
      start:
@@ -493,9 +525,9 @@ _gst_real_div (struct real *out, struct real *r, struct real *s)
       return;
     }
 
-  if (out == r)
+  if (out == r) {
     do_div (out, out, s);
-  else
+  } else
     {
       /* do_div would destroy R, save it.  */
       struct real u = *r;
