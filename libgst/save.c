@@ -276,14 +276,14 @@ bool _gst_save_to_file(const char *fileName) {
     close(imageFd);
     if (!success) {
       unlink(fileName);
-}
+    }
     if (myOOPTable) {
       xfree(myOOPTable);
-}
+    }
     myOOPTable = NULL;
   } else {
     save_errno = errno;
-}
+  }
 
   _gst_invoke_hook(GST_FINISHED_SNAPSHOT);
   errno = save_errno;
@@ -331,8 +331,8 @@ struct oop_s *make_oop_table_to_be_saved(struct save_file_header *header) {
   for (oop = _gst_mem.ot; oop < &_gst_mem.ot[_gst_mem.ot_size]; oop++) {
     if (IS_OOP_VALID_GC(oop)) {
       num_used_oops = OOP_INDEX(oop) + 1;
-}
-}
+    }
+  }
 
   _gst_mem.num_free_oops = _gst_mem.ot_size - num_used_oops;
 
@@ -363,8 +363,8 @@ void save_all_objects(int imageFd) {
   for (oop = _gst_mem.ot; oop < &_gst_mem.ot[num_used_oops]; OOP_NEXT(oop)) {
     if (IS_OOP_VALID_GC(oop)) {
       save_object(imageFd, oop);
-}
-}
+    }
+  }
 }
 
 void save_object(int imageFd, OOP oop) {
@@ -380,7 +380,7 @@ void save_object(int imageFd, OOP oop) {
 
   if (IS_OOP_FREE(oop)) {
     abort();
-}
+  }
 
   numBytes = sizeof(OOP) * TO_INT(OBJ_SIZE(object));
   if (numBytes < 262144) {
@@ -443,7 +443,7 @@ bool load_snapshot(int imageFd) {
   base = buffer_read_init(imageFd, READ_BUFFER_SIZE);
   if (!load_file_version(imageFd, &header)) {
     return false;
-}
+  }
 
 #ifdef SNAPSHOT_TRACE
   printf("After loading header: %lld\n", file_pos + buf_pos);
@@ -461,8 +461,9 @@ bool load_snapshot(int imageFd) {
   _gst_mem.old->nomemory = abort_nomemory;
   _gst_mem.fixed->nomemory = abort_nomemory;
 
-  _gst_init_oop_table((PTR)header.ot_base,
-                      MAX((header.oopTableSize * 2) & ~0x7FFF, INITIAL_OOP_TABLE_SIZE));
+  _gst_init_oop_table(
+      (PTR)header.ot_base,
+      MAX((header.oopTableSize * 2) & ~0x7FFF, INITIAL_OOP_TABLE_SIZE));
 
   ot_delta = (intptr_t)(_gst_mem.ot) - header.ot_base;
   num_used_oops = header.oopTableSize;
@@ -488,7 +489,7 @@ bool load_snapshot(int imageFd) {
 
   if (ot_delta) {
     restore_all_pointer_slots();
-}
+  }
 
   prim_table_matches = !memcmp(header.prim_table_md5, _gst_primitives_md5,
                                sizeof(_gst_primitives_md5));
@@ -510,12 +511,12 @@ bool load_file_version(int imageFd, save_file_header *headerp) {
   buffer_read(imageFd, headerp, sizeof(save_file_header));
   if (strcmp(headerp->signature, SIGNATURE)) {
     return (false);
-}
+  }
 
   /* different sizeof(PTR) not supported */
   if (FLAG_CHANGED(headerp->flags, SLOT_SIZE_FLAG)) {
     return (false);
-}
+  }
 
   if UNCOMMON ((wrong_endianness =
                     FLAG_CHANGED(headerp->flags, ENDIANNESS_FLAG))) {
@@ -541,7 +542,7 @@ bool load_file_version(int imageFd, save_file_header *headerp) {
   /* check for version mismatch; if so this image file is invalid */
   if (headerp->version > VERSION_REQUIRED) {
     return (false);
-}
+  }
 
   return (true);
 }
@@ -582,7 +583,8 @@ char *load_normal_oops(int imageFd) {
     }
 
     if (IS_OOP_FREE(oop)) {
-      if (NULL == _gst_mem.ot_arena[(oop - _gst_mem.ot) / 32768].first_free_oop) {
+      if (NULL ==
+          _gst_mem.ot_arena[(oop - _gst_mem.ot) / 32768].first_free_oop) {
         _gst_mem.ot_arena[(oop - _gst_mem.ot) / 32768].first_free_oop = oop;
       }
 
@@ -615,7 +617,7 @@ char *load_normal_oops(int imageFd) {
         object = (gst_object)_gst_mem_alloc(_gst_mem.fixed, size);
       } else {
         object = (gst_object)_gst_mem_alloc(_gst_mem.old, size);
-}
+      }
 
       buffer_read(imageFd, object, size);
       if UNCOMMON (wrong_endianness)
@@ -627,13 +629,13 @@ char *load_normal_oops(int imageFd) {
          do it in the slow case, anyway.  */
       if (OBJ_SIZE(object) != FROM_INT((size_t)OOP_TO_OBJ(oop))) {
         abort();
-}
+      }
     }
 
     OOP_SET_OBJECT(oop, object);
     if (flags & F_WEAK) {
       _gst_make_oop_weak(oop);
-}
+    }
   }
 
   /* NUM_OOPS requires access to the instance spec in the class
@@ -641,8 +643,9 @@ char *load_normal_oops(int imageFd) {
      (including classes!), for which we can do without NUM_OOPS, then
      do another pass here and fix the byte objects using the now
      correct class objects.  */
-  if (UNCOMMON (wrong_endianness)) {
-    for (oop = _gst_mem.ot; oop < &_gst_mem.ot[_gst_mem.ot_size]; OOP_NEXT(oop)) {
+  if (UNCOMMON(wrong_endianness)) {
+    for (oop = _gst_mem.ot; oop < &_gst_mem.ot[_gst_mem.ot_size];
+         OOP_NEXT(oop)) {
       if (OOP_GET_FLAGS(oop) & F_BYTE) {
         OOP classOOP;
         object = OOP_TO_OBJ(oop);
@@ -657,7 +660,7 @@ char *load_normal_oops(int imageFd) {
     return NULL;
   } else {
     return ((char *)object) + size;
-}
+  }
 }
 
 /* Routines to convert to/from relative pointers, shared by
@@ -693,9 +696,10 @@ void fixup_object(OOP oop, gst_object dest, gst_object src, int numBytes) {
     /* Find the new next link.  */
     gst_object destProcess = dest;
     gst_object next = src;
-    while (OOP_CLASS(OBJ_PROCESS_GET_NEXT_LINK(next)) == _gst_callin_process_class) {
+    while (OOP_CLASS(OBJ_PROCESS_GET_NEXT_LINK(next)) ==
+           _gst_callin_process_class) {
       next = OOP_TO_OBJ(OBJ_PROCESS_GET_NEXT_LINK(next));
-}
+    }
 
     OBJ_PROCESS_SET_NEXT_LINK(destProcess, OBJ_PROCESS_GET_NEXT_LINK(next));
   }
@@ -713,7 +717,7 @@ void fixup_object(OOP oop, gst_object dest, gst_object src, int numBytes) {
       if (OBJ_CLASS(process) != _gst_callin_process_class) {
         if (IS_NIL(OBJ_SEMAPHORE_GET_FIRST_LINK(destSem))) {
           OBJ_SEMAPHORE_SET_FIRST_LINK(destSem, linkOOP);
-}
+        }
         OBJ_SEMAPHORE_SET_LAST_LINK(destSem, linkOOP);
       }
       linkOOP = OBJ_PROCESS_GET_NEXT_LINK(process);
@@ -732,7 +736,7 @@ void fixup_object(OOP oop, gst_object dest, gst_object src, int numBytes) {
     gst_c_callable desc = (gst_c_callable)dest;
     if (desc->storageOOP == _gst_nil_oop) {
       SET_COBJECT_OFFSET_OBJ(desc, 0);
-}
+    }
   }
 }
 
@@ -742,8 +746,8 @@ void restore_all_pointer_slots() {
   for (oop = _gst_mem.ot; oop < &_gst_mem.ot[num_used_oops]; oop++) {
     if (IS_OOP_VALID_GC(oop)) {
       restore_oop_pointer_slots(oop);
-}
-}
+    }
+  }
 }
 
 void restore_oop_pointer_slots(OOP oop) {
@@ -758,15 +762,15 @@ void restore_oop_pointer_slots(OOP oop) {
   for (i = object->data; numPointers--; i++) {
     if (IS_OOP(*i)) {
       *i = OOP_ABSOLUTE(*i);
-}
-}
+    }
+  }
 }
 
 void fixup_byte_order(PTR buf, size_t size) {
   uintptr_t *p = (uintptr_t *)buf;
   for (; size--; p++) {
     *p = BYTE_INVERT(*p);
-}
+  }
 }
 
 void buffer_write_init(int imageFd, int numBytes) {
@@ -781,7 +785,7 @@ void full_write(int fd, PTR buffer, size_t size) {
 
   for (; num > 0 && size; buf += num, size -= num) {
     num = _gst_write(fd, buf, size);
-}
+  }
 
   if (num == 0) {
     errno = ENOSPC;
@@ -790,7 +794,7 @@ void full_write(int fd, PTR buffer, size_t size) {
 
   if (num == -1) {
     longjmp(save_jmpbuf, 1);
-}
+  }
 }
 
 void buffer_write_flush(int imageFd) {
@@ -851,7 +855,7 @@ void buffer_read_free(int imageFd) {
     _gst_osmem_free(buf, buf_size);
   } else {
     xfree(buf);
-}
+  }
 }
 
 PTR buffer_advance(int imageFd, int numBytes) {

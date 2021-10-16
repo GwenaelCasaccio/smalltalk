@@ -111,7 +111,7 @@ static char *myGetHostByAddr(char *addr, int len, int type) {
 #endif
   } else {
     result = NULL;
-}
+  }
 
   return (result);
 }
@@ -136,7 +136,7 @@ static char *myGetHostName(void) {
     ret = uname(&utsname);
     if (ret < 0) {
       return NULL;
-}
+    }
 
     strncpy(result, utsname.nodename, 128);
     result[127] = '\0';
@@ -225,7 +225,7 @@ constantFunction(aiAddrconfig, AI_ADDRCONFIG)
 static inline int check_have_sock_cloexec(int fh, int expected_errno) {
   if (have_sock_cloexec == 0 && (fh >= 0 || errno == expected_errno)) {
     have_sock_cloexec = (fh >= 0 ? 1 : -1);
-}
+  }
   return (have_sock_cloexec != 0);
 }
 #endif
@@ -233,7 +233,7 @@ static inline int check_have_sock_cloexec(int fh, int expected_errno) {
 static void socket_set_cloexec(SOCKET fh) {
   if (fh == SOCKET_ERROR) {
     return;
-}
+  }
 
 #if defined __MSVCRT__
   /* Do not do FD_CLOEXEC under MinGW.  */
@@ -252,7 +252,7 @@ static int mySocket(int domain, int type, int protocol) {
     fh = socket(domain, type | SOCK_CLOEXEC, protocol);
     if (!check_have_sock_cloexec(fh, EINVAL)) {
       return -1;
-}
+    }
   }
 #endif
   if (fh == SOCKET_ERROR) {
@@ -263,7 +263,7 @@ static int mySocket(int domain, int type, int protocol) {
   fd = (fh == SOCKET_ERROR ? -1 : SOCKET_TO_FD(fh));
   if (fd != SOCKET_ERROR) {
     _gst_register_socket(fd, false);
-}
+  }
   return fd;
 }
 
@@ -275,7 +275,7 @@ static inline void fix_sockaddr(struct sockaddr *sockaddr, socklen_t len) {
 #ifndef HAVE_STRUCT_SOCKADDR_SA_LEN
   if (len >= 2) {
     sockaddr->sa_family = ((unsigned char *)sockaddr)[1];
-}
+  }
 #endif
 }
 
@@ -295,7 +295,7 @@ static int myConnect(int fd, struct sockaddr *sockaddr, int len) {
   int oldflags = fcntl(sock, F_GETFL, NULL);
   if (!(oldflags & O_NONBLOCK)) {
     fcntl(sock, F_SETFL, oldflags | O_NONBLOCK);
-}
+  }
 #endif
 #endif
 
@@ -305,7 +305,7 @@ static int myConnect(int fd, struct sockaddr *sockaddr, int len) {
     return 0;
   } else {
     return -1;
-}
+  }
 }
 
 static int myAccept(int fd, struct sockaddr *addr, socklen_t *addrlen) {
@@ -321,7 +321,7 @@ static int myAccept(int fd, struct sockaddr *addr, socklen_t *addrlen) {
     fh = accept4(FD_TO_SOCKET(fd), addr, addrlen, SOCK_CLOEXEC);
     if (!check_have_sock_cloexec(fh, ENOSYS)) {
       return -1;
-}
+    }
   }
 #endif
   if (fh == SOCKET_ERROR) {
@@ -332,7 +332,7 @@ static int myAccept(int fd, struct sockaddr *addr, socklen_t *addrlen) {
   new_fd = (fh == SOCKET_ERROR ? -1 : SOCKET_TO_FD(fh));
   if (new_fd != SOCKET_ERROR) {
     _gst_register_socket(new_fd, false);
-}
+  }
   return new_fd;
 }
 
@@ -370,7 +370,7 @@ static int myListen(int fd, int backlog) {
   int r = listen(FD_TO_SOCKET(fd), backlog);
   if (r != SOCKET_ERROR) {
     _gst_register_socket(fd, true);
-}
+  }
   return r;
 }
 
@@ -390,7 +390,7 @@ static int myRecvfrom(int fd, char *buf, int len, int flags,
      connectionless.  POSIX gives a valid 'from' for all types of sockets.  */
   if (r != SOCKET_ERROR && frombufsize == *fromlen) {
     (void)myGetpeername(fd, from, fromlen);
-}
+  }
 
   return r;
 }
@@ -413,7 +413,7 @@ static int getSoError(int fd) {
     ;
 
   } else if (myGetsockopt(fd, SOL_SOCKET, SO_ERROR, (char *)&error, &size) ==
-           -1) {
+             -1) {
 #if defined _WIN32 && !defined __CYGWIN__
     error = WSAGetLastError();
 #else
@@ -429,7 +429,7 @@ static int getSoError(int fd) {
     return 0;
   } else {
     return error;
-}
+  }
 }
 
 void _gst_init_sockets() {

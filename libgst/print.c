@@ -95,7 +95,7 @@ int print_char_to_stream(FILE *stream, OOP oop) {
     return fprintf(stream, "$<%d>", val);
   } else {
     return fprintf(stream, "$<16r%04X>", val);
-}
+  }
 }
 
 int print_string_to_stream(FILE *stream, OOP string) {
@@ -104,7 +104,7 @@ int print_string_to_stream(FILE *stream, OOP string) {
   len = _gst_string_oop_len(string);
   if (!len) {
     return 0;
-}
+  }
 
   return fprintf(stream, "%.*s", len, (char *)(OOP_TO_OBJ(string)->data));
 }
@@ -123,7 +123,7 @@ int print_association_key_to_stream(FILE *stream, OOP associationOOP) {
     return fprintf(stream, "<unprintable key type>");
   } else {
     return fprintf(stream, "%#O", OBJ_ASSOCIATION_GET_KEY(association));
-}
+  }
 }
 
 int print_class_name_to_stream(FILE *stream, OOP class_oop) {
@@ -139,7 +139,7 @@ int print_class_name_to_stream(FILE *stream, OOP class_oop) {
     return r;
   } else {
     return fprintf(stream, "<unnamed class>");
-}
+  }
 }
 
 int print_oop_constructor_to_stream(FILE *stream, OOP oop) {
@@ -156,13 +156,13 @@ int print_oop_constructor_to_stream(FILE *stream, OOP oop) {
 
   } else {
     r += fprintf(stream, " new ");
-}
+  }
 
   if (_gst_regression_testing) {
     r += fprintf(stream, "\"<0>\"");
   } else {
     r += fprintf(stream, "\"<%p>\"", oop);
-}
+  }
 
   return r;
 }
@@ -188,7 +188,7 @@ int printf_oop(FILE *stream, const struct printf_info *info,
     return fprintf(stream, "false");
 
   } else if (OOP_CLASS(oop) == _gst_char_class ||
-           OOP_CLASS(oop) == _gst_unicode_character_class) {
+             OOP_CLASS(oop) == _gst_unicode_character_class) {
     return print_char_to_stream(stream, oop);
 
   } else if (OOP_CLASS(oop) == _gst_floatd_class) {
@@ -200,7 +200,7 @@ int printf_oop(FILE *stream, const struct printf_info *info,
         *p = 'd';
         break;
       }
-}
+    }
 
     return fputs(buf, stream);
   }
@@ -220,7 +220,7 @@ int printf_oop(FILE *stream, const struct printf_info *info,
         *p = 'q';
         break;
       }
-}
+    }
 
     return fputs(buf, stream);
   }
@@ -229,7 +229,7 @@ int printf_oop(FILE *stream, const struct printf_info *info,
     int r = 0;
     if (!info->alt) {
       r += fprintf(stream, "#");
-}
+    }
     return r + print_string_to_stream(stream, oop);
   }
 
@@ -238,11 +238,11 @@ int printf_oop(FILE *stream, const struct printf_info *info,
     /* ### have to quote embedded quote chars */
     if (!info->alt) {
       r += fprintf(stream, "'");
-}
+    }
     r += print_string_to_stream(stream, oop);
     if (!info->alt) {
       r += fprintf(stream, "'");
-}
+    }
     return r;
   }
 
@@ -263,7 +263,7 @@ int printf_oop(FILE *stream, const struct printf_info *info,
 
   } else {
     return print_oop_constructor_to_stream(stream, oop);
-}
+  }
 }
 
 int printf_oop_arginfo(const struct printf_info *info, size_t n, int *argtypes,
@@ -286,7 +286,7 @@ void _gst_classify_addr(void *addr) {
 
   } else {
     _gst_display_object(addr);
-}
+  }
 
   fflush(stdout);
 }
@@ -296,33 +296,23 @@ void _gst_display_oop_short(OOP oop) {
     printf("%-10p   Free\n", oop);
   } else {
     printf("%-10p   %-10p  %-10s %-10s %-10s\n", oop, OOP_TO_OBJ(oop),
-           OOP_GET_FLAGS(oop) & F_CONTEXT
-               ? "Context"
-               : OOP_GET_FLAGS(oop) & F_WEAK
-                     ? "Weak"
-                     : OOP_GET_FLAGS(oop) & F_EPHEMERON ? "Ephemeron" : "",
+           OOP_GET_FLAGS(oop) & F_CONTEXT     ? "Context"
+           : OOP_GET_FLAGS(oop) & F_WEAK      ? "Weak"
+           : OOP_GET_FLAGS(oop) & F_EPHEMERON ? "Ephemeron"
+                                              : "",
 
-           OOP_GET_FLAGS(oop) & F_FIXED
-               ? "Fixed"
-               : OOP_GET_FLAGS(oop) & F_LOADED
-                     ? "Permanent"
-                     : OOP_GET_FLAGS(oop) & F_OLD
-                           ? "Old"
-                           : OOP_GET_FLAGS(oop) & _gst_mem.active_flag
-                                 ? "To-space"
-                                 : "From-space",
+           OOP_GET_FLAGS(oop) & F_FIXED                ? "Fixed"
+           : OOP_GET_FLAGS(oop) & F_LOADED             ? "Permanent"
+           : OOP_GET_FLAGS(oop) & F_OLD                ? "Old"
+           : OOP_GET_FLAGS(oop) & _gst_mem.active_flag ? "To-space"
+                                                       : "From-space",
 
-           IS_EDEN_ADDR(OOP_TO_OBJ(oop))
-               ? "Eden"
-               : IS_SURVIVOR_ADDR(OOP_TO_OBJ(oop), 0)
-                     ? "Surv (Even)"
-                     : IS_SURVIVOR_ADDR(OOP_TO_OBJ(oop), 1)
-                           ? "Surv (Odd)"
-                           : OOP_GET_FLAGS(oop) & F_POOLED
-                                 ? "Pooled"
-                                 : OOP_GET_FLAGS(oop) & F_REACHABLE
-                                       ? "Old/marked"
-                                       : "Old");
+           IS_EDEN_ADDR(OOP_TO_OBJ(oop))          ? "Eden"
+           : IS_SURVIVOR_ADDR(OOP_TO_OBJ(oop), 0) ? "Surv (Even)"
+           : IS_SURVIVOR_ADDR(OOP_TO_OBJ(oop), 1) ? "Surv (Odd)"
+           : OOP_GET_FLAGS(oop) & F_POOLED        ? "Pooled"
+           : OOP_GET_FLAGS(oop) & F_REACHABLE     ? "Old/marked"
+                                                  : "Old");
   }
 }
 
@@ -336,40 +326,30 @@ void _gst_display_oop(OOP oop) {
     printf("%-10p   Free\n", oop);
   } else {
     printf("%-10p   %-10p  %-10s %-10s %-10s", oop, OOP_TO_OBJ(oop),
-           OOP_GET_FLAGS(oop) & F_CONTEXT
-               ? "Context"
-               : OOP_GET_FLAGS(oop) & F_WEAK
-                     ? "Weak"
-                     : OOP_GET_FLAGS(oop) & F_EPHEMERON ? "Ephemeron" : "",
+           OOP_GET_FLAGS(oop) & F_CONTEXT     ? "Context"
+           : OOP_GET_FLAGS(oop) & F_WEAK      ? "Weak"
+           : OOP_GET_FLAGS(oop) & F_EPHEMERON ? "Ephemeron"
+                                              : "",
 
-           OOP_GET_FLAGS(oop) & F_FIXED
-               ? "Fixed"
-               : OOP_GET_FLAGS(oop) & F_LOADED
-                     ? "Permanent"
-                     : OOP_GET_FLAGS(oop) & F_OLD
-                           ? "Old"
-                           : OOP_GET_FLAGS(oop) & _gst_mem.active_flag
-                                 ? "To-space"
-                                 : "From-space",
+           OOP_GET_FLAGS(oop) & F_FIXED                ? "Fixed"
+           : OOP_GET_FLAGS(oop) & F_LOADED             ? "Permanent"
+           : OOP_GET_FLAGS(oop) & F_OLD                ? "Old"
+           : OOP_GET_FLAGS(oop) & _gst_mem.active_flag ? "To-space"
+                                                       : "From-space",
 
-           IS_EDEN_ADDR(OOP_TO_OBJ(oop))
-               ? "Eden"
-               : IS_SURVIVOR_ADDR(OOP_TO_OBJ(oop), 0)
-                     ? "Surv (Even)"
-                     : IS_SURVIVOR_ADDR(OOP_TO_OBJ(oop), 1)
-                           ? "Surv (Odd)"
-                           : OOP_GET_FLAGS(oop) & F_POOLED
-                                 ? "Pooled"
-                                 : OOP_GET_FLAGS(oop) & F_REACHABLE
-                                       ? "Old/marked"
-                                       : "Old");
+           IS_EDEN_ADDR(OOP_TO_OBJ(oop))          ? "Eden"
+           : IS_SURVIVOR_ADDR(OOP_TO_OBJ(oop), 0) ? "Surv (Even)"
+           : IS_SURVIVOR_ADDR(OOP_TO_OBJ(oop), 1) ? "Surv (Odd)"
+           : OOP_GET_FLAGS(oop) & F_POOLED        ? "Pooled"
+           : OOP_GET_FLAGS(oop) & F_REACHABLE     ? "Old/marked"
+                                                  : "Old");
 
     if (IS_OOP_ADDR(OBJ_CLASS(OOP_TO_OBJ(oop)))) {
       printf("   %O (%O)\n", OBJ_CLASS(OOP_TO_OBJ(oop)),
-             OBJ_SIZE (OOP_TO_OBJ(oop)));
+             OBJ_SIZE(OOP_TO_OBJ(oop)));
     } else {
       printf("   (invalid class)\n");
-}
+    }
   }
 }
 
@@ -380,17 +360,17 @@ void _gst_display_object(gst_object obj) {
   }
 
   printf("Object at %p (%s)", obj,
-         IS_EDEN_ADDR(obj) ? "Eden"
-                           : IS_SURVIVOR_ADDR(obj, 0)
-                                 ? "Even"
-                                 : IS_SURVIVOR_ADDR(obj, 1) ? "Odd" : "Old");
+         IS_EDEN_ADDR(obj)          ? "Eden"
+         : IS_SURVIVOR_ADDR(obj, 0) ? "Even"
+         : IS_SURVIVOR_ADDR(obj, 1) ? "Odd"
+                                    : "Old");
 
   if (IS_OOP_ADDR(OBJ_CLASS(obj))) {
-    printf(", size %O (%zu OOPs), class %O\n", OBJ_SIZE (obj), NUM_OOPS(obj),
+    printf(", size %O (%zu OOPs), class %O\n", OBJ_SIZE(obj), NUM_OOPS(obj),
            OBJ_CLASS(obj));
   } else {
     printf(", contains invalid data\n");
-}
+  }
 }
 
 void _gst_init_snprintfv() {

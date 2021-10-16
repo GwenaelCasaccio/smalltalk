@@ -101,7 +101,7 @@ int _gst_list_length(tree_node listExpr) {
 
   for (len = 0, l = listExpr; l; l = l->v_list.next, len++) {
     ;
-}
+  }
 
   if (sizeof(int) < sizeof(long) && len > INT_MAX) {
     _gst_errorf("list too long, %ld", len);
@@ -125,7 +125,7 @@ tree_node _gst_make_method(YYLTYPE *location, YYLTYPE *endLocation,
   result = make_tree_node(location, TREE_METHOD_NODE);
   if (!selectorExpr) {
     selectorExpr = _gst_make_unary_expr(location, NULL, "executeStatements");
-}
+  }
 
   result->v_method.endPos = endLocation->file_offset;
   result->v_method.selectorExpr = selectorExpr;
@@ -312,7 +312,7 @@ tree_node _gst_make_symbol_constant(YYLTYPE *location, tree_node symbolNode) {
     result->v_const.val.oopVal = symbolNode->v_expr.selector;
   } else {
     result->v_const.val.oopVal = _gst_nil_oop;
-}
+  }
 
   return (result);
 }
@@ -338,7 +338,7 @@ tree_node _gst_make_byte_array_constant(YYLTYPE *location, tree_node aval) {
   for (len = 0, arrayElt = aval; arrayElt;
        len++, arrayElt = arrayElt->v_list.next) {
     ;
-}
+  }
 
   bo = (byte_object)obstack_alloc(_gst_compilation_obstack,
                                   sizeof(struct byte_object) + len);
@@ -390,7 +390,7 @@ tree_node _gst_make_binding_constant(YYLTYPE *location, tree_node variables) {
 tree_node _gst_add_node(tree_node n1, tree_node n2) {
   if (n1 == NULL) {
     return n2;
-}
+  }
 
   *(n1->v_list.nextAddr) = n2;
   n1->v_list.nextAddr = n2->v_list.nextAddr;
@@ -617,7 +617,7 @@ static void print_method_node(tree_node node, int level) {
     printf("old syntax\n");
   } else {
     printf("new syntax\n");
-}
+  }
 }
 
 static void print_block_node(tree_node node, int level) {
