@@ -1882,7 +1882,8 @@ bool equal_constant(OOP oop, tree_node constExpr) {
   case CONST_STRING:
     if (IS_OOP(oop) && OOP_CLASS(oop) == _gst_string_class) {
       len = strlen(constExpr->v_const.val.sVal);
-      if (len == _gst_string_oop_len(oop)) {
+      int oopLen = _gst_string_oop_len(oop);
+      if (oopLen >= 0  && len == (size_t) oopLen) {
         if (strncmp((char *)OOP_TO_OBJ(oop)->data, constExpr->v_const.val.sVal,
                     len) == 0) {
           return (true);
@@ -2457,6 +2458,8 @@ OOP _gst_make_new_method(int numArgs, int numTemps, int maximumStackDepth,
 
 OOP method_new(method_header header, OOP literals, bc_vector bytecodes,
                OOP class, OOP methodDesc) {
+  UNUSED(class);
+
   int numByteCodes;
   gst_compiled_method method;
   OOP methodOOP;

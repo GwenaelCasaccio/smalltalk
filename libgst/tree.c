@@ -191,6 +191,8 @@ tree_node _gst_make_keyword_list(YYLTYPE *location, const char *keyword,
 }
 
 tree_node _gst_make_variable_list(YYLTYPE *location, tree_node variable) {
+  UNUSED(location);
+
   /* Actually, we rely on the fact that a variable is represented as a
      tree node of type list_node, so all we do is change the node tag
      to TREE_VAR_DECL_LIST.  */
