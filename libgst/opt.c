@@ -1687,6 +1687,9 @@ const char *_gst_verify_method(OOP methodOOP, int *num_outer_temps, int depth) {
     printf("\n");
 #endif
   }
+#else
+  UNUSED (num_outer_temps);
+  UNUSED (depth);
 #endif /* !NO_VERIFIER */
 
   OOP_SET_FLAGS(methodOOP, OOP_GET_FLAGS(methodOOP) | F_VERIFIED);

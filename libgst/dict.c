@@ -1715,7 +1715,6 @@ OOP _gst_string_new(const char *s) {
 }
 
 OOP _gst_unicode_string_new(const wchar_t *s) {
-  int i;
   gst_object string;
   size_t len;
   OOP stringOOP;
@@ -1727,7 +1726,7 @@ OOP _gst_unicode_string_new(const wchar_t *s) {
     if (sizeof(wchar_t) == sizeof(OBJ_UNICODE_STRING_GET_CHARS(string)[0])) {
       memcpy(OBJ_UNICODE_STRING_GET_CHARS(string), s, len * sizeof(wchar_t));
     } else {
-      for (i = 0; i < len; i++) {
+      for (size_t i = 0; i < len; i++) {
         OBJ_UNICODE_STRING_SET_CHARS(string, i, *s++);
       }
     }
@@ -1783,7 +1782,7 @@ wchar_t *_gst_to_wide_cstring(OOP stringOOP) {
   wchar_t *result, *p;
   size_t len;
   gst_object string;
-  int i;
+  size_t i;
 
   string = OOP_TO_OBJ(stringOOP);
   len = oop_num_fields(stringOOP);

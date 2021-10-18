@@ -732,6 +732,8 @@ void reset_survivor_space(surv_space *space) {
 }
 
 void oldspace_after_allocating(heap_data *h, heap_block *blk, size_t sz) {
+  UNUSED(h);
+
 #ifdef MMAN_DEBUG_OUTPUT
   printf("Allocating oldspace page at %p (%d)\n", blk, sz);
 #endif
@@ -741,6 +743,8 @@ void oldspace_after_allocating(heap_data *h, heap_block *blk, size_t sz) {
 }
 
 void oldspace_before_freeing(heap_data *h, heap_block *blk, size_t sz) {
+  UNUSED(h);
+
   grey_area_node *node, *last, **next;
 
 #ifdef MMAN_DEBUG_OUTPUT
@@ -903,7 +907,7 @@ void _gst_global_compact() {
 
 void _gst_global_gc(int next_allocation) {
   const char *s;
-  int old_limit;
+  size_t old_limit;
 
   _gst_mem.numGlobalGCs++;
 
@@ -954,7 +958,7 @@ void _gst_global_gc(int next_allocation) {
     if UNCOMMON ((next_allocation + _gst_mem.old->heap_total) * 100.0 /
                      old_limit >
                  _gst_mem.grow_threshold_percent) {
-      int target_limit;
+      size_t target_limit;
       _gst_finish_incremental_gc();
 
       /* Check if it's time to compact the heap. Compaction make the most
@@ -1415,6 +1419,9 @@ void _gst_grey_oop_range(PTR from, size_t size) {
       page = ((char *)from) - ((intptr_t)from & (getpagesize() - 1));
        page < last; page += getpagesize())
     *page = *page;
+#else
+  UNUSED(from);
+  UNUSED(size);
 #endif
 }
 
