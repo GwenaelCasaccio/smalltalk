@@ -1395,13 +1395,13 @@ bc12 : {
       iarg1 = TO_INT(op1);
       iarg2 = TO_INT(op2);
       if (iarg2 < 0) {
-        if COMMON (iarg2 >= -ST_INT_SIZE)
+        if (COMMON (iarg2 >= (long) -ST_INT_SIZE))
           op = FROM_INT(iarg1 >> -iarg2);
         else
           op = FROM_INT(iarg1 >> ST_INT_SIZE);
 
         break;
-      } else if COMMON (iarg2 < ST_INT_SIZE) {
+      } else if COMMON (iarg2 < (long) ST_INT_SIZE) {
         intptr_t result = iarg1 << iarg2;
         if COMMON ((result >> iarg2) == iarg1 && !INT_OVERFLOW(result)) {
           op = FROM_INT(result);

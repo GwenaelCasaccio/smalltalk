@@ -188,7 +188,7 @@ static int adjust_exp(struct real *out, struct real *in, int exp) {
   if (exp == in_exp) {
     return true;
   }
-  if (exp - in_exp >= NUM_SIG_BITS) {
+  if (exp - in_exp >= (long) NUM_SIG_BITS) {
     return false;
   }
 

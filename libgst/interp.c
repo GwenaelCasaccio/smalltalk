@@ -1621,7 +1621,12 @@ bool _gst_sync_signal(OOP semaphoreOOP, bool incr_if_empty) {
       int threadId = TO_INT(OBJ_PROCESSOR_SCHEDULER_GET_VM_THREAD_ID(
           OOP_TO_OBJ(processorSchedulerOOP)));
 
-      if (threadId == current_thread_id) {
+      if (threadId < 0) {
+        nomemory(true);
+        return false;
+      }
+
+      if ((size_t) threadId == current_thread_id) {
         wait_for_processor_scheduler(processorSchedulerOOP, current_thread_id);
         resume_process(processOOP, false);
         signal_and_broadcast_for_processor_scheduler(processorSchedulerOOP,
@@ -2043,7 +2048,8 @@ OOP next_scheduled_process(void) {
 
 void _gst_check_process_state(void) {
   OOP processLists, processListOOP, processOOP;
-  int priority, n;
+  uint16_t priority;
+  size_t n;
   gst_object processList;
   gst_object process;
 
