@@ -268,6 +268,8 @@ int printf_oop(FILE *stream, const struct printf_info *info,
 
 int printf_oop_arginfo(const struct printf_info *info, size_t n, int *argtypes,
                        int *size) {
+  UNUSED(info);
+
   /* We always take exactly one argument and this is a pointer to the
      structure.  */
   if (n > 0) {

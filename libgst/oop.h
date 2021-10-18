@@ -78,6 +78,8 @@
 #define PROCESSOR_OOP_INDEX (NUM_CHAR_OBJECTS + 4)
 #define SYM_TABLE_OOP_INDEX (NUM_CHAR_OBJECTS + 5)
 
+_Static_assert(FIRST_OOP_INDEX == 0, "FIRST_OOP_INDEX should starts at 0");
+
 /* Given a number of bytes "x", return the number of 32 bit words
    needed to represent that object, rounded up to the nearest 32 bit
    word boundary.  */

@@ -94,7 +94,7 @@ static inline OOP alloc_oop(PTR obj, intptr_t flags);
    due to being called from Smalltalk via a primitive) represents a
    valid OOP.  Returns true if so.  */
 #define OOP_INDEX_VALID(index)                                                 \
-  ((index) >= FIRST_OOP_INDEX && (index) < _gst_mem.ot_size)
+  ((index) < _gst_mem.ot_size)
 
 /* Answer the INDEX-th OOP in the table.  */
 #define OOP_AT(index) (&_gst_mem.ot[index])

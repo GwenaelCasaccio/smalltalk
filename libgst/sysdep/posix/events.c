@@ -188,6 +188,7 @@ static RETSIGTYPE file_polling_handler (int sig);
 static RETSIGTYPE
 dummy_signal_handler (int sig)
 {
+  UNUSED(sig);
 }
 
 void
@@ -215,6 +216,8 @@ void
 _gst_register_socket (int fd,
 		      bool passive)
 {
+  UNUSED(fd);
+  UNUSED(passive);
 }
 
 int
@@ -322,6 +325,8 @@ signal_polled_files (int fd, bool try_again)
 int
 _gst_get_fd_error (int fd)
 {
+  UNUSED(fd);
+
   return 0;
 }
 
@@ -334,6 +339,8 @@ _gst_remove_fd_polling_handlers (int fd)
 static void
 async_signal_polled_files (OOP unusedOOP)
 {
+  UNUSED(unusedOOP);
+
   signal_polled_files (-1, true);
 }
 

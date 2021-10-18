@@ -280,6 +280,7 @@ nospace:
       }
     }
 
+    __attribute__((fallthrough));
   case 2:
     /* Get from the system */
     if (!h->heap_limit || h->heap_total < h->heap_limit) {
@@ -292,6 +293,7 @@ nospace:
       break;
     }
 
+    __attribute__((fallthrough));
   default:
     return (NULL);
   }
@@ -567,6 +569,8 @@ static void heap_primitive_free(heap_data *h, heap_block *mem) {
 }
 
 static void heap_add_to_free_list(heap_data *h, heap_block *mem) {
+  UNUSED(h);
+
   heap_block *lptr;
   heap_block *nptr;
 
