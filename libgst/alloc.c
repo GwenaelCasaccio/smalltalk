@@ -350,7 +350,7 @@ void _gst_mem_free(heap_data *h, PTR mem) {
   heap_block *info;
   heap_freeobj *obj;
   int lnr;
-  int msz;
+  size_t msz;
 
   if (!mem) {
     return;

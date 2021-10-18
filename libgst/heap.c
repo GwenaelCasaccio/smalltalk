@@ -76,7 +76,11 @@ struct heap {
 /* This is the internal function for heap_sbrk which receives a struct
    heap instead of the pointer to the base location available to
    clients.  */
-static PTR heap_sbrk_internal(struct heap *hdp, size_t size);
+#if SIZEOF_OOP == 4
+static PTR heap_sbrk_internal(struct heap *hdp, int32_t size);
+#else
+static PTR heap_sbrk_internal(struct heap *hdp, int64_t size);
+#endif
 
 /* Cache pagesize-1 for the current host machine.  Note that if the
    host does not readily provide a getpagesize() function, we need to
@@ -164,7 +168,12 @@ heap _gst_heap_destroy(heap hd) {
   return (hd);
 }
 
-PTR _gst_heap_sbrk(heap hd, size_t size) {
+#if SIZEOF_OOP == 4
+PTR _gst_heap_sbrk (heap hd, int32_t size)
+#else
+  PTR _gst_heap_sbrk (heap hd, int64_t size)
+#endif
+{
   struct heap *hdp;
 
   assert(hd);
@@ -172,7 +181,12 @@ PTR _gst_heap_sbrk(heap hd, size_t size) {
   return heap_sbrk_internal(hdp, size);
 }
 
-PTR heap_sbrk_internal(struct heap *hdp, size_t size) {
+#if SIZEOF_OOP == 4
+PTR heap_sbrk_internal(struct heap *hdp, int32_t size)
+#else
+PTR heap_sbrk_internal(struct heap *hdp, int64_t size)
+#endif
+{
   char *result = NULL;
   size_t mapbytes; /* Number of bytes to map */
   char *moveto;    /* Address where we wish to move "break
@@ -196,7 +210,7 @@ PTR heap_sbrk_internal(struct heap *hdp, size_t size) {
       hdp->top = moveto;
     }
   } else if (hdp->breakval + size > hdp->top) {
-    if (hdp->breakval - hdp->base + size > hdp->areasize) {
+    if (hdp->breakval - hdp->base + size >= 0 && (size_t) (hdp->breakval - hdp->base + size) > hdp->areasize) {
       /* this heap is full? */
       errno = ENOMEM;
       return NULL;
