@@ -198,6 +198,8 @@ static char *baseaddr;
 PTR
 anon_mmap_reserve (PTR address, size_t size)
 {
+  UNUSED(address);
+
   PTR base;
 
   /* We must check for overflows in baseaddr!  Note that we ignore address.  */

@@ -245,6 +245,8 @@ error:
 static void
 sigchld_handler (int signum)
 {
+  UNUSED(signum);
+
 #ifdef HAVE_WAITPID
   int pid, status, serrno;
   serrno = errno;

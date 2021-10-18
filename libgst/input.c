@@ -751,6 +751,8 @@ bool _gst_process_file(const char *fileName, enum gst_file_dir dir) {
 #ifdef HAVE_READLINE
 /* Find apostrophes and double them */
 char *readline_quote_filename(const char *s, int rtype, const char *qcp) {
+  UNUSED(rtype);
+
   char *r, *base = alloca(strlen(s) * 2 + 2);
   const char *p;
 
@@ -891,6 +893,9 @@ int compare_strings(const PTR a, const PTR b) {
 static int matches_left, current_index;
 
 char *symbol_generator(const char *text, int state) {
+  UNUSED(text);
+  UNUSED(state);
+
   if (matches_left == 0) {
     return (NULL);
   }
@@ -908,6 +913,8 @@ char *symbol_generator(const char *text, int state) {
 }
 
 char **readline_match_symbols(char *text, int start, int end) {
+  UNUSED(end);
+
   int low, high, middle, len;
 
   /* Check for strings (not matched) and for symbols (matched) */

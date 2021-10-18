@@ -198,9 +198,11 @@ static inline int check_inner_block(OOP blockOOP);
    of jumps is returned.  */
 static int make_destination_table(gst_uchar *bp, int size, char *dest);
 
+#ifndef NO_VERIFIER
 /* Helper function to compute the bytecode verifier's `in'
    sets from the `out' sets.  */
 static bool merge_stacks(OOP *dest, int dest_sp, OOP *src, int src_sp);
+#endif
 
 int _gst_is_simple_return(bc_vector bytecodes, OOP *literalOOP) {
   gst_uchar *bytes;
@@ -1100,6 +1102,7 @@ typedef struct partially_constructed_array {
    Bytecode verification proceeds forwards, so the worklist is added all the
    successors of the basic block whenever merging results in a difference.  */
 
+#ifndef NO_VERIFIER
 bool merge_stacks(OOP *dest, int dest_sp, OOP *src, int src_sp) {
   bool varied = false;
   assert(dest_sp == src_sp);
@@ -1121,6 +1124,7 @@ bool merge_stacks(OOP *dest, int dest_sp, OOP *src, int src_sp) {
 
   return (varied);
 }
+#endif
 
 void _gst_verify_sent_method(OOP methodOOP) {
   const char *error;

@@ -433,7 +433,12 @@ bool _gst_load_from_file(const char *fileName) {
   return (loaded);
 }
 
-heap_data *abort_nomemory(heap_data *h, size_t sz) { abort(); }
+heap_data *abort_nomemory(heap_data *h, size_t sz) {
+  UNUSED(h);
+  UNUSED(sz);
+
+  abort();
+}
 
 bool load_snapshot(int imageFd) {
   save_file_header header;
@@ -774,6 +779,8 @@ void fixup_byte_order(PTR buf, size_t size) {
 }
 
 void buffer_write_init(int imageFd, int numBytes) {
+  UNUSED (imageFd);
+
   buf = xmalloc(numBytes);
   buf_size = numBytes;
   buf_pos = 0;
@@ -851,6 +858,8 @@ char *buffer_read_init(int imageFd, int numBytes) {
 }
 
 void buffer_read_free(int imageFd) {
+  UNUSED (imageFd);
+
   if (buf_used_mmap) {
     _gst_osmem_free(buf, buf_size);
   } else {
@@ -859,6 +868,8 @@ void buffer_read_free(int imageFd) {
 }
 
 PTR buffer_advance(int imageFd, int numBytes) {
+  UNUSED (imageFd);
+
   PTR current_pos = buf + buf_pos;
   buf_pos += numBytes;
   return current_pos;
