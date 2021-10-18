@@ -407,20 +407,20 @@ static intptr_t VMpr_SmallInteger_bitShift(int id, volatile int numArgs) {
 
   oop2 = POP_OOP();
   oop1 = POP_OOP();
-  if COMMON (RECEIVER_IS_INT(oop1) && IS_INT(oop2)) {
+  if (COMMON (RECEIVER_IS_INT(oop1) && IS_INT(oop2))) {
     intptr_t iarg1;
     intptr_t iarg2;
     iarg1 = TO_INT(oop1);
     iarg2 = TO_INT(oop2);
     if (iarg2 < 0) {
-      if (iarg2 >= -ST_INT_SIZE)
+      if (iarg2 >= (long) -ST_INT_SIZE)
         PUSH_INT(iarg1 >> -iarg2);
       else
         PUSH_INT(iarg1 >> ST_INT_SIZE);
 
       PRIM_SUCCEEDED;
     }
-    if COMMON (iarg2 < ST_INT_SIZE) {
+    if (COMMON (iarg2 < (long) ST_INT_SIZE)) {
       intptr_t result = iarg1 << iarg2;
       if ((result >> iarg2) == iarg1 && !INT_OVERFLOW(result)) {
         PUSH_INT(result);
@@ -2731,7 +2731,7 @@ UNUSED(numArgs);
 
   oop1 = STACKTOP();
   arg1 = TO_INT(oop1);
-  if COMMON (OOP_INDEX_VALID(arg1)) {
+  if (COMMON (arg1 >= 0 && OOP_INDEX_VALID((uintptr_t) arg1))) {
     oop1 = OOP_AT(arg1);
     if (!IS_OOP_VALID(oop1))
       oop1 = _gst_nil_oop;
@@ -2751,14 +2751,21 @@ UNUSED(numArgs);
 
   OOP oop1;
   intptr_t arg1;
+  uintptr_t oopIndex;
   _gst_primitives_executed++;
 
   oop1 = STACKTOP();
   arg1 = TO_INT(oop1);
-  while (OOP_INDEX_VALID(++arg1)) {
-    oop1 = OOP_AT(arg1);
-    if (IS_OOP_VALID(oop1)) {
-      SET_STACKTOP_INT(arg1);
+  if (arg1 < -1) {
+    PRIM_FAILED;
+  }
+
+  oopIndex = (uintptr_t)++arg1;
+
+  while (OOP_INDEX_VALID(oopIndex)) {
+    OOP oop = OOP_AT(oopIndex);
+    if (IS_OOP_VALID(oop)) {
+      SET_STACKTOP_INT(oopIndex);
       PRIM_SUCCEEDED;
     }
   }
@@ -3381,10 +3388,18 @@ UNUSED(numArgs);
   oop1 = POP_OOP();
   if (is_c_int_64(oop2)) {
     int64_t arg2 = to_c_int_64(oop2);
+
+    if (arg2 < 0) {
+      UNPOP(2);
+      PRIM_FAILED;
+    }
+
     uint64_t ns = _gst_get_ns_time();
+
     if (id == 0)
       arg2 = (arg2 * 1000000) + ns;
-    if (arg2 <= ns)
+
+    if ((uint64_t) arg2 <= ns)
       _gst_sync_signal(oop1, true);
     else
       _gst_async_timed_wait(oop1, arg2);
@@ -3534,7 +3549,7 @@ static intptr_t VMpr_ArrayedCollection_indexOfStartingAt(int id,
   if COMMON ((IS_INT(targetOOP) || OOP_CLASS(targetOOP) == _gst_char_class) &&
              IS_INT(srcIndexOOP) && !IS_INT(srcOOP)) {
     intptr_t srcSpec = OOP_INSTANCE_SPEC(srcOOP);
-    if (srcSpec & (~0 << ISP_NUMFIXEDFIELDS))
+    if (srcSpec & ((unsigned)~0 << ISP_NUMFIXEDFIELDS))
       goto bad;
 
     /* Check compatibility.  */
@@ -6430,7 +6445,7 @@ UNUSED(numArgs);
   OOP oop1, oop2;
   gst_object obj;
   intptr_t spec;
-  uint64_t limit, top;
+  uint64_t top;
 
   if (numArgs == 0)
     oop1 = _gst_nil_oop;
@@ -6445,7 +6460,7 @@ UNUSED(numArgs);
   if (IS_INT(oop2))
     goto bad;
   spec = OOP_INSTANCE_SPEC(oop2);
-  if (spec & (~0 << ISP_NUMFIXEDFIELDS))
+  if (spec & ((unsigned) ~0 << ISP_NUMFIXEDFIELDS))
     goto bad;
   if (OOP_SIZE_BYTES(oop2) < RANDOM_SIZE * sizeof(uint32_t))
     goto bad;
@@ -6455,7 +6470,7 @@ UNUSED(numArgs);
   if (numArgs == 0)
     SET_STACKTOP(floatd_new(top / (double)0xFFFFFFFF));
   else {
-    limit = TO_INT(oop1);
+    intptr_t limit = TO_INT(oop1);
     if (limit < 0 || limit > 0xFFFFFFFF)
       goto bad;
 
