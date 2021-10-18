@@ -14,9 +14,9 @@
  *
  * GNU Smalltalk is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2, or (at your option) any later 
+ * Software Foundation; either version 2, or (at your option) any later
  * version.
- * 
+ *
  * Linking GNU Smalltalk statically or dynamically with other modules is
  * making a combined work based on GNU Smalltalk.  Thus, the terms and
  * conditions of the GNU General Public License cover the whole
@@ -40,13 +40,13 @@
  * modified version which carries forward this exception.
  *
  * GNU Smalltalk is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * GNU Smalltalk; see the file COPYING.  If not, write to the Free Software
- * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.  
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  ***********************************************************************/
 
 
@@ -64,25 +64,25 @@ typedef char *heap;
    implementation details.
 
    On failure returns NULL.  */
-extern heap _gst_heap_create (PTR address, size_t size)
-  ATTRIBUTE_HIDDEN;
+extern heap _gst_heap_create (PTR address, size_t size) ATTRIBUTE_HIDDEN;
 
 /* Terminate access to a heap managed region by unmapping all memory pages
    associated with the region, and closing the file descriptor if it is one
    that we opened.
-  
+
    Returns NULL on success.
-  
+
    Returns the heap descriptor on failure, which can subsequently be used
    for further action.  */
-extern heap _gst_heap_destroy (heap hd) 
-  ATTRIBUTE_HIDDEN;
+extern heap _gst_heap_destroy (heap hd) ATTRIBUTE_HIDDEN;
 
 /* Get core for the memory region specified by HD, using SIZE as the
    amount to either add to or subtract from the existing region.  Works
    like sbrk(), but using mmap() if HD is not NULL.  */
-extern PTR _gst_heap_sbrk (heap hd,
-			   size_t size) 
-  ATTRIBUTE_HIDDEN;
+#if SIZEOF_OOP == 4
+extern PTR _gst_heap_sbrk (heap hd, int32_t size) ATTRIBUTE_HIDDEN;
+#else
+extern PTR _gst_heap_sbrk (heap hd, int64_t size) ATTRIBUTE_HIDDEN;
+#endif
 
 #endif /* GST_HEAP_H */

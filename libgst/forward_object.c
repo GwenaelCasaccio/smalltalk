@@ -28,7 +28,11 @@ void _gst_init_oop_table(PTR address, size_t number_of_forwarding_objects) {
 }
 
 void _gst_alloc_oop_table(size_t number_of_forwarding_objects) {
-  size_t bytes;
+#if SIZEOF_OOP == 4
+  int32_t bytes;
+#else
+  int64_t bytes;
+#endif
 
   _gst_mem.ot_size = number_of_forwarding_objects;
   bytes = number_of_forwarding_objects * sizeof(struct oop_s);
@@ -111,7 +115,11 @@ void _gst_detach_oop_arena_entry(size_t arena_index) {
 }
 
 bool _gst_realloc_oop_table(size_t number_of_forwarding_objects) {
-  size_t bytes;
+#if SIZEOF_OOP == 4
+  int32_t bytes;
+#else
+  int64_t bytes;
+#endif
 
   if (!_gst_mem.oop_heap) {
     nomemory(true);
