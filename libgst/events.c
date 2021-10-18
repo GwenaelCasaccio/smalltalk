@@ -124,7 +124,7 @@ static int have_event_loop_handlers = false;
 
 /* The next time when the VM thread should interrupt itself for
    polling.  */
-static int64_t next_poll_ms;
+static uint64_t next_poll_ms;
 
 /* This handler is called asynchronously when the state changes
    to STATE_POLLING, or synchronously when the GNU Smalltalk
@@ -191,25 +191,27 @@ static
     void *
 #endif
     poll_timer_thread(void *unused) {
+  UNUSED(unused);
+
   event_loop_lock();
   for (;;) {
+    bool isInfinite = false;
     unsigned ms;
 
     /* If running, sleep until the next periodic poll.  Otherwise,
        sleep indefinitely waiting for the VM to require periodic
        polls.  */
     if (cur_state == STATE_RUNNING) {
-      unsigned cur_time;
-      cur_time = _gst_get_milli_time();
+      uint64_t cur_time = _gst_get_milli_time();
       if (cur_time < next_poll_ms) {
-        ms = MIN(0, next_poll_ms - cur_time);
+        ms = next_poll_ms - cur_time;
       } else {
         ms = EVENT_LOOP_POLL_INTERVAL;
         next_poll_ms = cur_time + ms;
         set_event_loop_state(STATE_POLLING);
       }
     } else {
-      ms = INFINITE;
+      isInfinite = true;
     }
 
 #ifdef _WIN32
@@ -217,7 +219,7 @@ static
     WaitForSingleObject(state_event, ms);
     event_loop_lock();
 #else
-    if (ms == INFINITE) {
+    if (isInfinite) {
       pthread_cond_wait(&state_cond, &state_mutex);
     } else if (ms) {
       event_loop_unlock();
@@ -238,7 +240,13 @@ static void poll_events(OOP blockingOOP) {
   } else if (blockingOOP == _gst_true_oop) {
     ms = -1;
   } else {
-    ms = MIN(0, next_poll_ms - _gst_get_milli_time());
+    uint64_t currentMilliTime = _gst_get_milli_time();
+
+    if (currentMilliTime > next_poll_ms) {
+      ms = next_poll_ms - currentMilliTime;
+    } else {
+      ms = 0;
+    }
   }
 
   if (event_poll && event_poll(ms)) {
