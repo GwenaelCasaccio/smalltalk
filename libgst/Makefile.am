@@ -1,7 +1,7 @@
 LEX_OUTPUT_ROOT = lex.yy
 ## CFLAGS=-O0 -g
 ##AM_CFLAGS = $(LIBGST_CFLAGS) -flto
-AM_CFLAGS = $(LIBGST_CFLAGS)
+AM_CFLAGS = $(LIBGST_CFLAGS) -Wall -Wextra
 AM_CPPFLAGS = $(RELOC_CPPFLAGS)					\
 							-I$(top_srcdir)/dynasm		\
 							-I$(top_srcdir)/lib-src		\
@@ -35,6 +35,8 @@ libgst_la_SOURCES = \
        print.c	   			alloc.c				re.c	          interp.c      		\
        real.c	     			sockets.c			events.c        object_pointer.c	\
 			 forward_object.c	heap/heap.c		heap/tlab.c     jit-x64.c
+
+jit-x64.lo: AM_CFLAGS = $(LIBGST_CFLAGS)
 
 dist_noinst_DATA = valgrind.supp builtins.gperf jit-x64.dasc
 
