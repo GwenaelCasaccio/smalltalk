@@ -270,7 +270,7 @@ static void should_exit_thread(void **state) {
   intptr_t result = VMpr_Processor_killThread(123, 0);
 
   assert_true(_gst_count_threaded_vm == 0);
-  assert_true(result == false);
+  assert_true(result);
 }
 
 static void should_initialize_new_vm_thread(void **state) {
