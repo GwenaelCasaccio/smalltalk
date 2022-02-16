@@ -845,11 +845,11 @@ bc0 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 402 "vm.inl"
+
   } while (0);
   /* PLUS_SPECIAL ( op1 op2 -- op ) */
   do {
@@ -862,7 +862,7 @@ bc0 : {
 #define op1 _stack1
 #define op2 _stack0
 #define op _stack1
-#line 230 "vm.def"
+
     INTERP_BASIC_OP(op, op1, op2, add_with_check(op1, op2, &overflow),
                     farg1 + farg2);
     PREPARE_STACK();
@@ -871,7 +871,7 @@ bc0 : {
     IMPORT_REGS();
     FETCH;
 
-#line 425 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef op1
@@ -888,11 +888,11 @@ bc1 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 449 "vm.inl"
+
   } while (0);
   /* MINUS_SPECIAL ( op1 op2 -- op ) */
   do {
@@ -905,7 +905,7 @@ bc1 : {
 #define op1 _stack1
 #define op2 _stack0
 #define op _stack1
-#line 241 "vm.def"
+
     INTERP_BASIC_OP(op, op1, op2, sub_with_check(op1, op2, &overflow),
                     farg1 - farg2);
     PREPARE_STACK();
@@ -914,7 +914,7 @@ bc1 : {
     IMPORT_REGS();
     FETCH;
 
-#line 472 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef op1
@@ -931,11 +931,11 @@ bc2 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 496 "vm.inl"
+
   } while (0);
   /* LESS_THAN_SPECIAL ( op1 op2 -- op ) */
   do {
@@ -948,7 +948,7 @@ bc2 : {
 #define op1 _stack1
 #define op2 _stack0
 #define op _stack1
-#line 252 "vm.def"
+
     PREPARE_STACK();
     INTERP_BASIC_BOOL(op, op1, op2, <);
     EXPORT_REGS();
@@ -956,7 +956,7 @@ bc2 : {
     IMPORT_REGS();
     FETCH;
 
-#line 517 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef op1
@@ -973,11 +973,11 @@ bc3 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 541 "vm.inl"
+
   } while (0);
   /* GREATER_THAN_SPECIAL ( op1 op2 -- op ) */
   do {
@@ -990,7 +990,7 @@ bc3 : {
 #define op1 _stack1
 #define op2 _stack0
 #define op _stack1
-#line 261 "vm.def"
+
     PREPARE_STACK();
     INTERP_BASIC_BOOL(op, op1, op2, >);
     EXPORT_REGS();
@@ -998,7 +998,7 @@ bc3 : {
     IMPORT_REGS();
     FETCH;
 
-#line 562 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef op1
@@ -1015,11 +1015,11 @@ bc4 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 586 "vm.inl"
+
   } while (0);
   /* LESS_EQUAL_SPECIAL ( op1 op2 -- op ) */
   do {
@@ -1032,7 +1032,7 @@ bc4 : {
 #define op1 _stack1
 #define op2 _stack0
 #define op _stack1
-#line 270 "vm.def"
+
     PREPARE_STACK();
     INTERP_BASIC_BOOL(op, op1, op2, <=);
     EXPORT_REGS();
@@ -1040,7 +1040,7 @@ bc4 : {
     IMPORT_REGS();
     FETCH;
 
-#line 607 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef op1
@@ -1057,11 +1057,11 @@ bc5 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 631 "vm.inl"
+
   } while (0);
   /* GREATER_EQUAL_SPECIAL ( op1 op2 -- op ) */
   do {
@@ -1074,7 +1074,7 @@ bc5 : {
 #define op1 _stack1
 #define op2 _stack0
 #define op _stack1
-#line 279 "vm.def"
+
     PREPARE_STACK();
     INTERP_BASIC_BOOL(op, op1, op2, >=);
     EXPORT_REGS();
@@ -1082,7 +1082,7 @@ bc5 : {
     IMPORT_REGS();
     FETCH;
 
-#line 652 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef op1
@@ -1099,11 +1099,11 @@ bc6 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 676 "vm.inl"
+
   } while (0);
   /* EQUAL_SPECIAL ( op1 op2 -- op ) */
   do {
@@ -1116,7 +1116,7 @@ bc6 : {
 #define op1 _stack1
 #define op2 _stack0
 #define op _stack1
-#line 288 "vm.def"
+
     PREPARE_STACK();
     INTERP_BASIC_BOOL(op, op1, op2, ==);
     EXPORT_REGS();
@@ -1124,7 +1124,7 @@ bc6 : {
     IMPORT_REGS();
     FETCH;
 
-#line 697 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef op1
@@ -1141,11 +1141,11 @@ bc7 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 721 "vm.inl"
+
   } while (0);
   /* NOT_EQUAL_SPECIAL ( op1 op2 -- op ) */
   do {
@@ -1158,7 +1158,7 @@ bc7 : {
 #define op1 _stack1
 #define op2 _stack0
 #define op _stack1
-#line 297 "vm.def"
+
     PREPARE_STACK();
     INTERP_BASIC_BOOL(op, op1, op2, !=);
     EXPORT_REGS();
@@ -1166,7 +1166,7 @@ bc7 : {
     IMPORT_REGS();
     FETCH;
 
-#line 742 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef op1
@@ -1183,11 +1183,11 @@ bc8 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 766 "vm.inl"
+
   } while (0);
   /* TIMES_SPECIAL ( op1 op2 -- op ) */
   do {
@@ -1200,7 +1200,7 @@ bc8 : {
 #define op1 _stack1
 #define op2 _stack0
 #define op _stack1
-#line 306 "vm.def"
+
     INTERP_BASIC_OP(op, op1, op2, mul_with_check(op1, op2, &overflow),
                     farg1 * farg2);
     PREPARE_STACK();
@@ -1209,7 +1209,7 @@ bc8 : {
     IMPORT_REGS();
     FETCH;
 
-#line 789 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef op1
@@ -1226,11 +1226,11 @@ bc9 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 813 "vm.inl"
+
   } while (0);
   /* DIVIDE_SPECIAL ( op1 op2 -- op ) */
   do {
@@ -1243,7 +1243,7 @@ bc9 : {
 #define op1 _stack1
 #define op2 _stack0
 #define op _stack1
-#line 317 "vm.def"
+
     if COMMON (!ARE_INTS(op1, op2) &&
                (IS_INT(op1) || OOP_CLASS(op1) == _gst_floatd_class) &&
                (IS_INT(op2) || OOP_CLASS(op2) == _gst_floatd_class)) {
@@ -1263,7 +1263,7 @@ bc9 : {
     IMPORT_REGS();
     FETCH;
 
-#line 849 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef op1
@@ -1280,11 +1280,11 @@ bc10 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 873 "vm.inl"
+
   } while (0);
   /* REMAINDER_SPECIAL ( op1 op2 -- op ) */
   do {
@@ -1297,7 +1297,7 @@ bc10 : {
 #define op1 _stack1
 #define op2 _stack0
 #define op _stack1
-#line 341 "vm.def"
+
     PREPARE_STACK();
     EXPORT_REGS();
     if (IS_INT(op1) && IS_INT(op2) && !VMpr_SmallInteger_modulo(11, 1)) {
@@ -1309,7 +1309,7 @@ bc10 : {
     IMPORT_REGS();
     FETCH;
 
-#line 900 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef op1
@@ -1326,11 +1326,11 @@ bc11 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 924 "vm.inl"
+
   } while (0);
   /* BIT_XOR_SPECIAL ( op1 op2 -- op ) */
   do {
@@ -1343,7 +1343,7 @@ bc11 : {
 #define op1 _stack1
 #define op2 _stack0
 #define op _stack1
-#line 356 "vm.def"
+
     if COMMON (ARE_INTS(op1, op2)) {
       op = tagged_xor(op1, op2);
       break;
@@ -1355,7 +1355,7 @@ bc11 : {
     IMPORT_REGS();
     FETCH;
 
-#line 950 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef op1
@@ -1372,11 +1372,11 @@ bc12 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 974 "vm.inl"
+
   } while (0);
   /* BIT_SHIFT_SPECIAL ( op1 op2 -- op ) */
   do {
@@ -1389,8 +1389,8 @@ bc12 : {
 #define op1 _stack1
 #define op2 _stack0
 #define op _stack1
-#line 370 "vm.def"
     if COMMON (IS_INT(op2) && IS_INT(op1)) {
+
       intptr_t iarg1, iarg2;
       iarg1 = TO_INT(op1);
       iarg2 = TO_INT(op2);
@@ -1402,7 +1402,7 @@ bc12 : {
 
         break;
       } else if COMMON (iarg2 < (long) ST_INT_SIZE) {
-        intptr_t result = iarg1 << iarg2;
+        intptr_t result = ((uintptr_t) iarg1) << iarg2;
         if COMMON ((result >> iarg2) == iarg1 && !INT_OVERFLOW(result)) {
           op = FROM_INT(result);
           break;
@@ -1416,7 +1416,7 @@ bc12 : {
     IMPORT_REGS();
     FETCH;
 
-#line 1019 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef op1
@@ -1433,11 +1433,11 @@ bc13 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1043 "vm.inl"
+
   } while (0);
   /* INTEGER_DIVIDE_SPECIAL ( op1 op2 | -- op1 op2 | ) */
   do {
@@ -1449,7 +1449,7 @@ bc13 : {
   } while (0)
 #define op1 _stack1
 #define op2 _stack0
-#line 403 "vm.def"
+
     PREPARE_STACK();
     EXPORT_REGS();
     if (IS_INT(op1) && IS_INT(op2) && !VMpr_SmallInteger_intDiv(12, 1)) {
@@ -1461,7 +1461,7 @@ bc13 : {
     IMPORT_REGS();
     FETCH;
 
-#line 1069 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef op1
@@ -1475,11 +1475,11 @@ bc14 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1090 "vm.inl"
+
   } while (0);
   /* BIT_AND_SPECIAL ( op1 op2 -- op ) */
   do {
@@ -1492,7 +1492,7 @@ bc14 : {
 #define op1 _stack1
 #define op2 _stack0
 #define op _stack1
-#line 418 "vm.def"
+
     op = tagged_and(op1, op2);
     if COMMON (IS_INT(op))
       break;
@@ -1503,7 +1503,7 @@ bc14 : {
     IMPORT_REGS();
     FETCH;
 
-#line 1114 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef op1
@@ -1520,11 +1520,11 @@ bc15 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1138 "vm.inl"
+
   } while (0);
   /* BIT_OR_SPECIAL ( op1 op2 -- op ) */
   do {
@@ -1537,7 +1537,7 @@ bc15 : {
 #define op1 _stack1
 #define op2 _stack0
 #define op _stack1
-#line 430 "vm.def"
+
     if COMMON (ARE_INTS(op1, op2)) {
       op = tagged_or(op1, op2);
       break;
@@ -1549,7 +1549,7 @@ bc15 : {
     IMPORT_REGS();
     FETCH;
 
-#line 1164 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef op1
@@ -1566,11 +1566,11 @@ bc16 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1188 "vm.inl"
+
   } while (0);
   /* AT_SPECIAL ( rec idx -- val ) */
   do {
@@ -1583,7 +1583,7 @@ bc16 : {
 #define rec _stack1
 #define idx _stack0
 #define val _stack1
-#line 444 "vm.def"
+
     OOP classOOP;
     PREPARE_STACK();
     EXPORT_REGS();
@@ -1612,7 +1612,7 @@ bc16 : {
     }
     FETCH;
 
-#line 1233 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef rec
@@ -1631,11 +1631,11 @@ bc17 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1258 "vm.inl"
+
   } while (0);
   /* AT_PUT_SPECIAL ( rec idx val -- res ) */
   do {
@@ -1649,7 +1649,7 @@ bc17 : {
 #define idx _stack1
 #define val _stack0
 #define res _stack2
-#line 477 "vm.def"
+
     OOP classOOP;
     PREPARE_STACK();
     EXPORT_REGS();
@@ -1679,7 +1679,7 @@ bc17 : {
     }
     FETCH;
 
-#line 1304 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef rec
@@ -1696,11 +1696,11 @@ bc18 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1328 "vm.inl"
+
   } while (0);
   /* SIZE_SPECIAL ( rec -- val ) */
   do {
@@ -1712,7 +1712,7 @@ bc18 : {
   } while (0)
 #define rec _stack0
 #define val _stack0
-#line 510 "vm.def"
+
     OOP classOOP;
     PREPARE_STACK();
     EXPORT_REGS();
@@ -1741,7 +1741,7 @@ bc18 : {
     }
     FETCH;
 
-#line 1372 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef rec
@@ -1755,11 +1755,11 @@ bc19 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1393 "vm.inl"
+
   } while (0);
   /* CLASS_SPECIAL ( rec -- val ) */
   do {
@@ -1771,7 +1771,7 @@ bc19 : {
   } while (0)
 #define rec _stack0
 #define val _stack0
-#line 543 "vm.def"
+
     OOP classOOP;
     PREPARE_STACK();
     EXPORT_REGS();
@@ -1800,7 +1800,7 @@ bc19 : {
     }
     FETCH;
 
-#line 1437 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef rec
@@ -1814,21 +1814,21 @@ bc20 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1458 "vm.inl"
+
   } while (0);
   /* IS_NIL_SPECIAL ( rec -- val ) */
   do {
 #define rec _stack0
 #define val _stack0
-#line 576 "vm.def"
+
     /* DO_JUMP_LOOKAHEAD (rec == _gst_nil_oop); */
     val = rec == _gst_nil_oop ? _gst_true_oop : _gst_false_oop;
 
-#line 1470 "vm.inl"
+
 #undef rec
 #undef val
   } while (0);
@@ -1840,21 +1840,21 @@ bc21 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1489 "vm.inl"
+
   } while (0);
   /* NOT_NIL_SPECIAL ( rec -- val ) */
   do {
 #define rec _stack0
 #define val _stack0
-#line 581 "vm.def"
+
     /* DO_JUMP_LOOKAHEAD (rec != _gst_nil_oop); */
     val = rec != _gst_nil_oop ? _gst_true_oop : _gst_false_oop;
 
-#line 1501 "vm.inl"
+
 #undef rec
 #undef val
   } while (0);
@@ -1866,11 +1866,11 @@ bc22 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1520 "vm.inl"
+
   } while (0);
   /* VALUE_SPECIAL ( rec | -- rec | ) */
   do {
@@ -1881,7 +1881,7 @@ bc22 : {
   do {                                                                         \
   } while (0)
 #define rec _stack0
-#line 586 "vm.def"
+
     PREPARE_STACK();
     EXPORT_REGS();
     if (UNCOMMON(IS_INT(rec)) ||
@@ -1892,7 +1892,7 @@ bc22 : {
     IMPORT_REGS();
     FETCH;
 
-#line 1542 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef rec
@@ -1905,11 +1905,11 @@ bc23 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1562 "vm.inl"
+
   } while (0);
   /* VALUE_COLON_SPECIAL ( rec blk_arg | -- rec blk_arg | ) */
   do {
@@ -1921,7 +1921,7 @@ bc23 : {
   } while (0)
 #define rec _stack1
 #define blk_arg _stack0
-#line 598 "vm.def"
+
     PREPARE_STACK();
     EXPORT_REGS();
     if (UNCOMMON(IS_INT(rec)) ||
@@ -1932,7 +1932,7 @@ bc23 : {
     IMPORT_REGS();
     FETCH;
 
-#line 1585 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef rec
@@ -1946,22 +1946,22 @@ bc24 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1606 "vm.inl"
+
   } while (0);
   /* SAME_OBJECT_SPECIAL ( op1 op2 -- op ) */
   do {
 #define op1 _stack1
 #define op2 _stack0
 #define op _stack1
-#line 610 "vm.def"
+
     /* DO_JUMP_LOOKAHEAD (op1 == op2); */
     op = (op1 == op2) ? _gst_true_oop : _gst_false_oop;
 
-#line 1619 "vm.inl"
+
 #undef op1
 #undef op2
 #undef op
@@ -1975,11 +1975,11 @@ bc25 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1640 "vm.inl"
+
   } while (0);
   /* JAVA_AS_INT_SPECIAL ( rec -- val ) */
   do {
@@ -1991,7 +1991,7 @@ bc25 : {
   } while (0)
 #define rec _stack0
 #define val _stack0
-#line 615 "vm.def"
+
     if COMMON (IS_INT(rec) || is_c_int_32(rec)) {
       val = rec;
       break;
@@ -2003,7 +2003,7 @@ bc25 : {
     IMPORT_REGS();
     FETCH;
 
-#line 1665 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef rec
@@ -2017,11 +2017,11 @@ bc26 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1686 "vm.inl"
+
   } while (0);
   /* JAVA_AS_LONG_SPECIAL ( rec -- val ) */
   do {
@@ -2033,7 +2033,7 @@ bc26 : {
   } while (0)
 #define rec _stack0
 #define val _stack0
-#line 629 "vm.def"
+
     if COMMON (IS_INT(rec) || is_c_int_64(rec)) {
       val = rec;
       break;
@@ -2045,7 +2045,7 @@ bc26 : {
     IMPORT_REGS();
     FETCH;
 
-#line 1711 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef rec
@@ -2057,30 +2057,30 @@ NEXT_BC;
 bc27 : {
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1730 "vm.inl"
+
   } while (0);
   /* INVALID ( -- ) */
   do {
     int arg = arg;
-#line 226 "vm.def"
+
     _gst_errorf("Invalid bytecode %d(%d) found!", ip[-1], arg);
 
-#line 1740 "vm.inl"
+
   } while (0);
 }
 NEXT_BC;
 bc28 : {
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1754 "vm.inl"
+
   } while (0);
   /* SEND ( -- ) */
   do {
@@ -2092,14 +2092,14 @@ bc28 : {
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
   } while (0)
-#line 643 "vm.def"
+
     PREPARE_STACK();
     EXPORT_REGS();
     VM_SEND_MESSAGE(METHOD_LITERAL(sel), n);
     IMPORT_REGS();
     FETCH;
 
-#line 1773 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
@@ -2108,11 +2108,11 @@ NEXT_BC;
 bc29 : {
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1789 "vm.inl"
+
   } while (0);
   /* SEND_SUPER ( -- ) */
   do {
@@ -2124,7 +2124,7 @@ bc29 : {
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
   } while (0)
-#line 651 "vm.def"
+
     OOP classOOP;
     PREPARE_STACK();
     classOOP = VM_POP_OOP();
@@ -2134,7 +2134,7 @@ bc29 : {
     IMPORT_REGS();
     FETCH;
 
-#line 1811 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
@@ -2143,11 +2143,11 @@ NEXT_BC;
 bc30 : {
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1827 "vm.inl"
+
   } while (0);
   /* SEND_IMMEDIATE ( -- ) */
   do {
@@ -2158,7 +2158,7 @@ bc30 : {
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
   } while (0)
-#line 662 "vm.def"
+
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
     EXPORT_REGS();
@@ -2166,7 +2166,7 @@ bc30 : {
     IMPORT_REGS();
     FETCH;
 
-#line 1846 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
@@ -2175,11 +2175,11 @@ NEXT_BC;
 bc31 : {
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1862 "vm.inl"
+
   } while (0);
   /* SEND_SUPER_IMMEDIATE ( -- ) */
   do {
@@ -2190,7 +2190,7 @@ bc31 : {
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
   } while (0)
-#line 671 "vm.def"
+
     OOP classOOP;
     const struct builtin_selector *bs = &_gst_builtin_selectors[n];
     PREPARE_STACK();
@@ -2201,7 +2201,7 @@ bc31 : {
     IMPORT_REGS();
     FETCH;
 
-#line 1884 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
@@ -2211,20 +2211,20 @@ bc32 : {
   OOP _extra1 ATTRIBUTE_UNUSED;
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1901 "vm.inl"
+
   } while (0);
   /* PUSH_TEMPORARY_VARIABLE ( -- tos ) */
   do {
     int n = arg;
 #define tos _extra1
-#line 683 "vm.def"
+
     tos = METHOD_TEMPORARY(n);
 
-#line 1912 "vm.inl"
+
 #undef tos
   } while (0);
   VM_PUSH_OOP(_extra1);
@@ -2234,18 +2234,18 @@ bc33 : {
   OOP _extra1 ATTRIBUTE_UNUSED;
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1929 "vm.inl"
+
   } while (0);
   /* PUSH_OUTER_TEMP ( -- tos ) */
   do {
     int n = arg >> 8;
     int scopes = arg & 255;
 #define tos _extra1
-#line 687 "vm.def"
+
     OOP contextOOP;
     gst_object context;
 
@@ -2257,7 +2257,7 @@ bc33 : {
 
     tos = OBJ_BLOCK_CONTEXT_AT_STACK(context, n);
 
-#line 1952 "vm.inl"
+
 #undef tos
   } while (0);
   VM_PUSH_OOP(_extra1);
@@ -2267,11 +2267,11 @@ bc34 : {
   OOP _extra1 ATTRIBUTE_UNUSED;
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 1969 "vm.inl"
+
   } while (0);
   /* PUSH_LIT_VARIABLE ( -- tos ) */
   do {
@@ -2283,7 +2283,7 @@ bc34 : {
   do {                                                                         \
   } while (0)
 #define tos _extra1
-#line 702 "vm.def"
+
     tos = METHOD_LITERAL(n);
     if (UNCOMMON(IS_INT(tos)) ||
         UNCOMMON(!is_a_kind_of(OOP_CLASS(tos), _gst_association_class))) {
@@ -2296,7 +2296,7 @@ bc34 : {
     } else
       tos = OBJ_ASSOCIATION_GET_VALUE(OOP_TO_OBJ(tos));
 
-#line 1996 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef tos
@@ -2308,20 +2308,20 @@ bc35 : {
   OOP _extra1 ATTRIBUTE_UNUSED;
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 2015 "vm.inl"
+
   } while (0);
   /* PUSH_RECEIVER_VARIABLE ( -- tos ) */
   do {
     int n = arg;
 #define tos _extra1
-#line 718 "vm.def"
+
     tos = RECEIVER_VARIABLE(n);
 
-#line 2026 "vm.inl"
+
 #undef tos
   } while (0);
   VM_PUSH_OOP(_extra1);
@@ -2332,20 +2332,20 @@ bc36 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 2044 "vm.inl"
+
   } while (0);
   /* STORE_TEMPORARY_VARIABLE ( tos | -- tos | ) */
   do {
     int n = arg;
 #define tos _stack0
-#line 722 "vm.def"
+
     STORE_METHOD_TEMPORARY(n, tos);
 
-#line 2055 "vm.inl"
+
 #undef tos
   } while (0);
 }
@@ -2355,18 +2355,18 @@ bc37 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 2072 "vm.inl"
+
   } while (0);
   /* STORE_OUTER_TEMP ( tos | -- tos | ) */
   do {
     int n = arg >> 8;
     int scopes = arg & 255;
 #define tos _stack0
-#line 726 "vm.def"
+
     OOP contextOOP;
     gst_object context;
 
@@ -2378,7 +2378,7 @@ bc37 : {
 
     OBJ_BLOCK_CONTEXT_AT_PUT_STACK(context, n, tos);
 
-#line 2095 "vm.inl"
+
 #undef tos
   } while (0);
 }
@@ -2388,11 +2388,11 @@ bc38 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 2112 "vm.inl"
+
   } while (0);
   /* STORE_LIT_VARIABLE ( tos | -- tos | ) */
   do {
@@ -2404,7 +2404,7 @@ bc38 : {
   do {                                                                         \
   } while (0)
 #define tos _stack0
-#line 741 "vm.def"
+
     OOP var = METHOD_LITERAL(n), value = tos;
     if (UNCOMMON(IS_INT(var)) ||
         UNCOMMON(!is_a_kind_of(OOP_CLASS(var), _gst_association_class))) {
@@ -2418,7 +2418,7 @@ bc38 : {
     } else {
       OBJ_ASSOCIATION_SET_VALUE(OOP_TO_OBJ(var), value);
     }
-#line 2140 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef tos
@@ -2430,11 +2430,11 @@ bc39 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 2159 "vm.inl"
+
   } while (0);
   /* STORE_RECEIVER_VARIABLE ( tos | -- tos | ) */
   do {
@@ -2448,7 +2448,7 @@ bc39 : {
   } while (0)
 
 #define tos _stack0
-#line 758 "vm.def"
+
     if (COMMON (!IS_OOP_READONLY (_gst_self[local_cpy_current_thread_id]))) {
       STORE_RECEIVER_VARIABLE(n, tos);
     } else {
@@ -2462,7 +2462,7 @@ bc39 : {
       FETCH;
     }
 
-#line 2170 "vm.inl"
+
 
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
@@ -2474,11 +2474,11 @@ NEXT_BC;
 bc40 : {
   /* ADVANCE ( -- ) */
   do {
-#line 212 "vm.def"
+
     ip += 2;
     LOCAL_COUNTER++;
 
-#line 2185 "vm.inl"
+
   } while (0);
   /* JUMP_BACK ( -- ) */
   do {
@@ -2489,12 +2489,12 @@ bc40 : {
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
   } while (0)
-#line 762 "vm.def"
+
     PREPARE_STACK();
     ip -= n;
     FETCH;
 
-#line 2201 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
@@ -2503,11 +2503,11 @@ NEXT_BC;
 bc41 : {
   /* ADVANCE ( -- ) */
   do {
-#line 212 "vm.def"
+
     ip += 2;
     LOCAL_COUNTER++;
 
-#line 2217 "vm.inl"
+
   } while (0);
   /* JUMP ( -- ) */
   do {
@@ -2518,12 +2518,12 @@ bc41 : {
 #define UNDO_PREPARE_STACK()                                                   \
   do {                                                                         \
   } while (0)
-#line 768 "vm.def"
+
     PREPARE_STACK();
     ip += n;
     FETCH;
 
-#line 2233 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
   } while (0);
@@ -2534,11 +2534,11 @@ bc42 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 2251 "vm.inl"
+
   } while (0);
   /* POP_JUMP_TRUE ( tos -- ) */
   do {
@@ -2550,7 +2550,7 @@ bc42 : {
   do {                                                                         \
   } while (0)
 #define tos _stack0
-#line 793 "vm.def"
+
     if UNCOMMON (tos == _gst_true_oop) {
       PREPARE_STACK();
       VM_POP_N_OOPS(1);
@@ -2565,7 +2565,7 @@ bc42 : {
       FETCH;
     }
 
-#line 2281 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef tos
@@ -2578,11 +2578,11 @@ bc43 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 2301 "vm.inl"
+
   } while (0);
   /* POP_JUMP_FALSE ( tos -- ) */
   do {
@@ -2594,7 +2594,7 @@ bc43 : {
   do {                                                                         \
   } while (0)
 #define tos _stack0
-#line 774 "vm.def"
+
     if UNCOMMON (tos == _gst_false_oop) {
       PREPARE_STACK();
       VM_POP_N_OOPS(1);
@@ -2609,7 +2609,7 @@ bc43 : {
       FETCH;
     }
 
-#line 2331 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef tos
@@ -2621,20 +2621,20 @@ bc44 : {
   OOP _extra1 ATTRIBUTE_UNUSED;
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 2350 "vm.inl"
+
   } while (0);
   /* PUSH_INTEGER ( -- tos ) */
   do {
     int n = arg;
 #define tos _extra1
-#line 812 "vm.def"
+
     tos = FROM_INT(n);
 
-#line 2361 "vm.inl"
+
 #undef tos
   } while (0);
   VM_PUSH_OOP(_extra1);
@@ -2644,20 +2644,20 @@ bc45 : {
   OOP _extra1 ATTRIBUTE_UNUSED;
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 2378 "vm.inl"
+
   } while (0);
   /* PUSH_SPECIAL ( -- tos ) */
   do {
     int n = arg;
 #define tos _extra1
-#line 816 "vm.def"
+
     tos = _gst_nil_oop + (n - NIL_INDEX);
 
-#line 2389 "vm.inl"
+
 #undef tos
   } while (0);
   VM_PUSH_OOP(_extra1);
@@ -2667,20 +2667,20 @@ bc46 : {
   OOP _extra1 ATTRIBUTE_UNUSED;
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 2406 "vm.inl"
+
   } while (0);
   /* PUSH_LIT_CONSTANT ( -- tos ) */
   do {
     int n = arg;
 #define tos _extra1
-#line 820 "vm.def"
+
     tos = METHOD_LITERAL(n);
 
-#line 2417 "vm.inl"
+
 #undef tos
   } while (0);
   VM_PUSH_OOP(_extra1);
@@ -2692,21 +2692,21 @@ bc47 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 2436 "vm.inl"
+
   } while (0);
   /* POP_INTO_NEW_STACKTOP ( obj | val -- obj | ) */
   do {
     int n = arg;
 #define obj _stack1
 #define val _stack0
-#line 824 "vm.def"
+
     STORE_INSTANCE_VARIABLE(obj, n, val);
 
-#line 2448 "vm.inl"
+
 #undef obj
 #undef val
   } while (0);
@@ -2718,18 +2718,18 @@ bc48 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 2467 "vm.inl"
+
   } while (0);
   /* POP_STACK_TOP ( tos -- ) */
   do {
 #define tos _stack0
-#line 828 "vm.def"
 
-#line 2476 "vm.inl"
+
+
 #undef tos
   } while (0);
   VM_POP_N_OOPS(1);
@@ -2740,11 +2740,11 @@ bc49 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 2494 "vm.inl"
+
   } while (0);
   /* MAKE_DIRTY_BLOCK ( block -- closure ) */
   do {
@@ -2756,14 +2756,14 @@ bc49 : {
   } while (0)
 #define block _stack0
 #define closure _stack0
-#line 831 "vm.def"
+
     PREPARE_STACK();
     EXPORT_REGS();
     closure = _gst_make_block_closure(block);
     IMPORT_REGS();
     UNDO_PREPARE_STACK();
 
-#line 2513 "vm.inl"
+
 #undef PREPARE_STACK
 #undef UNDO_PREPARE_STACK
 #undef block
@@ -2777,16 +2777,16 @@ bc50 : {
   _stack0 = VM_STACK_AT(0);
   /* PREFETCH ( -- ) */
   do {
-#line 207 "vm.def"
+
     PREFETCH;
     LOCAL_COUNTER++;
 
-#line 2534 "vm.inl"
+
   } while (0);
   /* RETURN_METHOD_STACK_TOP ( val | -- val | ) */
   do {
 #define val _stack0
-#line 839 "vm.def"
+
     /* The current context dies here, so the stack need not be prepared.  */
     EXPORT_REGS();
     if UNCOMMON (!unwind_method()) {
@@ -2798,7 +2798,7 @@ bc50 : {
     }
     FETCH;
 
-#line 2556 "vm.inl"
+
 #undef val
   } while (0);
 }

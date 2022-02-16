@@ -267,10 +267,11 @@ static void should_exit_thread(void **state) {
   expect_value(__wrap_pthread_exit, retval, NULL);
   expect_function_calls(__wrap_pthread_exit, 1);
 
-  intptr_t result = VMpr_Processor_killThread(123, 0);
+  // Since pthread_kill is called the compiler does not generate much more
+  // code. No need to test the result
+  VMpr_Processor_killThread(123, 0);
 
   assert_true(_gst_count_threaded_vm == 0);
-  assert_true(result == false);
 }
 
 static void should_initialize_new_vm_thread(void **state) {

@@ -76,9 +76,9 @@
 #define PRIM_SUCCEEDED return ((intptr_t)0)
 #define PRIM_SUCCEEDED_RELOAD_IP return ((intptr_t)native_ip)
 #else
-#define PRIM_FAILED return (true)
-#define PRIM_SUCCEEDED return (false)
-#define PRIM_SUCCEEDED_RELOAD_IP return (false)
+#define PRIM_FAILED return ((intptr_t) true)
+#define PRIM_SUCCEEDED return ((intptr_t) false)
+#define PRIM_SUCCEEDED_RELOAD_IP return ((intptr_t) false)
 #endif
 
 #define INT_BIN_OP(op, noOverflow)                                             \
@@ -370,7 +370,7 @@ static intptr_t VMpr_SmallInteger_bitShift(int id, volatile int numArgs) {
       PRIM_SUCCEEDED;
     }
     if (COMMON(iarg2 < (long)ST_INT_SIZE)) {
-      intptr_t result = iarg1 << iarg2;
+      intptr_t result = ((uintptr_t) iarg1) << iarg2;
       if ((result >> iarg2) == iarg1 && !INT_OVERFLOW(result)) {
         PUSH_INT(result);
         PRIM_SUCCEEDED;

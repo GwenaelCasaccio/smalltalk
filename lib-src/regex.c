@@ -39,7 +39,7 @@
 
 /* We write fatal error messages on standard error.  */
 #include <stdio.h>
-
+#include <stdint.h>
 #include <stdlib.h>
 
 /* isalpha(3) etc. are used for the character classes.  */
@@ -382,7 +382,7 @@ enum regexpcode
    at SOURCE.  */
 #define EXTRACT_NUMBER(destination, source)				\
   do { (destination) = *(source) & 0377;				\
-    (destination) += SIGN_EXTEND_CHAR(*(char*)((source) + 1)) << 8; } while (0)
+    (destination) += (int) (((unsigned int) SIGN_EXTEND_CHAR(*(char*)( (source) + 1))) << 8); } while (0)
 
 /* Same as EXTRACT_NUMBER, except increment the pointer for source to
    point to second byte of SOURCE.  Note that SOURCE has to be a value
