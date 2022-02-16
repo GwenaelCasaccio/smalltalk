@@ -496,7 +496,7 @@ extern OOP _gst_nil_oop
 #define ST_INT_SIZE        ((sizeof (PTR) * 8) - 2)
 #define MAX_ST_INT         ((1L << ST_INT_SIZE) - 1)
 #define MIN_ST_INT         ( ~MAX_ST_INT)
-#define INT_OVERFLOW(i)    (((i) ^ (((uintptr_t) i) << 1)) < 0)
+#define INT_OVERFLOW(i)    (((intptr_t) ((i) ^ (((uintptr_t) (i)) << 1))) < 0)
 #define OVERFLOWING_INT    (MAX_ST_INT + 1)
 
 #define INCR_INT(i)         ((OOP) (((intptr_t)i) + 2))	/* 1 << 1 */

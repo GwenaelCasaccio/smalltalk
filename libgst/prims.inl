@@ -76,9 +76,9 @@
 #define PRIM_SUCCEEDED return ((intptr_t)0)
 #define PRIM_SUCCEEDED_RELOAD_IP return ((intptr_t)native_ip)
 #else
-#define PRIM_FAILED return (intptr_t) true
-#define PRIM_SUCCEEDED return (intptr_t) false
-#define PRIM_SUCCEEDED_RELOAD_IP return (intptr_t) false
+#define PRIM_FAILED return ((intptr_t) true)
+#define PRIM_SUCCEEDED return ((intptr_t) false)
+#define PRIM_SUCCEEDED_RELOAD_IP return ((intptr_t) false)
 #endif
 
 #define INT_BIN_OP(op, noOverflow)                                             \
