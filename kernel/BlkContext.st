@@ -33,7 +33,7 @@
 
 
 ContextPart subclass: BlockContext [
-    | outerContext |
+    | outerContext registerReturn |
     
     <shape: #pointer>
     <category: 'Language-Implementation'>

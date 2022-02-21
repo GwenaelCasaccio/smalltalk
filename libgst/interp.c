@@ -101,6 +101,7 @@ typedef struct gst_context_part {
   OOP receiver;  /* the receiver OOP */
   OOP method;    /* the method that we're executing */
   OOP x;         /* depends on the subclass */
+  OOP return_register;
   OOP contextStack[1];
 } * gst_context_part;
 
@@ -866,7 +867,7 @@ void empty_context_stack_for_thread(size_t thread_id) {
       FROM_INT(sp[thread_id] - OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)));
   OBJ_METHOD_CONTEXT_SET_IP_OFFSET(
       context, FROM_INT(ip[thread_id] - method_base[thread_id]));
-
+  
   /* Even if the JIT is active, the current context might have no
      attached native_ip -- in fact it has one only if we are being
      called from activate_new_context -- so we have to `invent'
@@ -953,6 +954,8 @@ gst_object activate_new_context(int size, int sendArgs) {
   OBJ_METHOD_CONTEXT_SET_PARENT_CONTEXT(
       newContext, _gst_this_context_oop[current_thread_id]);
 
+  OBJ_METHOD_CONTEXT_SET_RETURN_REGISTER(newContext, FROM_INT(0));
+  
   /* save old context information */
   /* leave sp pointing to receiver, which is replaced on return with
      value */
@@ -967,7 +970,6 @@ gst_object activate_new_context(int size, int sendArgs) {
   OBJ_METHOD_CONTEXT_SET_IP_OFFSET(
       thisContext,
       FROM_INT(ip[current_thread_id] - method_base[current_thread_id]));
-
   _gst_this_context_oop[current_thread_id] = oop;
 
   return (newContext);
@@ -2323,6 +2325,7 @@ OOP _gst_prepare_execution_environment(void) {
   OBJ_METHOD_CONTEXT_SET_RECEIVER(dummyContext, _gst_nil_oop);
   OBJ_METHOD_CONTEXT_SET_IP_OFFSET(dummyContext, FROM_INT(0));
   OBJ_METHOD_CONTEXT_SET_SP_OFFSET(dummyContext, FROM_INT(-1));
+  OBJ_METHOD_CONTEXT_SET_RETURN_REGISTER(dummyContext, FROM_INT(0));
 
   OBJ_METHOD_CONTEXT_SET_NATIVE_IP(
       dummyContext, DUMMY_NATIVE_IP); /* See empty_context_stack */

@@ -79,10 +79,16 @@ extern intptr_t _gst_object_identity;
     (obj)->data[6] = (valueOOP);                                               \
   } while (0)
 
-#define OBJ_METHOD_CONTEXT_CONTEXT_STACK(obj) (&(obj)->data[7])
+#define OBJ_METHOD_CONTEXT_GET_RETURN_REGISTER(obj) ((obj)->data[7])
+#define OBJ_METHOD_CONTEXT_SET_RETURN_REGISTER(obj, valueOOP)		       \
+  do {                                                                         \
+    (obj)->data[7] = (valueOOP);                                               \
+  } while (0)
+
+#define OBJ_METHOD_CONTEXT_CONTEXT_STACK(obj) (&(obj)->data[8])
 #define OBJ_METHOD_CONTEXT_CONTEXT_STACK_AT_PUT(obj, idx, valueOOP)            \
   do {                                                                         \
-    (obj)->data[7 + (idx)] = (valueOOP);                                       \
+    (obj)->data[8 + (idx)] = (valueOOP);                                       \
   } while (0)
 
 /* BLOCK CONTEXT */
@@ -129,10 +135,16 @@ extern intptr_t _gst_object_identity;
     (obj)->data[6] = (valueOOP);                                               \
   } while (0)
 
-#define OBJ_BLOCK_CONTEXT_AT_STACK(obj, index) ((obj)->data[7 + (index)])
+#define OBJ_BLOCK_CONTEXT_GET_RETURN_REGISTER(obj) ((obj)->data[7])
+#define OBJ_BLOCK_CONTEXT_SET_RETURN_REGISTER(obj, valueOOP)                   \
+  do {                                                                         \
+    (obj)->data[7] = (valueOOP);                                               \
+  } while (0)
+
+#define OBJ_BLOCK_CONTEXT_AT_STACK(obj, index) ((obj)->data[8 + (index)])
 #define OBJ_BLOCK_CONTEXT_AT_PUT_STACK(obj, index, valueOOP)                   \
   do {                                                                         \
-    (obj)->data[7 + (index)] = (valueOOP);                                     \
+    (obj)->data[8 + (index)] = (valueOOP);                                     \
   } while (0)
 
 #define OBJ_CONTINUATION_GET_STACK(obj) ((obj)->data[0])

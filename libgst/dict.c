@@ -584,10 +584,10 @@ static const class_definition class_info[] = {
      "ContextPart", "parent nativeIP ip sp receiver method ", NULL, NULL},
 
     {&_gst_method_context_class, &_gst_context_part_class, GST_ISP_POINTER,
-     true, 1, "MethodContext", "flags ", NULL, NULL},
+     true, 2, "MethodContext", "flags registerReturn", NULL, NULL},
 
     {&_gst_block_context_class, &_gst_context_part_class, GST_ISP_POINTER, true,
-     1, "BlockContext", "outerContext ", NULL, NULL},
+     2, "BlockContext", "outerContext registerReturn", NULL, NULL},
 
     {&_gst_continuation_class, &_gst_object_class, GST_ISP_FIXED, true, 1,
      "Continuation", "stack ", NULL, NULL},

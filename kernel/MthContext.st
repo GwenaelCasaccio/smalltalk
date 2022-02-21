@@ -33,7 +33,7 @@
 
 
 ContextPart subclass: MethodContext [
-    | flags |
+    | flags registerReturn |
     
     <shape: #pointer>
     <category: 'Language-Implementation'>
