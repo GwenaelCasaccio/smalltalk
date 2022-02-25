@@ -254,6 +254,11 @@ extern OOP _gst_interpret(OOP processOOP) ATTRIBUTE_HIDDEN;
    message to a block context are handled by primitives which do
    similar things, but they use information from gst_block_closure
    objects that we don't have available (nor need) here.  */
+extern void _new_gst_send_message_internal(OOP receiver,
+					   OOP method_class,
+					   OOP sendSelector,
+					   uint32_t sendArgs);
+
 extern void _gst_send_message_internal(OOP sendSelector, int sendArgs,
                                        OOP receiver,
                                        OOP method_class) ATTRIBUTE_HIDDEN;

@@ -496,7 +496,7 @@ static inline bool check_send_correctness(OOP receiver, OOP sendSelector,
    block closures, hence the context we return from can be found by
    following OUTERCONTEXT links starting from the currently executing
    context, and until we reach a MethodContext.  */
-static bool unwind_method(void);
+bool unwind_method(void);
 
 /* Unwind up to context returnContextOOP, carefully examining the
    method call stack.  That is, we examine each context and we only
