@@ -73,9 +73,13 @@ void bc() {
 
     &&LINE_NUMBER,
 
-    &&INVALID
+    &&INVALID,
+
+    [255] = &&END_OF_INTERPRETER
   };
 
+  NEXT_BC;
+  
  LOAD_SELF_REGISTER: {
     uint32_t register_idx = READ;
     context->data[register_idx] = _gst_self[0];
@@ -776,5 +780,10 @@ void bc() {
 
  INVALID: {
     NEXT_BC;
+  }
+
+
+ END_OF_INTERPRETER: {
+    return ;
   }
 }

@@ -184,6 +184,117 @@
       _gst_record_profile(old_method_oop, method, ipOffset);                   \
   } while (0)
 
+void _new_gst_send_message_internal(OOP receiver,
+				    OOP method_class,
+				    OOP sendSelector,
+				    uint32_t sendArgs) {
+  int hashIndex;
+  OOP methodOOP;
+  method_cache_entry *methodData;
+  gst_object newContext;
+  method_header header;
+
+  /* hash the selector and the class of the receiver together using
+     XOR.  Since both are addresses in the object table, and since
+     object table entries are 2 longs in size, shift over by 3 bits
+     (4 on 64-bit architectures) to remove the useless low order
+     zeros.  */
+
+  _gst_sample_counter++;
+  hashIndex = METHOD_CACHE_HASH(sendSelector, method_class);
+  methodData = &method_cache[hashIndex];
+
+  if UNCOMMON (methodData->selectorOOP != sendSelector ||
+               methodData->startingClassOOP != method_class) {
+    /* :-( cache miss )-: */
+    if (CLASS_INSTANCE_SPEC(method_class) & ISP_PROXY) {
+      if (!_gst_send_cannot_interpret_message(sendSelector, methodData, sendArgs, method_class)) {
+        _gst_errorf("cannot interpret not found in method dictionary");
+
+        abort();
+      }
+      sendArgs = 1;
+    } else if (!lookup_method(sendSelector, methodData, sendArgs, method_class)) {
+      _gst_send_message_internal(_gst_does_not_understand_symbol, 1, receiver,
+                                 method_class);
+      return;
+    }
+
+    if (!IS_OOP_VERIFIED(methodData->methodOOP))
+      _gst_verify_sent_method(methodData->methodOOP);
+  }
+
+  /* Note that execute_primitive_operation might invoke a call-in, and
+     which might in turn modify the method cache in general and
+     corrupt methodData in particular.  So, load everything before
+     this can happen.  */
+
+  header = methodData->methodHeader;
+  methodOOP = methodData->methodOOP;
+
+  if UNCOMMON (header.headerFlag) {
+    switch (header.headerFlag) {
+    case MTH_RETURN_SELF:
+      /* 1, return the receiver - _gst_self is already on the stack...so we
+       * leave it */
+      _gst_self_returns++;
+      return;
+
+    case MTH_RETURN_INSTVAR: {
+      int primIndex = header.primitiveIndex;
+      /* 2, return instance variable */
+      /* replace receiver with the returned instance variable */
+      SET_STACKTOP(INSTANCE_VARIABLE(receiver, primIndex));
+      _gst_inst_var_returns++;
+      return;
+    }
+
+    case MTH_RETURN_LITERAL: {
+      int primIndex = header.primitiveIndex;
+      /* 3, return literal constant */
+      /* replace receiver with the returned literal constant */
+      SET_STACKTOP(GET_METHOD_LITERALS(methodOOP)[primIndex]);
+      _gst_literal_returns++;
+      return;
+    }
+
+    case MTH_PRIMITIVE:
+      if COMMON (!execute_primitive_operation(header.primitiveIndex, sendArgs))
+        /* primitive succeeded.  Continue with the parent context */
+        return;
+
+      /* primitive failed.  Invoke the normal method.  */
+      last_primitive = 0;
+      break;
+
+    case MTH_USER_DEFINED: {
+      OOP argsArrayOOP = create_args_array(sendArgs);
+      (void)POP_OOP(); /* pop the receiver */
+      PUSH_OOP(methodData->methodOOP);
+      PUSH_OOP(receiver);
+      PUSH_OOP(argsArrayOOP);
+      SEND_MESSAGE(_gst_value_with_rec_with_args_symbol, 2);
+      return;
+    }
+
+    case MTH_NORMAL:
+    case MTH_ANNOTATED:
+    case MTH_UNUSED:
+    default:
+      break;
+    }
+  }
+
+  /* Prepare new state.  */
+
+  newContext = activate_new_context(header.stack_depth, sendArgs);
+  OBJ_METHOD_CONTEXT_SET_FLAGS(newContext, (OOP)MCF_IS_METHOD_CONTEXT);
+  /* push args and temps, set sp and _gst_temporaries */
+  prepare_context((gst_context_part)newContext, sendArgs, header.numTemps);
+  _gst_self[current_thread_id] = receiver;
+  SET_THIS_METHOD(methodOOP, 0);
+}
+
 void _gst_send_message_internal(OOP sendSelector, int sendArgs, OOP receiver,
                                 OOP method_class) {
   int hashIndex;
