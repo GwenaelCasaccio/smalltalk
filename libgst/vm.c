@@ -188,7 +188,7 @@ void bc() {
     const uint32_t src_register_idx = READ;
     const uint32_t dst_register_idx = READ;
 
-    context->data[dst_register_idx] = context->data[src_register_idx];
+    OOP_TO_OBJ(_gst_this_context_oop[0])->data[dst_register_idx] = OOP_TO_OBJ(_gst_this_context_oop[0])->data[src_register_idx];
 
     NEXT_BC;
   }
@@ -207,7 +207,7 @@ void bc() {
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
    
-    OOP_TO_OBJ(_gst_this_context_oop[0])->data[dst_register_idx] = context->data[src_register_idx];
+    OOP_TO_OBJ(_gst_this_context_oop[0])->data[dst_register_idx] = OOP_TO_OBJ(_gst_this_context_oop[0])->data[src_register_idx];
 
     NEXT_BC;
   }
@@ -216,7 +216,7 @@ void bc() {
     const uint32_t ivar_idx = READ;
     const uint32_t register_idx = READ;
 
-    context->data[register_idx] = INSTANCE_VARIABLE(_gst_self[0], ivar_idx);
+    OOP_TO_OBJ(_gst_this_context_oop[0])->data[register_idx] = INSTANCE_VARIABLE(_gst_self[0], ivar_idx);
 
     NEXT_BC;
   }
