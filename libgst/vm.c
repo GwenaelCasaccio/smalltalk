@@ -152,7 +152,7 @@ void bc() {
     const int32_t number = READ;
     const uint32_t register_idx = READ;
 
-    context->data[register_idx] = FROM_INT(number);
+    context->data[register_idx] = (OOP) (intptr_t) number;
     
     NEXT_BC;
   }
@@ -170,7 +170,7 @@ void bc() {
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
    
-    context->data[register_idx] = FROM_INT(number);
+    context->data[register_idx] = (OOP) (intptr_t) number;
       
     NEXT_BC;
   }
@@ -179,7 +179,7 @@ void bc() {
     const int32_t number = READ;
     const uint32_t ivar_idx = READ;
 
-    INSTANCE_VARIABLE(_gst_self[0], ivar_idx) = FROM_INT(number);
+    INSTANCE_VARIABLE(_gst_self[0], ivar_idx) = (OOP) (intptr_t) number;
 
     NEXT_BC;
   }
