@@ -249,14 +249,14 @@ void bc() {
     gst_object src_context;
     gst_object dst_context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[0]);
+    src_context = OOP_TO_OBJ(_gst_this_context_oop[0]);
 
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(src_context);
       src_context = OOP_TO_OBJ(contextOOP);
     } while (--src_scope_idx);
    
-    context = OOP_TO_OBJ(_gst_this_context_oop[0]);
+    dst_context = OOP_TO_OBJ(_gst_this_context_oop[0]);
 
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(dst_context);
@@ -297,9 +297,9 @@ void bc() {
   }
 
  MOVE_OUTER_REGISTER_TO_INSTANCE_VARIABLE: {
-    uint32_t ivar_idx = READ;
     uint32_t scope_idx = READ;
     uint32_t src_register_idx = READ;
+    uint32_t ivar_idx = READ;
     OOP contextOOP;
     gst_object context;
 
