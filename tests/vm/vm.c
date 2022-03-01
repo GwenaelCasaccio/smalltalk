@@ -25,6 +25,16 @@ OOP _gst_make_block_closure(OOP oop) {
   return oop;
 }
 
+void _new_gst_send_message_internal(OOP receiverOOP, OOP classOOP, OOP selectorOOP, uint32_t numArgs) {
+  check_expected(receiverOOP);
+  check_expected(classOOP);
+  check_expected(selectorOOP);
+  check_expected(numArgs);
+
+  function_called();
+}
+
+
 #include "libgst/vm.c"
 
 static void should_return(void **state) {
@@ -509,6 +519,55 @@ static void should_move_ivar_to_ivar(void **state) {
   free(context);
 }
 
+static void should_literal_send(void **state) {
+
+  (void) state;
+
+  uint32_t bytecode[] = { LITERAL_SEND_BC, 0x01, 0x02, 0x05, END_OF_INTERPRETER_BC };
+  tip = &bytecode[0];
+  _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
+  _gst_literals[0][0x1] = FROM_INT(123);
+  _gst_literals[0][0x2] = FROM_INT(234);
+  gst_small_integer_class = FROM_INT(456);
+  
+  expect_value(_new_gst_send_message_internal, receiverOOP, FROM_INT(123));
+  expect_value(_new_gst_send_message_internal, classOOP, FROM_INT(456));
+  expect_value(_new_gst_send_message_internal, selectorOOP, FROM_INT(234));
+  expect_value(_new_gst_send_message_internal, numArgs, 0x05);
+
+  expect_function_calls(_new_gst_send_message_internal, 1);
+
+  bc();
+  
+  assert_true(tip == &bytecode[5]);
+
+  free(_gst_literals[0]);
+}
+
+static void should_self_send(void **state) {
+
+  (void) state;
+
+  uint32_t bytecode[] = { SELF_SEND_BC, 0x01, 0x05, END_OF_INTERPRETER_BC };
+  tip = &bytecode[0];
+  _gst_self[0] = FROM_INT(234);
+  _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
+  _gst_literals[0][0x1] = FROM_INT(123);
+  gst_small_integer_class = FROM_INT(456);
+  
+  expect_value(_new_gst_send_message_internal, receiverOOP, FROM_INT(234));
+  expect_value(_new_gst_send_message_internal, classOOP, FROM_INT(456));
+  expect_value(_new_gst_send_message_internal, selectorOOP, FROM_INT(123));
+  expect_value(_new_gst_send_message_internal, numArgs, 0x05);
+
+  expect_function_calls(_new_gst_send_message_internal, 1);
+
+  bc();
+  
+  assert_true(tip == &bytecode[4]);
+
+  free(_gst_literals[0]);
+}
 
 int main(void) {
   const struct CMUnitTest tests[] =
@@ -532,6 +591,8 @@ int main(void) {
       cmocka_unit_test(should_move_register_to_ivar),
       cmocka_unit_test(should_move_outer_register_to_ivar),
       cmocka_unit_test(should_move_ivar_to_ivar),
+      cmocka_unit_test(should_literal_send),
+      cmocka_unit_test(should_self_send),
     };
 
   return cmocka_run_group_tests(tests, NULL, NULL);

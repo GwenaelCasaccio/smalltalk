@@ -26,6 +26,12 @@ typedef enum {
   MOVE_REGISTER_IVAR_BC,
   MOVE_OUTER_REGISTER_IVAR_BC,
   MOVE_IVAR_IVAR_BC,
+  LITERAL_SEND_BC,
+  SELF_SEND_BC,
+  SUPER_SEND_BC,
+  REGISTER_SEND_BC,
+  OUTER_REGISTER_SEND_BC,
+  IVAR_SEND_BC,
   END_OF_INTERPRETER_BC = 255
 } _gst_byte_code_t;
 
@@ -55,12 +61,12 @@ void bc() {
     [MOVE_OUTER_REGISTER_IVAR_BC] = &&MOVE_OUTER_REGISTER_TO_INSTANCE_VARIABLE,
     [MOVE_IVAR_IVAR_BC] = &&MOVE_INSTANCE_VARIABLE_TO_INSTANCE_VARIABLE,
 
-    &&LITERAL_SEND,
-    &&SELF_SEND,
-    &&SUPER_SEND,
-    &&REGISTER_SEND,
-    &&OUTER_REGISTER_SEND,
-    &&INSTANCE_VARIABLE_SEND,
+    [LITERAL_SEND_BC] = &&LITERAL_SEND,
+    [SELF_SEND_BC] = &&SELF_SEND,
+    [SUPER_SEND_BC] = &&SUPER_SEND,
+    [REGISTER_SEND_BC] = &&REGISTER_SEND,
+    [OUTER_REGISTER_SEND_BC] = &&OUTER_REGISTER_SEND,
+    [IVAR_SEND_BC] = &&INSTANCE_VARIABLE_SEND,
 
     &&LITERAL_IMMEDIATE_SEND,
     &&SELF_IMMEDIATE_SEND,
@@ -354,9 +360,9 @@ void bc() {
     const OOP selectorOOP = _gst_literals[0][selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
-			       OOP_INT_CLASS(receiverOOP),
-			       selectorOOP,
-			       args_idx);
+				   OOP_INT_CLASS(receiverOOP),
+				   selectorOOP,
+				   args_idx);
    
     NEXT_BC;
   }
