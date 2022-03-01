@@ -31,7 +31,7 @@ static void should_return(void **state) {
 
   (void) state;
 
-  uint32_t bytecode[] = { 0xFF };
+  uint32_t bytecode[] = { END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   
   bc();
@@ -43,7 +43,7 @@ static void should_load_self_to_register(void **state) {
 
   (void) state;
 
-  uint32_t bytecode[] = { 0x00, 0x01, 0xFF };
+  uint32_t bytecode[] = { 0x00, 0x01, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   context = malloc(sizeof(*context) * 100);
   _gst_self[0] = FROM_INT(123);
@@ -60,7 +60,7 @@ static void should_load_self_to_outer_scope(void **state) {
 
   (void) state;
 
-  uint32_t bytecode[] = { 0x01, 0x02, 0x01, 0xFF };
+  uint32_t bytecode[] = { 0x01, 0x02, 0x01, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
   context = malloc(sizeof(*context) * 100);
@@ -91,7 +91,7 @@ static void should_load_self_to_ivar(void **state) {
 
   (void) state;
 
-  uint32_t bytecode[] = { 0x02, 0x05, 0xFF };
+  uint32_t bytecode[] = { 0x02, 0x05, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   context = malloc(sizeof(*context) * 100);
   _gst_self[0] = malloc(sizeof(*_gst_self[0]));
@@ -112,7 +112,7 @@ static void should_load_literal_to_register(void **state) {
 
   (void) state;
 
-  uint32_t bytecode[] = { 0x03, 0x3, 0x01, 0xFF };
+  uint32_t bytecode[] = { 0x03, 0x3, 0x01, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   OOP literals[] = { NULL, NULL, NULL, FROM_INT(123) }; 
   _gst_literals[0] = &literals[0];
@@ -130,7 +130,7 @@ static void should_load_literal_to_outer_scope(void **state) {
 
   (void) state;
 
-  uint32_t bytecode[] = { 0x04, 0x02, 0x02, 0x01, 0xFF };
+  uint32_t bytecode[] = { 0x04, 0x02, 0x02, 0x01, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   OOP literals[]  = { NULL, NULL, FROM_INT(123) };
   _gst_literals[0] = &literals[0];
@@ -163,7 +163,7 @@ static void should_load_literal_to_ivar(void **state) {
 
   (void) state;
 
-  uint32_t bytecode[] = { 0x05, 0x02, 0x05, 0xFF };
+  uint32_t bytecode[] = { 0x05, 0x02, 0x05, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   OOP literals[]  = { NULL, NULL, FROM_INT(123) };
   _gst_literals[0] = &literals[0];
@@ -184,7 +184,7 @@ static void should_load_integer_to_register(void **state) {
 
   (void) state;
 
-  uint32_t bytecode[] = { 0x06, (intptr_t) FROM_INT(123), 0x01, 0xFF };
+  uint32_t bytecode[] = { 0x06, (intptr_t) FROM_INT(123), 0x01, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   OOP literals[] = { NULL, NULL, NULL, NULL }; 
   _gst_literals[0] = &literals[0];
@@ -202,7 +202,7 @@ static void should_load_integer_to_outer_scope(void **state) {
 
   (void) state;
 
-  uint32_t bytecode[] = { 0x07, (intptr_t) FROM_INT(123), 0x02, 0x01, 0xFF };
+  uint32_t bytecode[] = { 0x07, (intptr_t) FROM_INT(123), 0x02, 0x01, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   OOP literals[]  = { NULL, NULL, NULL };
   _gst_literals[0] = &literals[0];
@@ -235,7 +235,7 @@ static void should_load_integer_to_ivar(void **state) {
 
   (void) state;
 
-  uint32_t bytecode[] = { 0x08, (intptr_t) FROM_INT(-123), 0x05, 0xFF };
+  uint32_t bytecode[] = { 0x08, (intptr_t) FROM_INT(-123), 0x05, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   OOP literals[]  = { NULL, NULL, NULL };
   _gst_literals[0] = &literals[0];
@@ -256,7 +256,7 @@ static void should_move_register_to_register(void **state) {
 
   (void) state;
 
-  uint32_t bytecode[] = { 0x09, 0x01, 0x02, 0xFF };
+  uint32_t bytecode[] = { 0x09, 0x01, 0x02, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
   context = malloc(sizeof(*context) * 100);
@@ -276,7 +276,7 @@ static void should_move_outer_scope_to_register(void **state) {
 
   (void) state;
 
-  uint32_t bytecode[] = { 0x0A, 0x2, 0x1, 0x2, 0xFF };
+  uint32_t bytecode[] = { 0x0A, 0x2, 0x1, 0x2, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   OOP literals[]  = { NULL, NULL, NULL };
   _gst_literals[0] = &literals[0];
@@ -309,7 +309,7 @@ static void should_move_ivar_to_register(void **state) {
 
   (void) state;
 
-  uint32_t bytecode[] = { 0x0B, 0x02, 0x01, 0xFF };
+  uint32_t bytecode[] = { 0x0B, 0x02, 0x01, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
   context = malloc(sizeof(*context) * 100);
@@ -331,7 +331,7 @@ static void should_move_register_to_outer_register(void **state) {
 
   (void) state;
 
-  uint32_t bytecode[] = { 0x0C, 0x2, 0x2, 0x1, 0xFF };
+  uint32_t bytecode[] = { 0x0C, 0x2, 0x2, 0x1, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   OOP literals[]  = { NULL, NULL, NULL };
   _gst_literals[0] = &literals[0];
@@ -364,7 +364,7 @@ static void should_move_outer_register_to_outer_register(void **state) {
 
   (void) state;
 
-  uint32_t bytecode[] = { 0x0D, 0x1, 0x2, 0x2, 0x3, 0xFF };
+  uint32_t bytecode[] = { 0x0D, 0x1, 0x2, 0x2, 0x3, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   OOP literals[]  = { NULL, NULL, NULL };
   _gst_literals[0] = &literals[0];
@@ -397,7 +397,7 @@ static void should_move_ivar_to_outer_register(void **state) {
 
   (void) state;
 
-  uint32_t bytecode[] = { 0x0E, 0x2, 0x2, 0x1, 0xFF };
+  uint32_t bytecode[] = { 0x0E, 0x2, 0x2, 0x1, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   OOP literals[]  = { NULL, NULL, NULL };
   _gst_literals[0] = &literals[0];
@@ -429,14 +429,11 @@ static void should_move_ivar_to_outer_register(void **state) {
   free(outer_context_2);
 }
 
-
-
-
 static void should_move_register_to_ivar(void **state) {
 
   (void) state;
 
-  uint32_t bytecode[] = { 0x0F, 0x01, 0x02, 0xFF };
+  uint32_t bytecode[] = { 0x0F, 0x01, 0x02, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
   context = malloc(sizeof(*context) * 100);
@@ -458,7 +455,7 @@ static void should_move_outer_register_to_ivar(void **state) {
 
   (void) state;
 
-  uint32_t bytecode[] = { 0x10, 0x2, 0x1, 0x2, 0xFF };
+  uint32_t bytecode[] = { 0x10, 0x2, 0x1, 0x2, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   OOP literals[]  = { NULL, NULL, NULL };
   _gst_literals[0] = &literals[0];
@@ -494,7 +491,7 @@ static void should_move_ivar_to_ivar(void **state) {
 
   (void) state;
 
-  uint32_t bytecode[] = { 0x11, 0x02, 0x01, 0xFF };
+  uint32_t bytecode[] = { 0x11, 0x02, 0x01, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
   context = malloc(sizeof(*context) * 100);
