@@ -382,15 +382,17 @@ void bc() {
   }
 
  SUPER_SEND: {
+    const uint32_t class_literal_idx = READ;
     const uint32_t selector_idx = READ;
     const uint32_t args_idx = READ;
     const OOP receiverOOP = _gst_self[0];
+    const OOP classOOP = _gst_literals[0][class_literal_idx];
     const OOP selectorOOP = _gst_literals[0][selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
-			       OOP_INT_CLASS(receiverOOP),
-			       selectorOOP,
-			       args_idx);
+				   classOOP,
+				   selectorOOP,
+				   args_idx);
 
     NEXT_BC;
   }
@@ -399,13 +401,13 @@ void bc() {
     const uint32_t register_idx = READ;
     const uint32_t selector_idx = READ;
     const uint32_t args_idx = READ;
-    const OOP receiverOOP = context->data[register_idx];
+    const OOP receiverOOP = OOP_TO_OBJ(_gst_this_context_oop[0])->data[register_idx];
     const OOP selectorOOP = _gst_literals[0][selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
-			       OOP_INT_CLASS(receiverOOP),
-			       selectorOOP,
-			       args_idx);
+				   OOP_INT_CLASS(receiverOOP),
+				   selectorOOP,
+				   args_idx);
 
     NEXT_BC;
   }
