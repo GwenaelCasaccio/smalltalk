@@ -660,6 +660,38 @@ static void should_outer_register_send(void **state) {
   free(_gst_literals[0]);
 }
 
+static void should_ivar_send(void **state) {
+
+  (void) state;
+
+  uint32_t bytecode[] = { IVAR_SEND_BC, 0x06, 0x01, 0x05, END_OF_INTERPRETER_BC };
+  tip = &bytecode[0];
+  _gst_self[0] = malloc(sizeof(*_gst_self[0]));
+  gst_object self_obj = malloc(sizeof(*self_obj) * 100);
+  self_obj->data[0x06] = FROM_INT(999);
+  OOP_SET_OBJECT(_gst_self[0], self_obj);
+  _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
+  _gst_literals[0][0x1] = FROM_INT(123);
+  _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
+  context = malloc(sizeof(*context) * 100);
+  OOP_SET_OBJECT(_gst_this_context_oop[0], context);
+  context->data[0x01] = FROM_INT(234);
+  gst_small_integer_class = FROM_INT(456);
+  
+  expect_value(_new_gst_send_message_internal, receiverOOP, FROM_INT(999));
+  expect_value(_new_gst_send_message_internal, classOOP, FROM_INT(456));
+  expect_value(_new_gst_send_message_internal, selectorOOP, FROM_INT(123));
+  expect_value(_new_gst_send_message_internal, numArgs, 0x05);
+
+  expect_function_calls(_new_gst_send_message_internal, 1);
+
+  bc();
+  
+  assert_true(tip == &bytecode[5]);
+
+  free(_gst_literals[0]);
+}
+
 int main(void) {
   const struct CMUnitTest tests[] =
     {
@@ -687,6 +719,7 @@ int main(void) {
       cmocka_unit_test(should_super_send),
       cmocka_unit_test(should_register_send),
       cmocka_unit_test(should_outer_register_send),
+      cmocka_unit_test(should_ivar_send),
     };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
