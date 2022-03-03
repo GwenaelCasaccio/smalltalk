@@ -32,6 +32,12 @@ typedef enum {
   REGISTER_SEND_BC,
   OUTER_REGISTER_SEND_BC,
   IVAR_SEND_BC,
+  LITERAL_IMMEDIATE_SEND_BC,
+  SELF_IMMEDIATE_SEND_BC,
+  SUPER_IMMEDIATE_SEND_BC,
+  REGISTER_IMMEDIATE_SEND_BC,
+  OUTER_REGISTER_IMMEDIATE_SEND_BC,
+  IVAR_IMMEDIATE_SEND_BC,
   END_OF_INTERPRETER_BC = 255
 } _gst_byte_code_t;
 
@@ -68,12 +74,12 @@ void bc() {
     [OUTER_REGISTER_SEND_BC] = &&OUTER_REGISTER_SEND,
     [IVAR_SEND_BC] = &&INSTANCE_VARIABLE_SEND,
 
-    &&LITERAL_IMMEDIATE_SEND,
-    &&SELF_IMMEDIATE_SEND,
-    &&SUPER_IMMEDIATE_SEND,
-    &&REGISTER_IMMEDIATE_SEND,
-    &&OUTER_REGISTER_IMMEDIATE_SEND,
-    &&INSTANCE_VARIABLE_IMMEDIATE_SEND,
+    [LITERAL_IMMEDIATE_SEND_BC] = &&LITERAL_IMMEDIATE_SEND,
+    [SELF_IMMEDIATE_SEND_BC] = &&SELF_IMMEDIATE_SEND,
+    [SUPER_IMMEDIATE_SEND_BC] = &&SUPER_IMMEDIATE_SEND,
+    [REGISTER_IMMEDIATE_SEND_BC] = &&REGISTER_IMMEDIATE_SEND,
+    [OUTER_REGISTER_IMMEDIATE_SEND_BC] = &&OUTER_REGISTER_IMMEDIATE_SEND,
+    [IVAR_IMMEDIATE_SEND_BC] = &&INSTANCE_VARIABLE_IMMEDIATE_SEND,
 
     &&JUMP,
 
@@ -460,9 +466,9 @@ void bc() {
     const struct builtin_selector *bs = &_gst_builtin_selectors[selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
-			       OOP_INT_CLASS(receiverOOP),
-			       bs->symbol,
-			       (uint32_t)bs->numArgs);
+				   OOP_INT_CLASS(receiverOOP),
+				   bs->symbol,
+				   (uint32_t)bs->numArgs);
  
     NEXT_BC;
   }
@@ -473,20 +479,22 @@ void bc() {
     const struct builtin_selector *bs = &_gst_builtin_selectors[selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
-			       OOP_INT_CLASS(receiverOOP),
-			       bs->symbol,
-			       (uint32_t)bs->numArgs);
+				   OOP_INT_CLASS(receiverOOP),
+				   bs->symbol,
+				   (uint32_t)bs->numArgs);
      NEXT_BC;
   }
 
  SUPER_IMMEDIATE_SEND: {
+    const uint32_t class_literal_idx = READ;
     const uint32_t selector_idx = READ;
     const OOP receiverOOP = _gst_self[0];
+    const OOP classOOP = _gst_literals[0][class_literal_idx];
     const struct builtin_selector *bs = &_gst_builtin_selectors[selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
-			       OOP_INT_CLASS(receiverOOP),
-			       bs->symbol,
+				   classOOP,
+				   bs->symbol,
 				   (uint32_t)bs->numArgs);
     NEXT_BC;
   }

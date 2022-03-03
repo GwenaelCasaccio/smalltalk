@@ -692,6 +692,179 @@ static void should_ivar_send(void **state) {
   free(_gst_literals[0]);
 }
 
+static void should_literal_immediate_send(void **state) {
+
+  (void) state;
+
+  uint32_t bytecode[] = { LITERAL_IMMEDIATE_SEND_BC, 0x01, 0x02, END_OF_INTERPRETER_BC };
+  tip = &bytecode[0];
+  _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
+  _gst_literals[0][0x1] = FROM_INT(123);
+  _gst_literals[0][0x2] = FROM_INT(234);
+  gst_small_integer_class = FROM_INT(456);
+  
+  expect_value(_new_gst_send_message_internal, receiverOOP, FROM_INT(123));
+  expect_value(_new_gst_send_message_internal, classOOP, FROM_INT(456));
+  expect_value(_new_gst_send_message_internal, selectorOOP, _gst_builtin_selectors[0x02].symbol);
+  expect_value(_new_gst_send_message_internal, numArgs, _gst_builtin_selectors[0x02].numArgs);
+
+  expect_function_calls(_new_gst_send_message_internal, 1);
+
+  bc();
+  
+  assert_true(tip == &bytecode[4]);
+
+  free(_gst_literals[0]);
+}
+
+static void should_self_immediate_send(void **state) {
+
+  (void) state;
+
+  uint32_t bytecode[] = { SELF_IMMEDIATE_SEND_BC, 0x02, END_OF_INTERPRETER_BC };
+  tip = &bytecode[0];
+  _gst_self[0] = FROM_INT(234);
+  _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
+  _gst_literals[0][0x1] = FROM_INT(123);
+  gst_small_integer_class = FROM_INT(456);
+  
+  expect_value(_new_gst_send_message_internal, receiverOOP, FROM_INT(234));
+  expect_value(_new_gst_send_message_internal, classOOP, FROM_INT(456));
+  expect_value(_new_gst_send_message_internal, selectorOOP, _gst_builtin_selectors[0x02].symbol);
+  expect_value(_new_gst_send_message_internal, numArgs, _gst_builtin_selectors[0x02].numArgs);
+
+  expect_function_calls(_new_gst_send_message_internal, 1);
+
+  bc();
+  
+  assert_true(tip == &bytecode[3]);
+
+  free(_gst_literals[0]);
+}
+
+static void should_super_immediate_send(void **state) {
+
+  (void) state;
+
+  uint32_t bytecode[] = { SUPER_IMMEDIATE_SEND_BC, 0x04, 0x02, END_OF_INTERPRETER_BC };
+  tip = &bytecode[0];
+  _gst_self[0] = FROM_INT(234);
+  _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
+  _gst_literals[0][0x1] = FROM_INT(123);
+  _gst_literals[0][0x4] = FROM_INT(789);
+  
+  expect_value(_new_gst_send_message_internal, receiverOOP, FROM_INT(234));
+  expect_value(_new_gst_send_message_internal, classOOP, FROM_INT(789));
+  expect_value(_new_gst_send_message_internal, selectorOOP, _gst_builtin_selectors[0x02].symbol);
+  expect_value(_new_gst_send_message_internal, numArgs, _gst_builtin_selectors[0x02].numArgs);
+
+  expect_function_calls(_new_gst_send_message_internal, 1);
+
+  bc();
+  
+  assert_true(tip == &bytecode[4]);
+
+  free(_gst_literals[0]);
+}
+
+static void should_register_immediate_send(void **state) {
+
+  (void) state;
+
+  uint32_t bytecode[] = { REGISTER_IMMEDIATE_SEND_BC, 0x01, 0x02, END_OF_INTERPRETER_BC };
+  tip = &bytecode[0];
+  _gst_self[0] = FROM_INT(234);
+  _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
+  _gst_literals[0][0x5] = FROM_INT(123);
+  _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
+  context = malloc(sizeof(*context) * 100);
+  OOP_SET_OBJECT(_gst_this_context_oop[0], context);
+  context->data[0x01] = FROM_INT(234);
+  gst_small_integer_class = FROM_INT(456);
+  
+  expect_value(_new_gst_send_message_internal, receiverOOP, FROM_INT(234));
+  expect_value(_new_gst_send_message_internal, classOOP, FROM_INT(456));
+  expect_value(_new_gst_send_message_internal, selectorOOP, _gst_builtin_selectors[0x02].symbol);
+  expect_value(_new_gst_send_message_internal, numArgs, _gst_builtin_selectors[0x02].numArgs);
+
+  expect_function_calls(_new_gst_send_message_internal, 1);
+
+  bc();
+  
+  assert_true(tip == &bytecode[4]);
+
+  free(_gst_literals[0]);
+}
+
+static void should_outer_register_immediate_send(void **state) {
+
+  (void) state;
+
+  uint32_t bytecode[] = { OUTER_REGISTER_IMMEDIATE_SEND_BC, 0x02, 0x01, 0x02, END_OF_INTERPRETER_BC };
+  tip = &bytecode[0];
+  _gst_self[0] = FROM_INT(234);
+  _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
+  _gst_literals[0][0x5] = FROM_INT(123);
+  _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
+  context = malloc(sizeof(*context) * 100);
+  OOP_SET_OBJECT(_gst_this_context_oop[0], context);
+  OOP outer_context_1_oop = malloc(sizeof(*outer_context_1_oop));
+  gst_object outer_context_1 = malloc(sizeof(*outer_context_1) * 100);
+  OOP_SET_OBJECT(outer_context_1_oop, outer_context_1);
+  OOP outer_context_2_oop = malloc(sizeof(*outer_context_2_oop));
+  gst_object outer_context_2 = malloc(sizeof(*outer_context_2) * 100);
+  OOP_SET_OBJECT(outer_context_2_oop, outer_context_2);
+  OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(context, outer_context_1_oop);
+  OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(outer_context_1, outer_context_2_oop);
+  outer_context_2->data[0x1] = FROM_INT(234);
+  gst_small_integer_class = FROM_INT(456);
+  
+  expect_value(_new_gst_send_message_internal, receiverOOP, FROM_INT(234));
+  expect_value(_new_gst_send_message_internal, classOOP, FROM_INT(456));
+  expect_value(_new_gst_send_message_internal, selectorOOP, _gst_builtin_selectors[0x02].symbol);
+  expect_value(_new_gst_send_message_internal, numArgs, _gst_builtin_selectors[0x02].numArgs);
+
+  expect_function_calls(_new_gst_send_message_internal, 1);
+
+  bc();
+  
+  assert_true(tip == &bytecode[5]);
+
+  free(_gst_literals[0]);
+}
+
+static void should_ivar_immediate_send(void **state) {
+
+  (void) state;
+
+  uint32_t bytecode[] = { IVAR_IMMEDIATE_SEND_BC, 0x06, 0x02, END_OF_INTERPRETER_BC };
+  tip = &bytecode[0];
+  _gst_self[0] = malloc(sizeof(*_gst_self[0]));
+  gst_object self_obj = malloc(sizeof(*self_obj) * 100);
+  self_obj->data[0x06] = FROM_INT(999);
+  OOP_SET_OBJECT(_gst_self[0], self_obj);
+  _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
+  _gst_literals[0][0x1] = FROM_INT(123);
+  _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
+  context = malloc(sizeof(*context) * 100);
+  OOP_SET_OBJECT(_gst_this_context_oop[0], context);
+  context->data[0x01] = FROM_INT(234);
+  gst_small_integer_class = FROM_INT(456);
+  
+  expect_value(_new_gst_send_message_internal, receiverOOP, FROM_INT(999));
+  expect_value(_new_gst_send_message_internal, classOOP, FROM_INT(456));
+  expect_value(_new_gst_send_message_internal, selectorOOP, _gst_builtin_selectors[0x02].symbol);
+  expect_value(_new_gst_send_message_internal, numArgs, _gst_builtin_selectors[0x02].numArgs);
+
+  expect_function_calls(_new_gst_send_message_internal, 1);
+
+  bc();
+  
+  assert_true(tip == &bytecode[4]);
+
+  free(_gst_literals[0]);
+}
+
 int main(void) {
   const struct CMUnitTest tests[] =
     {
@@ -720,6 +893,13 @@ int main(void) {
       cmocka_unit_test(should_register_send),
       cmocka_unit_test(should_outer_register_send),
       cmocka_unit_test(should_ivar_send),
+      cmocka_unit_test(should_literal_immediate_send),
+      cmocka_unit_test(should_self_immediate_send),
+      cmocka_unit_test(should_super_immediate_send),
+      cmocka_unit_test(should_register_immediate_send),
+      cmocka_unit_test(should_outer_register_immediate_send),
+      cmocka_unit_test(should_ivar_immediate_send),
+
     };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
