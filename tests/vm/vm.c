@@ -18,6 +18,7 @@ OOP _gst_bad_return_error_symbol;
 struct builtin_selector _gst_builtin_selectors[256] = { };
 
 bool unwind_method() {
+  function_called();
   return false;
 }
 
@@ -1007,6 +1008,131 @@ static void should_ivar_jump_if_false(void **state) {
   free(_gst_self[0]);
 }
 
+static void should_register_return(void **state) {
+
+  (void) state;
+
+  uint32_t bytecode[] = { RETURN_REGISTER_BC, 0x01, END_OF_INTERPRETER_BC };
+  tip = &bytecode[0];
+  _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
+  context = malloc(sizeof(*context) * 100);
+  OOP_SET_OBJECT(_gst_this_context_oop[0], context);
+  context->data[0x01] = FROM_INT(234);
+  context->data[0x07] = FROM_INT(2);
+
+  expect_function_calls(unwind_method, 1);
+
+  bc();
+  
+  assert_true(tip == &bytecode[3]);
+  assert_true(context->data[0x02] == FROM_INT(234));
+
+  free(_gst_this_context_oop[0]);
+}
+
+static void should_outer_register_return(void **state) {
+
+  (void) state;
+
+  uint32_t bytecode[] = { RETURN_OUTER_REGISTER_BC, 0x02, 0x01, END_OF_INTERPRETER_BC };
+  tip = &bytecode[0];
+  _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
+  context = malloc(sizeof(*context) * 100);
+  context->data[0x07] = FROM_INT(2);
+  OOP_SET_OBJECT(_gst_this_context_oop[0], context);
+  OOP outer_context_1_oop = malloc(sizeof(*outer_context_1_oop));
+  gst_object outer_context_1 = malloc(sizeof(*outer_context_1) * 100);
+  OOP_SET_OBJECT(outer_context_1_oop, outer_context_1);
+  OOP outer_context_2_oop = malloc(sizeof(*outer_context_2_oop));
+  gst_object outer_context_2 = malloc(sizeof(*outer_context_2) * 100);
+  OOP_SET_OBJECT(outer_context_2_oop, outer_context_2);
+  OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(context, outer_context_1_oop);
+  OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(outer_context_1, outer_context_2_oop);
+  outer_context_2->data[0x1] = FROM_INT(234);
+  
+  expect_function_calls(unwind_method, 1);
+
+  bc();
+  
+  assert_true(tip == &bytecode[4]);
+  assert_true(context->data[0x02] == FROM_INT(234));
+
+  free(_gst_this_context_oop[0]);
+}
+
+static void should_ivar_return(void **state) {
+
+  (void) state;
+
+  uint32_t bytecode[] = { RETURN_IVAR_BC, 0x06, END_OF_INTERPRETER_BC };
+  tip = &bytecode[0];
+  _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
+  context = malloc(sizeof(*context) * 100);
+  context->data[0x07] = FROM_INT(2);
+  OOP_SET_OBJECT(_gst_this_context_oop[0], context);
+  _gst_self[0] = malloc(sizeof(*_gst_self[0]));
+  gst_object self_obj = malloc(sizeof(*self_obj) * 100);
+  self_obj->data[0x06] = FROM_INT(999);
+  OOP_SET_OBJECT(_gst_self[0], self_obj);
+ 
+  expect_function_calls(unwind_method, 1);
+
+  bc();
+  
+  assert_true(tip == &bytecode[3]);
+  assert_true(context->data[0x02] == FROM_INT(999));
+
+  free(_gst_this_context_oop[0]);
+}
+
+static void should_self_return(void **state) {
+
+  (void) state;
+
+  uint32_t bytecode[] = { RETURN_SELF_BC, END_OF_INTERPRETER_BC };
+  tip = &bytecode[0];
+  _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
+  context = malloc(sizeof(*context) * 100);
+  context->data[0x07] = FROM_INT(2);
+  OOP_SET_OBJECT(_gst_this_context_oop[0], context);
+  _gst_self[0] = malloc(sizeof(*_gst_self[0]));
+  gst_object self_obj = malloc(sizeof(*self_obj) * 100);
+  self_obj->data[0x06] = FROM_INT(999);
+  OOP_SET_OBJECT(_gst_self[0], self_obj);
+ 
+  expect_function_calls(unwind_method, 1);
+
+  bc();
+  
+  assert_true(tip == &bytecode[2]);
+  assert_true(context->data[0x02] == _gst_self[0]);
+
+  free(_gst_this_context_oop[0]);
+}
+
+static void should_literal_return(void **state) {
+
+  (void) state;
+
+  uint32_t bytecode[] = { RETURN_LITERAL_BC, 0x06, END_OF_INTERPRETER_BC };
+  tip = &bytecode[0];
+  _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
+  context = malloc(sizeof(*context) * 100);
+  context->data[0x07] = FROM_INT(2);
+  OOP_SET_OBJECT(_gst_this_context_oop[0], context);
+  _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
+  _gst_literals[0][0x06] = FROM_INT(999);
+  
+  expect_function_calls(unwind_method, 1);
+
+  bc();
+  
+  assert_true(tip == &bytecode[3]);
+  assert_true(context->data[0x02] == FROM_INT(999));
+
+  free(_gst_this_context_oop[0]);
+}
+
 int main(void) {
   const struct CMUnitTest tests[] =
     {
@@ -1048,6 +1174,11 @@ int main(void) {
       cmocka_unit_test(should_register_jump_if_false),
       cmocka_unit_test(should_outer_register_jump_if_false),
       cmocka_unit_test(should_ivar_jump_if_false),
+      cmocka_unit_test(should_register_return),
+      cmocka_unit_test(should_outer_register_return),
+      cmocka_unit_test(should_ivar_return),
+      cmocka_unit_test(should_self_return),
+      cmocka_unit_test(should_literal_return),
     };
 
   return cmocka_run_group_tests(tests, NULL, NULL);

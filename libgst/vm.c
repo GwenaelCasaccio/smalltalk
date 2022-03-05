@@ -45,6 +45,16 @@ typedef enum {
   REGISTER_JUMP_IF_FALSE_BC,
   OUTER_REGISTER_JUMP_IF_FALSE_BC,
   IVAR_JUMP_IF_FALSE_BC,
+  RETURN_REGISTER_BC,
+  RETURN_OUTER_REGISTER_BC,
+  RETURN_IVAR_BC,
+  RETURN_SELF_BC,
+  RETURN_LITERAL_BC,
+  NON_LOCAL_RETURN_REGISTER_BC,
+  NON_LOCAL_RETURN_OUTER_REGISTER_BC,
+  NON_LOCAL_RETURN_IVAR_BC,
+  NON_LOCAL_RETURN_SELF_BC,
+  NON_LOCAL_RETURN_LITERAL_BC,
   END_OF_INTERPRETER_BC = 255
 } _gst_byte_code_t;
 
@@ -98,17 +108,17 @@ void bc() {
     [OUTER_REGISTER_JUMP_IF_FALSE_BC] = &&JUMP_IF_FALSE_OUTER_REGISTER,
     [IVAR_JUMP_IF_FALSE_BC] = &&JUMP_IF_FALSE_INSTANCE_VARIABLE,
 
-    &&RETURN_REGISTER,
-    &&RETURN_OUTER_REGISTER,
-    &&RETURN_INSTANCE_VARIABLE,
-    &&RETURN_SELF,
-    &&RETURN_LITERAL,
+    [RETURN_REGISTER_BC] = &&RETURN_REGISTER,
+    [RETURN_OUTER_REGISTER_BC] = &&RETURN_OUTER_REGISTER,
+    [RETURN_IVAR_BC] = &&RETURN_INSTANCE_VARIABLE,
+    [RETURN_SELF_BC] = &&RETURN_SELF,
+    [RETURN_LITERAL_BC] = &&RETURN_LITERAL,
 
-    &&NON_LOCAL_RETURN_REGISTER,
-    &&NON_LOCAL_RETURN_OUTER_REGISTER,
-    &&NON_LOCAL_RETURN_INSTANCE_VARIABLE,
-    &&NON_LOCAL_RETURN_SELF,
-    &&NON_LOCAL_RETURN_LITERAL,
+    [NON_LOCAL_RETURN_REGISTER_BC] = &&NON_LOCAL_RETURN_REGISTER,
+    [NON_LOCAL_RETURN_OUTER_REGISTER_BC] = &&NON_LOCAL_RETURN_OUTER_REGISTER,
+    [NON_LOCAL_RETURN_IVAR_BC] = &&NON_LOCAL_RETURN_INSTANCE_VARIABLE,
+    [NON_LOCAL_RETURN_SELF_BC] = &&NON_LOCAL_RETURN_SELF,
+    [NON_LOCAL_RETURN_LITERAL_BC] = &&NON_LOCAL_RETURN_LITERAL,
 
     &&MAKE_DIRTY_TO_REGISTER,
 
@@ -652,7 +662,7 @@ void bc() {
   }
 
  RETURN_REGISTER: {
-    const intptr_t return_register_idx = TO_INT(context->data[7]);
+    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(_gst_this_context_oop[0])->data[7]);
     const uint32_t register_idx = READ;
     const OOP valueOOP = context->data[register_idx];
 
@@ -663,7 +673,7 @@ void bc() {
   }
 
  RETURN_OUTER_REGISTER: {
-    const intptr_t return_register_idx = TO_INT(context->data[7]);
+    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(_gst_this_context_oop[0])->data[7]);
     uint32_t scope_idx = READ;
     const uint32_t register_idx = READ;
     OOP contextOOP;
@@ -678,18 +688,18 @@ void bc() {
 
     const OOP valueOOP = context->data[register_idx];
     unwind_method();
-    context->data[return_register_idx] = valueOOP;
+    OOP_TO_OBJ(_gst_this_context_oop[0])->data[return_register_idx] = valueOOP;
 
     NEXT_BC;
   }
 
  RETURN_INSTANCE_VARIABLE: {
-    const intptr_t return_register_idx = TO_INT(context->data[7]);
+    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(_gst_this_context_oop[0])->data[7]);
     const uint32_t ivar_idx = READ;
     const OOP valueOOP = INSTANCE_VARIABLE(_gst_self[0], ivar_idx);
 
     unwind_method();
-    context->data[return_register_idx] = valueOOP;
+    OOP_TO_OBJ(_gst_this_context_oop[0])->data[return_register_idx] = valueOOP;
 
     NEXT_BC;
   }
