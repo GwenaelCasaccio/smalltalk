@@ -23,7 +23,11 @@ bool unwind_method() {
 }
 
 OOP _gst_make_block_closure(OOP oop) {
-  return oop;
+  check_expected(oop);
+  
+  function_called();
+
+  return (OOP) mock();
 }
 
 void _new_gst_send_message_internal(OOP receiverOOP, OOP classOOP, OOP selectorOOP, uint32_t numArgs) {
@@ -1133,43 +1137,6 @@ static void should_literal_return(void **state) {
   free(_gst_this_context_oop[0]);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 static void should_register_non_local_return(void **state) {
 
   (void) state;
@@ -1307,6 +1274,33 @@ static void should_line_number(void **state) {
   assert_true(tip == &bytecode[3]);
 }
 
+static void should_make_dirty_to_register(void **state) {
+
+  (void) state;
+
+  uint32_t bytecode[] = { MAKE_DIRTY_TO_REGISTER_BC, 0x05, 0x02, END_OF_INTERPRETER_BC };
+  tip = &bytecode[0];
+  _gst_self[0] = FROM_INT(234);
+  _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
+  _gst_literals[0][0x5] = FROM_INT(123);
+  _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
+  context = malloc(sizeof(*context) * 100);
+  OOP_SET_OBJECT(_gst_this_context_oop[0], context);
+  
+  expect_value(_gst_make_block_closure, oop, FROM_INT(123));
+  will_return(_gst_make_block_closure, FROM_INT(456));
+
+  expect_function_calls(_gst_make_block_closure, 1);
+
+  bc();
+  
+  assert_true(tip == &bytecode[4]);
+  assert_true(context->data[0x02] == FROM_INT(456));
+
+  free(_gst_literals[0]);
+}
+
+
 int main(void) {
   const struct CMUnitTest tests[] =
     {
@@ -1359,6 +1353,7 @@ int main(void) {
       cmocka_unit_test(should_self_non_local_return),
       cmocka_unit_test(should_literal_non_local_return),
       cmocka_unit_test(should_line_number),
+      cmocka_unit_test(should_make_dirty_to_register),
     };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
