@@ -664,7 +664,7 @@ void bc() {
  RETURN_REGISTER: {
     const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(_gst_this_context_oop[0])->data[7]);
     const uint32_t register_idx = READ;
-    const OOP valueOOP = context->data[register_idx];
+    const OOP valueOOP = OOP_TO_OBJ(_gst_this_context_oop[0])->data[register_idx];
 
     unwind_method();
     context->data[return_register_idx] = valueOOP;
@@ -705,30 +705,30 @@ void bc() {
   }
 
  RETURN_SELF: {
-    const intptr_t return_register_idx = TO_INT(context->data[7]);
+    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(_gst_this_context_oop[0])->data[7]);
     const OOP valueOOP = _gst_self[0];
 
     unwind_method();
-    context->data[return_register_idx] = valueOOP;
+    OOP_TO_OBJ(_gst_this_context_oop[0])->data[return_register_idx] = valueOOP;
 
     NEXT_BC;
   }
 
  RETURN_LITERAL: {
-    const intptr_t return_register_idx = TO_INT(context->data[7]);
+    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(_gst_this_context_oop[0])->data[7]);
     const uint32_t literal_idx = READ;
     const OOP valueOOP = _gst_literals[0][literal_idx];
 
     unwind_method();
-    context->data[return_register_idx] = valueOOP;
+    OOP_TO_OBJ(_gst_this_context_oop[0])->data[return_register_idx] = valueOOP;
 
     NEXT_BC;
   }
 
  NON_LOCAL_RETURN_REGISTER: {
-    const intptr_t return_register_idx = TO_INT(context->data[7]);
+    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(_gst_this_context_oop[0])->data[7]);
     const uint32_t register_idx = READ;
-    const OOP valueOOP = context->data[register_idx];
+    const OOP valueOOP = OOP_TO_OBJ(_gst_this_context_oop[0])->data[register_idx];
 
     if (UNCOMMON (!unwind_method())) {
       _new_gst_send_message_internal(valueOOP,
@@ -736,14 +736,14 @@ void bc() {
 				     _gst_bad_return_error_symbol,
 				     0);
     } else {
-      context->data[return_register_idx] = valueOOP;
+      OOP_TO_OBJ(_gst_this_context_oop[0])->data[return_register_idx] = valueOOP;
     }
 
     NEXT_BC;
   }
 
  NON_LOCAL_RETURN_OUTER_REGISTER: {
-    const intptr_t return_register_idx = TO_INT(context->data[7]);
+    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(_gst_this_context_oop[0])->data[7]);
     uint32_t scope_idx = READ;
     const uint32_t register_idx = READ;
     OOP contextOOP;
@@ -764,15 +764,16 @@ void bc() {
 				     _gst_bad_return_error_symbol,
 				     0);
     } else {
-      context->data[return_register_idx] = valueOOP;
+      OOP_TO_OBJ(_gst_this_context_oop[0])->data[return_register_idx] = valueOOP;
     }
 
     NEXT_BC;
   }
 
  NON_LOCAL_RETURN_INSTANCE_VARIABLE: {
-    const intptr_t return_register_idx = TO_INT(context->data[7]);
-    const OOP valueOOP = _gst_self[0];
+    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(_gst_this_context_oop[0])->data[7]);
+    const uint32_t ivar_idx = READ;
+    const OOP valueOOP = INSTANCE_VARIABLE(_gst_self[0], ivar_idx);
 
     if (UNCOMMON (!unwind_method())) {
       _new_gst_send_message_internal(valueOOP,
@@ -780,14 +781,14 @@ void bc() {
 				     _gst_bad_return_error_symbol,
 				     0);
     } else {
-      context->data[return_register_idx] = valueOOP;
+      OOP_TO_OBJ(_gst_this_context_oop[0])->data[return_register_idx] = valueOOP;
     }
 
     NEXT_BC;
   }
 
  NON_LOCAL_RETURN_SELF: {
-    const intptr_t return_register_idx = TO_INT(context->data[7]);
+    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(_gst_this_context_oop[0])->data[7]);
     const OOP valueOOP = _gst_self[0];
 
     if (UNCOMMON (!unwind_method())) {
@@ -796,14 +797,14 @@ void bc() {
 				     _gst_bad_return_error_symbol,
 				     0);
     } else {
-      context->data[return_register_idx] = valueOOP;
+      OOP_TO_OBJ(_gst_this_context_oop[0])->data[return_register_idx] = valueOOP;
     }
 
     NEXT_BC;
   }
 
  NON_LOCAL_RETURN_LITERAL: {
-    const intptr_t return_register_idx = TO_INT(context->data[7]);
+    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(_gst_this_context_oop[0])->data[7]);
     const uint32_t literal_idx = READ;
     const OOP valueOOP = _gst_literals[0][literal_idx];
 
@@ -813,7 +814,7 @@ void bc() {
 				     _gst_bad_return_error_symbol,
 				     0);
     } else {
-      context->data[return_register_idx] = valueOOP;
+      OOP_TO_OBJ(_gst_this_context_oop[0])->data[return_register_idx] = valueOOP;
     }
     
     NEXT_BC;
@@ -836,7 +837,6 @@ void bc() {
  INVALID: {
     NEXT_BC;
   }
-
 
  END_OF_INTERPRETER: {
     return ;
