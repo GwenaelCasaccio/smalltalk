@@ -55,6 +55,7 @@ typedef enum {
   NON_LOCAL_RETURN_IVAR_BC,
   NON_LOCAL_RETURN_SELF_BC,
   NON_LOCAL_RETURN_LITERAL_BC,
+  LINE_NUMBER_BC,
   END_OF_INTERPRETER_BC = 255
 } _gst_byte_code_t;
 
@@ -122,7 +123,7 @@ void bc() {
 
     &&MAKE_DIRTY_TO_REGISTER,
 
-    &&LINE_NUMBER,
+    [LINE_NUMBER_BC] = &&LINE_NUMBER,
 
     &&INVALID,
 
@@ -831,6 +832,8 @@ void bc() {
   }
 
  LINE_NUMBER: {
+    (void) READ;
+    
     NEXT_BC;
   }
 

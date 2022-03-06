@@ -1295,6 +1295,18 @@ static void should_literal_non_local_return(void **state) {
   free(_gst_this_context_oop[0]);
 }
 
+static void should_line_number(void **state) {
+
+  (void) state;
+
+  uint32_t bytecode[] = { LINE_NUMBER_BC, 0x06, END_OF_INTERPRETER_BC };
+  tip = &bytecode[0];
+ 
+  bc();
+  
+  assert_true(tip == &bytecode[3]);
+}
+
 int main(void) {
   const struct CMUnitTest tests[] =
     {
@@ -1346,6 +1358,7 @@ int main(void) {
       cmocka_unit_test(should_ivar_non_local_return),
       cmocka_unit_test(should_self_non_local_return),
       cmocka_unit_test(should_literal_non_local_return),
+      cmocka_unit_test(should_line_number),
     };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
