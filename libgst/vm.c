@@ -131,8 +131,9 @@ void bc(const size_t thread_idx) {
     [END_OF_INTERPRETER_BC] = &&END_OF_INTERPRETER
   };
 
-  OOP self_oop = _gst_self[0];
-  OOP this_context_oop = _gst_this_context_oop[0];
+  OOP self_oop = _gst_self[thread_idx];
+  OOP this_context_oop = _gst_this_context_oop[thread_idx];
+  OOP *literals_oop = _gst_literals[thread_idx];
   
   NEXT_BC;
   
@@ -172,7 +173,7 @@ void bc(const size_t thread_idx) {
     const uint32_t literal_idx = READ;
     const uint32_t register_idx = READ;
 
-    context->data[register_idx] = _gst_literals[0][literal_idx];
+    context->data[register_idx] = literals_oop[literal_idx];
 
     NEXT_BC;
   }
@@ -190,7 +191,7 @@ void bc(const size_t thread_idx) {
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
    
-    context->data[register_idx] = _gst_literals[0][literal_idx];
+    context->data[register_idx] = literals_oop[literal_idx];
 
     NEXT_BC;
   }
@@ -199,7 +200,7 @@ void bc(const size_t thread_idx) {
     const uint32_t literal_idx = READ;
     const uint32_t ivar_idx = READ;
 
-    INSTANCE_VARIABLE(self_oop, ivar_idx) = _gst_literals[0][literal_idx];
+    INSTANCE_VARIABLE(self_oop, ivar_idx) = literals_oop[literal_idx];
 
     NEXT_BC;
   }
@@ -384,8 +385,8 @@ void bc(const size_t thread_idx) {
     const uint32_t literal_idx = READ;
     const uint32_t selector_idx = READ;
     const uint32_t args_idx = READ;
-    const OOP receiverOOP = _gst_literals[0][literal_idx];
-    const OOP selectorOOP = _gst_literals[0][selector_idx];
+    const OOP receiverOOP = literals_oop[literal_idx];
+    const OOP selectorOOP = literals_oop[selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
 				   OOP_INT_CLASS(receiverOOP),
@@ -399,7 +400,7 @@ void bc(const size_t thread_idx) {
     const uint32_t selector_idx = READ;
     const uint32_t args_idx = READ;
     const OOP receiverOOP = self_oop;
-    const OOP selectorOOP = _gst_literals[0][selector_idx];
+    const OOP selectorOOP = literals_oop[selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
 			       OOP_INT_CLASS(receiverOOP),
@@ -414,8 +415,8 @@ void bc(const size_t thread_idx) {
     const uint32_t selector_idx = READ;
     const uint32_t args_idx = READ;
     const OOP receiverOOP = self_oop;
-    const OOP classOOP = _gst_literals[0][class_literal_idx];
-    const OOP selectorOOP = _gst_literals[0][selector_idx];
+    const OOP classOOP = literals_oop[class_literal_idx];
+    const OOP selectorOOP = literals_oop[selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
 				   classOOP,
@@ -430,7 +431,7 @@ void bc(const size_t thread_idx) {
     const uint32_t selector_idx = READ;
     const uint32_t args_idx = READ;
     const OOP receiverOOP = OOP_TO_OBJ(this_context_oop)->data[register_idx];
-    const OOP selectorOOP = _gst_literals[0][selector_idx];
+    const OOP selectorOOP = literals_oop[selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
 				   OOP_INT_CLASS(receiverOOP),
@@ -445,7 +446,7 @@ void bc(const size_t thread_idx) {
     const uint32_t register_idx = READ;
     const uint32_t selector_idx = READ;
     const uint32_t args_idx = READ;
-    const OOP selectorOOP = _gst_literals[0][selector_idx];
+    const OOP selectorOOP = literals_oop[selector_idx];
     OOP contextOOP;
     gst_object context;
 
@@ -471,7 +472,7 @@ void bc(const size_t thread_idx) {
     const uint32_t selector_idx = READ;
     const uint32_t args_idx = READ;
     const OOP receiverOOP = INSTANCE_VARIABLE(self_oop, ivar_idx);
-    const OOP selectorOOP = _gst_literals[0][selector_idx];
+    const OOP selectorOOP = literals_oop[selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
 			       OOP_INT_CLASS(receiverOOP),
@@ -484,7 +485,7 @@ void bc(const size_t thread_idx) {
  LITERAL_IMMEDIATE_SEND: {
     const uint32_t literal_idx = READ;
     const uint32_t selector_idx = READ;
-    const OOP receiverOOP = _gst_literals[0][literal_idx];
+    const OOP receiverOOP = literals_oop[literal_idx];
     const struct builtin_selector *bs = &_gst_builtin_selectors[selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
@@ -511,7 +512,7 @@ void bc(const size_t thread_idx) {
     const uint32_t class_literal_idx = READ;
     const uint32_t selector_idx = READ;
     const OOP receiverOOP = self_oop;
-    const OOP classOOP = _gst_literals[0][class_literal_idx];
+    const OOP classOOP = literals_oop[class_literal_idx];
     const struct builtin_selector *bs = &_gst_builtin_selectors[selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
@@ -722,7 +723,7 @@ void bc(const size_t thread_idx) {
  RETURN_LITERAL: {
     const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
     const uint32_t literal_idx = READ;
-    const OOP valueOOP = _gst_literals[0][literal_idx];
+    const OOP valueOOP = literals_oop[literal_idx];
 
     unwind_method();
     OOP_TO_OBJ(this_context_oop)->data[return_register_idx] = valueOOP;
@@ -811,7 +812,7 @@ void bc(const size_t thread_idx) {
  NON_LOCAL_RETURN_LITERAL: {
     const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
     const uint32_t literal_idx = READ;
-    const OOP valueOOP = _gst_literals[0][literal_idx];
+    const OOP valueOOP = literals_oop[literal_idx];
 
     if (UNCOMMON (!unwind_method())) {
       _new_gst_send_message_internal(valueOOP,
@@ -828,7 +829,7 @@ void bc(const size_t thread_idx) {
  MAKE_DIRTY_TO_REGISTER: {
     const uint32_t literal_idx = READ;
     const uint32_t register_idx = READ;
-    const OOP compiledBlockOOP = _gst_literals[0][literal_idx];
+    const OOP compiledBlockOOP = literals_oop[literal_idx];
     
     context->data[register_idx] = _gst_make_block_closure(compiledBlockOOP);
 
