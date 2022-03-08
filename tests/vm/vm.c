@@ -98,7 +98,7 @@ static void should_load_self_to_outer_scope(void **state) {
   bc(0);
   
   assert_true(tip == &bytecode[4]);
-  assert_true(outer_context_2->data[0x01] == _gst_self[0]);
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(outer_context_2)[0x01] == _gst_self[0]);
 
   free(context);
   free(outer_context_1_oop);
@@ -174,7 +174,7 @@ static void should_load_literal_to_outer_scope(void **state) {
   bc(0);
   
   assert_true(tip == &bytecode[5]);
-  assert_true(outer_context_2->data[0x01] == FROM_INT(123));
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(outer_context_2)[0x01] == FROM_INT(123));
 
   free(context);
   free(outer_context_1_oop);
@@ -250,7 +250,7 @@ static void should_load_integer_to_outer_scope(void **state) {
   bc(0);
   
   assert_true(tip == &bytecode[5]);
-  assert_true(outer_context_2->data[0x01] == FROM_INT(123));
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(outer_context_2)[0x01] == FROM_INT(123));
 
   free(context);
   free(outer_context_1_oop);
@@ -321,7 +321,7 @@ static void should_move_outer_scope_to_register(void **state) {
   OOP_SET_OBJECT(outer_context_2_oop, outer_context_2);
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(context, outer_context_1_oop);
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(outer_context_1, outer_context_2_oop);
-  outer_context_2->data[0x1] = FROM_INT(123);
+  OBJ_METHOD_CONTEXT_CONTEXT_STACK(outer_context_2)[0x1] = FROM_INT(123);
   
   bc(0);
   
@@ -352,7 +352,7 @@ static void should_move_ivar_to_register(void **state) {
   bc(0);
   
   assert_true(tip == &bytecode[4]);
-  assert_true(context->data[0x01] == FROM_INT(123));
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[0x01] == FROM_INT(123));
 
   free(context);
 }
@@ -367,7 +367,7 @@ static void should_move_register_to_outer_register(void **state) {
   _gst_literals[0] = &literals[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
   gst_object context = malloc(sizeof(*context) * 100);
-  context->data[0x2] = FROM_INT(123);
+  OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[0x2] = FROM_INT(123);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   OOP outer_context_1_oop = malloc(sizeof(*outer_context_1_oop));
   gst_object outer_context_1 = malloc(sizeof(*outer_context_1) * 100);
@@ -381,7 +381,7 @@ static void should_move_register_to_outer_register(void **state) {
   bc(0);
   
   assert_true(tip == &bytecode[5]);
-  assert_true(outer_context_2->data[0x1] == FROM_INT(123));
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(outer_context_2)[0x1] == FROM_INT(123));
 
   free(context);
   free(outer_context_1_oop);
@@ -404,7 +404,7 @@ static void should_move_outer_register_to_outer_register(void **state) {
   OOP outer_context_1_oop = malloc(sizeof(*outer_context_1_oop));
   gst_object outer_context_1 = malloc(sizeof(*outer_context_1) * 100);
   OOP_SET_OBJECT(outer_context_1_oop, outer_context_1);
-  outer_context_1->data[0x2] = FROM_INT(123);
+  OBJ_METHOD_CONTEXT_CONTEXT_STACK(outer_context_1)[0x2] = FROM_INT(123);
   OOP outer_context_2_oop = malloc(sizeof(*outer_context_2_oop));
   gst_object outer_context_2 = malloc(sizeof(*outer_context_2) * 100);
   OOP_SET_OBJECT(outer_context_2_oop, outer_context_2);
@@ -414,7 +414,7 @@ static void should_move_outer_register_to_outer_register(void **state) {
   bc(0);
   
   assert_true(tip == &bytecode[6]);
-  assert_true(outer_context_2->data[0x3] == FROM_INT(123));
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(outer_context_2)[0x3] == FROM_INT(123));
 
   free(context);
   free(outer_context_1_oop);
@@ -450,7 +450,7 @@ static void should_move_ivar_to_outer_register(void **state) {
   bc(0);
   
   assert_true(tip == &bytecode[5]);
-  assert_true(outer_context_2->data[0x1] == FROM_INT(123));
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(outer_context_2)[0x1] == FROM_INT(123));
 
   free(context);
   free(outer_context_1_oop);
@@ -468,7 +468,7 @@ static void should_move_register_to_ivar(void **state) {
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
   gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
-  context->data[0x01] = FROM_INT(123);
+  OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[0x01] = FROM_INT(123);
   _gst_self[0] = malloc(sizeof(*_gst_self[0]));
   gst_object obj = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_self[0], obj);
@@ -500,7 +500,7 @@ static void should_move_outer_register_to_ivar(void **state) {
   OOP_SET_OBJECT(outer_context_2_oop, outer_context_2);
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(context, outer_context_1_oop);
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(outer_context_1, outer_context_2_oop);
-  outer_context_2->data[0x1] = FROM_INT(123);
+  OBJ_METHOD_CONTEXT_CONTEXT_STACK(outer_context_2)[0x1] = FROM_INT(123);
   _gst_self[0] = malloc(sizeof(*_gst_self[0]));
   gst_object obj = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_self[0], obj);
@@ -663,7 +663,7 @@ static void should_outer_register_send(void **state) {
   OOP_SET_OBJECT(outer_context_2_oop, outer_context_2);
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(context, outer_context_1_oop);
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(outer_context_1, outer_context_2_oop);
-  outer_context_2->data[0x1] = FROM_INT(234);
+  OBJ_METHOD_CONTEXT_CONTEXT_STACK(outer_context_2)[0x1] = FROM_INT(234);
   gst_small_integer_class = FROM_INT(456);
   
   expect_value(_new_gst_send_message_internal, receiverOOP, FROM_INT(234));
@@ -836,7 +836,7 @@ static void should_outer_register_immediate_send(void **state) {
   OOP_SET_OBJECT(outer_context_2_oop, outer_context_2);
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(context, outer_context_1_oop);
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(outer_context_1, outer_context_2_oop);
-  outer_context_2->data[0x1] = FROM_INT(234);
+  OBJ_METHOD_CONTEXT_CONTEXT_STACK(outer_context_2)[0x1] = FROM_INT(234);
   gst_small_integer_class = FROM_INT(456);
   
   expect_value(_new_gst_send_message_internal, receiverOOP, FROM_INT(234));
@@ -933,7 +933,7 @@ static void should_outer_register_jump_if_true(void **state) {
   OOP_SET_OBJECT(outer_context_2_oop, outer_context_2);
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(context, outer_context_1_oop);
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(outer_context_1, outer_context_2_oop);
-  outer_context_2->data[0x1] = FROM_INT(234);
+  OBJ_METHOD_CONTEXT_CONTEXT_STACK(outer_context_2)[0x1] = FROM_INT(234);
   _gst_true_oop = FROM_INT(234);
   
   bc(0);
@@ -998,7 +998,7 @@ static void should_outer_register_jump_if_false(void **state) {
   OOP_SET_OBJECT(outer_context_2_oop, outer_context_2);
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(context, outer_context_1_oop);
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(outer_context_1, outer_context_2_oop);
-  outer_context_2->data[0x1] = FROM_INT(234);
+  OBJ_METHOD_CONTEXT_CONTEXT_STACK(outer_context_2)[0x1] = FROM_INT(234);
   _gst_false_oop = FROM_INT(234);
   
   bc(0);
@@ -1067,7 +1067,7 @@ static void should_outer_register_return(void **state) {
   OOP_SET_OBJECT(outer_context_2_oop, outer_context_2);
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(context, outer_context_1_oop);
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(outer_context_1, outer_context_2_oop);
-  outer_context_2->data[0x1] = FROM_INT(234);
+  OBJ_METHOD_CONTEXT_CONTEXT_STACK(outer_context_2)[0x1] = FROM_INT(234);
   
   expect_function_calls(unwind_method, 1);
 
@@ -1192,7 +1192,7 @@ static void should_outer_register_non_local_return(void **state) {
   OOP_SET_OBJECT(outer_context_2_oop, outer_context_2);
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(context, outer_context_1_oop);
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(outer_context_1, outer_context_2_oop);
-  outer_context_2->data[0x1] = FROM_INT(234);
+  OBJ_METHOD_CONTEXT_CONTEXT_STACK(outer_context_2)[0x1] = FROM_INT(234);
   
   expect_function_calls(unwind_method, 1);
 

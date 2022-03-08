@@ -155,7 +155,7 @@ void bc(const size_t thread_idx) {
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
 
-    context->data[register_idx] = self_oop;
+    OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[register_idx] = self_oop;
     
     NEXT_BC;
   }
@@ -190,7 +190,7 @@ void bc(const size_t thread_idx) {
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
    
-    context->data[register_idx] = literals_oop[literal_idx];
+    OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[register_idx] = literals_oop[literal_idx];
 
     NEXT_BC;
   }
@@ -226,7 +226,7 @@ void bc(const size_t thread_idx) {
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
    
-    context->data[register_idx] = (OOP) (intptr_t) number;
+    OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[register_idx] = (OOP) (intptr_t) number;
       
     NEXT_BC;
   }
@@ -263,7 +263,7 @@ void bc(const size_t thread_idx) {
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
    
-    temporaries_oop[dst_register_idx] = OOP_TO_OBJ(this_context_oop)->data[src_register_idx];
+    temporaries_oop[dst_register_idx] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[src_register_idx];
 
     NEXT_BC;
   }
@@ -291,7 +291,7 @@ void bc(const size_t thread_idx) {
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
    
-    context->data[dst_register_idx] = temporaries_oop[src_register_idx];
+    OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[dst_register_idx] = temporaries_oop[src_register_idx];
 
     NEXT_BC;
   }
@@ -319,7 +319,7 @@ void bc(const size_t thread_idx) {
       dst_context = OOP_TO_OBJ(contextOOP);
     } while (--dst_scope_idx);
 
-     dst_context->data[dst_register_idx] = src_context->data[src_register_idx];
+    OBJ_METHOD_CONTEXT_CONTEXT_STACK(dst_context)[dst_register_idx] = OBJ_METHOD_CONTEXT_CONTEXT_STACK(src_context)[src_register_idx];
 
     NEXT_BC;
   }
@@ -338,14 +338,14 @@ void bc(const size_t thread_idx) {
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
    
-    context->data[dst_register_idx] = INSTANCE_VARIABLE(self_oop, ivar_idx);
+    OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[dst_register_idx] = INSTANCE_VARIABLE(self_oop, ivar_idx);
 
     NEXT_BC;
   }
 
  MOVE_REGISTER_TO_INSTANCE_VARIABLE: {
-    uint32_t ivar_idx = READ;
     uint32_t src_register_idx = READ;
+    uint32_t ivar_idx = READ;
 
     INSTANCE_VARIABLE(self_oop, ivar_idx) = temporaries_oop[src_register_idx];
 
@@ -366,7 +366,7 @@ void bc(const size_t thread_idx) {
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
    
-    INSTANCE_VARIABLE(self_oop, ivar_idx) = context->data[src_register_idx];
+    INSTANCE_VARIABLE(self_oop, ivar_idx) = OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[src_register_idx];
 
     NEXT_BC;
   }
@@ -456,7 +456,7 @@ void bc(const size_t thread_idx) {
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
  
-    const OOP receiverOOP = context->data[register_idx];
+    const OOP receiverOOP = OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[register_idx];
 
     _new_gst_send_message_internal(receiverOOP,
 				   OOP_INT_CLASS(receiverOOP),
@@ -550,7 +550,7 @@ void bc(const size_t thread_idx) {
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
 
-    const OOP receiverOOP = context->data[register_idx];
+    const OOP receiverOOP = OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[register_idx];
 
     _new_gst_send_message_internal(receiverOOP,
 				   OOP_INT_CLASS(receiverOOP),
@@ -605,7 +605,7 @@ void bc(const size_t thread_idx) {
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
    
-    if (context->data[register_idx] == _gst_true_oop) {
+    if (OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[register_idx] == _gst_true_oop) {
       tip = tip + offset;
     }
     
@@ -648,7 +648,7 @@ void bc(const size_t thread_idx) {
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
    
-    if (context->data[register_idx] == _gst_false_oop) {
+    if (OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[register_idx] == _gst_false_oop) {
       tip = tip + offset;
     }
     
@@ -691,7 +691,7 @@ void bc(const size_t thread_idx) {
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
 
-    const OOP valueOOP = context->data[register_idx];
+    const OOP valueOOP = OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[register_idx];
     unwind_method();
     temporaries_oop[return_register_idx] = valueOOP;
 
@@ -761,7 +761,7 @@ void bc(const size_t thread_idx) {
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
 
-    const OOP valueOOP = context->data[register_idx];
+    const OOP valueOOP = OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[register_idx];
 
     if (UNCOMMON (!unwind_method())) {
       _new_gst_send_message_internal(valueOOP,
