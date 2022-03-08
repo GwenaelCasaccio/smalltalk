@@ -1037,7 +1037,7 @@ static void should_register_return(void **state) {
   gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   OBJ_METHOD_CONTEXT_CONTEXT_STACK_AT_PUT(context, 0x01, FROM_INT(234));
-  context->data[0x07] = FROM_INT(2);
+  OBJ_METHOD_CONTEXT_SET_RETURN_REGISTER(context, FROM_INT(2));
 
   expect_function_calls(unwind_method, 1);
 
@@ -1057,7 +1057,7 @@ static void should_outer_register_return(void **state) {
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
   gst_object context = malloc(sizeof(*context) * 100);
-  context->data[0x07] = FROM_INT(2);
+  OBJ_METHOD_CONTEXT_SET_RETURN_REGISTER(context, FROM_INT(2));
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   OOP outer_context_1_oop = malloc(sizeof(*outer_context_1_oop));
   gst_object outer_context_1 = malloc(sizeof(*outer_context_1) * 100);
@@ -1087,7 +1087,7 @@ static void should_ivar_return(void **state) {
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
   gst_object context = malloc(sizeof(*context) * 100);
-  context->data[0x07] = FROM_INT(2);
+  OBJ_METHOD_CONTEXT_SET_RETURN_REGISTER(context, FROM_INT(2));
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   _gst_self[0] = malloc(sizeof(*_gst_self[0]));
   gst_object self_obj = malloc(sizeof(*self_obj) * 100);
@@ -1112,7 +1112,7 @@ static void should_self_return(void **state) {
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
   gst_object context = malloc(sizeof(*context) * 100);
-  context->data[0x07] = FROM_INT(2);
+  OBJ_METHOD_CONTEXT_SET_RETURN_REGISTER(context, FROM_INT(2));
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   _gst_self[0] = malloc(sizeof(*_gst_self[0]));
   gst_object self_obj = malloc(sizeof(*self_obj) * 100);
@@ -1137,7 +1137,7 @@ static void should_literal_return(void **state) {
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
   gst_object context = malloc(sizeof(*context) * 100);
-  context->data[0x07] = FROM_INT(2);
+  OBJ_METHOD_CONTEXT_SET_RETURN_REGISTER(context, FROM_INT(2));
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
   _gst_literals[0][0x06] = FROM_INT(999);
@@ -1162,7 +1162,7 @@ static void should_register_non_local_return(void **state) {
   gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   OBJ_METHOD_CONTEXT_CONTEXT_STACK_AT_PUT(context, 0x01, FROM_INT(234));
-  context->data[0x07] = FROM_INT(2);
+  OBJ_METHOD_CONTEXT_SET_RETURN_REGISTER(context, FROM_INT(2));
 
   expect_function_calls(unwind_method, 1);
 
@@ -1182,7 +1182,7 @@ static void should_outer_register_non_local_return(void **state) {
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
   gst_object context = malloc(sizeof(*context) * 100);
-  context->data[0x07] = FROM_INT(2);
+  OBJ_METHOD_CONTEXT_SET_RETURN_REGISTER(context, FROM_INT(2));
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   OOP outer_context_1_oop = malloc(sizeof(*outer_context_1_oop));
   gst_object outer_context_1 = malloc(sizeof(*outer_context_1) * 100);
@@ -1212,7 +1212,7 @@ static void should_ivar_non_local_return(void **state) {
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
   gst_object context = malloc(sizeof(*context) * 100);
-  context->data[0x07] = FROM_INT(2);
+  OBJ_METHOD_CONTEXT_SET_RETURN_REGISTER(context, FROM_INT(2));
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   _gst_self[0] = malloc(sizeof(*_gst_self[0]));
   gst_object self_obj = malloc(sizeof(*self_obj) * 100);
@@ -1237,7 +1237,7 @@ static void should_self_non_local_return(void **state) {
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
   gst_object context = malloc(sizeof(*context) * 100);
-  context->data[0x07] = FROM_INT(2);
+  OBJ_METHOD_CONTEXT_SET_RETURN_REGISTER(context, FROM_INT(2));
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   _gst_self[0] = malloc(sizeof(*_gst_self[0]));
   gst_object self_obj = malloc(sizeof(*self_obj) * 100);
@@ -1262,7 +1262,7 @@ static void should_literal_non_local_return(void **state) {
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
   gst_object context = malloc(sizeof(*context) * 100);
-  context->data[0x07] = FROM_INT(2);
+  OBJ_METHOD_CONTEXT_SET_RETURN_REGISTER(context, FROM_INT(2));
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
   _gst_literals[0][0x06] = FROM_INT(999);

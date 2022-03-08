@@ -667,7 +667,7 @@ void bc(const size_t thread_idx) {
   }
 
  RETURN_REGISTER: {
-    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
+    const intptr_t return_register_idx = TO_INT(OBJ_METHOD_CONTEXT_GET_RETURN_REGISTER(OOP_TO_OBJ(this_context_oop)));
     const uint32_t register_idx = READ;
     const OOP valueOOP = temporaries_oop[register_idx];
 
@@ -678,7 +678,7 @@ void bc(const size_t thread_idx) {
   }
 
  RETURN_OUTER_REGISTER: {
-    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
+    const intptr_t return_register_idx = TO_INT(OBJ_METHOD_CONTEXT_GET_RETURN_REGISTER(OOP_TO_OBJ(this_context_oop)));
     uint32_t scope_idx = READ;
     const uint32_t register_idx = READ;
     OOP contextOOP;
@@ -699,7 +699,7 @@ void bc(const size_t thread_idx) {
   }
 
  RETURN_INSTANCE_VARIABLE: {
-    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
+    const intptr_t return_register_idx = TO_INT(OBJ_METHOD_CONTEXT_GET_RETURN_REGISTER(OOP_TO_OBJ(this_context_oop)));
     const uint32_t ivar_idx = READ;
     const OOP valueOOP = INSTANCE_VARIABLE(self_oop, ivar_idx);
 
@@ -710,7 +710,7 @@ void bc(const size_t thread_idx) {
   }
 
  RETURN_SELF: {
-    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
+    const intptr_t return_register_idx = TO_INT(OBJ_METHOD_CONTEXT_GET_RETURN_REGISTER(OOP_TO_OBJ(this_context_oop)));
     const OOP valueOOP = self_oop;
 
     unwind_method();
@@ -720,7 +720,7 @@ void bc(const size_t thread_idx) {
   }
 
  RETURN_LITERAL: {
-    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
+    const intptr_t return_register_idx = TO_INT(OBJ_METHOD_CONTEXT_GET_RETURN_REGISTER(OOP_TO_OBJ(this_context_oop)));
     const uint32_t literal_idx = READ;
     const OOP valueOOP = literals_oop[literal_idx];
 
@@ -731,7 +731,7 @@ void bc(const size_t thread_idx) {
   }
 
  NON_LOCAL_RETURN_REGISTER: {
-    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
+    const intptr_t return_register_idx = TO_INT(OBJ_METHOD_CONTEXT_GET_RETURN_REGISTER(OOP_TO_OBJ(this_context_oop)));
     const uint32_t register_idx = READ;
     const OOP valueOOP = temporaries_oop[register_idx];
 
@@ -748,7 +748,7 @@ void bc(const size_t thread_idx) {
   }
 
  NON_LOCAL_RETURN_OUTER_REGISTER: {
-    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
+    const intptr_t return_register_idx = TO_INT(OBJ_METHOD_CONTEXT_GET_RETURN_REGISTER(OOP_TO_OBJ(this_context_oop)));
     uint32_t scope_idx = READ;
     const uint32_t register_idx = READ;
     OOP contextOOP;
@@ -776,7 +776,7 @@ void bc(const size_t thread_idx) {
   }
 
  NON_LOCAL_RETURN_INSTANCE_VARIABLE: {
-    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
+    const intptr_t return_register_idx = TO_INT(OBJ_METHOD_CONTEXT_GET_RETURN_REGISTER(OOP_TO_OBJ(this_context_oop)));
     const uint32_t ivar_idx = READ;
     const OOP valueOOP = INSTANCE_VARIABLE(self_oop, ivar_idx);
 
@@ -793,7 +793,7 @@ void bc(const size_t thread_idx) {
   }
 
  NON_LOCAL_RETURN_SELF: {
-    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
+    const intptr_t return_register_idx = TO_INT(OBJ_METHOD_CONTEXT_GET_RETURN_REGISTER(OOP_TO_OBJ(this_context_oop)));
     const OOP valueOOP = self_oop;
 
     if (UNCOMMON (!unwind_method())) {
@@ -809,7 +809,7 @@ void bc(const size_t thread_idx) {
   }
 
  NON_LOCAL_RETURN_LITERAL: {
-    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
+    const intptr_t return_register_idx = TO_INT(OBJ_METHOD_CONTEXT_GET_RETURN_REGISTER(OOP_TO_OBJ(this_context_oop)));
     const uint32_t literal_idx = READ;
     const OOP valueOOP = literals_oop[literal_idx];
 
