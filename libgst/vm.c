@@ -60,7 +60,7 @@ typedef enum {
   END_OF_INTERPRETER_BC = 255
 } _gst_byte_code_t;
 
-void bc() {
+void bc(const size_t thread_idx) {
   static void *gst_byte_codes[256] = {
     [LOAD_SELF_REGISTER_BC] = &&LOAD_SELF_REGISTER,
     [LOAD_SELF_OUTER_REGISTER_BC] = &&LOAD_SELF_OUTER_SCOPE,
@@ -131,11 +131,14 @@ void bc() {
     [END_OF_INTERPRETER_BC] = &&END_OF_INTERPRETER
   };
 
+  OOP self_oop = _gst_self[0];
+  OOP this_context_oop = _gst_this_context_oop[0];
+  
   NEXT_BC;
   
  LOAD_SELF_REGISTER: {
     uint32_t register_idx = READ;
-    context->data[register_idx] = _gst_self[0];
+    context->data[register_idx] = self_oop;
     
     NEXT_BC;
   }
@@ -146,13 +149,13 @@ void bc() {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[0]);
+    context = OOP_TO_OBJ(this_context_oop);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
 
-    context->data[register_idx] = _gst_self[0];
+    context->data[register_idx] = self_oop;
     
     NEXT_BC;
   }
@@ -160,7 +163,7 @@ void bc() {
  LOAD_SELF_INSTANCE_VARIABLE: {
     uint32_t ivar_idx = READ;
 
-    INSTANCE_VARIABLE(_gst_self[0], ivar_idx) = _gst_self[0];
+    INSTANCE_VARIABLE(self_oop, ivar_idx) = self_oop;
       
     NEXT_BC;
   }
@@ -181,7 +184,7 @@ void bc() {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[0]);
+    context = OOP_TO_OBJ(this_context_oop);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -196,7 +199,7 @@ void bc() {
     const uint32_t literal_idx = READ;
     const uint32_t ivar_idx = READ;
 
-    INSTANCE_VARIABLE(_gst_self[0], ivar_idx) = _gst_literals[0][literal_idx];
+    INSTANCE_VARIABLE(self_oop, ivar_idx) = _gst_literals[0][literal_idx];
 
     NEXT_BC;
   }
@@ -217,7 +220,7 @@ void bc() {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[0]);
+    context = OOP_TO_OBJ(this_context_oop);
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
@@ -232,7 +235,7 @@ void bc() {
     const int32_t number = READ;
     const uint32_t ivar_idx = READ;
 
-    INSTANCE_VARIABLE(_gst_self[0], ivar_idx) = (OOP) (intptr_t) number;
+    INSTANCE_VARIABLE(self_oop, ivar_idx) = (OOP) (intptr_t) number;
 
     NEXT_BC;
   }
@@ -241,7 +244,7 @@ void bc() {
     const uint32_t src_register_idx = READ;
     const uint32_t dst_register_idx = READ;
 
-    OOP_TO_OBJ(_gst_this_context_oop[0])->data[dst_register_idx] = OOP_TO_OBJ(_gst_this_context_oop[0])->data[src_register_idx];
+    OOP_TO_OBJ(this_context_oop)->data[dst_register_idx] = OOP_TO_OBJ(this_context_oop)->data[src_register_idx];
 
     NEXT_BC;
   }
@@ -253,14 +256,14 @@ void bc() {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[0]);
+    context = OOP_TO_OBJ(this_context_oop);
 
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
    
-    OOP_TO_OBJ(_gst_this_context_oop[0])->data[dst_register_idx] = OOP_TO_OBJ(_gst_this_context_oop[0])->data[src_register_idx];
+    OOP_TO_OBJ(this_context_oop)->data[dst_register_idx] = OOP_TO_OBJ(this_context_oop)->data[src_register_idx];
 
     NEXT_BC;
   }
@@ -269,7 +272,7 @@ void bc() {
     const uint32_t ivar_idx = READ;
     const uint32_t register_idx = READ;
 
-    OOP_TO_OBJ(_gst_this_context_oop[0])->data[register_idx] = INSTANCE_VARIABLE(_gst_self[0], ivar_idx);
+    OOP_TO_OBJ(this_context_oop)->data[register_idx] = INSTANCE_VARIABLE(self_oop, ivar_idx);
 
     NEXT_BC;
   }
@@ -281,14 +284,14 @@ void bc() {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[0]);
+    context = OOP_TO_OBJ(this_context_oop);
 
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
    
-    context->data[dst_register_idx] = OOP_TO_OBJ(_gst_this_context_oop[0])->data[src_register_idx];
+    context->data[dst_register_idx] = OOP_TO_OBJ(this_context_oop)->data[src_register_idx];
 
     NEXT_BC;
   }
@@ -302,14 +305,14 @@ void bc() {
     gst_object src_context;
     gst_object dst_context;
 
-    src_context = OOP_TO_OBJ(_gst_this_context_oop[0]);
+    src_context = OOP_TO_OBJ(this_context_oop);
 
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(src_context);
       src_context = OOP_TO_OBJ(contextOOP);
     } while (--src_scope_idx);
    
-    dst_context = OOP_TO_OBJ(_gst_this_context_oop[0]);
+    dst_context = OOP_TO_OBJ(this_context_oop);
 
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(dst_context);
@@ -328,14 +331,14 @@ void bc() {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[0]);
+    context = OOP_TO_OBJ(this_context_oop);
 
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
    
-    context->data[dst_register_idx] = INSTANCE_VARIABLE(_gst_self[0], ivar_idx);
+    context->data[dst_register_idx] = INSTANCE_VARIABLE(self_oop, ivar_idx);
 
     NEXT_BC;
   }
@@ -344,7 +347,7 @@ void bc() {
     uint32_t ivar_idx = READ;
     uint32_t src_register_idx = READ;
 
-    INSTANCE_VARIABLE(_gst_self[0], ivar_idx) = OOP_TO_OBJ(_gst_this_context_oop[0])->data[src_register_idx];
+    INSTANCE_VARIABLE(self_oop, ivar_idx) = OOP_TO_OBJ(this_context_oop)->data[src_register_idx];
 
      NEXT_BC;
   }
@@ -356,14 +359,14 @@ void bc() {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[0]);
+    context = OOP_TO_OBJ(this_context_oop);
 
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
    
-    INSTANCE_VARIABLE(_gst_self[0], ivar_idx) = context->data[src_register_idx];
+    INSTANCE_VARIABLE(self_oop, ivar_idx) = context->data[src_register_idx];
 
     NEXT_BC;
   }
@@ -372,7 +375,7 @@ void bc() {
     const uint32_t src_ivar_idx = READ;
     const uint32_t dst_ivar_idx = READ;
 
-    INSTANCE_VARIABLE(_gst_self[0], dst_ivar_idx) = INSTANCE_VARIABLE(_gst_self[0], src_ivar_idx);
+    INSTANCE_VARIABLE(self_oop, dst_ivar_idx) = INSTANCE_VARIABLE(self_oop, src_ivar_idx);
 
     NEXT_BC;
   }
@@ -395,7 +398,7 @@ void bc() {
  SELF_SEND: {
     const uint32_t selector_idx = READ;
     const uint32_t args_idx = READ;
-    const OOP receiverOOP = _gst_self[0];
+    const OOP receiverOOP = self_oop;
     const OOP selectorOOP = _gst_literals[0][selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
@@ -410,7 +413,7 @@ void bc() {
     const uint32_t class_literal_idx = READ;
     const uint32_t selector_idx = READ;
     const uint32_t args_idx = READ;
-    const OOP receiverOOP = _gst_self[0];
+    const OOP receiverOOP = self_oop;
     const OOP classOOP = _gst_literals[0][class_literal_idx];
     const OOP selectorOOP = _gst_literals[0][selector_idx];
 
@@ -426,7 +429,7 @@ void bc() {
     const uint32_t register_idx = READ;
     const uint32_t selector_idx = READ;
     const uint32_t args_idx = READ;
-    const OOP receiverOOP = OOP_TO_OBJ(_gst_this_context_oop[0])->data[register_idx];
+    const OOP receiverOOP = OOP_TO_OBJ(this_context_oop)->data[register_idx];
     const OOP selectorOOP = _gst_literals[0][selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
@@ -446,7 +449,7 @@ void bc() {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[0]);
+    context = OOP_TO_OBJ(this_context_oop);
 
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
@@ -467,7 +470,7 @@ void bc() {
     const uint32_t ivar_idx = READ;
     const uint32_t selector_idx = READ;
     const uint32_t args_idx = READ;
-    const OOP receiverOOP = INSTANCE_VARIABLE(_gst_self[0], ivar_idx);
+    const OOP receiverOOP = INSTANCE_VARIABLE(self_oop, ivar_idx);
     const OOP selectorOOP = _gst_literals[0][selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
@@ -494,7 +497,7 @@ void bc() {
 
  SELF_IMMEDIATE_SEND: {
     const uint32_t selector_idx = READ;
-    const OOP receiverOOP = _gst_self[0];
+    const OOP receiverOOP = self_oop;
     const struct builtin_selector *bs = &_gst_builtin_selectors[selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
@@ -507,7 +510,7 @@ void bc() {
  SUPER_IMMEDIATE_SEND: {
     const uint32_t class_literal_idx = READ;
     const uint32_t selector_idx = READ;
-    const OOP receiverOOP = _gst_self[0];
+    const OOP receiverOOP = self_oop;
     const OOP classOOP = _gst_literals[0][class_literal_idx];
     const struct builtin_selector *bs = &_gst_builtin_selectors[selector_idx];
 
@@ -540,7 +543,7 @@ void bc() {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[0]);
+    context = OOP_TO_OBJ(this_context_oop);
 
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
@@ -560,7 +563,7 @@ void bc() {
  INSTANCE_VARIABLE_IMMEDIATE_SEND: {
     const uint32_t ivar_idx = READ;
     const uint32_t selector_idx = READ;
-    const OOP receiverOOP = INSTANCE_VARIABLE(_gst_self[0], ivar_idx);
+    const OOP receiverOOP = INSTANCE_VARIABLE(self_oop, ivar_idx);
     const struct builtin_selector *bs = &_gst_builtin_selectors[selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
@@ -595,7 +598,7 @@ void bc() {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[0]);
+    context = OOP_TO_OBJ(this_context_oop);
 
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
@@ -613,7 +616,7 @@ void bc() {
     const uint32_t ivar_idx = READ;
     const int32_t offset = READ;
 
-    if (INSTANCE_VARIABLE(_gst_self[0], ivar_idx) == _gst_true_oop) {
+    if (INSTANCE_VARIABLE(self_oop, ivar_idx) == _gst_true_oop) {
       tip = tip + offset;
     }
 
@@ -638,7 +641,7 @@ void bc() {
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[0]);
+    context = OOP_TO_OBJ(this_context_oop);
 
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
@@ -656,7 +659,7 @@ void bc() {
     const uint32_t ivar_idx = READ;
     const int32_t offset = READ;
 
-    if (INSTANCE_VARIABLE(_gst_self[0], ivar_idx) == _gst_false_oop) {
+    if (INSTANCE_VARIABLE(self_oop, ivar_idx) == _gst_false_oop) {
       tip = tip + offset;
     }
 
@@ -664,9 +667,9 @@ void bc() {
   }
 
  RETURN_REGISTER: {
-    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(_gst_this_context_oop[0])->data[7]);
+    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
     const uint32_t register_idx = READ;
-    const OOP valueOOP = OOP_TO_OBJ(_gst_this_context_oop[0])->data[register_idx];
+    const OOP valueOOP = OOP_TO_OBJ(this_context_oop)->data[register_idx];
 
     unwind_method();
     context->data[return_register_idx] = valueOOP;
@@ -675,13 +678,13 @@ void bc() {
   }
 
  RETURN_OUTER_REGISTER: {
-    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(_gst_this_context_oop[0])->data[7]);
+    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
     uint32_t scope_idx = READ;
     const uint32_t register_idx = READ;
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[0]);
+    context = OOP_TO_OBJ(this_context_oop);
 
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
@@ -690,47 +693,47 @@ void bc() {
 
     const OOP valueOOP = context->data[register_idx];
     unwind_method();
-    OOP_TO_OBJ(_gst_this_context_oop[0])->data[return_register_idx] = valueOOP;
+    OOP_TO_OBJ(this_context_oop)->data[return_register_idx] = valueOOP;
 
     NEXT_BC;
   }
 
  RETURN_INSTANCE_VARIABLE: {
-    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(_gst_this_context_oop[0])->data[7]);
+    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
     const uint32_t ivar_idx = READ;
-    const OOP valueOOP = INSTANCE_VARIABLE(_gst_self[0], ivar_idx);
+    const OOP valueOOP = INSTANCE_VARIABLE(self_oop, ivar_idx);
 
     unwind_method();
-    OOP_TO_OBJ(_gst_this_context_oop[0])->data[return_register_idx] = valueOOP;
+    OOP_TO_OBJ(this_context_oop)->data[return_register_idx] = valueOOP;
 
     NEXT_BC;
   }
 
  RETURN_SELF: {
-    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(_gst_this_context_oop[0])->data[7]);
-    const OOP valueOOP = _gst_self[0];
+    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
+    const OOP valueOOP = self_oop;
 
     unwind_method();
-    OOP_TO_OBJ(_gst_this_context_oop[0])->data[return_register_idx] = valueOOP;
+    OOP_TO_OBJ(this_context_oop)->data[return_register_idx] = valueOOP;
 
     NEXT_BC;
   }
 
  RETURN_LITERAL: {
-    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(_gst_this_context_oop[0])->data[7]);
+    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
     const uint32_t literal_idx = READ;
     const OOP valueOOP = _gst_literals[0][literal_idx];
 
     unwind_method();
-    OOP_TO_OBJ(_gst_this_context_oop[0])->data[return_register_idx] = valueOOP;
+    OOP_TO_OBJ(this_context_oop)->data[return_register_idx] = valueOOP;
 
     NEXT_BC;
   }
 
  NON_LOCAL_RETURN_REGISTER: {
-    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(_gst_this_context_oop[0])->data[7]);
+    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
     const uint32_t register_idx = READ;
-    const OOP valueOOP = OOP_TO_OBJ(_gst_this_context_oop[0])->data[register_idx];
+    const OOP valueOOP = OOP_TO_OBJ(this_context_oop)->data[register_idx];
 
     if (UNCOMMON (!unwind_method())) {
       _new_gst_send_message_internal(valueOOP,
@@ -738,20 +741,20 @@ void bc() {
 				     _gst_bad_return_error_symbol,
 				     0);
     } else {
-      OOP_TO_OBJ(_gst_this_context_oop[0])->data[return_register_idx] = valueOOP;
+      OOP_TO_OBJ(this_context_oop)->data[return_register_idx] = valueOOP;
     }
 
     NEXT_BC;
   }
 
  NON_LOCAL_RETURN_OUTER_REGISTER: {
-    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(_gst_this_context_oop[0])->data[7]);
+    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
     uint32_t scope_idx = READ;
     const uint32_t register_idx = READ;
     OOP contextOOP;
     gst_object context;
 
-    context = OOP_TO_OBJ(_gst_this_context_oop[0]);
+    context = OOP_TO_OBJ(this_context_oop);
 
     do {
       contextOOP = OBJ_BLOCK_CONTEXT_GET_OUTER_CONTEXT(context);
@@ -766,16 +769,16 @@ void bc() {
 				     _gst_bad_return_error_symbol,
 				     0);
     } else {
-      OOP_TO_OBJ(_gst_this_context_oop[0])->data[return_register_idx] = valueOOP;
+      OOP_TO_OBJ(this_context_oop)->data[return_register_idx] = valueOOP;
     }
 
     NEXT_BC;
   }
 
  NON_LOCAL_RETURN_INSTANCE_VARIABLE: {
-    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(_gst_this_context_oop[0])->data[7]);
+    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
     const uint32_t ivar_idx = READ;
-    const OOP valueOOP = INSTANCE_VARIABLE(_gst_self[0], ivar_idx);
+    const OOP valueOOP = INSTANCE_VARIABLE(self_oop, ivar_idx);
 
     if (UNCOMMON (!unwind_method())) {
       _new_gst_send_message_internal(valueOOP,
@@ -783,15 +786,15 @@ void bc() {
 				     _gst_bad_return_error_symbol,
 				     0);
     } else {
-      OOP_TO_OBJ(_gst_this_context_oop[0])->data[return_register_idx] = valueOOP;
+      OOP_TO_OBJ(this_context_oop)->data[return_register_idx] = valueOOP;
     }
 
     NEXT_BC;
   }
 
  NON_LOCAL_RETURN_SELF: {
-    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(_gst_this_context_oop[0])->data[7]);
-    const OOP valueOOP = _gst_self[0];
+    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
+    const OOP valueOOP = self_oop;
 
     if (UNCOMMON (!unwind_method())) {
       _new_gst_send_message_internal(valueOOP,
@@ -799,14 +802,14 @@ void bc() {
 				     _gst_bad_return_error_symbol,
 				     0);
     } else {
-      OOP_TO_OBJ(_gst_this_context_oop[0])->data[return_register_idx] = valueOOP;
+      OOP_TO_OBJ(this_context_oop)->data[return_register_idx] = valueOOP;
     }
 
     NEXT_BC;
   }
 
  NON_LOCAL_RETURN_LITERAL: {
-    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(_gst_this_context_oop[0])->data[7]);
+    const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
     const uint32_t literal_idx = READ;
     const OOP valueOOP = _gst_literals[0][literal_idx];
 
@@ -816,7 +819,7 @@ void bc() {
 				     _gst_bad_return_error_symbol,
 				     0);
     } else {
-      OOP_TO_OBJ(_gst_this_context_oop[0])->data[return_register_idx] = valueOOP;
+      OOP_TO_OBJ(this_context_oop)->data[return_register_idx] = valueOOP;
     }
     
     NEXT_BC;

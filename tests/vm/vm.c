@@ -49,7 +49,7 @@ static void should_return(void **state) {
   uint32_t bytecode[] = { END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[1]);
 }
@@ -63,7 +63,7 @@ static void should_load_self_to_register(void **state) {
   context = malloc(sizeof(*context) * 100);
   _gst_self[0] = FROM_INT(123);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[3]);
   assert_true(context->data[0x01] == _gst_self[0]);
@@ -90,7 +90,7 @@ static void should_load_self_to_outer_scope(void **state) {
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(outer_context_1, outer_context_2_oop);
   _gst_self[0] = FROM_INT(123);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[4]);
   assert_true(outer_context_2->data[0x01] == _gst_self[0]);
@@ -113,7 +113,7 @@ static void should_load_self_to_ivar(void **state) {
   gst_object obj = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_self[0], obj);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[3]);
   assert_true(INSTANCE_VARIABLE(_gst_self[0], 0x05) == _gst_self[0]);
@@ -133,7 +133,7 @@ static void should_load_literal_to_register(void **state) {
   _gst_literals[0] = &literals[0];
   context = malloc(sizeof(*context) * 100);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[4]);
   assert_true(context->data[0x01] == FROM_INT(123));
@@ -162,7 +162,7 @@ static void should_load_literal_to_outer_scope(void **state) {
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(outer_context_1, outer_context_2_oop);
   _gst_self[0] = FROM_INT(123);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[5]);
   assert_true(outer_context_2->data[0x01] == FROM_INT(123));
@@ -187,7 +187,7 @@ static void should_load_literal_to_ivar(void **state) {
   gst_object obj = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_self[0], obj);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[4]);
   assert_true(INSTANCE_VARIABLE(_gst_self[0], 0x05) == FROM_INT(123));
@@ -205,7 +205,7 @@ static void should_load_integer_to_register(void **state) {
   _gst_literals[0] = &literals[0];
   context = malloc(sizeof(*context) * 100);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[4]);
   assert_true(context->data[0x01] == FROM_INT(123));
@@ -234,7 +234,7 @@ static void should_load_integer_to_outer_scope(void **state) {
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(outer_context_1, outer_context_2_oop);
   _gst_self[0] = FROM_INT(123);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[5]);
   assert_true(outer_context_2->data[0x01] == FROM_INT(123));
@@ -259,7 +259,7 @@ static void should_load_integer_to_ivar(void **state) {
   gst_object obj = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_self[0], obj);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[4]);
   assert_true(INSTANCE_VARIABLE(_gst_self[0], 0x05) == FROM_INT(-123));
@@ -279,7 +279,7 @@ static void should_move_register_to_register(void **state) {
   context->data[0x01] = FROM_INT(123);
   context->data[0x02] = FROM_INT(0);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[4]);
   assert_true(context->data[0x02] == FROM_INT(123));
@@ -308,7 +308,7 @@ static void should_move_outer_scope_to_register(void **state) {
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(outer_context_1, outer_context_2_oop);
   outer_context_2->data[0x1] = FROM_INT(123);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[5]);
   assert_true(context->data[0x02] == FROM_INT(123));
@@ -334,7 +334,7 @@ static void should_move_ivar_to_register(void **state) {
   OOP_SET_OBJECT(_gst_self[0], obj);
   obj->data[0x02] = FROM_INT(123);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[4]);
   assert_true(context->data[0x01] == FROM_INT(123));
@@ -363,7 +363,7 @@ static void should_move_register_to_outer_register(void **state) {
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(context, outer_context_1_oop);
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(outer_context_1, outer_context_2_oop);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[5]);
   assert_true(outer_context_2->data[0x1] == FROM_INT(123));
@@ -396,7 +396,7 @@ static void should_move_outer_register_to_outer_register(void **state) {
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(context, outer_context_1_oop);
   OBJ_BLOCK_CONTEXT_SET_OUTER_CONTEXT(outer_context_1, outer_context_2_oop);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[6]);
   assert_true(outer_context_2->data[0x3] == FROM_INT(123));
@@ -432,7 +432,7 @@ static void should_move_ivar_to_outer_register(void **state) {
   OOP_SET_OBJECT(_gst_self[0], obj);
   obj->data[0x02] = FROM_INT(123);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[5]);
   assert_true(outer_context_2->data[0x1] == FROM_INT(123));
@@ -458,7 +458,7 @@ static void should_move_register_to_ivar(void **state) {
   gst_object obj = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_self[0], obj);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[4]);
   assert_true(obj->data[0x02] == FROM_INT(123));
@@ -490,7 +490,7 @@ static void should_move_outer_register_to_ivar(void **state) {
   gst_object obj = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_self[0], obj);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[5]);
   assert_true(obj->data[0x02] == FROM_INT(123));
@@ -516,7 +516,7 @@ static void should_move_ivar_to_ivar(void **state) {
   OOP_SET_OBJECT(_gst_self[0], obj);
   obj->data[0x02] = FROM_INT(123);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[4]);
   assert_true(obj->data[0x01] == FROM_INT(123));
@@ -542,7 +542,7 @@ static void should_literal_send(void **state) {
 
   expect_function_calls(_new_gst_send_message_internal, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[5]);
 
@@ -567,7 +567,7 @@ static void should_self_send(void **state) {
 
   expect_function_calls(_new_gst_send_message_internal, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[4]);
 
@@ -592,7 +592,7 @@ static void should_super_send(void **state) {
 
   expect_function_calls(_new_gst_send_message_internal, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[5]);
 
@@ -621,7 +621,7 @@ static void should_register_send(void **state) {
 
   expect_function_calls(_new_gst_send_message_internal, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[5]);
 
@@ -658,7 +658,7 @@ static void should_outer_register_send(void **state) {
 
   expect_function_calls(_new_gst_send_message_internal, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[6]);
 
@@ -690,7 +690,7 @@ static void should_ivar_send(void **state) {
 
   expect_function_calls(_new_gst_send_message_internal, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[5]);
 
@@ -715,7 +715,7 @@ static void should_literal_immediate_send(void **state) {
 
   expect_function_calls(_new_gst_send_message_internal, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[4]);
 
@@ -740,7 +740,7 @@ static void should_self_immediate_send(void **state) {
 
   expect_function_calls(_new_gst_send_message_internal, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[3]);
 
@@ -765,7 +765,7 @@ static void should_super_immediate_send(void **state) {
 
   expect_function_calls(_new_gst_send_message_internal, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[4]);
 
@@ -794,7 +794,7 @@ static void should_register_immediate_send(void **state) {
 
   expect_function_calls(_new_gst_send_message_internal, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[4]);
 
@@ -831,7 +831,7 @@ static void should_outer_register_immediate_send(void **state) {
 
   expect_function_calls(_new_gst_send_message_internal, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[5]);
 
@@ -863,7 +863,7 @@ static void should_ivar_immediate_send(void **state) {
 
   expect_function_calls(_new_gst_send_message_internal, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[4]);
 
@@ -877,7 +877,7 @@ static void should_jump(void **state) {
   uint32_t bytecode[] = { JUMP_BC, 0x1, END_OF_INTERPRETER_BC, JUMP_BC, -0x03 };
   tip = &bytecode[0];
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[3]);
 }
@@ -894,7 +894,7 @@ static void should_register_jump_if_true(void **state) {
   context->data[0x01] = FROM_INT(234);
   _gst_true_oop = FROM_INT(234);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[5]);
 
@@ -921,7 +921,7 @@ static void should_outer_register_jump_if_true(void **state) {
   outer_context_2->data[0x1] = FROM_INT(234);
   _gst_true_oop = FROM_INT(234);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[6]);
 
@@ -940,7 +940,7 @@ static void should_ivar_jump_if_true(void **state) {
   OOP_SET_OBJECT(_gst_self[0], self_obj);
   _gst_true_oop = FROM_INT(999);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[5]);
 
@@ -959,7 +959,7 @@ static void should_register_jump_if_false(void **state) {
   context->data[0x01] = FROM_INT(234);
   _gst_false_oop = FROM_INT(234);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[5]);
 
@@ -986,7 +986,7 @@ static void should_outer_register_jump_if_false(void **state) {
   outer_context_2->data[0x1] = FROM_INT(234);
   _gst_false_oop = FROM_INT(234);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[6]);
 
@@ -1005,7 +1005,7 @@ static void should_ivar_jump_if_false(void **state) {
   OOP_SET_OBJECT(_gst_self[0], self_obj);
   _gst_false_oop = FROM_INT(999);
   
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[5]);
 
@@ -1026,7 +1026,7 @@ static void should_register_return(void **state) {
 
   expect_function_calls(unwind_method, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[3]);
   assert_true(context->data[0x02] == FROM_INT(234));
@@ -1056,7 +1056,7 @@ static void should_outer_register_return(void **state) {
   
   expect_function_calls(unwind_method, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[4]);
   assert_true(context->data[0x02] == FROM_INT(234));
@@ -1081,7 +1081,7 @@ static void should_ivar_return(void **state) {
  
   expect_function_calls(unwind_method, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[3]);
   assert_true(context->data[0x02] == FROM_INT(999));
@@ -1106,7 +1106,7 @@ static void should_self_return(void **state) {
  
   expect_function_calls(unwind_method, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[2]);
   assert_true(context->data[0x02] == _gst_self[0]);
@@ -1129,7 +1129,7 @@ static void should_literal_return(void **state) {
   
   expect_function_calls(unwind_method, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[3]);
   assert_true(context->data[0x02] == FROM_INT(999));
@@ -1151,7 +1151,7 @@ static void should_register_non_local_return(void **state) {
 
   expect_function_calls(unwind_method, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[3]);
   assert_true(context->data[0x02] == FROM_INT(234));
@@ -1181,7 +1181,7 @@ static void should_outer_register_non_local_return(void **state) {
   
   expect_function_calls(unwind_method, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[4]);
   assert_true(context->data[0x02] == FROM_INT(234));
@@ -1206,7 +1206,7 @@ static void should_ivar_non_local_return(void **state) {
  
   expect_function_calls(unwind_method, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[3]);
   assert_true(context->data[0x02] == FROM_INT(999));
@@ -1231,7 +1231,7 @@ static void should_self_non_local_return(void **state) {
  
   expect_function_calls(unwind_method, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[2]);
   assert_true(context->data[0x02] == _gst_self[0]);
@@ -1254,7 +1254,7 @@ static void should_literal_non_local_return(void **state) {
   
   expect_function_calls(unwind_method, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[3]);
   assert_true(context->data[0x02] == FROM_INT(999));
@@ -1269,7 +1269,7 @@ static void should_line_number(void **state) {
   uint32_t bytecode[] = { LINE_NUMBER_BC, 0x06, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
  
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[3]);
 }
@@ -1292,7 +1292,7 @@ static void should_make_dirty_to_register(void **state) {
 
   expect_function_calls(_gst_make_block_closure, 1);
 
-  bc();
+  bc(0);
   
   assert_true(tip == &bytecode[4]);
   assert_true(context->data[0x02] == FROM_INT(456));
