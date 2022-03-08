@@ -46,8 +46,11 @@ static void should_return(void **state) {
 
   (void) state;
 
-  uint32_t bytecode[] = { END_OF_INTERPRETER_BC };
+  const uint32_t bytecode[] = { END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
+  _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
+  gst_object context = malloc(sizeof(*context) * 100);
+  OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   
   bc(0);
   
@@ -60,13 +63,15 @@ static void should_load_self_to_register(void **state) {
 
   uint32_t bytecode[] = { 0x00, 0x01, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
-  context = malloc(sizeof(*context) * 100);
+  _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
+  gst_object context = malloc(sizeof(*context) * 100);
+  OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   _gst_self[0] = FROM_INT(123);
   
   bc(0);
   
   assert_true(tip == &bytecode[3]);
-  assert_true(context->data[0x01] == _gst_self[0]);
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[0x01] == _gst_self[0]);
 
   free(context);
 }
@@ -78,7 +83,7 @@ static void should_load_self_to_outer_scope(void **state) {
   uint32_t bytecode[] = { 0x01, 0x02, 0x01, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   OOP outer_context_1_oop = malloc(sizeof(*outer_context_1_oop));
   gst_object outer_context_1 = malloc(sizeof(*outer_context_1) * 100);
@@ -108,7 +113,9 @@ static void should_load_self_to_ivar(void **state) {
 
   uint32_t bytecode[] = { 0x02, 0x05, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
-  context = malloc(sizeof(*context) * 100);
+  _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
+  gst_object context = malloc(sizeof(*context) * 100);
+  OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   _gst_self[0] = malloc(sizeof(*_gst_self[0]));
   gst_object obj = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_self[0], obj);
@@ -131,12 +138,14 @@ static void should_load_literal_to_register(void **state) {
   tip = &bytecode[0];
   OOP literals[] = { NULL, NULL, NULL, FROM_INT(123) }; 
   _gst_literals[0] = &literals[0];
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
+  _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
+  OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   
   bc(0);
   
   assert_true(tip == &bytecode[4]);
-  assert_true(context->data[0x01] == FROM_INT(123));
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[0x01] == FROM_INT(123));
 
   free(context);
 }
@@ -150,7 +159,7 @@ static void should_load_literal_to_outer_scope(void **state) {
   OOP literals[]  = { NULL, NULL, FROM_INT(123) };
   _gst_literals[0] = &literals[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   OOP outer_context_1_oop = malloc(sizeof(*outer_context_1_oop));
   gst_object outer_context_1 = malloc(sizeof(*outer_context_1) * 100);
@@ -182,7 +191,9 @@ static void should_load_literal_to_ivar(void **state) {
   tip = &bytecode[0];
   OOP literals[]  = { NULL, NULL, FROM_INT(123) };
   _gst_literals[0] = &literals[0];
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
+  _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
+  OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   _gst_self[0] = malloc(sizeof(*_gst_self[0]));
   gst_object obj = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_self[0], obj);
@@ -203,12 +214,14 @@ static void should_load_integer_to_register(void **state) {
   tip = &bytecode[0];
   OOP literals[] = { NULL, NULL, NULL, NULL }; 
   _gst_literals[0] = &literals[0];
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
+  _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
+  OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   
   bc(0);
   
   assert_true(tip == &bytecode[4]);
-  assert_true(context->data[0x01] == FROM_INT(123));
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[0x01] == FROM_INT(123));
 
   free(context);
 }
@@ -222,7 +235,7 @@ static void should_load_integer_to_outer_scope(void **state) {
   OOP literals[]  = { NULL, NULL, NULL };
   _gst_literals[0] = &literals[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   OOP outer_context_1_oop = malloc(sizeof(*outer_context_1_oop));
   gst_object outer_context_1 = malloc(sizeof(*outer_context_1) * 100);
@@ -254,7 +267,9 @@ static void should_load_integer_to_ivar(void **state) {
   tip = &bytecode[0];
   OOP literals[]  = { NULL, NULL, NULL };
   _gst_literals[0] = &literals[0];
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
+  _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
+  OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   _gst_self[0] = malloc(sizeof(*_gst_self[0]));
   gst_object obj = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_self[0], obj);
@@ -274,15 +289,15 @@ static void should_move_register_to_register(void **state) {
   uint32_t bytecode[] = { 0x09, 0x01, 0x02, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
-  context->data[0x01] = FROM_INT(123);
-  context->data[0x02] = FROM_INT(0);
+  OBJ_METHOD_CONTEXT_CONTEXT_STACK_AT_PUT(context, 0x01, FROM_INT(123));
+  OBJ_METHOD_CONTEXT_CONTEXT_STACK_AT_PUT(context, 0x02, FROM_INT(0));
   
   bc(0);
   
   assert_true(tip == &bytecode[4]);
-  assert_true(context->data[0x02] == FROM_INT(123));
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[0x02] == FROM_INT(123));
 
   free(context);
 }
@@ -296,7 +311,7 @@ static void should_move_outer_scope_to_register(void **state) {
   OOP literals[]  = { NULL, NULL, NULL };
   _gst_literals[0] = &literals[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   OOP outer_context_1_oop = malloc(sizeof(*outer_context_1_oop));
   gst_object outer_context_1 = malloc(sizeof(*outer_context_1) * 100);
@@ -311,7 +326,7 @@ static void should_move_outer_scope_to_register(void **state) {
   bc(0);
   
   assert_true(tip == &bytecode[5]);
-  assert_true(context->data[0x02] == FROM_INT(123));
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[0x02] == FROM_INT(123));
 
   free(context);
   free(outer_context_1_oop);
@@ -327,7 +342,7 @@ static void should_move_ivar_to_register(void **state) {
   uint32_t bytecode[] = { 0x0B, 0x02, 0x01, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   _gst_self[0] = malloc(sizeof(*_gst_self[0]));
   gst_object obj = malloc(sizeof(*context) * 100);
@@ -351,7 +366,7 @@ static void should_move_register_to_outer_register(void **state) {
   OOP literals[]  = { NULL, NULL, NULL };
   _gst_literals[0] = &literals[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   context->data[0x2] = FROM_INT(123);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   OOP outer_context_1_oop = malloc(sizeof(*outer_context_1_oop));
@@ -384,7 +399,7 @@ static void should_move_outer_register_to_outer_register(void **state) {
   OOP literals[]  = { NULL, NULL, NULL };
   _gst_literals[0] = &literals[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   OOP outer_context_1_oop = malloc(sizeof(*outer_context_1_oop));
   gst_object outer_context_1 = malloc(sizeof(*outer_context_1) * 100);
@@ -417,7 +432,7 @@ static void should_move_ivar_to_outer_register(void **state) {
   OOP literals[]  = { NULL, NULL, NULL };
   _gst_literals[0] = &literals[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   OOP outer_context_1_oop = malloc(sizeof(*outer_context_1_oop));
   gst_object outer_context_1 = malloc(sizeof(*outer_context_1) * 100);
@@ -451,7 +466,7 @@ static void should_move_register_to_ivar(void **state) {
   uint32_t bytecode[] = { 0x0F, 0x01, 0x02, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   context->data[0x01] = FROM_INT(123);
   _gst_self[0] = malloc(sizeof(*_gst_self[0]));
@@ -475,7 +490,7 @@ static void should_move_outer_register_to_ivar(void **state) {
   OOP literals[]  = { NULL, NULL, NULL };
   _gst_literals[0] = &literals[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   OOP outer_context_1_oop = malloc(sizeof(*outer_context_1_oop));
   gst_object outer_context_1 = malloc(sizeof(*outer_context_1) * 100);
@@ -509,7 +524,7 @@ static void should_move_ivar_to_ivar(void **state) {
   uint32_t bytecode[] = { 0x11, 0x02, 0x01, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   _gst_self[0] = malloc(sizeof(*_gst_self[0]));
   gst_object obj = malloc(sizeof(*context) * 100);
@@ -609,9 +624,9 @@ static void should_register_send(void **state) {
   _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
   _gst_literals[0][0x5] = FROM_INT(123);
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
-  context->data[0x01] = FROM_INT(234);
+  OBJ_METHOD_CONTEXT_CONTEXT_STACK_AT_PUT(context, 0x01, FROM_INT(234));
   gst_small_integer_class = FROM_INT(456);
   
   expect_value(_new_gst_send_message_internal, receiverOOP, FROM_INT(234));
@@ -638,7 +653,7 @@ static void should_outer_register_send(void **state) {
   _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
   _gst_literals[0][0x5] = FROM_INT(123);
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   OOP outer_context_1_oop = malloc(sizeof(*outer_context_1_oop));
   gst_object outer_context_1 = malloc(sizeof(*outer_context_1) * 100);
@@ -678,7 +693,7 @@ static void should_ivar_send(void **state) {
   _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
   _gst_literals[0][0x1] = FROM_INT(123);
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   context->data[0x01] = FROM_INT(234);
   gst_small_integer_class = FROM_INT(456);
@@ -782,9 +797,9 @@ static void should_register_immediate_send(void **state) {
   _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
   _gst_literals[0][0x5] = FROM_INT(123);
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
-  context->data[0x01] = FROM_INT(234);
+  OBJ_METHOD_CONTEXT_CONTEXT_STACK_AT_PUT(context, 0x01, FROM_INT(234));
   gst_small_integer_class = FROM_INT(456);
   
   expect_value(_new_gst_send_message_internal, receiverOOP, FROM_INT(234));
@@ -811,7 +826,7 @@ static void should_outer_register_immediate_send(void **state) {
   _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
   _gst_literals[0][0x5] = FROM_INT(123);
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   OOP outer_context_1_oop = malloc(sizeof(*outer_context_1_oop));
   gst_object outer_context_1 = malloc(sizeof(*outer_context_1) * 100);
@@ -851,7 +866,7 @@ static void should_ivar_immediate_send(void **state) {
   _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
   _gst_literals[0][0x1] = FROM_INT(123);
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   context->data[0x01] = FROM_INT(234);
   gst_small_integer_class = FROM_INT(456);
@@ -889,9 +904,9 @@ static void should_register_jump_if_true(void **state) {
   uint32_t bytecode[] = { REGISTER_JUMP_IF_TRUE_BC, 0x01, 0x01, END_OF_INTERPRETER_BC, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
-  context->data[0x01] = FROM_INT(234);
+  OBJ_METHOD_CONTEXT_CONTEXT_STACK_AT_PUT(context, 0x01, FROM_INT(234));
   _gst_true_oop = FROM_INT(234);
 
   bc(0);
@@ -908,7 +923,7 @@ static void should_outer_register_jump_if_true(void **state) {
   uint32_t bytecode[] = { OUTER_REGISTER_JUMP_IF_TRUE_BC, 0x02, 0x01, 0x01, END_OF_INTERPRETER_BC, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   OOP outer_context_1_oop = malloc(sizeof(*outer_context_1_oop));
   gst_object outer_context_1 = malloc(sizeof(*outer_context_1) * 100);
@@ -954,9 +969,9 @@ static void should_register_jump_if_false(void **state) {
   uint32_t bytecode[] = { REGISTER_JUMP_IF_FALSE_BC, 0x01, 0x01, END_OF_INTERPRETER_BC, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
-  context->data[0x01] = FROM_INT(234);
+  OBJ_METHOD_CONTEXT_CONTEXT_STACK_AT_PUT(context, 0x01, FROM_INT(234));
   _gst_false_oop = FROM_INT(234);
 
   bc(0);
@@ -973,7 +988,7 @@ static void should_outer_register_jump_if_false(void **state) {
   uint32_t bytecode[] = { OUTER_REGISTER_JUMP_IF_FALSE_BC, 0x02, 0x01, 0x01, END_OF_INTERPRETER_BC, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   OOP outer_context_1_oop = malloc(sizeof(*outer_context_1_oop));
   gst_object outer_context_1 = malloc(sizeof(*outer_context_1) * 100);
@@ -1019,9 +1034,9 @@ static void should_register_return(void **state) {
   uint32_t bytecode[] = { RETURN_REGISTER_BC, 0x01, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
-  context->data[0x01] = FROM_INT(234);
+  OBJ_METHOD_CONTEXT_CONTEXT_STACK_AT_PUT(context, 0x01, FROM_INT(234));
   context->data[0x07] = FROM_INT(2);
 
   expect_function_calls(unwind_method, 1);
@@ -1029,7 +1044,7 @@ static void should_register_return(void **state) {
   bc(0);
   
   assert_true(tip == &bytecode[3]);
-  assert_true(context->data[0x02] == FROM_INT(234));
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[0x02] == FROM_INT(234));
 
   free(_gst_this_context_oop[0]);
 }
@@ -1041,7 +1056,7 @@ static void should_outer_register_return(void **state) {
   uint32_t bytecode[] = { RETURN_OUTER_REGISTER_BC, 0x02, 0x01, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   context->data[0x07] = FROM_INT(2);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   OOP outer_context_1_oop = malloc(sizeof(*outer_context_1_oop));
@@ -1059,7 +1074,7 @@ static void should_outer_register_return(void **state) {
   bc(0);
   
   assert_true(tip == &bytecode[4]);
-  assert_true(context->data[0x02] == FROM_INT(234));
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[0x02] == FROM_INT(234));
 
   free(_gst_this_context_oop[0]);
 }
@@ -1071,7 +1086,7 @@ static void should_ivar_return(void **state) {
   uint32_t bytecode[] = { RETURN_IVAR_BC, 0x06, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   context->data[0x07] = FROM_INT(2);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   _gst_self[0] = malloc(sizeof(*_gst_self[0]));
@@ -1084,7 +1099,7 @@ static void should_ivar_return(void **state) {
   bc(0);
   
   assert_true(tip == &bytecode[3]);
-  assert_true(context->data[0x02] == FROM_INT(999));
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[0x02] == FROM_INT(999));
 
   free(_gst_this_context_oop[0]);
 }
@@ -1096,7 +1111,7 @@ static void should_self_return(void **state) {
   uint32_t bytecode[] = { RETURN_SELF_BC, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   context->data[0x07] = FROM_INT(2);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   _gst_self[0] = malloc(sizeof(*_gst_self[0]));
@@ -1109,7 +1124,7 @@ static void should_self_return(void **state) {
   bc(0);
   
   assert_true(tip == &bytecode[2]);
-  assert_true(context->data[0x02] == _gst_self[0]);
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[0x02] == _gst_self[0]);
 
   free(_gst_this_context_oop[0]);
 }
@@ -1121,7 +1136,7 @@ static void should_literal_return(void **state) {
   uint32_t bytecode[] = { RETURN_LITERAL_BC, 0x06, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   context->data[0x07] = FROM_INT(2);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
@@ -1132,7 +1147,7 @@ static void should_literal_return(void **state) {
   bc(0);
   
   assert_true(tip == &bytecode[3]);
-  assert_true(context->data[0x02] == FROM_INT(999));
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[0x02] == FROM_INT(999));
 
   free(_gst_this_context_oop[0]);
 }
@@ -1144,9 +1159,9 @@ static void should_register_non_local_return(void **state) {
   uint32_t bytecode[] = { NON_LOCAL_RETURN_REGISTER_BC, 0x01, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
-  context->data[0x01] = FROM_INT(234);
+  OBJ_METHOD_CONTEXT_CONTEXT_STACK_AT_PUT(context, 0x01, FROM_INT(234));
   context->data[0x07] = FROM_INT(2);
 
   expect_function_calls(unwind_method, 1);
@@ -1154,7 +1169,7 @@ static void should_register_non_local_return(void **state) {
   bc(0);
   
   assert_true(tip == &bytecode[3]);
-  assert_true(context->data[0x02] == FROM_INT(234));
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[0x02] == FROM_INT(234));
 
   free(_gst_this_context_oop[0]);
 }
@@ -1166,7 +1181,7 @@ static void should_outer_register_non_local_return(void **state) {
   uint32_t bytecode[] = { NON_LOCAL_RETURN_OUTER_REGISTER_BC, 0x02, 0x01, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   context->data[0x07] = FROM_INT(2);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   OOP outer_context_1_oop = malloc(sizeof(*outer_context_1_oop));
@@ -1184,7 +1199,7 @@ static void should_outer_register_non_local_return(void **state) {
   bc(0);
   
   assert_true(tip == &bytecode[4]);
-  assert_true(context->data[0x02] == FROM_INT(234));
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[0x02] == FROM_INT(234));
 
   free(_gst_this_context_oop[0]);
 }
@@ -1196,7 +1211,7 @@ static void should_ivar_non_local_return(void **state) {
   uint32_t bytecode[] = { NON_LOCAL_RETURN_IVAR_BC, 0x06, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   context->data[0x07] = FROM_INT(2);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   _gst_self[0] = malloc(sizeof(*_gst_self[0]));
@@ -1209,7 +1224,7 @@ static void should_ivar_non_local_return(void **state) {
   bc(0);
   
   assert_true(tip == &bytecode[3]);
-  assert_true(context->data[0x02] == FROM_INT(999));
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[0x02] == FROM_INT(999));
 
   free(_gst_this_context_oop[0]);
 }
@@ -1221,7 +1236,7 @@ static void should_self_non_local_return(void **state) {
   uint32_t bytecode[] = { NON_LOCAL_RETURN_SELF_BC, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   context->data[0x07] = FROM_INT(2);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   _gst_self[0] = malloc(sizeof(*_gst_self[0]));
@@ -1234,7 +1249,7 @@ static void should_self_non_local_return(void **state) {
   bc(0);
   
   assert_true(tip == &bytecode[2]);
-  assert_true(context->data[0x02] == _gst_self[0]);
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[0x02] == _gst_self[0]);
 
   free(_gst_this_context_oop[0]);
 }
@@ -1246,7 +1261,7 @@ static void should_literal_non_local_return(void **state) {
   uint32_t bytecode[] = { NON_LOCAL_RETURN_LITERAL_BC, 0x06, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   context->data[0x07] = FROM_INT(2);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
@@ -1257,7 +1272,7 @@ static void should_literal_non_local_return(void **state) {
   bc(0);
   
   assert_true(tip == &bytecode[3]);
-  assert_true(context->data[0x02] == FROM_INT(999));
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[0x02] == FROM_INT(999));
 
   free(_gst_this_context_oop[0]);
 }
@@ -1268,7 +1283,10 @@ static void should_line_number(void **state) {
 
   uint32_t bytecode[] = { LINE_NUMBER_BC, 0x06, END_OF_INTERPRETER_BC };
   tip = &bytecode[0];
- 
+  _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
+  gst_object context = malloc(sizeof(*context) * 100);
+  OOP_SET_OBJECT(_gst_this_context_oop[0], context);
+  
   bc(0);
   
   assert_true(tip == &bytecode[3]);
@@ -1284,7 +1302,7 @@ static void should_make_dirty_to_register(void **state) {
   _gst_literals[0] = malloc(sizeof(*_gst_literals[0]) * 100);
   _gst_literals[0][0x5] = FROM_INT(123);
   _gst_this_context_oop[0] = malloc(sizeof(*_gst_this_context_oop[0]));
-  context = malloc(sizeof(*context) * 100);
+  gst_object context = malloc(sizeof(*context) * 100);
   OOP_SET_OBJECT(_gst_this_context_oop[0], context);
   
   expect_value(_gst_make_block_closure, oop, FROM_INT(123));
@@ -1295,7 +1313,7 @@ static void should_make_dirty_to_register(void **state) {
   bc(0);
   
   assert_true(tip == &bytecode[4]);
-  assert_true(context->data[0x02] == FROM_INT(456));
+  assert_true(OBJ_METHOD_CONTEXT_CONTEXT_STACK(context)[0x02] == FROM_INT(456));
 
   free(_gst_literals[0]);
 }

@@ -1,11 +1,9 @@
 #include "gstpriv.h"
 
-uint32_t *tip = 0;
+uint32_t const * tip = 0;
 
 #define READ *tip++;
 #define NEXT_BC goto *(gst_byte_codes[*tip++])
-
-gst_object context;
 
 typedef enum {
   LOAD_SELF_REGISTER_BC = 0,
@@ -134,12 +132,13 @@ void bc(const size_t thread_idx) {
   OOP self_oop = _gst_self[thread_idx];
   OOP this_context_oop = _gst_this_context_oop[thread_idx];
   OOP *literals_oop = _gst_literals[thread_idx];
-  
+  OOP *temporaries_oop = OBJ_METHOD_CONTEXT_CONTEXT_STACK(OOP_TO_OBJ(this_context_oop));
+
   NEXT_BC;
   
  LOAD_SELF_REGISTER: {
     uint32_t register_idx = READ;
-    context->data[register_idx] = self_oop;
+    temporaries_oop[register_idx] = self_oop;
     
     NEXT_BC;
   }
@@ -173,7 +172,7 @@ void bc(const size_t thread_idx) {
     const uint32_t literal_idx = READ;
     const uint32_t register_idx = READ;
 
-    context->data[register_idx] = literals_oop[literal_idx];
+    temporaries_oop[register_idx] = literals_oop[literal_idx];
 
     NEXT_BC;
   }
@@ -209,7 +208,7 @@ void bc(const size_t thread_idx) {
     const int32_t number = READ;
     const uint32_t register_idx = READ;
 
-    context->data[register_idx] = (OOP) (intptr_t) number;
+    temporaries_oop[register_idx] = (OOP) (intptr_t) number;
     
     NEXT_BC;
   }
@@ -245,7 +244,7 @@ void bc(const size_t thread_idx) {
     const uint32_t src_register_idx = READ;
     const uint32_t dst_register_idx = READ;
 
-    OOP_TO_OBJ(this_context_oop)->data[dst_register_idx] = OOP_TO_OBJ(this_context_oop)->data[src_register_idx];
+    temporaries_oop[dst_register_idx] = temporaries_oop[src_register_idx];
 
     NEXT_BC;
   }
@@ -264,7 +263,7 @@ void bc(const size_t thread_idx) {
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
    
-    OOP_TO_OBJ(this_context_oop)->data[dst_register_idx] = OOP_TO_OBJ(this_context_oop)->data[src_register_idx];
+    temporaries_oop[dst_register_idx] = OOP_TO_OBJ(this_context_oop)->data[src_register_idx];
 
     NEXT_BC;
   }
@@ -273,7 +272,7 @@ void bc(const size_t thread_idx) {
     const uint32_t ivar_idx = READ;
     const uint32_t register_idx = READ;
 
-    OOP_TO_OBJ(this_context_oop)->data[register_idx] = INSTANCE_VARIABLE(self_oop, ivar_idx);
+    temporaries_oop[register_idx] = INSTANCE_VARIABLE(self_oop, ivar_idx);
 
     NEXT_BC;
   }
@@ -292,7 +291,7 @@ void bc(const size_t thread_idx) {
       context = OOP_TO_OBJ(contextOOP);
     } while (--scope_idx);
    
-    context->data[dst_register_idx] = OOP_TO_OBJ(this_context_oop)->data[src_register_idx];
+    context->data[dst_register_idx] = temporaries_oop[src_register_idx];
 
     NEXT_BC;
   }
@@ -348,7 +347,7 @@ void bc(const size_t thread_idx) {
     uint32_t ivar_idx = READ;
     uint32_t src_register_idx = READ;
 
-    INSTANCE_VARIABLE(self_oop, ivar_idx) = OOP_TO_OBJ(this_context_oop)->data[src_register_idx];
+    INSTANCE_VARIABLE(self_oop, ivar_idx) = temporaries_oop[src_register_idx];
 
      NEXT_BC;
   }
@@ -403,9 +402,9 @@ void bc(const size_t thread_idx) {
     const OOP selectorOOP = literals_oop[selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
-			       OOP_INT_CLASS(receiverOOP),
-			       selectorOOP,
-			       args_idx);
+				   OOP_INT_CLASS(receiverOOP),
+				   selectorOOP,
+				   args_idx);
 
    NEXT_BC;
   }
@@ -430,7 +429,7 @@ void bc(const size_t thread_idx) {
     const uint32_t register_idx = READ;
     const uint32_t selector_idx = READ;
     const uint32_t args_idx = READ;
-    const OOP receiverOOP = OOP_TO_OBJ(this_context_oop)->data[register_idx];
+    const OOP receiverOOP = temporaries_oop[register_idx];
     const OOP selectorOOP = literals_oop[selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
@@ -460,9 +459,9 @@ void bc(const size_t thread_idx) {
     const OOP receiverOOP = context->data[register_idx];
 
     _new_gst_send_message_internal(receiverOOP,
-			       OOP_INT_CLASS(receiverOOP),
-			       selectorOOP,
-			       args_idx);
+				   OOP_INT_CLASS(receiverOOP),
+				   selectorOOP,
+				   args_idx);
 
     NEXT_BC;
   }
@@ -475,9 +474,9 @@ void bc(const size_t thread_idx) {
     const OOP selectorOOP = literals_oop[selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
-			       OOP_INT_CLASS(receiverOOP),
-			       selectorOOP,
-			       args_idx);
+				   OOP_INT_CLASS(receiverOOP),
+				   selectorOOP,
+				   args_idx);
 
     NEXT_BC;
   }
@@ -525,13 +524,13 @@ void bc(const size_t thread_idx) {
  REGISTER_IMMEDIATE_SEND: {
     const uint32_t register_idx = READ;
     const uint32_t selector_idx = READ;
-    const OOP receiverOOP = context->data[register_idx];
+    const OOP receiverOOP = temporaries_oop[register_idx];
     const struct builtin_selector *bs = &_gst_builtin_selectors[selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
-			       OOP_INT_CLASS(receiverOOP),
-			       bs->symbol,
-			       (uint32_t)bs->numArgs);
+				   OOP_INT_CLASS(receiverOOP),
+				   bs->symbol,
+				   (uint32_t)bs->numArgs);
 
     NEXT_BC;
   }
@@ -554,9 +553,9 @@ void bc(const size_t thread_idx) {
     const OOP receiverOOP = context->data[register_idx];
 
     _new_gst_send_message_internal(receiverOOP,
-			       OOP_INT_CLASS(receiverOOP),
-			       bs->symbol,
-			       (uint32_t)bs->numArgs);
+				   OOP_INT_CLASS(receiverOOP),
+				   bs->symbol,
+				   (uint32_t)bs->numArgs);
 
     NEXT_BC;
   }
@@ -568,9 +567,9 @@ void bc(const size_t thread_idx) {
     const struct builtin_selector *bs = &_gst_builtin_selectors[selector_idx];
 
     _new_gst_send_message_internal(receiverOOP,
-			       OOP_INT_CLASS(receiverOOP),
-			       bs->symbol,
-			       (uint32_t)bs->numArgs);
+				   OOP_INT_CLASS(receiverOOP),
+				   bs->symbol,
+				   (uint32_t)bs->numArgs);
     
     NEXT_BC;
   }
@@ -585,7 +584,7 @@ void bc(const size_t thread_idx) {
     const uint32_t register_idx = READ;
     const int32_t offset = READ;
 
-    if (context->data[register_idx] == _gst_true_oop) {
+    if (temporaries_oop[register_idx] == _gst_true_oop) {
       tip = tip + offset;
     }
     
@@ -628,7 +627,7 @@ void bc(const size_t thread_idx) {
     const uint32_t register_idx = READ;
     const int32_t offset = READ;
 
-    if (context->data[register_idx] == _gst_false_oop) {
+    if (temporaries_oop[register_idx] == _gst_false_oop) {
       tip = tip + offset;
     }
     
@@ -670,10 +669,10 @@ void bc(const size_t thread_idx) {
  RETURN_REGISTER: {
     const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
     const uint32_t register_idx = READ;
-    const OOP valueOOP = OOP_TO_OBJ(this_context_oop)->data[register_idx];
+    const OOP valueOOP = temporaries_oop[register_idx];
 
     unwind_method();
-    context->data[return_register_idx] = valueOOP;
+    temporaries_oop[return_register_idx] = valueOOP;
     
     NEXT_BC;
   }
@@ -694,7 +693,7 @@ void bc(const size_t thread_idx) {
 
     const OOP valueOOP = context->data[register_idx];
     unwind_method();
-    OOP_TO_OBJ(this_context_oop)->data[return_register_idx] = valueOOP;
+    temporaries_oop[return_register_idx] = valueOOP;
 
     NEXT_BC;
   }
@@ -705,7 +704,7 @@ void bc(const size_t thread_idx) {
     const OOP valueOOP = INSTANCE_VARIABLE(self_oop, ivar_idx);
 
     unwind_method();
-    OOP_TO_OBJ(this_context_oop)->data[return_register_idx] = valueOOP;
+    temporaries_oop[return_register_idx] = valueOOP;
 
     NEXT_BC;
   }
@@ -715,7 +714,7 @@ void bc(const size_t thread_idx) {
     const OOP valueOOP = self_oop;
 
     unwind_method();
-    OOP_TO_OBJ(this_context_oop)->data[return_register_idx] = valueOOP;
+    temporaries_oop[return_register_idx] = valueOOP;
 
     NEXT_BC;
   }
@@ -726,7 +725,7 @@ void bc(const size_t thread_idx) {
     const OOP valueOOP = literals_oop[literal_idx];
 
     unwind_method();
-    OOP_TO_OBJ(this_context_oop)->data[return_register_idx] = valueOOP;
+    temporaries_oop[return_register_idx] = valueOOP;
 
     NEXT_BC;
   }
@@ -734,7 +733,7 @@ void bc(const size_t thread_idx) {
  NON_LOCAL_RETURN_REGISTER: {
     const intptr_t return_register_idx = TO_INT(OOP_TO_OBJ(this_context_oop)->data[7]);
     const uint32_t register_idx = READ;
-    const OOP valueOOP = OOP_TO_OBJ(this_context_oop)->data[register_idx];
+    const OOP valueOOP = temporaries_oop[register_idx];
 
     if (UNCOMMON (!unwind_method())) {
       _new_gst_send_message_internal(valueOOP,
@@ -742,7 +741,7 @@ void bc(const size_t thread_idx) {
 				     _gst_bad_return_error_symbol,
 				     0);
     } else {
-      OOP_TO_OBJ(this_context_oop)->data[return_register_idx] = valueOOP;
+      temporaries_oop[return_register_idx] = valueOOP;
     }
 
     NEXT_BC;
@@ -770,7 +769,7 @@ void bc(const size_t thread_idx) {
 				     _gst_bad_return_error_symbol,
 				     0);
     } else {
-      OOP_TO_OBJ(this_context_oop)->data[return_register_idx] = valueOOP;
+      temporaries_oop[return_register_idx] = valueOOP;
     }
 
     NEXT_BC;
@@ -787,7 +786,7 @@ void bc(const size_t thread_idx) {
 				     _gst_bad_return_error_symbol,
 				     0);
     } else {
-      OOP_TO_OBJ(this_context_oop)->data[return_register_idx] = valueOOP;
+      temporaries_oop[return_register_idx] = valueOOP;
     }
 
     NEXT_BC;
@@ -803,7 +802,7 @@ void bc(const size_t thread_idx) {
 				     _gst_bad_return_error_symbol,
 				     0);
     } else {
-      OOP_TO_OBJ(this_context_oop)->data[return_register_idx] = valueOOP;
+      temporaries_oop[return_register_idx] = valueOOP;
     }
 
     NEXT_BC;
@@ -820,7 +819,7 @@ void bc(const size_t thread_idx) {
 				     _gst_bad_return_error_symbol,
 				     0);
     } else {
-      OOP_TO_OBJ(this_context_oop)->data[return_register_idx] = valueOOP;
+      temporaries_oop[return_register_idx] = valueOOP;
     }
     
     NEXT_BC;
@@ -831,7 +830,7 @@ void bc(const size_t thread_idx) {
     const uint32_t register_idx = READ;
     const OOP compiledBlockOOP = literals_oop[literal_idx];
     
-    context->data[register_idx] = _gst_make_block_closure(compiledBlockOOP);
+    temporaries_oop[register_idx] = _gst_make_block_closure(compiledBlockOOP);
 
     NEXT_BC;
   }
