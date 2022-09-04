@@ -2309,8 +2309,7 @@ void install_method(OOP methodOOP, OOP classOOP) {
     _gst_msg_sendf(&oldMethod, "%o %o at: %o put: %o", methodDictionaryOOP,
                    selector, methodOOP);
   } else {
-    oldMethod = _gst_identity_dictionary_at_put(methodDictionaryOOP, selector,
-                                                methodOOP);
+    oldMethod = _gst_method_dictionary_at_put(methodDictionaryOOP, selector, methodOOP);
   }
 
 #ifdef ENABLE_JIT_TRANSLATION

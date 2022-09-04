@@ -188,6 +188,13 @@ static gst_object grow_dictionary(OOP dictionaryOOP);
    dictionary (the object pointer, not the OOP).  */
 static gst_object grow_identity_dictionary(OOP identityDictionaryOOP);
 
+static gst_object grow_method_dictionary(OOP identityDictionaryOOP);
+
+/* Look for the index at which KEYOOP resides in IDENTITYDICTIONARYOOP
+   and answer it or, if not found, answer -1.  */
+static ssize_t method_dictionary_find_key(OOP methodDictionaryOOP, OOP keyOOP);
+static size_t method_dictionary_find_key_or_nil(OOP methodDictionaryOOP, OOP keyOOP);
+
 /* Answer the number of slots that are in a dictionary of
    OLDNUMFIELDS items after growing it.  */
 static size_t new_num_fields(size_t oldNumFields);
@@ -196,11 +203,6 @@ static size_t new_num_fields(size_t oldNumFields);
    (true, false, nil, the Smalltalk dictionary, the symbol table
    and Processor, the sole instance of ProcessorScheduler.  */
 static void init_proto_oops(void);
-
-/* Look for the index at which KEYOOP resides in IDENTITYDICTIONARYOOP
-   and answer it or, if not found, answer -1.  */
-static ssize_t identity_dictionary_find_key(OOP identityDictionaryOOP,
-                                            OOP keyOOP);
 
 /* Look for the index at which KEYOOP resides in IDENTITYDICTIONARYOOP
    or, if not found, find a nil slot which can be replaced by that
@@ -500,7 +502,7 @@ static const class_definition class_info[] = {
      true, 0, "IdentityDictionary", NULL, NULL, NULL},
 
     {&_gst_method_dictionary_class, &_gst_identity_dictionary_class,
-     GST_ISP_POINTER, true, 1, "MethodDictionary", "mutex", NULL, NULL},
+     GST_ISP_FIXED, true, 3, "MethodDictionary", "mutex keys values", NULL, NULL},
 
     /* These five MUST have the same structure as dictionary; they're
        used interchangeably within the C portion of the system */
@@ -1251,7 +1253,7 @@ OOP _gst_valid_class_method_dictionary(OOP class_oop) {
   if (IS_NIL(OBJ_BEHAVIOR_GET_METHOD_DICTIONARY(class))) {
     OOP methodDictionaryOOP;
     methodDictionaryOOP =
-        _gst_identity_dictionary_new(_gst_method_dictionary_class, 32);
+        _gst_method_dictionary_new(32);
     class = OOP_TO_OBJ(class_oop);
     OBJ_BEHAVIOR_SET_METHOD_DICTIONARY(class, methodDictionaryOOP);
   }
@@ -1260,28 +1262,23 @@ OOP _gst_valid_class_method_dictionary(OOP class_oop) {
 }
 
 OOP _gst_find_class_method(OOP class_oop, OOP selector) {
-  gst_object class;
-  gst_object methodDictionary;
-  OOP method_dictionary_oop;
-  int index;
-  size_t numFixedFields;
-
-  class = OOP_TO_OBJ(class_oop);
-  method_dictionary_oop = OBJ_BEHAVIOR_GET_METHOD_DICTIONARY(class);
+  gst_object class = OOP_TO_OBJ(class_oop);
+  OOP method_dictionary_oop = OBJ_BEHAVIOR_GET_METHOD_DICTIONARY(class);
   if (IS_NIL(method_dictionary_oop)) {
     return (_gst_nil_oop);
   }
 
-  index = identity_dictionary_find_key(method_dictionary_oop, selector);
+  const ssize_t index = method_dictionary_find_key(method_dictionary_oop, selector);
 
-  if (index < 0) {
-    return (_gst_nil_oop);
+  if (index == -1) {
+    return _gst_nil_oop;
   }
 
-  methodDictionary = OOP_TO_OBJ(method_dictionary_oop);
-  numFixedFields = OOP_FIXED_FIELDS(method_dictionary_oop);
+  gst_object methodDictionary = OOP_TO_OBJ(method_dictionary_oop);
 
-  return (methodDictionary->data[index + numFixedFields]);
+  OOP valuesOOP = OBJ_METHOD_DICTIONARY_GET_VALUES(methodDictionary);
+
+  return ARRAY_AT(valuesOOP, index);
 }
 
 OOP _gst_class_variable_dictionary(OOP class_oop) {
@@ -1469,33 +1466,97 @@ gst_object grow_identity_dictionary(OOP oldIdentityDictionaryOOP) {
   return (OOP_TO_OBJ(oldIdentityDictionaryOOP));
 }
 
-ssize_t identity_dictionary_find_key(OOP identityDictionaryOOP, OOP keyOOP) {
-  gst_object identityDictionary;
-  size_t index, count, numFields, numFixedFields;
+gst_object grow_method_dictionary(OOP oldMethodDictionaryOOP) {
+  gst_object oldMethodDictionary = OOP_TO_OBJ(oldMethodDictionaryOOP);
+  const OOP oldKeysOOP = OBJ_METHOD_DICTIONARY_GET_KEYS(oldMethodDictionary);
+  const size_t oldNumFields = NUM_WORDS(OOP_TO_OBJ(oldKeysOOP));
+  const OOP oldValuesOOP = OBJ_METHOD_DICTIONARY_GET_VALUES(oldMethodDictionary);
 
-  identityDictionary = OOP_TO_OBJ(identityDictionaryOOP);
-  numFixedFields = OOP_FIXED_FIELDS(identityDictionaryOOP);
+  const size_t numFields = new_num_fields(oldNumFields);
 
-  numFields = NUM_WORDS(identityDictionary) - numFixedFields;
+  inc_ptr incPtr = INC_SAVE_POINTER();
+
+  OOP methodDictionaryOOP;
+  gst_object methodDictionary = instantiate(_gst_method_dictionary_class, &methodDictionaryOOP);
+  INC_ADD_OOP(methodDictionaryOOP);
+
+  OOP keysOOP;
+  instantiate_with(_gst_array_class, numFields, &keysOOP);
+  INC_ADD_OOP(keysOOP);
+
+  OOP valuesOOP;
+  instantiate_with(_gst_array_class, numFields, &valuesOOP);
+  INC_ADD_OOP(valuesOOP);
+
+  OBJ_METHOD_DICTIONARY_SET_TALLY(
+      methodDictionary,
+      OBJ_METHOD_DICTIONARY_GET_TALLY(oldMethodDictionary));
+  OBJ_METHOD_DICTIONARY_SET_KEYS(methodDictionary, keysOOP);
+  OBJ_METHOD_DICTIONARY_SET_VALUES(methodDictionary, valuesOOP);
+
+  /* rehash all associations from old dictionary into new one */
+  for (size_t i = 1; i <= oldNumFields; i++) {
+    OOP keyOOP = ARRAY_AT(oldKeysOOP, i);
+    if (COMMON (!IS_NIL(keyOOP))) {
+      const size_t index = method_dictionary_find_key_or_nil(methodDictionaryOOP, keyOOP);
+      ARRAY_AT_PUT(keysOOP, index, keyOOP);
+      ARRAY_AT_PUT(valuesOOP, index, ARRAY_AT(oldValuesOOP, i));
+    }
+  }
+
+  _gst_swap_objects(methodDictionaryOOP, oldMethodDictionaryOOP);
+
+  INC_RESTORE_POINTER(incPtr);
+
+  return OOP_TO_OBJ(oldMethodDictionaryOOP);
+}
+
+ssize_t method_dictionary_find_key(OOP methodDictionaryOOP, OOP keyOOP) {
+  gst_object methodDictionary = OOP_TO_OBJ(methodDictionaryOOP);
+  OOP keysOOP = OBJ_METHOD_DICTIONARY_GET_KEYS(methodDictionary);
+  gst_object keys = OOP_TO_OBJ(keysOOP);
+
+  const size_t numFields = NUM_WORDS(keys);
+
   OBJ_UPDATE_IDENTITY(OOP_TO_OBJ(keyOOP));
-  index = scramble(TO_INT(OBJ_IDENTITY(OOP_TO_OBJ(keyOOP)))) * 2;
-  count = numFields / 2;
-  /* printf ("%d %d %O\n", count, index & numFields - 1, keyOOP); */
+
+  for (size_t index = 1; index <= numFields; index++) {
+    if (COMMON (ARRAY_AT(keysOOP, index) == keyOOP))
+      return index;
+  }
+
+  return -1;
+}
+
+size_t method_dictionary_find_key_or_nil(OOP methodDictionaryOOP,
+                                         OOP keyOOP) {
+  gst_object methodDictionary = OOP_TO_OBJ(methodDictionaryOOP);
+  OOP keysOOP = OBJ_METHOD_DICTIONARY_GET_KEYS(methodDictionary);
+  gst_object keys = OOP_TO_OBJ(keysOOP);
+
+  const size_t numFields = NUM_WORDS(keys);
+
+  OBJ_UPDATE_IDENTITY(OOP_TO_OBJ(keyOOP));
+
+  const size_t index = (scramble(TO_INT(OBJ_IDENTITY(OOP_TO_OBJ(keyOOP)))) & (numFields - 1)) + 1;
+  size_t i = index;
+  size_t count = numFields;
   while (count--) {
-    index &= numFields - 1;
+    if (COMMON(IS_NIL(ARRAY_AT(keysOOP, i))))
+      return i;
 
-    if COMMON (IS_NIL(identityDictionary->data[index + numFixedFields]))
-      return (-1);
+    if (COMMON(ARRAY_AT(keysOOP, i) == keyOOP))
+      return i;
 
-    if COMMON (identityDictionary->data[index + numFixedFields] == keyOOP)
-      return (index + 1);
-
-    /* linear reprobe -- it is simple and guaranteed */
-    index += 2;
+    if (i == numFields) {
+      i = 1;
+    } else {
+      i++;
+    }
   }
 
   _gst_errorf(
-      "Error - searching IdentityDictionary for nil, but it is full!\n");
+      "Error - searching MethodDictionary for nil, but it is full!\n");
 
   abort();
 }
@@ -1543,6 +1604,57 @@ OOP _gst_identity_dictionary_new(OOP classOOP, int size) {
 
   OBJ_IDENTITY_DICTIONARY_SET_TALLY(identityDictionary, FROM_INT(0));
   return (identityDictionaryOOP);
+}
+
+OOP _gst_method_dictionary_new(size_t wanted_size) {
+  const size_t size = new_num_fields(wanted_size);
+
+  OOP methodDictionaryOOP;
+  gst_object methodDictionary = instantiate(_gst_method_dictionary_class, &methodDictionaryOOP);
+
+  OBJ_METHOD_DICTIONARY_SET_TALLY(methodDictionary, FROM_INT(0));
+
+  OOP keysOOP;
+  instantiate_with(_gst_array_class, size, &keysOOP);
+  OBJ_METHOD_DICTIONARY_SET_KEYS(methodDictionary, keysOOP);
+
+  OOP valuesOOP;
+  instantiate_with(_gst_array_class, size, &valuesOOP);
+  OBJ_METHOD_DICTIONARY_SET_VALUES(methodDictionary, valuesOOP);
+
+  return methodDictionaryOOP;
+}
+
+OOP _gst_method_dictionary_at_put(OOP methodDictionaryOOP,
+                                  OOP keyOOP,
+                                  OOP valueOOP) {
+  gst_object methodDictionary = OOP_TO_OBJ(methodDictionaryOOP);
+  OOP keysOOP = OBJ_METHOD_DICTIONARY_GET_KEYS(methodDictionary);
+  gst_object keys = OOP_TO_OBJ(keysOOP);
+  OOP valuesOOP = OBJ_METHOD_DICTIONARY_GET_VALUES(methodDictionary);
+
+  if (UNCOMMON (TO_INT(OBJ_IDENTITY_DICTIONARY_GET_TALLY(methodDictionary)) >= TO_INT(OBJ_SIZE(keys)) * 3 / 8)) {
+    methodDictionary = grow_method_dictionary(methodDictionaryOOP);
+
+    methodDictionary = OOP_TO_OBJ(methodDictionaryOOP);
+    keysOOP = OBJ_METHOD_DICTIONARY_GET_KEYS(methodDictionary);
+    keys = OOP_TO_OBJ(keysOOP);
+    valuesOOP = OBJ_METHOD_DICTIONARY_GET_VALUES(methodDictionary);
+  }
+
+  const size_t index = method_dictionary_find_key_or_nil(methodDictionaryOOP, keyOOP);
+
+  if (COMMON (IS_NIL(ARRAY_AT(keysOOP, index)))) {
+    OBJ_METHOD_DICTIONARY_SET_TALLY(methodDictionary, INCR_INT(OBJ_METHOD_DICTIONARY_GET_TALLY(methodDictionary)));
+  }
+
+  ARRAY_AT_PUT(keysOOP, index, keyOOP);
+  OOP oldValueOOP = ARRAY_AT(valuesOOP, index);
+  ARRAY_AT_PUT(valuesOOP, index, valueOOP);
+
+  assert(ARRAY_AT(valuesOOP, method_dictionary_find_key(methodDictionaryOOP, keyOOP)) == valueOOP);
+
+  return oldValueOOP;
 }
 
 OOP _gst_identity_dictionary_at_put(OOP identityDictionaryOOP, OOP keyOOP,

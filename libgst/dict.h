@@ -248,10 +248,15 @@ extern OOP _gst_namespace_at(OOP poolOOP,
 extern OOP _gst_dictionary_add(OOP dictionaryOOP,
                                OOP associationOOP) ATTRIBUTE_HIDDEN;
 
-/* Create a new instance of CLASSOOP (an IdentityDictionary subclass)
-   and answer it.  */
-extern OOP _gst_identity_dictionary_new(OOP classOOP,
-                                        int size) ATTRIBUTE_HIDDEN;
+/* Create a new instance of method dictionary. */
+extern OOP _gst_method_dictionary_new(size_t wanted_size);
+
+/* Look for the value associated to KEYOOP in IDENTITYDICTIONARYOOP
+   and answer it or, if not found, _gst_nil_oop.  */
+extern OOP _gst_method_dictionary_at_put(OOP methodDictionaryOOP, OOP keyOOP, OOP valueOOP);
+
+/* Create a new instance of CLASSOOP (an IdentityDictionary subclass) and answer it. */
+extern OOP _gst_identity_dictionary_new(OOP classOOP, int size);
 
 /* Look for the value associated to KEYOOP in IDENTITYDICTIONARYOOP
    and answer it or, if not found, _gst_nil_oop.  */
