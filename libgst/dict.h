@@ -251,8 +251,7 @@ extern OOP _gst_dictionary_add(OOP dictionaryOOP,
 /* Create a new instance of method dictionary. */
 extern OOP _gst_method_dictionary_new(size_t wanted_size);
 
-/* Look for the value associated to KEYOOP in IDENTITYDICTIONARYOOP
-   and answer it or, if not found, _gst_nil_oop.  */
+/* Adds the KeyOOP and the ValueOOP in the MethodDictionaryOOP */
 extern OOP _gst_method_dictionary_at_put(OOP methodDictionaryOOP, OOP keyOOP, OOP valueOOP);
 
 /* Create a new instance of CLASSOOP (an IdentityDictionary subclass) and answer it. */

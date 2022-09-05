@@ -188,12 +188,21 @@ static gst_object grow_dictionary(OOP dictionaryOOP);
    dictionary (the object pointer, not the OOP).  */
 static gst_object grow_identity_dictionary(OOP identityDictionaryOOP);
 
-static gst_object grow_method_dictionary(OOP identityDictionaryOOP);
+/* Called when an MethodDictionary becomes full, this routine
+   replaces the MethodDictionary instance that MethodDictionary OOP
+   is pointing to with a new, larger dictionary, and returns this new
+   dictionary (the object pointer, not the OOP).  */
+static gst_object grow_method_dictionary(OOP methodDictionaryOOP);
 
-/* Look for the index at which KEYOOP resides in IDENTITYDICTIONARYOOP
+/* Look for the index at which keyOOP resides in MethodDictionaryOOP
    and answer it or, if not found, answer -1.  */
 static ssize_t method_dictionary_find_key(OOP methodDictionaryOOP, OOP keyOOP);
-static size_t method_dictionary_find_key_or_nil(OOP methodDictionaryOOP, OOP keyOOP);
+
+/* Look for the index at which keyOOP resides in MethodDictionaryOOP
+   and answer it or, if not found, return the firt Nil index.
+   In case of error (too much iterations) it will abort */
+static size_t method_dictionary_find_key_or_nil(OOP methodDictionaryOOP,
+                                                OOP keyOOP);
 
 /* Answer the number of slots that are in a dictionary of
    OLDNUMFIELDS items after growing it.  */
@@ -1265,18 +1274,15 @@ OOP _gst_find_class_method(OOP class_oop, OOP selector) {
   gst_object class = OOP_TO_OBJ(class_oop);
   OOP method_dictionary_oop = OBJ_BEHAVIOR_GET_METHOD_DICTIONARY(class);
   if (IS_NIL(method_dictionary_oop)) {
-    return (_gst_nil_oop);
+    return _gst_nil_oop;
   }
 
   const ssize_t index = method_dictionary_find_key(method_dictionary_oop, selector);
-
   if (index == -1) {
     return _gst_nil_oop;
   }
 
-  gst_object methodDictionary = OOP_TO_OBJ(method_dictionary_oop);
-
-  OOP valuesOOP = OBJ_METHOD_DICTIONARY_GET_VALUES(methodDictionary);
+  OOP valuesOOP = OBJ_METHOD_DICTIONARY_GET_VALUES(OOP_TO_OBJ(method_dictionary_oop));
 
   return ARRAY_AT(valuesOOP, index);
 }
@@ -1651,8 +1657,6 @@ OOP _gst_method_dictionary_at_put(OOP methodDictionaryOOP,
   ARRAY_AT_PUT(keysOOP, index, keyOOP);
   OOP oldValueOOP = ARRAY_AT(valuesOOP, index);
   ARRAY_AT_PUT(valuesOOP, index, valueOOP);
-
-  assert(ARRAY_AT(valuesOOP, method_dictionary_find_key(methodDictionaryOOP, keyOOP)) == valueOOP);
 
   return oldValueOOP;
 }
