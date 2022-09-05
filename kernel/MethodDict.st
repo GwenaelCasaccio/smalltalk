@@ -1,29 +1,30 @@
-"
-MIT License
-
-Copyright (c) 2022 GST
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the ""Software""), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED ""AS IS"", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-"
+"======================================================================
+| MIT License
+|
+| Copyright (c) 2022 GST
+|
+| Permission is hereby granted, free of charge, to any person obtaining a copy
+| of this software and associated documentation files (the ""Software""), to deal
+| in the Software without restriction, including without limitation the rights
+| to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+| copies of the Software, and to permit persons to whom the Software is
+| furnished to do so, subject to the following conditions:
+|
+| The above copyright notice and this permission notice shall be included in all
+| copies or substantial portions of the Software.
+|
+| THE SOFTWARE IS PROVIDED ""AS IS"", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+| IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+| FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+| AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+| LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+| OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+| SOFTWARE.
+======================================================================"
 
 IdentityDictionary subclass: MethodDictionary [
-    | mutex keys values |
+
+    | keys values |
 
     <shape: nil>
 
@@ -66,7 +67,6 @@ IdentityDictionary subclass: MethodDictionary [
     primAt: anInteger [
         <category: 'private-accessing'>
 
-
         ^ keys at: anInteger
     ]
 
@@ -78,13 +78,11 @@ IdentityDictionary subclass: MethodDictionary [
     valueAt: anInteger [
         <category: 'private-accessing'>
 
-
         ^ values at: anInteger
     ]
 
     valueAt: anInteger put: anObject [
         <category: 'private-accessing'>
-
 
         ^ values at: anInteger put: anObject
     ]
@@ -109,44 +107,42 @@ IdentityDictionary subclass: MethodDictionary [
             ifFalse: [
                 (self valueAt: index) discardTranslation.
                 self valueAt: index put: value ].
+        " The cache is flushed whether a new method is added or a previous one is replaced.
+          It's done this way because the virtual machine cache hash is computed with the symbol
+          and the receiver class - and a new method can be added while a cache entry exists for that
+          symbol with the receiver's class "
         Behavior flushCache. 
         ^ value
     ]
 
     remove: anAssociation [
-	    "Remove anAssociation's key from the dictionary"
+        "The interpreter might be using this MethodDictionary while
+	       this method is running!!  Therefore we perform the removal
+         in a copy, and then atomically become that copy"
 
-	   "The interpreter might be using this MethodDictionary while
-	    this method is running!!  Therefore we perform the removal
-	    in a copy, and then atomically become that copy"
-
-
-       <category: 'removing'>
-       | copy result |
-       (self includesKey: anAssociation key) ifFalse: [ SystemExceptions.NotFound signalOn: anAssociation key what: 'key' ].
-       copy := self copy.
-       result := copy dangerouslyRemove: anAssociation.
-       self become: copy.
-       Behavior flushCache.
-       ^ result
+        <category: 'removing'>
+        | copy result |
+        (self includesKey: anAssociation key) ifFalse: [ SystemExceptions.NotFound signalOn: anAssociation key what: 'key' ].
+        copy := self copy.
+        result := copy dangerouslyRemove: anAssociation.
+        self become: copy.
+        Behavior flushCache.
+        ^ result
     ]
 
     removeKey: anElement ifAbsent: aBlock [
-        "Remove the passed key from the dictionary, answer the result of
-	       evaluating aBlock if it is not found"
-
         "The interpreter might be using this MethodDictionary while
 	       this method is running!!  Therefore we perform the removal
          in a copy, and then atomically become that copy"
 
        <category: 'removing'>
        | copy result |
-       (self includesKey: anElement) ifFalse: [^aBlock value].
+       (self includesKey: anElement) ifFalse: [ ^ aBlock value ].
        copy := self copy.
        result := copy dangerouslyRemoveKey: anElement.
        self become: copy.
        Behavior flushCache.
-       ^result
+       ^ result
     ]
 
     select: aBlock [
@@ -158,9 +154,8 @@ IdentityDictionary subclass: MethodDictionary [
         newDict := self copyEmpty: self capacity.
         self
             associationsDo: [:assoc |
-                (aBlock value: assoc value)
-                    ifTrue: [newDict dangerouslyAt: assoc key put: assoc value]].
-        ^newDict
+                (aBlock value: assoc value) ifTrue: [ newDict dangerouslyAt: assoc key put: assoc value ] ].
+        ^ newDict
     ]
 
     dangerouslyAt: aKey put: aValue [
@@ -178,32 +173,31 @@ IdentityDictionary subclass: MethodDictionary [
     ]
 
     dangerouslyRemove: anAssociation [
-	"This is not really dangerous.  But if normal removal
-	 were done WHILE a MethodDictionary were being used, the
-	 system might crash.  So instead we make a copy, then do
-	 this operation (which is NOT dangerous in a copy that is
-	 not being used), and then use the copy after the removal."
+	      "This is not really dangerous.  But if normal removal
+	       were done WHILE a MethodDictionary were being used, the
+	       system might crash.  So instead we make a copy, then do
+	       this operation (which is NOT dangerous in a copy that is
+	       not being used), and then use the copy after the removal."
 
-	<category: 'private methods'>
-	| association |
-	association := super remove: anAssociation.
-	association value discardTranslation.
-	^association
+	      <category: 'private methods'>
+	      | association |
+	      association := super remove: anAssociation.
+	      association value discardTranslation.
+	      ^ association
     ]
 
     dangerouslyRemoveKey: anElement [
-	"This is not really dangerous.  But if normal removal
-	 were done WHILE a MethodDictionary were being used, the
-	 system might crash.  So instead we make a copy, then do
-	 this operation (which is NOT dangerous in a copy that is
-	 not being used), and then use the copy after the removal."
+        "This is not really dangerous.  But if normal removal
+	       were done WHILE a MethodDictionary were being used, the
+	       system might crash.  So instead we make a copy, then do
+	       this operation (which is NOT dangerous in a copy that is
+	       not being used), and then use the copy after the removal."
 
-	<category: 'private methods'>
-	| value |
-	value := super removeKey: anElement
-		    ifAbsent: [self error: 'synchronization problem?'].
-	value discardTranslation.
-	^value
+	      <category: 'private methods'>
+        | value |
+        value := super removeKey: anElement ifAbsent: [ self error: 'synchronization problem?' ].
+        value discardTranslation.
+        ^ value
     ]
 ]
 

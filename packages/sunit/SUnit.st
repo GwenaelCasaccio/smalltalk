@@ -844,6 +844,14 @@ When you are writing a test case method, send #assert: aBoolean when you want to
 		description: [self comparingStringBetween: actual and: expected]
     ]
 
+    assert: anObject identityEquals: anotherObject [
+        <category: 'Accessing'>
+
+	      ^ self
+		        assert: anObject == anotherObject
+		        description: [ self comparingStringBetween: anObject and: anotherObject ]
+    ]
+
     deny: aBoolean [
 	<category: 'Accessing'>
 	self assert: aBoolean not
@@ -862,11 +870,19 @@ When you are writing a test case method, send #assert: aBoolean when you want to
 	    resumable: resumableBoolean
     ]
 
+    deny: anObject identityEquals: anotherObject [
+        <category: 'Accessing'>
+
+	      ^ self
+		        deny: anObject == anotherObject
+		        description: [ self comparingStringBetween: anObject and: anotherObject ]
+    ]
+
     logError: aSignal [
 	<category: 'Accessing'>
 	self logPolicy logError: aSignal
     ]
-
+    
     logFailure: anObject [
 	<category: 'Accessing'>
 	self logPolicy logFailure: anObject
