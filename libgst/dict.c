@@ -502,7 +502,7 @@ static const class_definition class_info[] = {
      true, 0, "IdentityDictionary", NULL, NULL, NULL},
 
     {&_gst_method_dictionary_class, &_gst_identity_dictionary_class,
-     GST_ISP_FIXED, true, 3, "MethodDictionary", "mutex keys values", NULL, NULL},
+     GST_ISP_FIXED, true, 2, "MethodDictionary", "keys values", NULL, NULL},
 
     /* These five MUST have the same structure as dictionary; they're
        used interchangeably within the C portion of the system */

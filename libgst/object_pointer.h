@@ -345,22 +345,16 @@ extern intptr_t _gst_object_identity;
     ((obj))->data[0] = (valueOOP);                                             \
   } while (0)
 
-#define OBJ_METHOD_DICTIONARY_GET_MUTEX(obj) ((obj))->data[1]
-#define OBJ_METHOD_DICTIONARY_SET_MUTEX(obj, valueOOP)                         \
+#define OBJ_METHOD_DICTIONARY_GET_KEYS(obj) ((obj))->data[1]
+#define OBJ_METHOD_DICTIONARY_SET_KEYS(obj, valueOOP)                          \
   do {                                                                         \
     ((obj))->data[1] = (valueOOP);                                             \
   } while (0)
 
-#define OBJ_METHOD_DICTIONARY_GET_KEYS(obj) ((obj))->data[2]
-#define OBJ_METHOD_DICTIONARY_SET_KEYS(obj, valueOOP)                          \
-  do {                                                                         \
-    ((obj))->data[2] = (valueOOP);                                             \
-  } while (0)
-
-#define OBJ_METHOD_DICTIONARY_GET_VALUES(obj) ((obj))->data[3]
+#define OBJ_METHOD_DICTIONARY_GET_VALUES(obj) ((obj))->data[2]
 #define OBJ_METHOD_DICTIONARY_SET_VALUES(obj, valueOOP)                        \
   do {                                                                         \
-    ((obj))->data[3] = (valueOOP);                                             \
+    ((obj))->data[2] = (valueOOP);                                             \
   } while (0)
 
 /* BEHAVIOR */
