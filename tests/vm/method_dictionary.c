@@ -239,11 +239,68 @@ static void should_instantiate_method_dictionary(void **state) {
   assert_true(OBJ_METHOD_DICTIONARY_GET_VALUES(OOP_TO_OBJ(method_dictionary_oop)) == oop_to_instantiate_with[1]);
 }
 
+static void when_method_dictionary_find_key(void **state) {
+  (void) state;
+
+  OOP method_dictionary_oop = malloc(sizeof(*method_dictionary_oop));
+  gst_object method_dictionary_obj = calloc(100, sizeof(OOP));
+
+  OOP_SET_OBJECT(method_dictionary_oop, method_dictionary_obj);
+
+  OOP keys_array_oop = malloc(sizeof(*method_dictionary_oop));
+  gst_object keys_array_obj = calloc(100, sizeof(OOP));
+
+  OBJ_SET_SIZE(keys_array_obj, FROM_INT(25));
+  OOP_SET_OBJECT(keys_array_oop, keys_array_obj);
+
+  OBJ_METHOD_DICTIONARY_SET_KEYS(method_dictionary_obj, keys_array_oop);
+
+  OOP key_oop = malloc(sizeof(*method_dictionary_oop));
+  gst_object key_obj = calloc(100, sizeof(OOP));
+
+  OOP_SET_OBJECT(key_oop, key_obj);
+
+  ARRAY_AT_PUT(keys_array_oop, 15, key_oop);
+
+  ssize_t value_idx =
+      _gst_method_dictionary_find_key(method_dictionary_oop, key_oop);
+
+  assert_true(value_idx == 15);
+}
+
+static void when_method_dictionary_find_key_not_found(void **state) {
+  (void)state;
+
+  OOP method_dictionary_oop = malloc(sizeof(*method_dictionary_oop));
+  gst_object method_dictionary_obj = calloc(100, sizeof(OOP));
+
+  OOP_SET_OBJECT(method_dictionary_oop, method_dictionary_obj);
+
+  OOP keys_array_oop = malloc(sizeof(*method_dictionary_oop));
+  gst_object keys_array_obj = calloc(100, sizeof(OOP));
+
+  OBJ_SET_SIZE(keys_array_obj, FROM_INT(25));
+  OOP_SET_OBJECT(keys_array_oop, keys_array_obj);
+
+  OBJ_METHOD_DICTIONARY_SET_KEYS(method_dictionary_obj, keys_array_oop);
+
+  OOP key_oop = malloc(sizeof(*method_dictionary_oop));
+  gst_object key_obj = calloc(100, sizeof(OOP));
+
+  OOP_SET_OBJECT(key_oop, key_obj);
+
+  ssize_t value_idx =
+      _gst_method_dictionary_find_key(method_dictionary_oop, key_oop);
+
+  assert_true(value_idx == -1);
+}
+
 int main(void) {
-  const struct CMUnitTest tests[] =
-    {
+  const struct CMUnitTest tests[] = {
       cmocka_unit_test(should_instantiate_method_dictionary),
-    };
+      cmocka_unit_test(when_method_dictionary_find_key),
+      cmocka_unit_test(when_method_dictionary_find_key_not_found),
+  };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
 }
