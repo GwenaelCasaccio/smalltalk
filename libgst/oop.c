@@ -240,10 +240,10 @@ void _gst_init_mem(size_t eden, size_t survivor, size_t old,
       eden = 3 * K * K;
     }
     if (!survivor) {
-      survivor = 128 * K;
+      survivor = 512 * K;
     }
     if (!old) {
-      old = 4 * K * K;
+      old = 8 * K * K;
     }
     if (!big_object_threshold) {
       big_object_threshold = 4 * K;

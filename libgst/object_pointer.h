@@ -337,6 +337,26 @@ extern intptr_t _gst_object_identity;
     ((obj))->data[0] = (valueOOP);                                             \
   } while (0)
 
+/* METHOD DICTIONARY */
+
+#define OBJ_METHOD_DICTIONARY_GET_TALLY(obj) ((obj))->data[0]
+#define OBJ_METHOD_DICTIONARY_SET_TALLY(obj, valueOOP)                         \
+  do {                                                                         \
+    ((obj))->data[0] = (valueOOP);                                             \
+  } while (0)
+
+#define OBJ_METHOD_DICTIONARY_GET_KEYS(obj) ((obj))->data[1]
+#define OBJ_METHOD_DICTIONARY_SET_KEYS(obj, valueOOP)                          \
+  do {                                                                         \
+    ((obj))->data[1] = (valueOOP);                                             \
+  } while (0)
+
+#define OBJ_METHOD_DICTIONARY_GET_VALUES(obj) ((obj))->data[2]
+#define OBJ_METHOD_DICTIONARY_SET_VALUES(obj, valueOOP)                        \
+  do {                                                                         \
+    ((obj))->data[2] = (valueOOP);                                             \
+  } while (0)
+
 /* BEHAVIOR */
 #define OBJ_BEHAVIOR_GET_SUPER_CLASS(obj) ((obj))->data[0]
 #define OBJ_BEHAVIOR_SET_SUPER_CLASS(obj, valueOOP)                            \

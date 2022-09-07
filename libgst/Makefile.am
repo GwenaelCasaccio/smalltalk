@@ -34,7 +34,8 @@ libgst_la_SOURCES = \
        sysdep.c    			callin.c			mpz.c           barrier.c    			\
        print.c	   			alloc.c				re.c	          interp.c      		\
        real.c	     			sockets.c			events.c        object_pointer.c	\
-			 forward_object.c	heap/heap.c		heap/tlab.c     jit-x64.c
+			 forward_object.c	heap/heap.c		heap/tlab.c     jit-x64.c         \
+			 method_dictionary.c
 
 jit-x64.lo: AM_CFLAGS = $(LIBGST_CFLAGS)
 
@@ -65,6 +66,7 @@ noinst_HEADERS = 																												\
 	sysdep/win32/time.c sysdep/win32/timer.c sysdep/posix/events.c 				\
 	sysdep/win32/events.c sysdep/cygwin/events.c 													\
   heap/heap.h						heap/tlab.h																			\
+  method_dictionary.h                                                   \
 	$(BUILT_SOURCES)
 
 # rules for invoking gperf

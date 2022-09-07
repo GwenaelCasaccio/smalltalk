@@ -188,19 +188,10 @@ static gst_object grow_dictionary(OOP dictionaryOOP);
    dictionary (the object pointer, not the OOP).  */
 static gst_object grow_identity_dictionary(OOP identityDictionaryOOP);
 
-/* Answer the number of slots that are in a dictionary of
-   OLDNUMFIELDS items after growing it.  */
-static size_t new_num_fields(size_t oldNumFields);
-
 /* Instantiate the OOPs that are created before the first classes
    (true, false, nil, the Smalltalk dictionary, the symbol table
    and Processor, the sole instance of ProcessorScheduler.  */
 static void init_proto_oops(void);
-
-/* Look for the index at which KEYOOP resides in IDENTITYDICTIONARYOOP
-   and answer it or, if not found, answer -1.  */
-static ssize_t identity_dictionary_find_key(OOP identityDictionaryOOP,
-                                            OOP keyOOP);
 
 /* Look for the index at which KEYOOP resides in IDENTITYDICTIONARYOOP
    or, if not found, find a nil slot which can be replaced by that
@@ -500,7 +491,7 @@ static const class_definition class_info[] = {
      true, 0, "IdentityDictionary", NULL, NULL, NULL},
 
     {&_gst_method_dictionary_class, &_gst_identity_dictionary_class,
-     GST_ISP_POINTER, true, 1, "MethodDictionary", "mutex", NULL, NULL},
+     GST_ISP_FIXED, true, 2, "MethodDictionary", "keys values", NULL, NULL},
 
     /* These five MUST have the same structure as dictionary; they're
        used interchangeably within the C portion of the system */
@@ -1251,7 +1242,7 @@ OOP _gst_valid_class_method_dictionary(OOP class_oop) {
   if (IS_NIL(OBJ_BEHAVIOR_GET_METHOD_DICTIONARY(class))) {
     OOP methodDictionaryOOP;
     methodDictionaryOOP =
-        _gst_identity_dictionary_new(_gst_method_dictionary_class, 32);
+        _gst_method_dictionary_new(32);
     class = OOP_TO_OBJ(class_oop);
     OBJ_BEHAVIOR_SET_METHOD_DICTIONARY(class, methodDictionaryOOP);
   }
@@ -1260,28 +1251,20 @@ OOP _gst_valid_class_method_dictionary(OOP class_oop) {
 }
 
 OOP _gst_find_class_method(OOP class_oop, OOP selector) {
-  gst_object class;
-  gst_object methodDictionary;
-  OOP method_dictionary_oop;
-  int index;
-  size_t numFixedFields;
-
-  class = OOP_TO_OBJ(class_oop);
-  method_dictionary_oop = OBJ_BEHAVIOR_GET_METHOD_DICTIONARY(class);
+  gst_object class = OOP_TO_OBJ(class_oop);
+  OOP method_dictionary_oop = OBJ_BEHAVIOR_GET_METHOD_DICTIONARY(class);
   if (IS_NIL(method_dictionary_oop)) {
-    return (_gst_nil_oop);
+    return _gst_nil_oop;
   }
 
-  index = identity_dictionary_find_key(method_dictionary_oop, selector);
-
-  if (index < 0) {
-    return (_gst_nil_oop);
+  const ssize_t index = _gst_method_dictionary_find_key(method_dictionary_oop, selector);
+  if (index == -1) {
+    return _gst_nil_oop;
   }
 
-  methodDictionary = OOP_TO_OBJ(method_dictionary_oop);
-  numFixedFields = OOP_FIXED_FIELDS(method_dictionary_oop);
+  OOP valuesOOP = OBJ_METHOD_DICTIONARY_GET_VALUES(OOP_TO_OBJ(method_dictionary_oop));
 
-  return (methodDictionary->data[index + numFixedFields]);
+  return ARRAY_AT(valuesOOP, index);
 }
 
 OOP _gst_class_variable_dictionary(OOP class_oop) {
@@ -1467,37 +1450,6 @@ gst_object grow_identity_dictionary(OOP oldIdentityDictionaryOOP) {
 
   _gst_swap_objects(identityDictionaryOOP, oldIdentityDictionaryOOP);
   return (OOP_TO_OBJ(oldIdentityDictionaryOOP));
-}
-
-ssize_t identity_dictionary_find_key(OOP identityDictionaryOOP, OOP keyOOP) {
-  gst_object identityDictionary;
-  size_t index, count, numFields, numFixedFields;
-
-  identityDictionary = OOP_TO_OBJ(identityDictionaryOOP);
-  numFixedFields = OOP_FIXED_FIELDS(identityDictionaryOOP);
-
-  numFields = NUM_WORDS(identityDictionary) - numFixedFields;
-  OBJ_UPDATE_IDENTITY(OOP_TO_OBJ(keyOOP));
-  index = scramble(TO_INT(OBJ_IDENTITY(OOP_TO_OBJ(keyOOP)))) * 2;
-  count = numFields / 2;
-  /* printf ("%d %d %O\n", count, index & numFields - 1, keyOOP); */
-  while (count--) {
-    index &= numFields - 1;
-
-    if COMMON (IS_NIL(identityDictionary->data[index + numFixedFields]))
-      return (-1);
-
-    if COMMON (identityDictionary->data[index + numFixedFields] == keyOOP)
-      return (index + 1);
-
-    /* linear reprobe -- it is simple and guaranteed */
-    index += 2;
-  }
-
-  _gst_errorf(
-      "Error - searching IdentityDictionary for nil, but it is full!\n");
-
-  abort();
 }
 
 size_t identity_dictionary_find_key_or_nil(OOP identityDictionaryOOP,
@@ -1987,3 +1939,980 @@ int _gst_identity_dictionary_at_inc(OOP identityDictionaryOOP, OOP keyOOP,
 
   return (oldValue);
 }
+
+OOP floate_new(double f) {
+  gst_object floatObject;
+  OOP floatOOP;
+
+  floatObject = new_instance_with(_gst_floate_class, sizeof(float),
+                                              &floatOOP);
+
+  OBJ_FLOATE_SET_VALUE(floatObject, f);
+  MAKE_OOP_READONLY(floatOOP, true);
+  return (floatOOP);
+}
+
+#if (ALIGNOF_DOUBLE > SIZEOF_OOP)
+double floatd_oop_value(OOP floatOOP)
+{
+  gst_object obj;
+  double d;
+
+  /* we may not be aligned properly...fetch things out the hard way */
+  obj = OOP_TO_OBJ(floatOOP);
+  memcpy(&d, obj->data, sizeof(double));
+  return (d);
+}
+#endif
+
+OOP floatd_new(double f) {
+  OOP floatOOP;
+#if (ALIGNOF_DOUBLE <= SIZEOF_OOP)
+  gst_object floatObject;
+
+  floatObject = new_instance_with(_gst_floatd_class, sizeof(double),
+                                  &floatOOP);
+
+  OBJ_FLOATD_SET_VALUE(floatObject, f);
+#else
+  gst_object obj;
+
+  obj = new_instance_with(_gst_floatd_class, sizeof(double), &floatOOP);
+
+  memcpy(&obj->data, &f, sizeof(double));
+#endif
+
+  MAKE_OOP_READONLY(floatOOP, true);
+  return (floatOOP);
+}
+
+#if (ALIGNOF_LONG_DOUBLE > SIZEOF_OOP)
+long double floatq_oop_value(OOP floatOOP)
+{
+  gst_object obj;
+  long double d;
+
+  /* we may not be aligned properly...fetch things out the hard way */
+  obj = OOP_TO_OBJ(floatOOP);
+  memcpy(&d, obj->data, sizeof(long double));
+  return (d);
+}
+#endif
+
+OOP floatq_new(long double f) {
+  OOP floatOOP;
+  gst_object obj = new_instance_with(_gst_floatq_class, 16, &floatOOP);
+
+#if defined __i386__ || defined __x86_64__
+  /* Two bytes (six on x86-64) of 80-bit long doubles are unused.  */
+  memcpy(&obj->data, &f, 10);
+  memset(((char *)obj->data) + 10, 0, 6);
+#else
+  memcpy(&obj->data, &f, sizeof(long double));
+  memset(((char *)obj->data) + sizeof(long double), 0,
+         16 - sizeof(long double));
+#endif
+
+  MAKE_OOP_READONLY(floatOOP, true);
+  return (floatOOP);
+}
+
+OOP char_new(unsigned codePoint) {
+  gst_object charObject;
+  OOP charOOP;
+
+  if (codePoint <= 127)
+    return CHAR_OOP_AT(codePoint);
+  if UNCOMMON (codePoint > 0x10FFFF)
+    codePoint = 0xFFFD;
+
+  charObject = new_instance(_gst_unicode_character_class, &charOOP);
+
+  OBJ_CHAR_SET_CODE_POINTS(charObject, FROM_INT(codePoint));
+  MAKE_OOP_READONLY(charOOP, true);
+  return (charOOP);
+}
+
+uintptr_t scramble(uintptr_t x) {
+#if SIZEOF_OOP == 8
+  x ^= (x >> 31) | (x << 33);
+#endif
+  x ^= (x << 10) | (x >> 22);
+  x ^= (x << 6) | (x >> 26);
+  x ^= (x << 16) | (x >> 16);
+
+  return x & MAX_ST_INT;
+}
+
+bool is_a_kind_of(OOP testedOOP, OOP class_oop) {
+  do {
+    if (testedOOP == class_oop)
+      return (true);
+    testedOOP = SUPERCLASS(testedOOP);
+  } while (!IS_NIL(testedOOP));
+
+  return (false);
+}
+
+void nil_fill(OOP *oopPtr, size_t oopCount) {
+  REGISTER(3, OOP nilObj);
+
+  nilObj = _gst_nil_oop;
+  while (oopCount >= 8) {
+    oopPtr[0] = oopPtr[1] = oopPtr[2] = oopPtr[3] = oopPtr[4] = oopPtr[5] =
+        oopPtr[6] = oopPtr[7] = nilObj;
+    oopPtr += 8;
+    oopCount -= 8;
+  }
+
+  if (oopCount & 4) {
+    oopPtr[0] = oopPtr[1] = oopPtr[2] = oopPtr[3] = nilObj;
+    oopPtr += 4;
+  }
+
+  if (oopCount & 2) {
+    oopPtr[0] = oopPtr[1] = nilObj;
+    oopPtr += 2;
+  }
+
+  if (oopCount & 1)
+    oopPtr[0] = nilObj;
+}
+
+gst_object new_instance_with(OOP class_oop, size_t numIndexFields, OOP *p_oop) {
+  size_t numBytes, alignedBytes;
+  intptr_t instanceSpec;
+  gst_object p_instance;
+
+  instanceSpec = CLASS_INSTANCE_SPEC(class_oop);
+  numBytes = sizeof(gst_object_header) +
+             SIZE_TO_BYTES(instanceSpec >> ISP_NUMFIXEDFIELDS) +
+             (numIndexFields << _gst_log2_sizes[instanceSpec & ISP_SHAPE]);
+
+  alignedBytes = ROUNDED_BYTES(numBytes);
+  p_instance = _gst_alloc_obj(alignedBytes, p_oop);
+  INIT_UNALIGNED_OBJECT(*p_oop, alignedBytes - numBytes);
+
+  OBJ_SET_CLASS(p_instance, class_oop);
+
+  return p_instance;
+}
+
+gst_object new_instance(OOP class_oop, OOP *p_oop) {
+  size_t numBytes;
+  intptr_t instanceSpec;
+  gst_object p_instance;
+
+  instanceSpec = CLASS_INSTANCE_SPEC(class_oop);
+  numBytes = sizeof(gst_object_header) +
+             SIZE_TO_BYTES(instanceSpec >> ISP_NUMFIXEDFIELDS);
+
+  p_instance = _gst_alloc_obj(numBytes, p_oop);
+  OBJ_SET_CLASS(p_instance, class_oop);
+
+  return p_instance;
+}
+
+gst_object instantiate_numbytes(OOP class_oop, OOP *p_oop,
+                                intptr_t instanceSpec, size_t numBytes) {
+  gst_object p_instance;
+  int n;
+  OOP src, *dest;
+
+  p_instance = _gst_alloc_obj(numBytes, p_oop);
+  OBJ_SET_CLASS(p_instance, class_oop);
+
+  n = instanceSpec >> ISP_NUMFIXEDFIELDS;
+  if UNCOMMON (n == 0) {
+    return p_instance;
+    }
+
+  src = _gst_nil_oop;
+  dest = p_instance->data;
+  dest[0] = src;
+  if UNCOMMON (n == 1) {
+    return p_instance;
+    }
+
+  dest[1] = src;
+  if UNCOMMON (n == 2) {
+      return p_instance;
+    }
+
+  dest[2] = src;
+  if UNCOMMON (n == 3) {
+      return p_instance;
+    }
+
+  dest += 3;
+  n -= 3;
+  do {
+    *(dest++) = src;
+  } while (--n > 0);
+
+  return p_instance;
+}
+
+gst_object instantiate_with(OOP class_oop, size_t numIndexFields, OOP *p_oop) {
+  size_t numBytes, indexedBytes, alignedBytes;
+  intptr_t instanceSpec;
+  gst_object p_instance;
+
+  instanceSpec = CLASS_INSTANCE_SPEC(class_oop);
+#ifndef OPTIMIZE
+  if (!(instanceSpec & ISP_ISINDEXABLE) && numIndexFields != 0)
+    _gst_errorf(
+        "class without indexed instance variables passed to instantiate_with");
+#endif
+
+  indexedBytes = numIndexFields << _gst_log2_sizes[instanceSpec & ISP_SHAPE];
+  numBytes = sizeof(gst_object_header) +
+             SIZE_TO_BYTES(instanceSpec >> ISP_NUMFIXEDFIELDS) + indexedBytes;
+
+  if COMMON ((instanceSpec & ISP_INDEXEDVARS) == GST_ISP_POINTER) {
+    p_instance = _gst_alloc_obj(numBytes, p_oop);
+    OBJ_SET_CLASS(p_instance, class_oop);
+    nil_fill(p_instance->data,
+             (instanceSpec >> ISP_NUMFIXEDFIELDS) + numIndexFields);
+  } else {
+    alignedBytes = ROUNDED_BYTES(numBytes);
+    p_instance =
+        instantiate_numbytes(class_oop, p_oop, instanceSpec, alignedBytes);
+    INIT_UNALIGNED_OBJECT(*p_oop, alignedBytes - numBytes);
+    memset(&p_instance->data[instanceSpec >> ISP_NUMFIXEDFIELDS], 0,
+           indexedBytes);
+  }
+
+  return p_instance;
+}
+
+gst_object instantiate(OOP class_oop, OOP *p_oop) {
+  size_t numBytes;
+  intptr_t instanceSpec;
+  gst_object p_instance;
+
+  instanceSpec = CLASS_INSTANCE_SPEC(class_oop);
+  numBytes = sizeof(gst_object_header) +
+             SIZE_TO_BYTES(instanceSpec >> ISP_NUMFIXEDFIELDS);
+  p_instance = instantiate_numbytes(class_oop, p_oop, instanceSpec, numBytes);
+
+  return p_instance;
+}
+
+OOP dictionary_association_at(OOP dictionaryOOP, OOP keyOOP) {
+  gst_object dictionary;
+  size_t index, count, numFields, numFixedFields;
+  OOP associationOOP;
+  gst_object association;
+
+  if UNCOMMON (IS_NIL(dictionaryOOP))
+    return (_gst_nil_oop);
+
+  dictionary = OOP_TO_OBJ(dictionaryOOP);
+  numFixedFields = OOP_FIXED_FIELDS(dictionaryOOP);
+  numFields = NUM_WORDS(dictionary) - numFixedFields;
+  OBJ_UPDATE_IDENTITY(OOP_TO_OBJ(keyOOP));
+  index = scramble(TO_INT(OBJ_IDENTITY(OOP_TO_OBJ(keyOOP))));
+  count = numFields;
+
+  while (count--) {
+    index &= numFields - 1;
+    associationOOP = dictionary->data[numFixedFields + index];
+    if COMMON (IS_NIL(associationOOP))
+      return (_gst_nil_oop);
+
+    association = OOP_TO_OBJ(associationOOP);
+
+    if COMMON (OBJ_ASSOCIATION_GET_KEY(association) == keyOOP)
+      return (associationOOP);
+
+    /* linear reprobe -- it is simple and guaranteed */
+    index++;
+  }
+
+  _gst_errorf("Error - searching Dictionary for nil, but it is full!\n");
+  abort();
+}
+
+OOP dictionary_at(OOP dictionaryOOP, OOP keyOOP) {
+  OOP assocOOP;
+
+  assocOOP = dictionary_association_at(dictionaryOOP, keyOOP);
+
+  if UNCOMMON (IS_NIL(assocOOP))
+    return (_gst_nil_oop);
+  else
+    return (OBJ_ASSOCIATION_GET_VALUE(OOP_TO_OBJ(assocOOP)));
+}
+
+OOP association_new(OOP key, OOP value) {
+  gst_object association;
+  OOP associationOOP;
+
+  association = new_instance(_gst_association_class, &associationOOP);
+
+  OBJ_ASSOCIATION_SET_KEY(association, key);
+  OBJ_ASSOCIATION_SET_VALUE(association, value);
+
+  return (associationOOP);
+}
+
+OOP variable_binding_new(OOP key, OOP value, OOP environment) {
+  gst_object binding;
+  OOP bindingOOP;
+
+  binding = new_instance(_gst_variable_binding_class, &bindingOOP);
+
+  OBJ_VARIABLE_BINDING_SET_KEY(binding, key);
+  OBJ_VARIABLE_BINDING_SET_VALUE(binding, value);
+  OBJ_VARIABLE_BINDING_SET_ENVIRONMENT(binding, environment);
+
+  return (bindingOOP);
+}
+
+int oop_num_fields(OOP oop) {
+  gst_object object;
+  intptr_t instanceSpec;
+  size_t words, dataBytes, fixed;
+
+  object = OOP_TO_OBJ(oop);
+  words = NUM_WORDS(object);
+
+  if COMMON (!(OOP_GET_FLAGS(oop) & F_BYTE))
+    return words;
+
+  instanceSpec = GET_INSTANCE_SPEC(object);
+  fixed = instanceSpec >> ISP_NUMFIXEDFIELDS;
+  words -= fixed;
+  dataBytes = SIZE_TO_BYTES(words) - (OOP_GET_FLAGS(oop) & EMPTY_BYTES);
+  return fixed + (dataBytes >> _gst_log2_sizes[instanceSpec & ISP_SHAPE]);
+}
+
+int num_valid_oops(const OOP oop) {
+  const gst_object object = OOP_TO_OBJ(oop);
+
+  if UNCOMMON (OOP_GET_FLAGS(oop) & F_CONTEXT) {
+    const intptr_t methodSP = TO_INT(OBJ_METHOD_CONTEXT_SP_OFFSET(object));
+    return OBJ_METHOD_CONTEXT_CONTEXT_STACK(object) + methodSP + 1 -
+           object->data;
+  } else
+    return NUM_OOPS(object);
+}
+
+/* Returns whether the SCANNEDOOP points to TARGETOOP.  */
+bool is_owner(OOP scannedOOP, OOP targetOOP) {
+  gst_object object;
+  OOP *scanPtr;
+  int n;
+
+  object = OOP_TO_OBJ(scannedOOP);
+  if UNCOMMON (OBJ_CLASS(object) == targetOOP)
+    return true;
+
+  n = num_valid_oops(scannedOOP);
+
+  /* Peel a couple of iterations for optimization.  */
+  if (n--) {
+    scanPtr = object->data;
+    if UNCOMMON (*scanPtr++ == targetOOP)
+      return true;
+
+    if (n--)
+      do
+        if UNCOMMON (*scanPtr++ == targetOOP)
+          return true;
+      while (n--);
+  }
+
+  return false;
+}
+
+OOP index_oop(OOP oop, size_t index) {
+  gst_object object = OOP_TO_OBJ(oop);
+  intptr_t instanceSpec = GET_INSTANCE_SPEC(object);
+  return index_oop_spec(oop, object, index, instanceSpec);
+}
+
+OOP index_oop_spec(OOP oop, gst_object object, size_t index,
+                   intptr_t instanceSpec) {
+  size_t maxIndex, maxByte, base;
+  char *src;
+
+  if UNCOMMON (index < 1)
+    return (NULL);
+
+#define DO_INDEX_OOP(type, dest)                                               \
+  /* Find the number of bytes in the object.  */                               \
+  maxByte = NUM_WORDS(object) * sizeof(PTR);                                   \
+  if (sizeof(type) <= sizeof(PTR))                                             \
+    maxByte -= (OOP_GET_FLAGS(oop) & EMPTY_BYTES);                             \
+                                                                               \
+  base = (instanceSpec >> ISP_NUMFIXEDFIELDS) * sizeof(PTR);                   \
+  index = base + index * sizeof(type);                                         \
+                                                                               \
+  /* Check that we're on bounds.  */                                           \
+  base += sizeof(type);                                                        \
+  if UNCOMMON (index - base > maxByte - base)                                  \
+    return (NULL);                                                             \
+                                                                               \
+  index -= sizeof(type);                                                       \
+                                                                               \
+  /* Use a cast if unaligned accesses are supported, else memcpy.  */          \
+  src = ((char *)object->data) + index;                                        \
+  if (sizeof(type) <= sizeof(PTR))                                             \
+    (dest) = *(type *)src;                                                     \
+  else                                                                         \
+    memcpy((char *)&(dest), src, sizeof(type));
+
+  switch (instanceSpec & ISP_INDEXEDVARS) {
+  case GST_ISP_SCHAR: {
+    int8_t i;
+    DO_INDEX_OOP(int8_t, i);
+    return FROM_INT(i);
+  }
+
+  case GST_ISP_UCHAR: {
+    uint8_t i;
+    DO_INDEX_OOP(uint8_t, i);
+    return FROM_INT(i);
+  }
+
+  case GST_ISP_CHARACTER: {
+    uint8_t i;
+    DO_INDEX_OOP(uint8_t, i);
+    return CHAR_OOP_AT(i);
+  }
+
+  case GST_ISP_SHORT: {
+    uint16_t i;
+    DO_INDEX_OOP(int16_t, i);
+    return FROM_INT(i);
+  }
+
+  case GST_ISP_USHORT: {
+    uint16_t i;
+    DO_INDEX_OOP(uint16_t, i);
+    return FROM_INT(i);
+  }
+
+  case GST_ISP_INT: {
+    uint32_t i;
+    DO_INDEX_OOP(int32_t, i);
+    return from_c_int_32(i);
+  }
+
+  case GST_ISP_UINT: {
+    uint32_t i;
+    DO_INDEX_OOP(uint32_t, i);
+    return from_c_uint_32(i);
+  }
+
+  case GST_ISP_FLOAT: {
+    float f;
+    DO_INDEX_OOP(float, f);
+    return floate_new(f);
+  }
+
+  case GST_ISP_INT64: {
+    uint64_t i;
+    DO_INDEX_OOP(int64_t, i);
+    return from_c_int_64(i);
+  }
+
+  case GST_ISP_UINT64: {
+    uint64_t i;
+    DO_INDEX_OOP(uint64_t, i);
+    return from_c_uint_64(i);
+  }
+
+  case GST_ISP_DOUBLE: {
+    double d;
+    DO_INDEX_OOP(double, d);
+    return floatd_new(d);
+  }
+
+  case GST_ISP_UTF32: {
+    uint32_t i;
+    DO_INDEX_OOP(uint32_t, i);
+    return char_new(i);
+  }
+
+  case GST_ISP_POINTER:
+    maxIndex = NUM_WORDS(object);
+    base = instanceSpec >> ISP_NUMFIXEDFIELDS;
+    index += base;
+    base++;
+    if UNCOMMON (index - base > maxIndex - base)
+      return (NULL);
+
+    return (object->data[index - 1]);
+  }
+#undef DO_INDEX_OOP
+
+  return (NULL);
+}
+
+bool index_oop_put(OOP oop, size_t index, OOP value) {
+  gst_object object = OOP_TO_OBJ(oop);
+  intptr_t instanceSpec = GET_INSTANCE_SPEC(object);
+  return index_oop_put_spec(oop, object, index, value, instanceSpec);
+}
+
+bool index_oop_put_spec(OOP oop, gst_object object, size_t index,
+                               OOP value, intptr_t instanceSpec) {
+  size_t maxIndex, base;
+
+  if UNCOMMON (index < 1)
+    return (false);
+
+#define DO_INDEX_OOP_PUT(type, cond, src)                                      \
+  if COMMON (cond) {                                                           \
+    /* Find the number of bytes in the object.  */                             \
+    size_t maxByte = NUM_WORDS(object) * sizeof(PTR);                          \
+    if (sizeof(type) <= sizeof(PTR))                                           \
+      maxByte -= (OOP_GET_FLAGS(oop) & EMPTY_BYTES);                           \
+                                                                               \
+    base = (instanceSpec >> ISP_NUMFIXEDFIELDS) * sizeof(PTR);                 \
+    index = base + index * sizeof(type);                                       \
+                                                                               \
+    /* Check that we're on bounds.  */                                         \
+    base += sizeof(type);                                                      \
+    if UNCOMMON (index - base > maxByte - base)                                \
+      return (false);                                                          \
+                                                                               \
+    index -= sizeof(type);                                                     \
+                                                                               \
+    /* Use a cast if unaligned accesses are ok, else memcpy.  */               \
+    if (sizeof(type) <= sizeof(PTR)) {                                         \
+      type *destAddr = (type *)(((char *)object->data) + index);               \
+      *destAddr = (type)(src);                                                 \
+    } else {                                                                   \
+      char *destAddr = ((char *)object->data) + index;                         \
+      type src_ = (type)(src);                                                 \
+      memcpy(destAddr, (char *)&src_, sizeof(type));                           \
+    }                                                                          \
+    return (true);                                                             \
+  }
+
+  switch (instanceSpec & ISP_INDEXEDVARS) {
+  case GST_ISP_SCHAR: {
+    DO_INDEX_OOP_PUT(
+        int8_t, IS_INT(value) && TO_INT(value) >= -128 && TO_INT(value) <= 127,
+        TO_INT(value));
+    return (false);
+  }
+
+  case GST_ISP_UCHAR: {
+    DO_INDEX_OOP_PUT(
+        uint8_t, IS_INT(value) && TO_INT(value) >= 0 && TO_INT(value) <= 255,
+        TO_INT(value));
+    return (false);
+  }
+
+  case GST_ISP_CHARACTER: {
+    DO_INDEX_OOP_PUT(uint8_t,
+                     !IS_INT(value) && OOP_CLASS(value) == _gst_char_class,
+                     CHAR_OOP_VALUE(value));
+    return (false);
+  }
+
+  case GST_ISP_SHORT: {
+    DO_INDEX_OOP_PUT(uint16_t,
+                     IS_INT(value) && TO_INT(value) >= -32768 &&
+                         TO_INT(value) <= 32767,
+                     TO_INT(value));
+    return (false);
+  }
+
+  case GST_ISP_USHORT: {
+    DO_INDEX_OOP_PUT(
+        uint16_t, IS_INT(value) && TO_INT(value) >= 0 && TO_INT(value) <= 65535,
+        TO_INT(value));
+    return (false);
+  }
+
+  case GST_ISP_INT: {
+    DO_INDEX_OOP_PUT(int32_t, is_c_int_32(value), to_c_int_32(value));
+    return (false);
+  }
+
+  case GST_ISP_UINT: {
+    DO_INDEX_OOP_PUT(uint32_t, is_c_uint_32(value), to_c_int_32(value));
+    return (false);
+  }
+
+  case GST_ISP_FLOAT: {
+    DO_INDEX_OOP_PUT(float, IS_INT(value), TO_INT(value));
+    DO_INDEX_OOP_PUT(float, OOP_CLASS(value) == _gst_floate_class,
+                     FLOATE_OOP_VALUE(value));
+    DO_INDEX_OOP_PUT(float, OOP_CLASS(value) == _gst_floatd_class,
+                     FLOATD_OOP_VALUE(value));
+    DO_INDEX_OOP_PUT(float, OOP_CLASS(value) == _gst_floatq_class,
+                     FLOATQ_OOP_VALUE(value));
+    return (false);
+  }
+
+  case GST_ISP_INT64: {
+    DO_INDEX_OOP_PUT(int64_t, is_c_int_64(value), to_c_int_64(value));
+    return (false);
+  }
+
+  case GST_ISP_UINT64: {
+    DO_INDEX_OOP_PUT(uint64_t, is_c_uint_64(value), to_c_uint_64(value));
+    return (false);
+  }
+
+  case GST_ISP_DOUBLE: {
+    DO_INDEX_OOP_PUT(double, IS_INT(value), TO_INT(value));
+    DO_INDEX_OOP_PUT(double, OOP_CLASS(value) == _gst_floatd_class,
+                     FLOATD_OOP_VALUE(value));
+    DO_INDEX_OOP_PUT(double, OOP_CLASS(value) == _gst_floate_class,
+                     FLOATE_OOP_VALUE(value));
+    DO_INDEX_OOP_PUT(double, OOP_CLASS(value) == _gst_floatq_class,
+                     FLOATQ_OOP_VALUE(value));
+    return (false);
+  }
+
+  case GST_ISP_UTF32: {
+    DO_INDEX_OOP_PUT(uint32_t,
+                     !IS_INT(value) &&
+                         (OOP_CLASS(value) == _gst_unicode_character_class ||
+                          (OOP_CLASS(value) == _gst_char_class &&
+                           CHAR_OOP_VALUE(value) <= 127)),
+                     CHAR_OOP_VALUE(value));
+    return (false);
+  }
+
+  case GST_ISP_POINTER:
+    maxIndex = NUM_WORDS(object);
+    base = instanceSpec >> ISP_NUMFIXEDFIELDS;
+    index += base;
+    base++;
+    if UNCOMMON (index - base > maxIndex - base)
+      return (false);
+
+    object->data[index - 1] = value;
+    return (true);
+  }
+#undef DO_INDEX_OOP_PUT
+
+  return (false);
+}
+
+OOP inst_var_at(OOP oop, int index) {
+  gst_object object;
+
+  object = OOP_TO_OBJ(oop);
+  return (object->data[index - 1]);
+}
+
+void inst_var_at_put(OOP oop, int index, OOP value) {
+  gst_object object;
+
+  object = OOP_TO_OBJ(oop);
+  object->data[index - 1] = value;
+}
+
+OOP atomic_inst_var_at(OOP oop, int index) {
+  gst_object object;
+
+  object = OOP_TO_OBJ(oop);
+  return (atomic_load((_Atomic OOP*) &object->data[index - 1]));
+}
+
+void atomic_inst_var_at_put(OOP oop, int index, OOP value) {
+  gst_object object;
+
+  object = OOP_TO_OBJ(oop);
+  object->data[index - 1] = value;
+}
+
+bool is_c_int_32(OOP oop) {
+  gst_object ba;
+
+  if COMMON (IS_INT(oop))
+#if SIZEOF_OOP == 4
+    return (true);
+#else
+    return (TO_INT(oop) >= INT_MIN && TO_INT(oop) < INT_MAX);
+#endif
+
+  ba = OOP_TO_OBJ(oop);
+  if (COMMON(OBJ_CLASS(ba) == _gst_large_positive_integer_class) ||
+      OBJ_CLASS(ba) == _gst_large_negative_integer_class)
+    return (NUM_INDEXABLE_FIELDS(oop) == 4);
+
+  return (false);
+}
+
+bool is_c_uint_32(OOP oop) {
+  gst_object ba;
+
+  if COMMON (IS_INT(oop))
+#if SIZEOF_OOP == 4
+    return (TO_INT(oop) >= 0);
+#else
+    return (TO_INT(oop) >= 0 && TO_INT(oop) < UINT_MAX);
+#endif
+
+  ba = OOP_TO_OBJ(oop);
+  if COMMON (OBJ_CLASS(ba) == _gst_large_positive_integer_class) {
+    switch (NUM_INDEXABLE_FIELDS(oop)) {
+    case 4:
+      return (true);
+    case 5:
+      return (OBJ_BYTE_ARRAY_GET_BYTES(ba, 4) == 0);
+    }
+  }
+
+  return (false);
+}
+
+int32_t to_c_int_32(OOP oop) {
+  gst_object ba;
+
+  if COMMON (IS_INT(oop))
+    return (TO_INT(oop));
+
+  ba = OOP_TO_OBJ(oop);
+  return ((int32_t)(
+      (((uint32_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 3)) << 24) + (((uint32_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 2)) << 16) +
+      (((uint32_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 1)) << 8) + ((uint32_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 0))));
+}
+
+OOP from_c_int_32(int32_t i) {
+  #if SIZEOF_OOP == 4
+  gst_object ba;
+  OOP oop;
+  const uint32_t ui = (uint32_t)i;
+
+  if (COMMON (i >= MIN_ST_INT && i <= MAX_ST_INT)) {
+    return FROM_INT(i);
+  }
+
+  if (i < 0) {
+    ba = new_instance_with(_gst_large_negative_integer_class, 4, &oop);
+  } else {
+    ba = new_instance_with(_gst_large_positive_integer_class, 4, &oop);
+  }
+
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 0, (gst_uchar)ui);
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 1, (gst_uchar)(ui >> 8));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 2, (gst_uchar)(ui >> 16));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 3, (gst_uchar)(ui >> 24));
+  return (oop);
+  #else
+  return FROM_INT(i);
+  #endif
+}
+
+OOP from_c_uint_32(uint32_t ui) {
+  #if SIZEOF_OOP == 4
+  gst_object ba;
+  OOP oop;
+
+  if COMMON (ui <= MAX_ST_INT)
+    return (FROM_INT(ui));
+
+  if UNCOMMON (((intptr_t)ui) < 0) {
+    ba = new_instance_with(_gst_large_positive_integer_class, 5,
+                                           &oop);
+
+    OBJ_BYTE_ARRAY_SET_BYTES(ba, 4, 0);
+  } else
+    ba = new_instance_with(_gst_large_positive_integer_class, 4,
+                                           &oop);
+
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 0, (gst_uchar)ui);
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 1, (gst_uchar)(ui >> 8));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 2, (gst_uchar)(ui >> 16));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 3, (gst_uchar)(ui >> 24));
+
+  return (oop);
+  #else
+  return FROM_INT(ui);
+  #endif
+}
+
+bool is_c_int_64(OOP oop) {
+  gst_object ba;
+
+  if COMMON (IS_INT(oop))
+    return (true);
+
+  ba = OOP_TO_OBJ(oop);
+  if COMMON (OBJ_CLASS(ba) == _gst_large_negative_integer_class ||
+             OBJ_CLASS(ba) == _gst_large_positive_integer_class) {
+    switch (NUM_INDEXABLE_FIELDS(oop)) {
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+      return (true);
+    }
+  }
+
+  return (false);
+}
+
+bool is_c_uint_64(OOP oop) {
+  gst_object ba;
+
+  if COMMON (IS_INT(oop))
+    return (TO_INT(oop) >= 0);
+
+  ba = OOP_TO_OBJ(oop);
+  if COMMON (OBJ_CLASS(ba) == _gst_large_positive_integer_class) {
+    switch (NUM_INDEXABLE_FIELDS(oop)) {
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+      return (true);
+    case 9:
+      return (OBJ_BYTE_ARRAY_GET_BYTES(ba, 8) == 0);
+    }
+  }
+
+  return (false);
+}
+
+uint64_t to_c_uint_64(OOP oop) {
+  gst_object ba;
+  uint64_t result, mask;
+
+  if COMMON (IS_INT(oop))
+    return (TO_INT(oop));
+
+  ba = OOP_TO_OBJ(oop);
+  mask = (((uint64_t)2) << (NUM_INDEXABLE_FIELDS(oop) * 8 - 1)) - 1;
+  result = ((int64_t)(
+      (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 3)) << 24) + (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 2)) << 16) +
+      (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 1)) << 8) + ((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 0))));
+
+  if (NUM_INDEXABLE_FIELDS(oop) > 4)
+    result |= mask & ((int64_t)((((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 7)) << 56) +
+                                (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 6)) << 48) +
+                                (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 5)) << 40) +
+                                (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 4)) << 32)));
+
+  return result;
+}
+
+int64_t to_c_int_64(OOP oop) {
+  gst_object ba;
+  int64_t result, mask;
+
+  if COMMON (IS_INT(oop))
+    return (TO_INT(oop));
+
+  ba = OOP_TO_OBJ(oop);
+  mask = (((uint64_t)2) << (NUM_INDEXABLE_FIELDS(oop) * 8 - 1)) - 1;
+  result = (OBJ_CLASS(ba) == _gst_large_negative_integer_class) ? ~mask : 0;
+  result |= ((int64_t)(
+      (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba,3)) << 24) + (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 2)) << 16) +
+      (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba,1)) << 8) + ((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 0))));
+
+  if (NUM_INDEXABLE_FIELDS(oop) > 4)
+    result |= mask & ((int64_t)((((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 7)) << 56) +
+                                (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 6)) << 48) +
+                                (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 5)) << 40) +
+                                (((uint64_t)OBJ_BYTE_ARRAY_GET_BYTES(ba, 4)) << 32)));
+
+  return result;
+}
+
+OOP from_c_int_64(int64_t i) {
+  gst_object ba;
+  OOP oop;
+  const uint64_t ui = (uint64_t)i;
+
+  if COMMON (i >= MIN_ST_INT && i <= MAX_ST_INT)
+    return (FROM_INT(i));
+
+  if (i < 0)
+    ba = new_instance_with(_gst_large_negative_integer_class, 8,
+                                           &oop);
+  else
+    ba = new_instance_with(_gst_large_positive_integer_class, 8,
+                                           &oop);
+
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 0, (gst_uchar)ui);
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 1, (gst_uchar)(ui >> 8));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 2, (gst_uchar)(ui >> 16));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 3, (gst_uchar)(ui >> 24));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 4, (gst_uchar)(ui >> 32));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 5, (gst_uchar)(ui >> 40));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 6, (gst_uchar)(ui >> 48));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 7, (gst_uchar)(ui >> 56));
+
+  return (oop);
+}
+
+OOP from_c_uint_64(uint64_t ui) {
+  gst_object ba;
+  OOP oop;
+
+  if COMMON (ui <= MAX_ST_INT)
+    return (FROM_INT(ui));
+
+  if UNCOMMON (((int64_t)ui) < 0) {
+    ba = new_instance_with(_gst_large_positive_integer_class, 9,
+                                           &oop);
+
+    OBJ_BYTE_ARRAY_SET_BYTES(ba, 8, 0);
+  } else
+    ba = new_instance_with(_gst_large_positive_integer_class, 8,
+                                           &oop);
+
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 0, (gst_uchar)ui);
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 1, (gst_uchar)(ui >> 8));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 2, (gst_uchar)(ui >> 16));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 3, (gst_uchar)(ui >> 24));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 4, (gst_uchar)(ui >> 32));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 5, (gst_uchar)(ui >> 40));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 6, (gst_uchar)(ui >> 48));
+  OBJ_BYTE_ARRAY_SET_BYTES(ba, 7, (gst_uchar)(ui >> 56));
+
+  return (oop);
+}
+
+PTR cobject_value(OOP oop) {
+  gst_object cObj = OOP_TO_OBJ(oop);
+  if (IS_NIL(OBJ_COBJECT_GET_STORAGE(cObj)))
+    return (PTR)COBJECT_OFFSET_OBJ(cObj);
+  else {
+    gst_uchar *baseAddr = (gst_uchar *)(OOP_TO_OBJ(OBJ_COBJECT_GET_STORAGE(cObj)))->data;
+    return (PTR)(baseAddr + COBJECT_OFFSET_OBJ(cObj));
+  }
+}
+
+/* Sets the address of the data stored in a CObject.  */
+void set_cobject_value(OOP oop, PTR val) {
+  gst_object cObj = OOP_TO_OBJ(oop);
+  OBJ_COBJECT_SET_STORAGE(cObj, _gst_nil_oop);
+  SET_COBJECT_OFFSET_OBJ(cObj, (uintptr_t)val);
+}
+
+/* Return whether the address of the data stored in a CObject, offsetted
+   by OFFSET bytes, is still in bounds.  */
+bool cobject_index_check(OOP oop, intptr_t offset, intptr_t size) {
+  gst_object cObj = OOP_TO_OBJ(oop);
+  OOP baseOOP = OBJ_COBJECT_GET_STORAGE(cObj);
+  intptr_t maxOffset;
+  if (IS_NIL(baseOOP))
+    return true;
+
+  offset += COBJECT_OFFSET_OBJ(cObj);
+  if (offset < 0)
+    return false;
+
+  maxOffset = SIZE_TO_BYTES(NUM_WORDS(OOP_TO_OBJ(baseOOP)));
+  if (OOP_GET_FLAGS(baseOOP) & F_BYTE)
+    maxOffset -= (OOP_GET_FLAGS(baseOOP) & EMPTY_BYTES);
+
+  return (offset + size - 1 < maxOffset);
+}
+
