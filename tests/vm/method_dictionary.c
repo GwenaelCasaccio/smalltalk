@@ -295,11 +295,59 @@ static void when_method_dictionary_find_key_not_found(void **state) {
   assert_true(value_idx == -1);
 }
 
+static void when_method_dictionary_add_method(void **state) {
+  (void)state;
+
+  OOP method_dictionary_oop = malloc(sizeof(*method_dictionary_oop));
+  gst_object method_dictionary_obj = calloc(100, sizeof(OOP));
+
+  OBJ_METHOD_DICTIONARY_SET_TALLY(method_dictionary_obj, FROM_INT(0));
+
+  OOP_SET_OBJECT(method_dictionary_oop, method_dictionary_obj);
+
+  OOP keys_array_oop = malloc(sizeof(*method_dictionary_oop));
+  gst_object keys_array_obj = calloc(100, sizeof(OOP));
+
+  OBJ_SET_SIZE(keys_array_obj, FROM_INT(25));
+  OOP_SET_OBJECT(keys_array_oop, keys_array_obj);
+
+  OOP values_array_oop = malloc(sizeof(*method_dictionary_oop));
+  gst_object values_array_obj = calloc(100, sizeof(OOP));
+
+  OBJ_SET_SIZE(values_array_obj, FROM_INT(25));
+  OOP_SET_OBJECT(values_array_oop, values_array_obj);
+
+  OBJ_METHOD_DICTIONARY_SET_KEYS(method_dictionary_obj, keys_array_oop);
+  OBJ_METHOD_DICTIONARY_SET_VALUES(method_dictionary_obj, values_array_oop);
+
+  OOP key_oop = malloc(sizeof(*method_dictionary_oop));
+  gst_object key_obj = calloc(100, sizeof(OOP));
+
+  OOP_SET_OBJECT(key_oop, key_obj);
+
+  OOP value_oop = malloc(sizeof(*method_dictionary_oop));
+
+  _gst_object_identity = 0;
+
+  expect_value(__wrap_scramble, x, 1);
+  will_return(__wrap_scramble, 1);
+  expect_function_calls(__wrap_scramble, 1);
+
+  _gst_method_dictionary_at_put(method_dictionary_oop, key_oop, value_oop);
+
+  ssize_t value_idx = _gst_method_dictionary_find_key(method_dictionary_oop, key_oop);
+  assert_true(value_idx != -1);
+  assert_true(TO_INT(OBJ_METHOD_DICTIONARY_GET_TALLY(method_dictionary_obj)) == 1);
+  assert_true(ARRAY_AT(keys_array_oop, value_idx) == key_oop);
+  assert_true(ARRAY_AT(values_array_oop, value_idx) == value_oop);
+}
+
 int main(void) {
   const struct CMUnitTest tests[] = {
       cmocka_unit_test(should_instantiate_method_dictionary),
       cmocka_unit_test(when_method_dictionary_find_key),
       cmocka_unit_test(when_method_dictionary_find_key_not_found),
+      cmocka_unit_test(when_method_dictionary_add_method),
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
