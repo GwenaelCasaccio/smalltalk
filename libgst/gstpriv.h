@@ -561,6 +561,7 @@ extern OOP _gst_nil_oop
 #include "barrier.h"
 #include "callin.h"
 #include "cint.h"
+#include "method_dictionary.h"
 #include "dict.h"
 #include "heap.h"
 #include "lex.h"

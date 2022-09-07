@@ -248,6 +248,10 @@ extern OOP _gst_namespace_at(OOP poolOOP,
 extern OOP _gst_dictionary_add(OOP dictionaryOOP,
                                OOP associationOOP) ATTRIBUTE_HIDDEN;
 
+/* Answer the number of slots that are in a dictionary of
+   OLDNUMFIELDS items after growing it.  */
+extern size_t new_num_fields(size_t oldNumFields);
+
 /* Create a new instance of method dictionary. */
 extern OOP _gst_method_dictionary_new(size_t wanted_size);
 
@@ -388,5 +392,214 @@ extern int _gst_resolve_primitive_name(char *name) ATTRIBUTE_HIDDEN;
 /* Entry point for the profiler.  */
 extern void _gst_record_profile(OOP oldMethod, OOP newMethod,
                                 int ipOffset) ATTRIBUTE_HIDDEN;
+
+/* Scramble the bits of X.  */
+extern uintptr_t scramble(uintptr_t x) ATTRIBUTE_HIDDEN;
+
+/* Checks to see if TESTEDOOP is a subclass of CLASS_OOP, returning
+   true if it is.  */
+extern bool is_a_kind_of(OOP testedOOP, OOP class_oop)  ATTRIBUTE_HIDDEN;
+
+/* Stores the VALUE Object (which must be an appropriate Integer for
+   byte or word objects) into the INDEX-th indexed instance variable
+   of the Object pointed to by OOP.  Returns whether the INDEX is
+   correct and the VALUE has the appropriate class and/or range.  */
+extern bool index_oop_put_spec(OOP oop, gst_object object,
+                               size_t index,
+                               OOP value,
+                               intptr_t instanceSpec) ATTRIBUTE_HIDDEN;
+
+/* Stores the VALUE Object (which must be an appropriate Integer for
+   byte or word objects) into the INDEX-th indexed instance variable
+   of the Object pointed to by OOP.  Returns whether the INDEX is
+   correct and the VALUE has the appropriate class and/or range.  */
+extern bool index_oop_put(OOP oop, size_t index, OOP value) ATTRIBUTE_HIDDEN;
+
+/* Stores the VALUE Object (which must be an appropriate Integer for
+   byte or word objects and if accessing indexed instance variables)
+   into the INDEX-th instance variable of the Object pointed to by
+   OOP.  */
+extern void inst_var_at_put(OOP oop, int index, OOP value) ATTRIBUTE_HIDDEN;
+extern void atomic_inst_var_at_put(OOP oop, int index, OOP value);
+
+/* Returns the INDEX-th instance variable of the Object pointed to by
+   OOP.  No range checks are done in INDEX.  */
+extern OOP inst_var_at(OOP oop, int index);
+extern OOP atomic_inst_var_at(OOP oop, int index);
+
+/* Returns the number of instance variables (both fixed and indexed) in OOP.  */
+extern int oop_num_fields(OOP oop);
+
+/* Fill OOPCOUNT pointers to OOPs, starting at OOPPTR,
+   with OOPs for the NIL object.  */
+extern void nil_fill(OOP *oopPtr, size_t oopCount);
+
+/* Returns a new, uninitialized instance of CLASS_OOP with
+   NUMINDEXFIELDS indexable fields.  Returns an OOP for a newly
+   allocated instance of CLASS_OOP, with NUMINDEXFIELDS fields.  The
+   object data is returned, the OOP is stored in P_OOP.  The OOP is
+   adjusted to reflect any variance in size (such as a string that's
+   shorter than a word boundary).  */
+extern gst_object new_instance_with(OOP class_oop, size_t numIndexFields,
+                                           OOP *p_oop);
+
+/* Creates a new instance of class CLASS_OOP.  The space is allocated,
+   the class and size fields of the class are filled in, and the
+   instance is returned.  Its fields are NOT INITIALIZED.  CLASS_OOP
+   must represent a class with no indexable fields. An OOP will be
+   allocated and stored in P_OOP.  */
+extern gst_object new_instance(OOP class_oop, OOP *p_oop);
+
+/* Returns a new, initialized instance of CLASS_OOP within an
+   object of size NUMBYTES.  INSTANCESPEC is used to find the
+   number of fixed instance variables and initialize them to
+   _gst_nil_oop.  The pointer to the object data is returned,
+   the OOP is stored in P_OOP.  The OOP is not adjusted to reflect
+   any variance in size (such as a string that's shorter than a word
+   boundary).  */
+extern gst_object instantiate_numbytes(OOP class_oop, OOP *p_oop,
+                                              intptr_t instanceSpec,
+                                              size_t numBytes);
+
+/* Returns a new, initialized instance of CLASS_OOP with
+   NUMINDEXFIELDS indexable fields.  If the instance contains
+   pointers, they are initialized to _gst_nil_oop, else they are set
+   to the SmallInteger 0.  The pointer to the object data is returned,
+   the OOP is stored in P_OOP.  The OOP is adjusted to reflect any
+   variance in size (such as a string that's shorter than a word
+   boundary).  */
+extern gst_object instantiate_with(OOP class_oop, size_t numIndexFields,
+                                          OOP *p_oop);
+
+/* Create and return a new instance of class CLASS_OOP.  CLASS_OOP
+   must be a class with no indexable fields.  The named instance
+   variables of the new instance are initialized to _gst_nil_oop,
+   since fixed-field-only objects can only have pointers. The pointer
+   to the object data is returned, the OOP is stored in P_OOP.  */
+extern gst_object instantiate(OOP class_oop, OOP *p_oop);
+
+/* Return the Character object for the Unicode value C.  */
+extern OOP char_new(unsigned codePoint);
+
+/* Answer the associated containing KEYOOP in the Dictionary (or a
+   subclass having the same representation) DICTIONARYOOP.  */
+extern OOP dictionary_association_at(OOP dictionaryOOP, OOP keyOOP);
+
+/* Answer the value associated to KEYOOP in the Dictionary (or a
+   subclass having the same representation) DICTIONARYOOP.  */
+extern OOP dictionary_at(OOP dictionaryOOP, OOP keyOOP);
+
+/* Creates a new Association object having the
+   specified KEY and VALUE.  */
+extern OOP association_new(OOP key, OOP value);
+
+/* Creates a new VariableBinding object having the
+   specified KEY and VALUE.  */
+extern OOP variable_binding_new(OOP key, OOP value, OOP environment);
+
+/* Returns an Object (an Integer for byte or word objects) containing
+   the value of the INDEX-th indexed instance variable of the Object
+   pointed to by OOP.  Range checks are done in INDEX and NULL is returned
+   if this is the checking fails.  */
+extern OOP index_oop(OOP oop, size_t index);
+
+/* Returns an Object (an Integer for byte or word objects) containing
+   the value of the INDEX-th indexed instance variable of the Object
+   pointed to by OOP.  Range checks are done in INDEX and NULL is returned
+   if this is the checking fails.  OBJECT and INSTANCESPEC are cached
+   out of OOP and its class.  */
+extern OOP index_oop_spec(OOP oop, gst_object object, size_t index,
+                                 intptr_t instanceSpec);
+
+/* Returns the number of valid object instance variables in OOP.  */
+extern int num_valid_oops(OOP oop);
+
+/* Returns whether the SCANNEDOOP points to TARGETOOP.  */
+extern bool is_owner(OOP scannedOOP, OOP targetOOP);
+
+/* Converts F to a Smalltalk FloatD, taking care of avoiding alignment
+   problems.  */
+extern OOP floatd_new(double f);
+
+/* Converts F to a Smalltalk FloatE.  */
+extern OOP floate_new(double f);
+
+/* Converts F to a Smalltalk FloatQ, taking care of avoiding alignment
+   problems.  */
+extern OOP floatq_new(long double f);
+
+/* Returns the address of the data stored in a CObject.  */
+extern PTR cobject_value(OOP oop);
+
+/* Sets the address of the data stored in a CObject.  */
+extern void set_cobject_value(OOP oop, PTR val);
+
+/* Return whether the address of the data stored in a CObject, offsetted
+   by OFFSET bytes, is still in bounds.  */
+extern bool cobject_index_check(OOP oop, intptr_t offset, intptr_t size);
+
+/* Answer true if OOP is a SmallInteger or a LargeInteger of an
+   appropriate size.  */
+extern bool is_c_int_32(OOP oop);
+
+/* Answer true if OOP is a SmallInteger or a LargeInteger of an
+   appropriate size.  */
+extern bool is_c_uint_32(OOP oop);
+
+/* Converts the 32-bit int I to the appropriate SmallInteger or
+   LargeInteger.  */
+extern OOP from_c_int_32(int32_t i);
+
+/* Converts the long int LNG to the appropriate SmallInteger or
+   LargePositiveInteger.  */
+extern OOP from_c_uint_32(uint32_t ui);
+
+/* Converts the OOP (which must be a SmallInteger or a small enough
+   LargeInteger) to a long int.  If the OOP was for an unsigned long,
+   you can simply cast the result to an unsigned long.  */
+extern int32_t to_c_int_32(OOP oop);
+
+/* Answer true if OOP is a SmallInteger or a LargeInteger of an
+   appropriate size.  */
+extern bool is_c_int_64(OOP oop);
+
+/* Answer true if OOP is a SmallInteger or a LargeInteger of an
+   appropriate size.  */
+extern bool is_c_uint_64(OOP oop);
+
+/* Converts the 64-bit int I to the appropriate SmallInteger or
+   LargeInteger.  */
+extern OOP from_c_int_64(int64_t i);
+
+/* Converts the long int LNG to the appropriate SmallInteger or
+   LargePositiveInteger.  */
+extern OOP from_c_uint_64(uint64_t ui);
+
+/* Converts the OOP (which must be a SmallInteger or a small enough
+   LargeInteger) to a 64-bit signed integer.  */
+extern int64_t to_c_int_64(OOP oop);
+
+/* Converts the OOP (which must be a SmallInteger or a small enough
+   LargeInteger) to a 64-bit unsigned integer.  */
+extern uint64_t to_c_uint_64(OOP oop);
+
+#if (ALIGNOF_DOUBLE <= SIZEOF_OOP)
+#define FLOATD_OOP_VALUE(floatOOP)                                             \
+  ((OBJ_FLOATD_GET_VALUE(OOP_TO_OBJ(floatOOP))))
+
+#else
+#define FLOATD_OOP_VALUE(floatOOP) floatd_oop_value(floatOOP)
+
+static double floatd_oop_value(OOP floatOOP);
+#endif
+
+#if (ALIGNOF_LONG_DOUBLE <= SIZEOF_OOP)
+#define FLOATQ_OOP_VALUE(floatOOP) (((gst_floatq)OOP_TO_OBJ(floatOOP))->value)
+
+#else
+#define FLOATQ_OOP_VALUE(floatOOP) floatq_oop_value(floatOOP)
+
+extern long double floatq_oop_value(OOP floatOOP);
+#endif
 
 #endif /* GST_DICT_H */
