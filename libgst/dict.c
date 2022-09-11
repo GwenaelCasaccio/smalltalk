@@ -711,14 +711,8 @@ void _gst_init_dictionary(void) {
   _gst_smalltalk_dictionary = alloc_oop(NULL, _gst_mem.active_flag);
   _gst_processor_oop[0] = alloc_oop(NULL, _gst_mem.active_flag);
   _gst_symbol_table = alloc_oop(NULL, _gst_mem.active_flag);
-  _gst_key_hash_oop = alloc_oop(NULL, _gst_mem.active_flag);
 
-  const size_t numWords = OBJ_HEADER_SIZE_WORDS + 2;
-  gst_object keyHash = _gst_alloc_words(numWords);
-  nil_fill(keyHash->data, numWords - OBJ_HEADER_SIZE_WORDS);
-  OOP_SET_OBJECT(_gst_key_hash_oop, keyHash);
-  _gst_register_oop(_gst_key_hash_oop);
-  generate_sip_hash_key(_gst_key_hash_oop);
+  generate_sip_hash_key();
 
   _gst_init_symbols_pass1();
 
@@ -727,7 +721,7 @@ void _gst_init_dictionary(void) {
   /* We can do this now that the classes are defined */
   _gst_init_builtin_objects_classes();
 
-  OBJ_SET_CLASS(keyHash, _gst_key_hash_class);
+  OBJ_SET_CLASS(OOP_TO_OBJ(_gst_key_hash_oop), _gst_key_hash_class);
 
   init_proto_oops();
   _gst_init_symbols_pass2();

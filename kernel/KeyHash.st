@@ -1,5 +1,11 @@
 Object subclass: KeyHash [
 
+    <comment: 'I am the keys used by the Sip Hashing function.
+               Both keys should be SmallInteger and don't forget
+               if you update the keys the dictionaries, set, the
+               symbol literals, ... should be reashed.'>
+    <category: 'Language-Implementation'>
+
     | key0 key1 |
 
     KeyHash class >> key: aKey0SmallInteger and: aKey1SmallInteger [
@@ -11,6 +17,10 @@ Object subclass: KeyHash [
     key: aKey0SmallInteger and: aKey1SmallInteger [
         <category: 'initialization'>
 
+        aKey0SmallInteger isInteger ifFalse: [ ^ SystemExceptions.WrongClass signalOn: aKey0SmallInteger
+                                                                             mustBe: SmallInteger ].
+        aKey1SmallInteger isInteger ifFalse: [ ^ SystemExceptions.WrongClass signalOn: aKey0SmallInteger
+                                                                             mustBe: SmallInteger ].
         key0 := aKey0SmallInteger.
         key1 := aKey1SmallInteger.
     ]
