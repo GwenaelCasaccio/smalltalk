@@ -1342,7 +1342,7 @@ uintptr_t _gst_hash_string(const char *str, int len) {
 
 #if SIZEOF_OOP == 8
   siphash(str, len, key->data, (uint8_t*) &out, sizeof(out));
-#elif 
+#else
   halfsiphash(str, len, key->data, (uint8_t*) &out, sizeof(out));
 #endif
 
