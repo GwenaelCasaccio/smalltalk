@@ -81,6 +81,8 @@
 #include <pthread.h>
 #include <stdatomic.h>
 
+#include <sys/random.h>
+
 #ifdef HAVE_CRT_EXTERNS_H
 #include <crt_externs.h>
 #endif
@@ -562,6 +564,7 @@ extern OOP _gst_nil_oop
 #include "callin.h"
 #include "cint.h"
 #include "method_dictionary.h"
+#include "sip_hash.h"
 #include "dict.h"
 #include "heap.h"
 #include "lex.h"
@@ -585,6 +588,8 @@ extern OOP _gst_nil_oop
 #include "print.h"
 #include "real.h"
 #include "sockets.h"
+
+#include "bootstrap.h"
 
 #undef obstack_init
 #define obstack_init(h)                                         \

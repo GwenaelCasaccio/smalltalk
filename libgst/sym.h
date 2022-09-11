@@ -154,6 +154,7 @@ extern OOP _gst_while_true_symbol ATTRIBUTE_HIDDEN;
 extern OOP _gst_write_slot_at_put_symbol ATTRIBUTE_HIDDEN;
 extern OOP _gst_symbol_table ATTRIBUTE_HIDDEN;
 extern OOP _gst_current_namespace ATTRIBUTE_HIDDEN;
+extern OOP _gst_sip_hash_key_symbol ATTRIBUTE_HIDDEN;
 
 /* This returns the name of the given scope (instance variable, temporary, ...).
  */

@@ -131,7 +131,7 @@ size_t method_dictionary_find_key_or_nil(OOP methodDictionaryOOP, OOP keyOOP) {
 
   OBJ_UPDATE_IDENTITY(OOP_TO_OBJ(keyOOP));
 
-  const size_t index = (scramble(TO_INT(OBJ_IDENTITY(OOP_TO_OBJ(keyOOP))))& (numFields - 1)) + 1;
+  const size_t index = (scramble(TO_INT(OBJ_IDENTITY(OOP_TO_OBJ(keyOOP)))) & (numFields - 1)) + 1;
 
   size_t i = index;
   size_t count = numFields;

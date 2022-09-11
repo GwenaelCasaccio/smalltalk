@@ -174,7 +174,9 @@ OOP _gst_weak_key_identity_dictionary_class = NULL;
 OOP _gst_weak_value_identity_dictionary_class = NULL;
 OOP _gst_write_stream_class = NULL;
 OOP _gst_processor_oop[100] = {NULL};
+OOP _gst_key_hash_oop = NULL;
 OOP _gst_debug_information_class = NULL;
+OOP _gst_key_hash_class = NULL;
 
 /* Called when a dictionary becomes full, this routine replaces the
    dictionary instance that DICTIONARYOOP is pointing to with a new,
@@ -617,7 +619,10 @@ static const class_definition class_info[] = {
      "FileSegment", "file startPos size", NULL, NULL},
 
     {&_gst_debug_information_class, &_gst_object_class, GST_ISP_FIXED, true, 1,
-     "DebugInformation", "variables", NULL, NULL}
+     "DebugInformation", "variables", NULL, NULL},
+
+    {&_gst_key_hash_class, &_gst_object_class, GST_ISP_FIXED, true, 2,
+     "KeyHash", "key0 key1", NULL, NULL},
 
     /* Classes not defined here (like Point/Rectangle/RunArray) are
        defined after the kernel has been fully initialized.  */
@@ -706,6 +711,14 @@ void _gst_init_dictionary(void) {
   _gst_smalltalk_dictionary = alloc_oop(NULL, _gst_mem.active_flag);
   _gst_processor_oop[0] = alloc_oop(NULL, _gst_mem.active_flag);
   _gst_symbol_table = alloc_oop(NULL, _gst_mem.active_flag);
+  _gst_key_hash_oop = alloc_oop(NULL, _gst_mem.active_flag);
+
+  const size_t numWords = OBJ_HEADER_SIZE_WORDS + 2;
+  gst_object keyHash = _gst_alloc_words(numWords);
+  nil_fill(keyHash->data, numWords - OBJ_HEADER_SIZE_WORDS);
+  OOP_SET_OBJECT(_gst_key_hash_oop, keyHash);
+  _gst_register_oop(_gst_key_hash_oop);
+  generate_sip_hash_key(_gst_key_hash_oop);
 
   _gst_init_symbols_pass1();
 
@@ -713,6 +726,8 @@ void _gst_init_dictionary(void) {
 
   /* We can do this now that the classes are defined */
   _gst_init_builtin_objects_classes();
+
+  OBJ_SET_CLASS(keyHash, _gst_key_hash_class);
 
   init_proto_oops();
   _gst_init_symbols_pass2();
@@ -975,6 +990,9 @@ void init_runtime_objects(void) {
 
   init_c_symbols();
 
+  NAMESPACE_AT_PUT(_gst_smalltalk_dictionary, _gst_sip_hash_key_symbol,
+                   _gst_key_hash_oop);
+
   /* Add the root among the roots :-) to the root set */
   _gst_register_oop(_gst_smalltalk_dictionary);
 }
@@ -1147,12 +1165,13 @@ void create_class(const class_definition *ci) {
 bool _gst_init_dictionary_on_image_load(bool prim_table_matches) {
   const class_definition *ci;
 
-  _gst_nil_oop = &_gst_mem.ot[256];
-  _gst_true_oop = &_gst_mem.ot[257];
-  _gst_false_oop = &_gst_mem.ot[258];
+  _gst_nil_oop = OOP_AT(NIL_OOP_INDEX);
+  _gst_true_oop = OOP_AT(TRUE_OOP_INDEX);
+  _gst_false_oop = OOP_AT(FALSE_OOP_INDEX);
   _gst_smalltalk_dictionary = OOP_AT(SMALLTALK_OOP_INDEX);
   _gst_processor_oop[0] = OOP_AT(PROCESSOR_OOP_INDEX);
   _gst_symbol_table = OOP_AT(SYM_TABLE_OOP_INDEX);
+  _gst_key_hash_oop = OOP_AT(KEY_HASH_OOP_INDEX);
 
   if (IS_NIL(_gst_processor_oop[0]) || IS_NIL(_gst_symbol_table) ||
       IS_NIL(_gst_smalltalk_dictionary)) {

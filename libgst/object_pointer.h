@@ -708,4 +708,16 @@ extern intptr_t _gst_object_identity;
     (((obj))->data)[8] = (valueOOP);                                           \
   } while (0)
 
+#define OBJ_SIP_HASH_GET_KEY_0(obj) ((obj)->data)[0]
+#define OBJ_SIP_HASH_SET_KEY_0(obj, valueOOP)                           \
+  do {                                                                  \
+    (((obj))->data)[0] = (valueOOP);                                    \
+  } while (0)
+
+#define OBJ_SIP_HASH_GET_KEY_1(obj) ((obj)->data)[1]
+#define OBJ_SIP_HASH_SET_KEY_1(obj, valueOOP)                           \
+  do {                                                                  \
+    (((obj))->data)[1] = (valueOOP);                                    \
+  } while (0)
+
 #endif /* GST_OBJECT_POINTER_H */
