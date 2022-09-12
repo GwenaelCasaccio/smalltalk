@@ -38,14 +38,24 @@ TestCase subclass: TestKeyHash [
 
         self should: [ KeyHash key: $a and: 1 ] raise: Exception.
         self should: [ KeyHash key: 1 and: $a ] raise: Exception.
-        self should: (KeyHash key: 1 and: 1).
+        self should: [ KeyHash key: $a and: $a ] raise: Exception.
+    ] 
+
+    testKeyHashInstanciatedWithIntegers [
+
+        | key |
+        key := KeyHash key: 12 and: 23.
+        self assert: (key instVarAt: 1) = 12.
+        self assert: (key instVarAt: 2) = 23.
+        self assert: key isReadOnly.
     ]
 
     testKeyHashBootstrap [
 
-        self assert: SipKeyHash class = KeyHash.
-        self assert: (SipKeyHash instVarAt: 1) isInteger.
-        self assert: (SipKeyHash instVarAt: 2) isInteger.
+        self assert: SipHashKey class = KeyHash.
+        self assert: (SipHashKey instVarAt: 1) isInteger.
+        self assert: (SipHashKey instVarAt: 2) isInteger.
+        self assert: SipHashKey isReadOnly.
     ]
 ]
 

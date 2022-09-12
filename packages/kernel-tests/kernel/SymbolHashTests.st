@@ -34,8 +34,8 @@ TestCase subclass: TestSymbolHash [
         hash2 := symbol2 hash.
 
         self assert: hash1 = hash2.
-        self assert: symboltring1 = symbol2.
-        self assert: symboltring1 == symbol2.
+        self assert: symbol1 = symbol2.
+        self assert: symbol1 == symbol2.
     ]
 ]
 

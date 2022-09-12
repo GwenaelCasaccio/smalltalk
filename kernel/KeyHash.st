@@ -1,7 +1,7 @@
 Object subclass: KeyHash [
 
     <comment: 'I am the keys used by the Sip Hashing function.
-               Both keys should be SmallInteger and don't forget
+               Both keys should be SmallInteger and do not forget
                if you update the keys the dictionaries, set, the
                symbol literals, ... should be rehashed.
                The format of the class could not be changed the hash primitive
@@ -25,13 +25,14 @@ Object subclass: KeyHash [
                                                                              mustBe: SmallInteger ].
         key0 := aKey0SmallInteger.
         key1 := aKey1SmallInteger.
+        self makeReadOnly: true.
     ]
 ]
 
 Eval [
 
     " The class is made read-only to forbid class migration (adding or removing instance variable, ...)
-      The virtual machine expect two integer instance variables "
-    KeyHash makesReadOnly: true.
+      The virtual machine expect two integer instance variables. "
+    KeyHash makeReadOnly: true.
 ]
 

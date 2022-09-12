@@ -28,4 +28,6 @@ void generate_sip_hash_key() {
 
     INSTANCE_VARIABLE(_gst_key_hash_oop, i) = FROM_INT(randomKey);
   }
+
+  MAKE_OOP_READONLY(_gst_key_hash_oop, true);
 }
