@@ -3,7 +3,9 @@ Object subclass: KeyHash [
     <comment: 'I am the keys used by the Sip Hashing function.
                Both keys should be SmallInteger and don't forget
                if you update the keys the dictionaries, set, the
-               symbol literals, ... should be reashed.'>
+               symbol literals, ... should be rehashed.
+               The format of the class could not be changed the hash primitive
+               expect two slots with both integers objects.'>
     <category: 'Language-Implementation'>
 
     | key0 key1 |
