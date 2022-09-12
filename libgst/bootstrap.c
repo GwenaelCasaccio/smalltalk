@@ -15,7 +15,7 @@ void generate_sip_hash_key() {
   restart:
 
     if (getrandom(&randomKey, sizeof(randomKey), 0) != sizeof(randomKey)) {
-      int errsv = errno;
+      const int errsv = errno;
 
       if (errsv == EAGAIN) {
         goto restart;

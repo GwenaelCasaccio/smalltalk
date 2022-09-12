@@ -27,3 +27,11 @@ Object subclass: KeyHash [
         key1 := aKey1SmallInteger.
     ]
 ]
+
+Eval [
+
+    " The class is made read-only to forbid class migration (adding or removing instance variable, ...)
+      The virtual machine expect two integer instance variables "
+    KeyHash makesReadOnly: true.
+]
+

@@ -12,6 +12,9 @@
    <sunit>TestRecursionLock</sunit>
    <sunit>TestURL</sunit>
    <sunit>TestMethodDictionary</sunit>
+   <sunit>TestStringHash</sunit>
+   <sunit>TestSymbolHash</sunit>
+   <sunit>TestKeyHash</sunit>
    <filein>kernel/BehaviorTests.st</filein>
    <filein>kernel/CCallableTest.st</filein>
    <filein>kernel/CompiledMethodTests.st</filein>
@@ -22,6 +25,9 @@
    <filein>kernel/RecursionLockTests.st</filein>
    <filein>kernel/URLTests.st</filein>
    <filein>kernel/MethodDictionaryTests.st</filein>
+   <filein>kernel/StringHashTests.st</filein>
+   <filein>kernel/SymbolHashTests.st</filein>
+   <filein>kernel/KeyHashTests.st</filein>
   </test>
 
   <file>ChangeLog</file>
