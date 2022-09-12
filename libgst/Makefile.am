@@ -35,7 +35,9 @@ libgst_la_SOURCES = \
        print.c	   			alloc.c				re.c	          interp.c      		\
        real.c	     			sockets.c			events.c        object_pointer.c	\
 			 forward_object.c	heap/heap.c		heap/tlab.c     jit-x64.c         \
-			 method_dictionary.c
+			 method_dictionary.c \
+			 sip_hash.c          \
+			 bootstrap.c
 
 jit-x64.lo: AM_CFLAGS = $(LIBGST_CFLAGS)
 
@@ -67,6 +69,8 @@ noinst_HEADERS = 																												\
 	sysdep/win32/events.c sysdep/cygwin/events.c 													\
   heap/heap.h						heap/tlab.h																			\
   method_dictionary.h                                                   \
+	sip_hash.h																														\
+  bootstrap.h                                                           \
 	$(BUILT_SOURCES)
 
 # rules for invoking gperf

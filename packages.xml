@@ -1,4 +1,8 @@
 <packages>
+  <package>
+    <name>Kernel-Tests</name>
+  </package>
+
 <package>
   <name>XML</name>
   <prereq>XML-XMLNodeBuilder</prereq>
@@ -84,6 +88,7 @@
   <name>Kernel</name>
   <directory>kernel</directory>
 
+  <file>KeyHash.st</file>
   <file>Array.st</file>
   <file>CompildMeth.st</file>
   <file>LookupTable.st</file>

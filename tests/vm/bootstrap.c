@@ -22,6 +22,7 @@ OOP _gst_smalltalk_namespace_symbol;
 OOP _gst_symbol_table;
 OOP _gst_current_namespace;
 OOP _gst_vm_primitives_symbol;
+OOP _gst_sip_hash_key_symbol;
 
 void __wrap_nomemory(int fatal) {
   check_expected(fatal);

@@ -166,6 +166,7 @@ static const char standard_files[] = {
     "HomedAssoc.st\0"
     "VarBinding.st\0"
     "Integer.st\0"
+    "KeyHash.st\0"
     "Date.st\0"
     "Time.st\0"
     "Number.st\0"

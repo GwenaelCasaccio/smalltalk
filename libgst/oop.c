@@ -424,9 +424,9 @@ void _gst_init_basic_objects() {
 
 void _gst_init_builtin_objects_classes(void) {
 
-  _gst_nil_oop = &_gst_mem.ot[256];
-  _gst_true_oop = &_gst_mem.ot[257];
-  _gst_false_oop = &_gst_mem.ot[258];
+  _gst_nil_oop = OOP_AT(NIL_OOP_INDEX);
+  _gst_true_oop = OOP_AT(TRUE_OOP_INDEX);
+  _gst_false_oop = OOP_AT(FALSE_OOP_INDEX);
 
   OBJ_SET_CLASS(OOP_TO_OBJ(_gst_nil_oop), _gst_undefined_object_class);
   OBJ_SET_CLASS(OOP_TO_OBJ(_gst_true_oop), _gst_true_class);

@@ -162,6 +162,7 @@ OOP _gst_while_true_colon_symbol = NULL;
 OOP _gst_while_true_symbol = NULL;
 OOP _gst_write_slot_at_put_symbol = NULL;
 OOP _gst_current_namespace = NULL;
+OOP _gst_sip_hash_key_symbol = NULL;
 
 /* Symbols inside the builtin selectors */
 OOP _gst_initialize_symbol = NULL;
@@ -306,6 +307,7 @@ static const symbol_info sym_info[] = {
     {&_gst_while_true_colon_symbol, "whileTrue:"},
     {&_gst_while_true_symbol, "whileTrue"},
     {&_gst_write_slot_at_put_symbol, "writeSlotAt:put:"},
+    {&_gst_sip_hash_key_symbol, "SipHashKey"},
     {NULL, NULL},
 };
 
@@ -1335,15 +1337,16 @@ int _gst_string_oop_len(OOP oop) {
 }
 
 uintptr_t _gst_hash_string(const char *str, int len) {
-  uintptr_t hashVal = 1497032417; /* arbitrary value */
+  intptr_t out;
+  gst_object key = OOP_TO_OBJ(_gst_key_hash_oop);
 
-  while (len--) {
-    hashVal += *str++;
-    hashVal += (hashVal << 10);
-    hashVal ^= (hashVal >> 6);
-  }
+#if SIZEOF_OOP == 8
+  siphash(str, len, key->data, (uint8_t*) &out, sizeof(out));
+#else
+  halfsiphash(str, len, key->data, (uint8_t*) &out, sizeof(out));
+#endif
 
-  return hashVal & MAX_ST_INT;
+  return out & MAX_ST_INT;
 }
 
 void _gst_check_symbol_chain(void) {
