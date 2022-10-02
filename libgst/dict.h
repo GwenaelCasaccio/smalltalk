@@ -604,4 +604,8 @@ static double floatd_oop_value(OOP floatOOP);
 extern long double floatq_oop_value(OOP floatOOP);
 #endif
 
+/* Creates the Symbols that the VM knows about, and initializes
+   the globals in the Smalltalk dictionary.  */
+extern void init_runtime_objects(void);
+
 #endif /* GST_DICT_H */
