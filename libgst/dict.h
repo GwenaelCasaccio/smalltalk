@@ -174,14 +174,12 @@ extern OOP _gst_number_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_object_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_object_memory_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_ordered_collection_class ATTRIBUTE_HIDDEN;
-extern OOP _gst_permission_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_positionable_stream_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_process_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_processor_scheduler_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_read_stream_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_read_write_stream_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_root_namespace_class ATTRIBUTE_HIDDEN;
-extern OOP _gst_security_policy_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_semaphore_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_sequenceable_collection_class ATTRIBUTE_HIDDEN;
 extern OOP _gst_set_class ATTRIBUTE_HIDDEN;
@@ -606,6 +604,5 @@ extern long double floatq_oop_value(OOP floatOOP);
 
 /* Creates the Symbols that the VM knows about, and initializes
    the globals in the Smalltalk dictionary.  */
-extern void init_runtime_objects(void);
 
 #endif /* GST_DICT_H */

@@ -334,12 +334,6 @@ static const class_definition class_info[] = {
     {&_gst_block_closure_class, &_gst_object_class, GST_ISP_FIXED, true, 3,
      "BlockClosure", "outerContext block receiver", NULL, NULL},
 
-    {&_gst_permission_class, &_gst_object_class, GST_ISP_FIXED, true, 4,
-     "Permission", "name actions target positive", NULL, NULL},
-
-    {&_gst_security_policy_class, &_gst_object_class, GST_ISP_FIXED, true, 2,
-     "SecurityPolicy", "dictionary owner", NULL, NULL},
-
     {&_gst_c_object_class, &_gst_object_class, GST_ISP_ULONG, true, 2,
      "CObject", "type storage", NULL, "CSymbols"},
 

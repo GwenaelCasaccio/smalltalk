@@ -77,21 +77,11 @@ static const class_definition class_info[] = {
 
     {&_gst_message_class, "Message"},
 
-    {&_gst_directed_message_class, "DirectedMessage"},
-
     {&_gst_message_lookup_class, "MessageLookup"},
-
-    {&_gst_magnitude_class, "Magnitude"},
 
     {&_gst_char_class, "Character"},
 
     {&_gst_unicode_character_class, "UnicodeCharacter"},
-
-    {&_gst_time_class, "Time"},
-
-    {&_gst_date_class, "Date"},
-
-    {&_gst_number_class, "Number"},
 
     {&_gst_float_class, "Float"},
 
@@ -100,8 +90,6 @@ static const class_definition class_info[] = {
     {&_gst_floate_class, "FloatE"},
 
     {&_gst_floatq_class, "FloatQ"},
-
-    {&_gst_fraction_class, "Fraction"},
 
     {&_gst_integer_class, "Integer"},
 
@@ -121,11 +109,7 @@ static const class_definition class_info[] = {
 
     {&_gst_association_class, "Association"},
 
-    {&_gst_homed_association_class, "HomedAssociation"},
-
     {&_gst_variable_binding_class, "VariableBinding"},
-
-    {&_gst_link_class, "Link"},
 
     {&_gst_process_class, "Process"},
 
@@ -133,23 +117,9 @@ static const class_definition class_info[] = {
 
     {&_gst_sym_link_class, "SymLink"},
 
-    {&_gst_iterable_class, "Iterable"},
-
-    {&_gst_collection_class, "Collection"},
-
-    {&_gst_sequenceable_collection_class, "SequenceableCollection"},
-
-    {&_gst_linked_list_class, "LinkedList"},
-
     {&_gst_semaphore_class, "Semaphore"},
 
-    {&_gst_arrayed_collection_class, "ArrayedCollection"},
-
     {&_gst_array_class, "Array"},
-
-    {&_gst_weak_array_class, "WeakArray"},
-
-    {&_gst_character_array_class, "CharacterArray"},
 
     {&_gst_string_class, "String"},
 
@@ -159,39 +129,13 @@ static const class_definition class_info[] = {
 
     {&_gst_byte_array_class, "ByteArray"},
 
-    {&_gst_compiled_code_class, "CompiledCode"},
-
     {&_gst_compiled_block_class, "CompiledBlock"},
 
     {&_gst_compiled_method_class, "CompiledMethod"},
 
     {&_gst_interval_class, "Interval"},
 
-    {&_gst_ordered_collection_class, "OrderedCollection"},
-
-    {&_gst_sorted_collection_class, "SortedCollection"},
-
-    {&_gst_hashed_collection_class, "HashedCollection"},
-
-    {&_gst_set_class, "Set"},
-
-    {&_gst_weak_set_class, "WeakSet"},
-
-    {&_gst_identity_set_class, "IdentitySet"},
-
-    {&_gst_weak_identity_set_class, "WeakIdentitySet"},
-
     {&_gst_dictionary_class, "Dictionary"},
-
-    {&_gst_weak_key_dictionary_class, "WeakKeyDictionary"},
-
-    {&_gst_weak_key_identity_dictionary_class, "WeakKeyIdentityDictionary"},
-
-    {&_gst_lookup_table_class, "LookupTable"},
-
-    {&_gst_weak_value_lookup_table_class, "WeakValueLookupTable"},
-
-    {&_gst_weak_value_identity_dictionary_class, "WeakValueIdentityDictionary"},
 
     {&_gst_identity_dictionary_class, "IdentityDictionary"},
 
@@ -207,16 +151,6 @@ static const class_definition class_info[] = {
 
     {&_gst_system_dictionary_class, "SystemDictionary"},
 
-    {&_gst_stream_class, "Stream"},
-
-    {&_gst_positionable_stream_class, "PositionableStream"},
-
-    {&_gst_read_stream_class, "ReadStream"},
-
-    {&_gst_write_stream_class, "WriteStream"},
-
-    {&_gst_read_write_stream_class, "ReadWriteStream"},
-
     {&_gst_file_descriptor_class, "FileDescriptor"},
 
     {&_gst_file_stream_class, "FileStream"},
@@ -229,9 +163,7 @@ static const class_definition class_info[] = {
 
     {&_gst_true_class, "True"},
 
-    {&_gst_processor_scheduler_class, "ProcessorScheduler"},
-
-    {&_gst_behavior_class, "Behavior" },
+    {&_gst_behavior_class, "Behavior"},
 
     {&_gst_class_description_class, "ClassDescription"},
 
@@ -249,21 +181,13 @@ static const class_definition class_info[] = {
 
     {&_gst_block_closure_class, "BlockClosure"},
 
-    {&_gst_permission_class, "Permission"},
-
-    {&_gst_security_policy_class, "SecurityPolicy"},
-
     {&_gst_c_object_class, "CObject"},
 
     {&_gst_c_type_class, "CType"},
 
     {&_gst_c_callable_class, "CCallable"},
 
-    {&_gst_c_func_descriptor_class, "CFunctionDescriptor"},
-
     {&_gst_c_callback_descriptor_class, "CCallbackDescriptor"},
-
-    {&_gst_memory_class, "Memory"},
 
     {&_gst_method_info_class, "MethodInfo"},
 
@@ -343,14 +267,12 @@ OOP _gst_number_class = NULL;
 OOP _gst_object_class = NULL;
 OOP _gst_object_memory_class = NULL;
 OOP _gst_ordered_collection_class = NULL;
-OOP _gst_permission_class = NULL;
 OOP _gst_positionable_stream_class = NULL;
 OOP _gst_process_class = NULL;
 OOP _gst_processor_scheduler_class = NULL;
 OOP _gst_read_stream_class = NULL;
 OOP _gst_read_write_stream_class = NULL;
 OOP _gst_root_namespace_class = NULL;
-OOP _gst_security_policy_class = NULL;
 OOP _gst_semaphore_class = NULL;
 OOP _gst_sequenceable_collection_class = NULL;
 OOP _gst_set_class = NULL;
