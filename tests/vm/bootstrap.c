@@ -4,7 +4,7 @@
 #include <setjmp.h>
 #include <cmocka.h>
 
-#include "libgst/dict.c"
+#include "libgst/bootstrap.c"
 
 thread_local unsigned long _gst_bytecode_counter = 0;
 unsigned long _gst_saved_bytecode_counter = 0;
@@ -23,6 +23,109 @@ OOP _gst_symbol_table;
 OOP _gst_current_namespace;
 OOP _gst_vm_primitives_symbol;
 OOP _gst_sip_hash_key_symbol;
+
+/* Primary class variables.  These variables hold the class objects for
+   most of the builtin classes in the system */
+OOP _gst_abstract_namespace_class = NULL;
+OOP _gst_array_class = NULL;
+OOP _gst_arrayed_collection_class = NULL;
+OOP _gst_association_class = NULL;
+OOP _gst_behavior_class = NULL;
+OOP _gst_binding_dictionary_class = NULL;
+OOP _gst_block_closure_class = NULL;
+OOP _gst_block_context_class = NULL;
+OOP _gst_boolean_class = NULL;
+OOP _gst_byte_array_class = NULL;
+OOP _gst_c_callable_class = NULL;
+OOP _gst_c_callback_descriptor_class = NULL;
+OOP _gst_c_func_descriptor_class = NULL;
+OOP _gst_c_object_class = NULL;
+OOP _gst_c_type_class = NULL;
+OOP _gst_callin_process_class = NULL;
+OOP _gst_char_class = NULL;
+OOP _gst_character_array_class = NULL;
+OOP _gst_class_class = NULL;
+OOP _gst_class_description_class = NULL;
+OOP _gst_collection_class = NULL;
+OOP _gst_compiled_block_class = NULL;
+OOP _gst_compiled_code_class = NULL;
+OOP _gst_compiled_method_class = NULL;
+OOP _gst_context_part_class = NULL;
+OOP _gst_continuation_class = NULL;
+OOP _gst_deferred_variable_binding_class = NULL;
+OOP _gst_dictionary_class = NULL;
+OOP _gst_message_lookup_class = NULL;
+OOP _gst_false_class = NULL;
+OOP _gst_file_descriptor_class = NULL;
+OOP _gst_file_segment_class = NULL;
+OOP _gst_file_stream_class = NULL;
+OOP _gst_float_class = NULL;
+OOP _gst_floatd_class = NULL;
+OOP _gst_floate_class = NULL;
+OOP _gst_floatq_class = NULL;
+OOP _gst_fraction_class = NULL;
+OOP _gst_homed_association_class = NULL;
+OOP _gst_identity_dictionary_class = NULL;
+OOP _gst_integer_class = NULL;
+OOP _gst_interval_class = NULL;
+OOP _gst_large_integer_class = NULL;
+OOP _gst_large_negative_integer_class = NULL;
+OOP _gst_large_positive_integer_class = NULL;
+OOP _gst_large_zero_integer_class = NULL;
+OOP _gst_lookup_key_class = NULL;
+OOP _gst_message_class = NULL;
+OOP _gst_metaclass_class = NULL;
+OOP _gst_method_context_class = NULL;
+OOP _gst_method_dictionary_class = NULL;
+OOP _gst_method_info_class = NULL;
+OOP _gst_namespace_class = NULL;
+OOP _gst_number_class = NULL;
+OOP _gst_object_class = NULL;
+OOP _gst_object_memory_class = NULL;
+OOP _gst_process_class = NULL;
+OOP _gst_root_namespace_class = NULL;
+OOP _gst_semaphore_class = NULL;
+OOP gst_small_integer_class = NULL;
+OOP _gst_smalltalk_dictionary = NULL;
+OOP _gst_string_class = NULL;
+OOP _gst_sym_link_class = NULL;
+OOP _gst_symbol_class = NULL;
+OOP _gst_system_dictionary_class = NULL;
+OOP _gst_true_class = NULL;
+OOP _gst_undefined_object_class = NULL;
+OOP _gst_unicode_character_class = NULL;
+OOP _gst_unicode_string_class = NULL;
+OOP _gst_variable_binding_class = NULL;
+OOP _gst_processor_oop[100] = {NULL};
+OOP _gst_key_hash_oop = NULL;
+OOP _gst_debug_information_class = NULL;
+OOP _gst_key_hash_class = NULL;
+
+void __wrap_nil_fill(OOP *oop, size_t numWords) {
+  check_expected(numWords);
+
+  function_called();
+
+  return;
+}
+
+OOP __wrap__gst_dictionary_add(OOP dictionaryOOP, OOP associationOOP) {
+  return NULL;
+}
+
+OOP __wrap__gst_binding_dictionary_new(OOP dictionaryOOP, OOP associationOOP) {
+  return NULL;
+}
+
+OOP __wrap__gst_string_new(OOP dictionaryOOP, OOP associationOOP) {
+  return NULL;
+}
+
+OOP __wrap__gst_process_file(OOP dictionaryOOP, OOP associationOOP) {
+  return NULL;
+}
+
+OOP __wrap__gst_msg_sendf(OOP foo) { return NULL; }
 
 void __wrap_nomemory(int fatal) {
   check_expected(fatal);
@@ -146,39 +249,33 @@ static void should_initialize_builtins_objects(void **state) {
   OOP_SET_OBJECT(_gst_processor_oop[0], NULL);
 
   expect_value(__wrap__gst_alloc_words, size, 515);
-  expect_value(__wrap__gst_alloc_words, size, 520);
-  expect_value(__wrap__gst_alloc_words, size, 12);
+  expect_function_calls(__wrap__gst_alloc_words, 1);
+  expect_value(__wrap_nil_fill, numWords, 512);
+  expect_function_calls(__wrap_nil_fill, 1);
 
-  expect_function_calls(__wrap__gst_alloc_words, 3);
+  expect_value(__wrap__gst_alloc_words, size, 520);
+  expect_function_calls(__wrap__gst_alloc_words, 1);
+  expect_value(__wrap_nil_fill, numWords, 512);
+  expect_function_calls(__wrap_nil_fill, 1);
+
+  expect_value(__wrap__gst_alloc_words, size, 12);
+  expect_function_calls(__wrap__gst_alloc_words, 1);
+  expect_value(__wrap_nil_fill, numWords, 9);
+  expect_function_calls(__wrap_nil_fill, 1);
 
   init_proto_oops();
 
   assert_true(OOP_TO_OBJ(_gst_symbol_table) != NULL);
   assert_true(OBJ_CLASS(OOP_TO_OBJ(_gst_symbol_table)) == _gst_array_class);
-  for (size_t i = 0; i < 515 - OBJ_HEADER_SIZE_WORDS; i++) {
-    assert_true(OOP_TO_OBJ(_gst_symbol_table)->data[i] == _gst_nil_oop);
-  }
 
   assert_true(OOP_TO_OBJ(_gst_smalltalk_dictionary) != NULL);
   assert_true(OBJ_CLASS(OOP_TO_OBJ(_gst_smalltalk_dictionary)) == _gst_system_dictionary_class);
   assert_true(OBJ_NAMESPACE_GET_TALLY(OOP_TO_OBJ(_gst_smalltalk_dictionary)) == FROM_INT(0));
-  for (size_t i = 1; i < 520 - OBJ_HEADER_SIZE_WORDS; i++) {
-    if (i != 2) {
-      assert_true(OOP_TO_OBJ(_gst_smalltalk_dictionary)->data[i] == _gst_nil_oop);
-    } else {
-      assert_true(OBJ_NAMESPACE_GET_NAME(OOP_TO_OBJ(_gst_smalltalk_dictionary)) == _gst_smalltalk_namespace_symbol);
-    }
-  }
+  assert_true(OBJ_NAMESPACE_GET_NAME(OOP_TO_OBJ(_gst_smalltalk_dictionary)) == _gst_smalltalk_namespace_symbol);
 
   assert_true(OOP_TO_OBJ(_gst_processor_oop[0]) != NULL);
   assert_true(OBJ_CLASS(OOP_TO_OBJ(_gst_processor_oop[0])) == _gst_processor_scheduler_class);
-  for (size_t i = 0; i < 11 - OBJ_HEADER_SIZE_WORDS; i++) {
-    if (i != 7) {
-      assert_true(OOP_TO_OBJ(_gst_processor_oop[0])->data[i] == _gst_nil_oop);
-    } else {
-      assert_true(OBJ_PROCESSOR_SCHEDULER_GET_VM_THREAD_ID(OOP_TO_OBJ(_gst_processor_oop[0])) == FROM_INT(0));
-    }
-  }
+  assert_true(OBJ_PROCESSOR_SCHEDULER_GET_VM_THREAD_ID(OOP_TO_OBJ(_gst_processor_oop[0])) == FROM_INT(0));
 }
 
 int main(void) {
