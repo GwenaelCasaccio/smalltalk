@@ -155,6 +155,3 @@ my subclasses True and False actually provide those operations.'>
     ]
 ]
 
-Eval [
-  Boolean initialize
-]

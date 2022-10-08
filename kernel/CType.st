@@ -461,10 +461,3 @@ CPtrCType subclass: CArrayCType [
 	numElements := anInteger
     ]
 ]
-
-
-
-Eval [
-    CType initialize
-]
-

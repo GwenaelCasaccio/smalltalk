@@ -729,6 +729,3 @@ String extend [
     ]
 ]
 
-Eval [
-    File initialize
-]

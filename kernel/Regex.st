@@ -1092,9 +1092,3 @@ String extend [
     ]
 ]
 
-
-
-Eval [
-    Kernel.FailedMatchRegexResults initialize
-]
-

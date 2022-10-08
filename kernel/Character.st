@@ -550,9 +550,3 @@ itself.'>
     ]
 ]
 
-
-
-Eval [
-    Character initialize
-]
-

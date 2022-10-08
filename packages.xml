@@ -88,6 +88,8 @@
   <name>Kernel</name>
   <directory>kernel</directory>
 
+  <file>KernelInitialize.st</file>
+  <file>Initialize.st</file>
   <file>KeyHash.st</file>
   <file>Array.st</file>
   <file>CompildMeth.st</file>

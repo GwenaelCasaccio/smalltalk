@@ -85,6 +85,7 @@ method dictionary, and iterating over the class hierarchy.'>
 
         <category: 'instance variables'>
         | variableArray oldInstVarNames oldSize removed changed added |
+	      KernelInitialized ifFalse: [ ^ self ].
         variableArray := self parseInstanceVariableString: instVarNames.
         variableArray := self subclassInstVarNames, variableArray.
         oldInstVarNames := self allInstVarNames.

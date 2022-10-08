@@ -1564,19 +1564,6 @@ CByte subclass: CBoolean [
     ]
 ]
 
-
-
-"Forward define CType instances"
-
-
-
-Eval [
-    Smalltalk at: #CCharType put: nil.
-    Smalltalk at: #CStringType put: nil
-]
-
-
-
 UndefinedObject extend [
 
     free [
@@ -1592,6 +1579,5 @@ UndefinedObject extend [
 	<category: 'CObject interoperability'>
 	^self
     ]
-
 ]
 

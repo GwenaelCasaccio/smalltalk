@@ -222,10 +222,6 @@ static const char standard_files[] = {
     "RWStream.st\0"
     "UndefObject.st\0"
     "ProcSched.st\0"
-    "Behavior.st\0"
-    "ClassDesc.st\0"
-    "Class.st\0"
-    "Metaclass.st\0"
     "Continuation.st\0"
     "Memory.st\0"
     "MethodInfo.st\0"
@@ -235,6 +231,11 @@ static const char standard_files[] = {
     "SymLink.st\0"
     "WeakObjects.st\0"
     "ObjMemory.st\0"
+    "Behavior.st\0"
+    "ClassDesc.st\0"
+    "Class.st\0"
+    "Metaclass.st\0"
+    "KernelInitialize.st\0"
 
     /* More core classes */
     "Bag.st\0"
@@ -283,7 +284,8 @@ static const char standard_files[] = {
     "Regex.st\0"
     "PkgLoader.st\0"
     "DirPackage.st\0"
-    "Autoload.st\0"};
+    "Autoload.st\0"
+    "Initialize.st\0"};
 
 /* The argc and argv that are passed to libgst via gst_smalltalk_args.
    The default is passing no parameters.  */

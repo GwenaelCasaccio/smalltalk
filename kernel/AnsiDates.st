@@ -768,9 +768,3 @@ Time subclass: Duration [
     ]
 ]
 
-
-
-Eval [
-    Duration initialize
-]
-
