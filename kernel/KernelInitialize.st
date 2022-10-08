@@ -22,8 +22,9 @@
 ******************************************************************************"
 
 Eval [
-    Class initialize.
+
     Character initialize.
+    Class initialize.
     Boolean initialize.
 	  Object initialize.
 	  Fraction initialize.
@@ -34,8 +35,6 @@ Eval [
 	  Namespace initialize.
 	  Processor initialize.
 	  SystemDictionary initialize.
-
-    " Ne Pas Oublier dans MEtaclass l'eval "
 
     " The class is made read-only to forbid class migration (adding or removing instance variable, ...)
       The virtual machine expect two integer instance variables. "

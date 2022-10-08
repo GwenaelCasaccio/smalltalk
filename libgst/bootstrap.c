@@ -502,11 +502,11 @@ static const char standard_files[] = {
     "SymLink.st\0"
     "WeakObjects.st\0"
     "ObjMemory.st\0"
-    "KernelInitialize.st\0"
     "Behavior.st\0"
     "ClassDesc.st\0"
     "Class.st\0"
     "Metaclass.st\0"
+    "KernelInitialize.st\0"
 
     /* More core classes */
     "Bag.st\0"
