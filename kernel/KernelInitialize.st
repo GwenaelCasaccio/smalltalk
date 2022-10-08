@@ -26,15 +26,15 @@ Eval [
     Character initialize.
     Class initialize.
     Boolean initialize.
-	  Object initialize.
-	  Fraction initialize.
-	  LargeInteger initialize.
-	  Date initialize.
-	  Time initialize.
-	  FileDescriptor initialize.
-	  Namespace initialize.
-	  Processor initialize.
-	  SystemDictionary initialize.
+    Object initialize.
+    Fraction initialize.
+    LargeInteger initialize.
+    Date initialize.
+    Time initialize.
+    FileDescriptor initialize.
+    Namespace initialize.
+    Processor initialize.
+    SystemDictionary initialize.
 
     " The class is made read-only to forbid class migration (adding or removing instance variable, ...)
       The virtual machine expect two integer instance variables. "
