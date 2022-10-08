@@ -76,23 +76,6 @@ state.'>
     ObjectMemory class >> initialize [
 	"Initialize the globals"
 
-	"This method is called after all the kernel Smalltalk classes have been
-	 loaded.  It generally performs any initializations that might depend on
-	 the full Smalltalk class hierarchy being defined. After this is file is
-	 loaded, some 'advanced' class definitions are loaded (CFuncs, Autoload,
-	 exception handling, ...) and then the binary image is saved."
-
-	<category: 'initialization'>
-	Object initialize.
-	Class initialize.
-	Fraction initialize.
-	LargeInteger initialize.
-	Date initialize.
-	Time initialize.
-	FileDescriptor initialize.
-	Namespace initialize.
-	Processor initialize.
-	SystemDictionary initialize.
 	self changed: #returnFromSnapshot
     ]
 
@@ -641,11 +624,5 @@ state.'>
 	<primitive: VMpr_ObjectMemory_update>
 	self primitiveFailed
     ]
-]
-
-
-
-Eval [
-    ObjectMemory initialize
 ]
 

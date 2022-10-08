@@ -283,10 +283,3 @@ Integer extend [
     ]
 
 ]
-
-
-
-Eval [
-    CCompound initialize
-]
-

@@ -203,23 +203,6 @@ provide for writing collections sequentially.'>
 	^ws contents
     ]
 
-    nextLine [
-	"Returns a collection of the same type that the stream accesses, containing
-	 the next line up to the next new-line character.  Returns the entire rest of the
-	 stream's contents if no new-line character is found."
-
-	<category: 'accessing-reading'>
-	| next ws |
-	ws := WriteStream on: (self species new: 40).
-	
-	[self atEnd or: 
-		[(next := self next) == ##(Character cr) 
-		    or: [next == ##(Character nl) or: [next isNil]]]] 
-		whileFalse: [ws nextPut: next].
-	next == ##(Character cr) ifTrue: [self peekFor: ##(Character nl)].
-	^ws contents
-    ]
-
     upTo: anObject [
 	"Returns a collection of the same type that the stream accesses, up to
 	 but not including the object anObject.  Returns the entire rest of the

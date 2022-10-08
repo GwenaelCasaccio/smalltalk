@@ -316,9 +316,3 @@ CFunctionDescriptor class extend [
 
 ]
 
-
-
-Eval [
-    DLD initialize
-]
-

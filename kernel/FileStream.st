@@ -673,9 +673,3 @@ file object, such as /dev/rmt0 on UNIX or MTA0: on VMS).'>
     ]
 ]
 
-
-
-Eval [
-    FileStream initialize
-]
-

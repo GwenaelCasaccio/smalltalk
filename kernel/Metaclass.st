@@ -490,3 +490,4 @@ it should be...the Smalltalk metaclass system is strange and complex.'>
     ]
 ]
 
+Eval [ Class initialize ]

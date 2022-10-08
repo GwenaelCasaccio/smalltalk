@@ -1449,9 +1449,3 @@ Object extend [
 
 ]
 
-
-
-Eval [
-    SystemExceptions.ProcessBeingTerminated initialize
-]
-

@@ -204,10 +204,3 @@ implements the global Transcript object.'>
     ]
 ]
 
-
-
-Eval [
-    Smalltalk at: #Transcript
-	put: (TextCollector message: stdout -> #nextPutAllFlush:)
-]
-
