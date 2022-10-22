@@ -285,6 +285,7 @@ static const char standard_files[] = {
     "PkgLoader.st\0"
     "DirPackage.st\0"
     "Autoload.st\0"
+    "OSProcess.st\0"
     "Initialize.st\0"};
 
 /* The argc and argv that are passed to libgst via gst_smalltalk_args.

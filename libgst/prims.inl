@@ -6333,14 +6333,25 @@ static intptr_t VMpr_HOLE(int id, volatile int numArgs) {
   UNUSED(id);
   UNUSED(numArgs);
 
-  UNUSED(id);
-  UNUSED(numArgs);
-
   _gst_primitives_executed++;
   _gst_errorf("Unhandled primitive operation %d", id);
 
   UNPOP(numArgs);
   PRIM_FAILED;
+}
+
+static intptr_t VMpr_OSProcess_exec(int id, volatile int numArgs) {
+
+  UNUSED(id);
+  UNUSED(numArgs);
+
+  _gst_primitives_executed++;
+  fprintf(stderr, "ici\n");
+  //_gst_exec_command_with_fd("/usr/bin/ls", "-l", -1, -1, -1);
+  char const * args[] = { "-l", NULL };
+  _gst_exec_command_with_fd("/usr/bin/ls", args, -2, -2, -2);
+
+  PRIM_SUCCEEDED;
 }
 
 unsigned char _gst_primitives_md5[16] = {225, 63,  18,  146, 66, 109, 248, 224,
@@ -7442,4 +7453,9 @@ void _gst_init_primitives() {
   _gst_default_primitive_table[255].attributes = PRIM_SUCCEED;
   _gst_default_primitive_table[255].id = 0;
   _gst_default_primitive_table[255].func = VMpr_Processor_currentThreadId;
+
+  _gst_default_primitive_table[256].name = "VMpr_OSProcess_exec";
+  _gst_default_primitive_table[256].attributes = PRIM_SUCCEED;
+  _gst_default_primitive_table[256].id = 0;
+  _gst_default_primitive_table[256].func = VMpr_OSProcess_exec;
 }

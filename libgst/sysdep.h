@@ -227,6 +227,9 @@ extern int _gst_open_pipe (const char *command,
 			   const char *mode)
   ATTRIBUTE_HIDDEN;
 
+int _gst_exec_command_with_fd(const char *command, char *const argv[],
+                              int stdin, int stdout, int stderr);
+
 /* Similar to fopen, but returns a file descriptor.  */
 extern int _gst_open_file (const char *filename,
 			   const char *mode)

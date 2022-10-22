@@ -368,7 +368,7 @@ GST_SOCKETS
 AC_CHECK_FUNCS_ONCE(gethostname memcpy memmove sighold uname usleep lstat \
 	grantpt popen getrusage gettimeofday fork strchr utimes utime readlink \
 	sigsetmask alarm select mprotect madvise waitpid accept4 \
-	setsid spawnl pread pwrite _NSGetExecutablePath _NSGetEnviron \
+	setsid pread pwrite _NSGetExecutablePath _NSGetEnviron \
 	chown getgrnam getpwnam endgrent endpwent setgroupent setpassent)
 
 if test "$ac_cv_func__NSGetEnviron" = yes; then

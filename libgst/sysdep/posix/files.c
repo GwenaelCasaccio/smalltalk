@@ -262,15 +262,19 @@ sigchld_handler (int signum)
 }
 
 /* Use sockets or pipes.  */
-int
-_gst_open_pipe (const char *command,
-		const char *mode)
+int _gst_open_pipe(const char *command, const char *mode)
 {
   int fd[2];
   int our_fd, child_fd;
   int access;
   int result;
 
+  /*
+   *
+   * 0: stdin
+   * 1: stdout
+   * 2: stderr
+   */
   _gst_set_signal_handler (SIGCHLD, sigchld_handler);
   access = strchr (mode, '+') ? O_RDWR :
     (mode[0] == 'r' ? O_RDONLY : O_WRONLY);
@@ -340,7 +344,7 @@ _gst_open_pipe (const char *command,
       /* Child process */
       close (our_fd);
       if (access != O_WRONLY)
-	dup2 (child_fd, 1);
+        dup2 (child_fd, 1);
       if (access != O_RDONLY)
         dup2 (child_fd, 0);
 
@@ -366,3 +370,144 @@ _gst_open_pipe (const char *command,
     return (our_fd);
 }
 
+int _gst_exec_command_with_fd(const char *command, char *const argv[],
+                              int parent_stdin_arg, int parent_stdout_arg, int parent_stderr_arg) {
+  /*
+   *
+   * 0: stdin
+   * 1: stdout
+   * 2: stderr
+   */
+  //_gst_set_signal_handler (SIGCHLD, sigchld_handler);
+  fprintf(stderr, "ici 1\n");
+  fflush(stderr);
+
+  //_gst_set_signal_handler (SIGPIPE, SIG_DFL);
+  //_gst_set_signal_handler (SIGFPE, SIG_DFL);
+
+  fprintf(stderr, "ici 2\n");
+  fflush(stderr);
+  int parent_stdin_fd;
+  int parent_stdout_fd;
+  int parent_stderr_fd;
+  int child_stdin_fd;
+  int child_stdout_fd;
+  int child_stderr_fd;
+
+  if (parent_stdin_arg == -2) {
+    int fd[2];
+    if (pipe(fd) == -1) {
+      perror("Failed to create a pipe");
+      nomemory(true);
+      return -1;
+    }
+    parent_stdin_fd = fd[1];
+    child_stdin_fd = fd[0];
+  } else if (parent_stdin_arg >= 0) {
+    parent_stdin_fd = parent_stdin_arg;
+    child_stdin_fd = parent_stdin_arg;
+  }
+
+  if (parent_stdout_arg == -2) {
+    int fd[2];
+    if (pipe(fd) == -1) {
+      perror("Failed to create a pipe");
+      nomemory(true);
+      return -1;
+    }
+    parent_stdout_fd = fd[0];
+    child_stdout_fd = fd[1];
+  } else if (parent_stdout_arg >= 0) {
+    parent_stdout_fd = parent_stdout_arg;
+    child_stdout_fd = parent_stdout_arg;
+  }
+
+  if (parent_stderr_arg == -2) {
+    int fd[2];
+    if (pipe(fd) == -1) {
+      perror("Failed to create a pipe");
+      nomemory(true);
+      return -1;
+    }
+    parent_stderr_fd = fd[0];
+    child_stderr_fd = fd[1];
+  } else if (parent_stderr_arg >= 0) {
+    parent_stderr_fd = parent_stderr_arg;
+    child_stderr_fd = parent_stderr_arg;
+  }
+
+  const pid_t pid = fork ();
+  if (pid == 0) {
+    fprintf(stderr, "fork ici 3\n");
+    if (parent_stdin_arg == -1) {
+      child_stdin_fd = open("/dev/null", O_RDONLY);
+      if (child_stdin_fd == -1) {
+        perror("Cannot open /dev/null");
+        nomemory(true);
+        return -1;
+      }
+    }
+    if (parent_stdout_arg == -1) {
+      child_stdout_fd = open("/dev/null", O_WRONLY);
+      if (child_stdout_fd == -1) {
+        perror("Cannot open /dev/null");
+        nomemory(true);
+        return -1;
+      }
+    }
+    if (parent_stderr_arg == -1) {
+      child_stderr_fd = open("/dev/null", O_WRONLY);
+      if (child_stderr_fd == -1) {
+        perror("Cannot open /dev/null");
+        nomemory(true);
+        return -1;
+      }
+    }
+
+    if (dup2(child_stdin_fd, 0) == -1) {
+      perror("Cannot open duplicate stdin");
+      nomemory(true);
+      return -1;
+    }
+
+    if (dup2(child_stdout_fd, 1) == -1) {
+      perror("Cannot open duplicate stdout");
+      nomemory(true);
+      return -1;
+    }
+
+    if (parent_stdout_arg == -3) {
+      if (dup2(child_stdout_fd, 2) == -1) {
+        perror("Cannot open duplicate stdout");
+        nomemory(true);
+        return -1;
+      }
+    } else {
+      if (dup2(child_stderr_fd, 2) == -1) {
+        perror("Cannot open duplicate stderr");
+        nomemory(true);
+        return -1;
+      }
+    }
+    int res = execve(command, argv, NULL);
+
+    perror("execve error");
+    fprintf(stderr, "ici hah %d\n", res);
+    exit(-1);
+    /*NOTREACHED*/
+  } else {
+    /* SET PID
+       OS_PROCESS_SET_PID(oop, FROM_INT(result)); */
+    char foo[501] = { 0 };
+
+    read(parent_stdout_fd, foo, 500);
+    fprintf(stderr, "read pipe %s", foo);
+    fflush(stderr);
+  }
+
+  //_gst_set_signal_handler (SIGPIPE, SIG_IGN);
+  //_gst_set_signal_handler (SIGFPE, SIG_IGN);
+
+  fprintf(stderr, "ici u4\n");
+  return 0;
+}
