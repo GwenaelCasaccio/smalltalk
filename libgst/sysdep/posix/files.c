@@ -415,6 +415,13 @@ int _gst_exec_command_with_fd(const char *command, char *const argv[],
       nomemory(true);
       return -1;
     }
+
+    if (fcntl(fd[0], F_SETFL, fcntl(fd[0], F_GETFL) | O_NONBLOCK) == -1) {
+      perror("Failed to create a pipe");
+      nomemory(true);
+      return -1;
+    }
+
     parent_stdout_fd = fd[0];
     child_stdout_fd = fd[1];
   } else if (parent_stdout_arg >= 0) {
@@ -429,6 +436,13 @@ int _gst_exec_command_with_fd(const char *command, char *const argv[],
       nomemory(true);
       return -1;
     }
+
+    if (fcntl(fd[0], F_SETFL, fcntl(fd[0], F_GETFL) | O_NONBLOCK) == -1) {
+      perror("Failed to create a pipe");
+      nomemory(true);
+      return -1;
+    }
+
     parent_stderr_fd = fd[0];
     child_stderr_fd = fd[1];
   } else if (parent_stderr_arg >= 0) {
@@ -500,6 +514,7 @@ int _gst_exec_command_with_fd(const char *command, char *const argv[],
        OS_PROCESS_SET_PID(oop, FROM_INT(result)); */
     char foo[501] = { 0 };
 
+    sleep(10);
     read(parent_stdout_fd, foo, 500);
     fprintf(stderr, "read pipe %s", foo);
     fflush(stderr);
