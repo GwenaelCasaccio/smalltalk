@@ -720,4 +720,48 @@ extern intptr_t _gst_object_identity;
     (((obj))->data)[1] = (valueOOP);                                    \
   } while (0)
 
+/* OSPROCESS */
+
+#define OBJ_OS_PROCESS_GET_PROGRAM(obj) ((obj)->data)[0]
+#define OBJ_OS_PROCESS_SET_PROGRAM(obj, valueOOP)                              \
+  do {                                                                         \
+    ((obj)->data)[0] = (valueOOP);                                             \
+  } while (0)
+
+#define OBJ_OS_PROCESS_GET_ARGUMENTS(obj) ((obj)->data)[1]
+#define OBJ_OS_PROCESS_SET_ARGUMENTS(obj, valueOOP)                            \
+  do {                                                                         \
+    ((obj)->data)[1] = (valueOOP);                                             \
+  } while (0)
+
+#define OBJ_OS_PROCESS_GET_STDIN(obj) ((obj)->data)[2]
+#define OBJ_OS_PROCESS_SET_STDIN(obj, valueOOP)                                \
+  do {                                                                         \
+    ((obj)->data)[2] = (valueOOP);                                             \
+  } while (0)
+
+#define OBJ_OS_PROCESS_GET_STDOUT(obj) ((obj)->data)[3]
+#define OBJ_OS_PROCESS_SET_STDOUT(obj, valueOOP)                               \
+  do {                                                                         \
+    ((obj)->data)[3] = (valueOOP);                                             \
+  } while (0)
+
+#define OBJ_OS_PROCESS_GET_STDERR(obj) ((obj)->data)[4]
+#define OBJ_OS_PROCESS_SET_STDERR(obj, valueOOP)                               \
+  do {                                                                         \
+    ((obj)->data)[4] = (valueOOP);                                             \
+  } while (0)
+
+#define OBJ_OS_PROCESS_GET_PID(obj) ((obj)->data)[5]
+#define OBJ_OS_PROCESS_SET_PID(obj, valueOOP)                                  \
+  do {                                                                         \
+    ((obj)->data)[5] = (valueOOP);                                             \
+  } while (0)
+
+#define OBJ_OS_PROCESS_GET_RETURN_CODE(obj) ((obj)->data)[6]
+#define OBJ_OS_PROCESS_SET_RETURN_CODE(obj, valueOOP)                          \
+  do {                                                                         \
+    ((obj)->data)[6] = (valueOOP);                                             \
+  } while (0)
+
 #endif /* GST_OBJECT_POINTER_H */

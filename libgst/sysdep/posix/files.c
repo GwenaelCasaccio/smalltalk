@@ -514,6 +514,9 @@ int _gst_exec_command_with_fd(const char *command, char *const argv[],
        OS_PROCESS_SET_PID(oop, FROM_INT(result)); */
     char foo[501] = { 0 };
 
+    //_gst_async_file_polling(parent_stdout_fd, int cond, OOP semaphoreOOP);
+    //_gst_async_file_polling(parent_stderr_fd, int cond, OOP semaphoreOOP);
+
     sleep(10);
     read(parent_stdout_fd, foo, 500);
     fprintf(stderr, "read pipe %s", foo);

@@ -2,24 +2,106 @@ Object subclass: OSProcess [
 
     | program arguments stdin stdout stderr pid returnCode |
 
+    OSProcess class >> pipe [
+
+        ^ FileDescriptor basicNew setFD: -2;
+                                  yourself
+    ]
+
+    OSProcess class >> null [
+
+        ^ FileDescriptor basicNew setFD: -1;
+                                  yourself
+    ]
+
+    OSProcess class >> ls [
+
+        ^ (self program: '/usr/bin/ls' arguments: #('-l')) execute
+    ]
+
     OSProcess class >> program: aString arguments: anArray [
-        ^(self basicNew)
+        <category: 'instance creation'>
+
+        ^ (self basicNew)
             program: aString;
-            stderr: nil;
-            stdout: nil;
-            stdin:  nil;
-            initialize;
+            arguments: anArray;
+            stderr: self pipe;
+            stdout: self pipe;
+            stdin:  self pipe;
             yourself
     ]
 
     OSProcess class >> program: aString arguments: anArray stdOut: aStdOutFD stdErr: aStdErrFD stdIn: aStdInFD [
-        ^(self basicNew)
+        <category: 'instance creation'>
+
+        ^ (self basicNew)
             program: aString;
             stderr: aStdErrFD;
             stdout:  aStdOutFD;
             stdin:  aStdInFD;
             initialize;
             yourself
+    ]
+
+    program: aString [
+        <category: 'accessing'>
+
+        program := aString
+    ]
+
+
+    program [
+        <category: 'accessing'>
+
+        ^ program
+    ]
+
+    arguments: anArray [
+        <category: 'accessing'>
+
+        arguments := anArray
+    ]
+
+    arguments [
+        <category: 'accessing'>
+
+        ^ arguments
+    ]
+
+    stdin: aStdIn [
+        <category: 'accessing'>
+
+        stdin := aStdIn.
+    ]
+
+    stdin [
+        <category: 'accessing'>
+
+        ^ stdin
+    ]
+    
+    stdout [
+        <category: 'accessing'>
+
+        ^ stdout
+    ]
+
+    stdout: aStdOut [
+        <category: 'accessing'>
+
+        stdout := aStdOut.
+    ]
+
+    stderr [
+        <category: 'accessing'>
+
+        ^ stderr
+    ]
+
+    stderr: aStdErr [
+        <category: 'accessing'>
+
+        stderr := aStdErr.
     ]
 
     execute [

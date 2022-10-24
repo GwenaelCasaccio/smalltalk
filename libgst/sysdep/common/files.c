@@ -393,23 +393,23 @@ _gst_send (int fd,
 #endif
 }
 
-ssize_t
-_gst_read (int fd,
-	   PTR buffer,
-	   size_t size)
+ssize_t _gst_read (int fd, PTR buffer, size_t size)
 {
   ssize_t result;
   int save_errno = errno;
 
-  do
-    {
-      result = read (fd, buffer, size);
-      if (errno == EFAULT)
-        abort ();
+  do {
+    result = read (fd, buffer, size);
+    if (errno == EFAULT) {
+      perror("EFAULT while reading some data");
+      nomemory(true);
+      return -1;
     }
-  while (result == -1 && errno == EINTR);
-  if (errno == EINTR)
+  } while (result == -1 && errno == EINTR);
+
+  if (errno == EINTR) {
     errno = save_errno;
+  }
 
   return result;
 }

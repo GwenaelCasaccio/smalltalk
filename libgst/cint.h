@@ -98,7 +98,7 @@ typedef enum { /* types for C parameters */
 } cdata_type;
 
 /* Value of errno which is checked by the Smalltalk base classes.  */
-extern int _gst_errno ATTRIBUTE_HIDDEN;
+extern int _gst_errno[100] ATTRIBUTE_HIDDEN;
 
 typedef struct gst_c_callable {
   OBJ_HEADER;

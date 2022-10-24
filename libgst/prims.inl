@@ -6345,11 +6345,34 @@ static intptr_t VMpr_OSProcess_exec(int id, volatile int numArgs) {
   UNUSED(id);
   UNUSED(numArgs);
 
+  OOP os_process_oop = STACKTOP();
+  gst_object os_process = OOP_TO_OBJ(os_process_oop);
+
+  OOP pgm_name_oop = OBJ_OS_PROCESS_GET_PROGRAM(os_process);
+  gst_uchar *pgm_name = _gst_to_cstring(pgm_name_oop);
+
+  char **args = alloca(2 * sizeof(char *));
+  for (size_t i = 0; i < 1; i++) {
+    args[i] = _gst_to_cstring(ARRAY_AT(OBJ_OS_PROCESS_GET_ARGUMENTS(os_process), i + 1));
+  }
+
+  args[1] = NULL;
+
+  fprintf(stderr, "%s %s %d %d %d \n",pgm_name, args[0], TO_INT(OBJ_FILE_STREAM_GET_FD(OOP_TO_OBJ(OBJ_OS_PROCESS_GET_STDIN(os_process)))),
+          TO_INT(OBJ_FILE_STREAM_GET_FD(OOP_TO_OBJ(OBJ_OS_PROCESS_GET_STDOUT(os_process)))),
+          TO_INT(OBJ_FILE_STREAM_GET_FD(OOP_TO_OBJ(OBJ_OS_PROCESS_GET_STDERR(os_process)))));
+  fflush(stderr);
+  _gst_exec_command_with_fd(
+      pgm_name, args,
+      TO_INT(OBJ_FILE_STREAM_GET_FD(OOP_TO_OBJ(OBJ_OS_PROCESS_GET_STDIN(os_process)))),
+      TO_INT(OBJ_FILE_STREAM_GET_FD(OOP_TO_OBJ(OBJ_OS_PROCESS_GET_STDOUT(os_process)))),
+      TO_INT(OBJ_FILE_STREAM_GET_FD(OOP_TO_OBJ(OBJ_OS_PROCESS_GET_STDERR(os_process)))));
+
   _gst_primitives_executed++;
-  fprintf(stderr, "ici\n");
   //_gst_exec_command_with_fd("/usr/bin/ls", "-l", -1, -1, -1);
-  char const * args[] = { "-l", NULL };
-  _gst_exec_command_with_fd("/usr/bin/ls", args, -2, -2, -2);
+
+  //char const * args[] = { "-l", NULL };
+  //_gst_exec_command_with_fd("/usr/bin/ls", args, -2, -2, -2);
 
   PRIM_SUCCEEDED;
 }
