@@ -6369,10 +6369,6 @@ static intptr_t VMpr_OSProcess_exec(int id, volatile int numArgs) {
       TO_INT(OBJ_FILE_STREAM_GET_FD(OOP_TO_OBJ(OBJ_OS_PROCESS_GET_STDERR(os_process)))));
 
   _gst_primitives_executed++;
-  //_gst_exec_command_with_fd("/usr/bin/ls", "-l", -1, -1, -1);
-
-  //char const * args[] = { "-l", NULL };
-  //_gst_exec_command_with_fd("/usr/bin/ls", args, -2, -2, -2);
 
   PRIM_SUCCEEDED;
 }

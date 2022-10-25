@@ -19,6 +19,16 @@ Object subclass: OSProcess [
         ^ (self program: '/usr/bin/ls' arguments: #('-l')) execute
     ]
 
+    OSProcess class >> lsNull [
+
+        ^ ((self basicNew)
+                program: '/usr/bin/ls';
+                arguments: #('-l');
+                stdout: self null;
+                stderr: self null;
+                stdin: self null) execute
+    ]
+
     OSProcess class >> program: aString arguments: anArray [
         <category: 'instance creation'>
 
@@ -31,7 +41,7 @@ Object subclass: OSProcess [
             yourself
     ]
 
-    OSProcess class >> program: aString arguments: anArray stdOut: aStdOutFD stdErr: aStdErrFD stdIn: aStdInFD [
+    OSProcess class >> program: aString arguments: anArray stdin: aStdInFD stdout: aStdOutFD stderr: aStdErrFD [
         <category: 'instance creation'>
 
         ^ (self basicNew)
@@ -39,7 +49,6 @@ Object subclass: OSProcess [
             stderr: aStdErrFD;
             stdout:  aStdOutFD;
             stdin:  aStdInFD;
-            initialize;
             yourself
     ]
 

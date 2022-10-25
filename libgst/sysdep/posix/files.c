@@ -372,21 +372,6 @@ int _gst_open_pipe(const char *command, const char *mode)
 
 int _gst_exec_command_with_fd(const char *command, char *const argv[],
                               int parent_stdin_arg, int parent_stdout_arg, int parent_stderr_arg) {
-  /*
-   *
-   * 0: stdin
-   * 1: stdout
-   * 2: stderr
-   */
-  //_gst_set_signal_handler (SIGCHLD, sigchld_handler);
-  fprintf(stderr, "ici 1\n");
-  fflush(stderr);
-
-  //_gst_set_signal_handler (SIGPIPE, SIG_DFL);
-  //_gst_set_signal_handler (SIGFPE, SIG_DFL);
-
-  fprintf(stderr, "ici 2\n");
-  fflush(stderr);
   int parent_stdin_fd;
   int parent_stdout_fd;
   int parent_stderr_fd;
@@ -403,6 +388,13 @@ int _gst_exec_command_with_fd(const char *command, char *const argv[],
     }
     parent_stdin_fd = fd[1];
     child_stdin_fd = fd[0];
+  } else if (parent_stdin_arg == -1) {
+    parent_stdin_fd = open("/dev/null", O_WRONLY);
+    if (parent_stdin_fd == -1) {
+      perror("Cannot open dev/null");
+      nomemory(true);
+      return -1;
+    }
   } else if (parent_stdin_arg >= 0) {
     parent_stdin_fd = parent_stdin_arg;
     child_stdin_fd = parent_stdin_arg;
@@ -424,6 +416,13 @@ int _gst_exec_command_with_fd(const char *command, char *const argv[],
 
     parent_stdout_fd = fd[0];
     child_stdout_fd = fd[1];
+  } else if (parent_stdout_arg == -1) {
+    parent_stdout_fd = open("/dev/null", O_RDONLY);
+    if (parent_stdout_fd == -1) {
+      perror("Cannot open dev/null");
+      nomemory(true);
+      return -1;
+    }
   } else if (parent_stdout_arg >= 0) {
     parent_stdout_fd = parent_stdout_arg;
     child_stdout_fd = parent_stdout_arg;
@@ -445,6 +444,13 @@ int _gst_exec_command_with_fd(const char *command, char *const argv[],
 
     parent_stderr_fd = fd[0];
     child_stderr_fd = fd[1];
+  } else if (parent_stderr_arg == -1) {
+    parent_stderr_fd = open("/dev/null", O_RDONLY);
+    if (parent_stderr_fd == -1) {
+      perror("Cannot open dev/null");
+      nomemory(true);
+      return -1;
+    }
   } else if (parent_stderr_arg >= 0) {
     parent_stderr_fd = parent_stderr_arg;
     child_stderr_fd = parent_stderr_arg;
@@ -452,7 +458,6 @@ int _gst_exec_command_with_fd(const char *command, char *const argv[],
 
   const pid_t pid = fork ();
   if (pid == 0) {
-    fprintf(stderr, "fork ici 3\n");
     if (parent_stdin_arg == -1) {
       child_stdin_fd = open("/dev/null", O_RDONLY);
       if (child_stdin_fd == -1) {
@@ -503,12 +508,11 @@ int _gst_exec_command_with_fd(const char *command, char *const argv[],
         return -1;
       }
     }
-    int res = execve(command, argv, NULL);
 
+    const int res = execve(command, argv, NULL);
     perror("execve error");
-    fprintf(stderr, "ici hah %d\n", res);
-    exit(-1);
-    /*NOTREACHED*/
+    exit(res);
+
   } else {
     /* SET PID
        OS_PROCESS_SET_PID(oop, FROM_INT(result)); */
@@ -517,15 +521,13 @@ int _gst_exec_command_with_fd(const char *command, char *const argv[],
     //_gst_async_file_polling(parent_stdout_fd, int cond, OOP semaphoreOOP);
     //_gst_async_file_polling(parent_stderr_fd, int cond, OOP semaphoreOOP);
 
-    sleep(10);
+    sleep(3);
+    fprintf(stderr, "before read pipe\n");
+    fflush(stderr);
     read(parent_stdout_fd, foo, 500);
     fprintf(stderr, "read pipe %s", foo);
     fflush(stderr);
   }
 
-  //_gst_set_signal_handler (SIGPIPE, SIG_IGN);
-  //_gst_set_signal_handler (SIGFPE, SIG_IGN);
-
-  fprintf(stderr, "ici u4\n");
   return 0;
 }
