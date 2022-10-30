@@ -6358,7 +6358,7 @@ static intptr_t VMpr_OSProcess_exec(int id, volatile int numArgs) {
     args[i] = _gst_to_cstring(ARRAY_AT(OBJ_OS_PROCESS_GET_ARGUMENTS(os_process), i + 1));
   }
 
-  args[1] = NULL;
+  args[num_args] = NULL;
 
   _gst_exec_command_with_fd(
       pgm_name, args,

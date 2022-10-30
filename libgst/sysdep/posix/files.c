@@ -457,7 +457,9 @@ int _gst_exec_command_with_fd(const char *command, char *const argv[],
     }
 
     const int res = execve(command, argv, NULL);
-    perror("Failed to execute the command");
+    if (res == -1) {
+      perror("Failed to execute the command");
+    }
     exit(errno);
   } else {
     gst_object os_process = OOP_TO_OBJ(os_process_oop);
