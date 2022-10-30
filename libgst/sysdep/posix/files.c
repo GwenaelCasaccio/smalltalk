@@ -269,12 +269,6 @@ int _gst_open_pipe(const char *command, const char *mode)
   int access;
   int result;
 
-  /*
-   *
-   * 0: stdin
-   * 1: stdout
-   * 2: stderr
-   */
   _gst_set_signal_handler (SIGCHLD, sigchld_handler);
   access = strchr (mode, '+') ? O_RDWR :
     (mode[0] == 'r' ? O_RDONLY : O_WRONLY);
@@ -370,8 +364,47 @@ int _gst_open_pipe(const char *command, const char *mode)
     return (our_fd);
 }
 
+#define error_handling(msg)                                                    \
+  do {                                                                         \
+    perror((msg));                                                             \
+    nomemory(true);                                                            \
+    return -1;                                                                 \
+  } while (0)
+
+int _gst_set_fd(int fd_arg, int *parent_fd, int *child_fd) {
+
+  if (fd_arg == -2) {
+    int fd[2];
+    if (pipe(fd) == -1) {
+      error_handling("Cannot create a pipe");
+    }
+
+    if (fcntl(fd[0], F_SETFL, fcntl(fd[0], F_GETFL) | O_NONBLOCK) == -1) {
+      error_handling("Cannot set NONBLOCK mode");
+    }
+
+    *parent_fd = fd[0];
+    *child_fd = fd[1];
+  } else if (fd_arg == -1) {
+    *parent_fd = open("/dev/null", O_RDONLY);
+    if (*parent_fd == -1) {
+      error_handling("Cannot open dev/null");
+    }
+    *child_fd = open("/dev/null", O_WRONLY);
+    if (*child_fd == -1) {
+      error_handling("Cannot open dev/null");
+    }
+  } else if (fd_arg >= 0) {
+    *parent_fd = fd_arg;
+    *child_fd = fd_arg;
+  }
+
+  return 0;
+}
+
 int _gst_exec_command_with_fd(const char *command, char *const argv[],
-                              int parent_stdin_arg, int parent_stdout_arg, int parent_stderr_arg) {
+                              int parent_stdin_arg, int parent_stdout_arg, int parent_stderr_arg,
+                              OOP os_process_oop) {
   int parent_stdin_fd;
   int parent_stdout_fd;
   int parent_stderr_fd;
@@ -382,152 +415,59 @@ int _gst_exec_command_with_fd(const char *command, char *const argv[],
   if (parent_stdin_arg == -2) {
     int fd[2];
     if (pipe(fd) == -1) {
-      perror("Failed to create a pipe");
-      nomemory(true);
-      return -1;
+      error_handling("Cannot create a pipe");
     }
     parent_stdin_fd = fd[1];
     child_stdin_fd = fd[0];
   } else if (parent_stdin_arg == -1) {
     parent_stdin_fd = open("/dev/null", O_WRONLY);
     if (parent_stdin_fd == -1) {
-      perror("Cannot open dev/null");
-      nomemory(true);
-      return -1;
+      error_handling("Cannot open dev/null");
+    }
+    child_stdin_fd = open("/dev/null", O_RDONLY);
+    if (child_stdin_fd == -1) {
+      error_handling("Cannot open dev/null");
     }
   } else if (parent_stdin_arg >= 0) {
     parent_stdin_fd = parent_stdin_arg;
     child_stdin_fd = parent_stdin_arg;
   }
 
-  if (parent_stdout_arg == -2) {
-    int fd[2];
-    if (pipe(fd) == -1) {
-      perror("Failed to create a pipe");
-      nomemory(true);
-      return -1;
-    }
-
-    if (fcntl(fd[0], F_SETFL, fcntl(fd[0], F_GETFL) | O_NONBLOCK) == -1) {
-      perror("Failed to create a pipe");
-      nomemory(true);
-      return -1;
-    }
-
-    parent_stdout_fd = fd[0];
-    child_stdout_fd = fd[1];
-  } else if (parent_stdout_arg == -1) {
-    parent_stdout_fd = open("/dev/null", O_RDONLY);
-    if (parent_stdout_fd == -1) {
-      perror("Cannot open dev/null");
-      nomemory(true);
-      return -1;
-    }
-  } else if (parent_stdout_arg >= 0) {
-    parent_stdout_fd = parent_stdout_arg;
-    child_stdout_fd = parent_stdout_arg;
-  }
-
-  if (parent_stderr_arg == -2) {
-    int fd[2];
-    if (pipe(fd) == -1) {
-      perror("Failed to create a pipe");
-      nomemory(true);
-      return -1;
-    }
-
-    if (fcntl(fd[0], F_SETFL, fcntl(fd[0], F_GETFL) | O_NONBLOCK) == -1) {
-      perror("Failed to create a pipe");
-      nomemory(true);
-      return -1;
-    }
-
-    parent_stderr_fd = fd[0];
-    child_stderr_fd = fd[1];
-  } else if (parent_stderr_arg == -1) {
-    parent_stderr_fd = open("/dev/null", O_RDONLY);
-    if (parent_stderr_fd == -1) {
-      perror("Cannot open dev/null");
-      nomemory(true);
-      return -1;
-    }
-  } else if (parent_stderr_arg >= 0) {
-    parent_stderr_fd = parent_stderr_arg;
-    child_stderr_fd = parent_stderr_arg;
-  }
+  _gst_set_fd(parent_stdout_arg, &parent_stdout_fd, &child_stdout_fd);
+  _gst_set_fd(parent_stderr_arg, &parent_stderr_fd, &child_stderr_fd);
 
   const pid_t pid = fork ();
   if (pid == 0) {
-    if (parent_stdin_arg == -1) {
-      child_stdin_fd = open("/dev/null", O_RDONLY);
-      if (child_stdin_fd == -1) {
-        perror("Cannot open /dev/null");
-        nomemory(true);
-        return -1;
-      }
-    }
-    if (parent_stdout_arg == -1) {
-      child_stdout_fd = open("/dev/null", O_WRONLY);
-      if (child_stdout_fd == -1) {
-        perror("Cannot open /dev/null");
-        nomemory(true);
-        return -1;
-      }
-    }
-    if (parent_stderr_arg == -1) {
-      child_stderr_fd = open("/dev/null", O_WRONLY);
-      if (child_stderr_fd == -1) {
-        perror("Cannot open /dev/null");
-        nomemory(true);
-        return -1;
-      }
-    }
-
     if (dup2(child_stdin_fd, 0) == -1) {
-      perror("Cannot open duplicate stdin");
-      nomemory(true);
-      return -1;
+      error_handling("Cannot duplicate stdin");
     }
 
     if (dup2(child_stdout_fd, 1) == -1) {
-      perror("Cannot open duplicate stdout");
-      nomemory(true);
-      return -1;
+      error_handling("Cannot duplicate stdin");
     }
 
     if (parent_stdout_arg == -3) {
       if (dup2(child_stdout_fd, 2) == -1) {
-        perror("Cannot open duplicate stdout");
-        nomemory(true);
-        return -1;
+        error_handling("Cannot duplicate stdout");
       }
     } else {
       if (dup2(child_stderr_fd, 2) == -1) {
-        perror("Cannot open duplicate stderr");
-        nomemory(true);
-        return -1;
+        error_handling("Cannot duplicate stderr");
       }
     }
 
     const int res = execve(command, argv, NULL);
-    perror("execve error");
-    exit(res);
-
+    perror("Failed to execute the command");
+    exit(errno);
   } else {
-    /* SET PID
-       OS_PROCESS_SET_PID(oop, FROM_INT(result)); */
-    char foo[501] = { 0 };
-
-    //_gst_async_file_polling(parent_stdout_fd, int cond, OOP semaphoreOOP);
-    //_gst_async_file_polling(parent_stderr_fd, int cond, OOP semaphoreOOP);
-
-    sleep(3);
-    fprintf(stderr, "before read pipe\n");
-    fflush(stderr);
-    read(parent_stdout_fd, foo, 500);
-    fprintf(stderr, "read pipe %s", foo);
-    fflush(stderr);
+    gst_object os_process = OOP_TO_OBJ(os_process_oop);
+    OBJ_OS_PROCESS_SET_PID(os_process, FROM_INT(pid));
+    OBJ_FILE_STREAM_SET_FD(OOP_TO_OBJ(OBJ_OS_PROCESS_GET_STDIN(os_process)), FROM_INT(parent_stdin_fd));
+    OBJ_FILE_STREAM_SET_FD(OOP_TO_OBJ(OBJ_OS_PROCESS_GET_STDOUT(os_process)), FROM_INT(parent_stdout_fd));
+    OBJ_FILE_STREAM_SET_FD(OOP_TO_OBJ(OBJ_OS_PROCESS_GET_STDERR(os_process)), FROM_INT(parent_stderr_fd));
   }
 
   return 0;
 }
+
+#undef error_handling

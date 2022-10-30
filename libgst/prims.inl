@@ -6351,22 +6351,25 @@ static intptr_t VMpr_OSProcess_exec(int id, volatile int numArgs) {
   OOP pgm_name_oop = OBJ_OS_PROCESS_GET_PROGRAM(os_process);
   gst_uchar *pgm_name = _gst_to_cstring(pgm_name_oop);
 
-  char **args = alloca(2 * sizeof(char *));
-  for (size_t i = 0; i < 1; i++) {
+  const size_t num_args =
+      NUM_INDEXABLE_FIELDS(OBJ_OS_PROCESS_GET_ARGUMENTS(os_process));
+  char **args = alloca(num_args + 1);
+  for (size_t i = 0; i < num_args; i++) {
     args[i] = _gst_to_cstring(ARRAY_AT(OBJ_OS_PROCESS_GET_ARGUMENTS(os_process), i + 1));
   }
 
   args[1] = NULL;
 
-  fprintf(stderr, "%s %s %d %d %d \n",pgm_name, args[0], TO_INT(OBJ_FILE_STREAM_GET_FD(OOP_TO_OBJ(OBJ_OS_PROCESS_GET_STDIN(os_process)))),
-          TO_INT(OBJ_FILE_STREAM_GET_FD(OOP_TO_OBJ(OBJ_OS_PROCESS_GET_STDOUT(os_process)))),
-          TO_INT(OBJ_FILE_STREAM_GET_FD(OOP_TO_OBJ(OBJ_OS_PROCESS_GET_STDERR(os_process)))));
-  fflush(stderr);
   _gst_exec_command_with_fd(
       pgm_name, args,
       TO_INT(OBJ_FILE_STREAM_GET_FD(OOP_TO_OBJ(OBJ_OS_PROCESS_GET_STDIN(os_process)))),
       TO_INT(OBJ_FILE_STREAM_GET_FD(OOP_TO_OBJ(OBJ_OS_PROCESS_GET_STDOUT(os_process)))),
-      TO_INT(OBJ_FILE_STREAM_GET_FD(OOP_TO_OBJ(OBJ_OS_PROCESS_GET_STDERR(os_process)))));
+      TO_INT(OBJ_FILE_STREAM_GET_FD(OOP_TO_OBJ(OBJ_OS_PROCESS_GET_STDERR(os_process)))),
+      os_process_oop);
+
+  for (size_t i = 0; i < num_args; i++) {
+    free(args[i]);
+  }
 
   _gst_primitives_executed++;
 
