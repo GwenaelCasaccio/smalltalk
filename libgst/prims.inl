@@ -6345,16 +6345,36 @@ static intptr_t VMpr_OSProcess_exec(int id, volatile int numArgs) {
   UNUSED(id);
   UNUSED(numArgs);
 
+  _gst_primitives_executed++;
+
+  bool result = false;
+  char **args = NULL;
+  size_t num_args = 0;
+  gst_uchar *pgm_name = NULL;
   OOP os_process_oop = STACKTOP();
   gst_object os_process = OOP_TO_OBJ(os_process_oop);
 
   OOP pgm_name_oop = OBJ_OS_PROCESS_GET_PROGRAM(os_process);
-  gst_uchar *pgm_name = _gst_to_cstring(pgm_name_oop);
 
-  const size_t num_args =
-      NUM_INDEXABLE_FIELDS(OBJ_OS_PROCESS_GET_ARGUMENTS(os_process));
-  char **args = alloca(num_args + 1);
+  if (!IS_CLASS(pgm_name_oop, _gst_string_class)) {
+    goto end;
+  }
+
+  pgm_name = _gst_to_cstring(pgm_name_oop);
+
+  if (!IS_CLASS(OBJ_OS_PROCESS_GET_ARGUMENTS(os_process),
+                _gst_array_class)) {
+    goto end;
+  }
+
+  num_args = NUM_INDEXABLE_FIELDS(OBJ_OS_PROCESS_GET_ARGUMENTS(os_process));
+  args = xcalloc(num_args + 1, sizeof(*args));
   for (size_t i = 0; i < num_args; i++) {
+    if (!IS_CLASS(ARRAY_AT(OBJ_OS_PROCESS_GET_ARGUMENTS(os_process), i + 1),
+                  _gst_string_class)) {
+      goto end;
+    }
+
     args[i] = _gst_to_cstring(ARRAY_AT(OBJ_OS_PROCESS_GET_ARGUMENTS(os_process), i + 1));
   }
 
@@ -6367,13 +6387,20 @@ static intptr_t VMpr_OSProcess_exec(int id, volatile int numArgs) {
       TO_INT(OBJ_FILE_STREAM_GET_FD(OOP_TO_OBJ(OBJ_OS_PROCESS_GET_STDERR(os_process)))),
       os_process_oop);
 
+  result = true;
+
+ end:
+  free(pgm_name);
+
   for (size_t i = 0; i < num_args; i++) {
     free(args[i]);
   }
 
-  _gst_primitives_executed++;
-
-  PRIM_SUCCEEDED;
+  if (result) {
+    PRIM_SUCCEEDED;
+  } else {
+    PRIM_FAILED;
+  }
 }
 
 unsigned char _gst_primitives_md5[16] = {225, 63,  18,  146, 66, 109, 248, 224,

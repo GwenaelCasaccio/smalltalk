@@ -402,6 +402,32 @@ int _gst_set_fd(int fd_arg, int *parent_fd, int *child_fd) {
   return 0;
 }
 
+int _gst_set_write_fd(int fd_arg, int *parent_fd, int *child_fd) {
+
+  if (fd_arg == -2) {
+    int fd[2];
+    if (pipe(fd) == -1) {
+      error_handling("Cannot create a pipe");
+    }
+    *parent_fd = fd[1];
+    *child_fd = fd[0];
+  } else if (fd_arg == -1) {
+    *parent_fd = open("/dev/null", O_WRONLY);
+    if (*parent_fd == -1) {
+      error_handling("Cannot open dev/null");
+    }
+    *child_fd = open("/dev/null", O_RDONLY);
+    if (*child_fd == -1) {
+      error_handling("Cannot open dev/null");
+    }
+  } else if (fd_arg >= 0) {
+    *parent_fd = fd_arg;
+    *child_fd = fd_arg;
+  }
+
+  return 0;
+}
+
 int _gst_exec_command_with_fd(const char *command, char *const argv[],
                               int parent_stdin_arg, int parent_stdout_arg, int parent_stderr_arg,
                               OOP os_process_oop) {
@@ -412,27 +438,7 @@ int _gst_exec_command_with_fd(const char *command, char *const argv[],
   int child_stdout_fd;
   int child_stderr_fd;
 
-  if (parent_stdin_arg == -2) {
-    int fd[2];
-    if (pipe(fd) == -1) {
-      error_handling("Cannot create a pipe");
-    }
-    parent_stdin_fd = fd[1];
-    child_stdin_fd = fd[0];
-  } else if (parent_stdin_arg == -1) {
-    parent_stdin_fd = open("/dev/null", O_WRONLY);
-    if (parent_stdin_fd == -1) {
-      error_handling("Cannot open dev/null");
-    }
-    child_stdin_fd = open("/dev/null", O_RDONLY);
-    if (child_stdin_fd == -1) {
-      error_handling("Cannot open dev/null");
-    }
-  } else if (parent_stdin_arg >= 0) {
-    parent_stdin_fd = parent_stdin_arg;
-    child_stdin_fd = parent_stdin_arg;
-  }
-
+  _gst_set_write_fd(parent_stdin_arg, &parent_stdin_fd, &child_stdin_fd);
   _gst_set_fd(parent_stdout_arg, &parent_stdout_fd, &child_stdout_fd);
   _gst_set_fd(parent_stderr_arg, &parent_stderr_fd, &child_stderr_fd);
 
