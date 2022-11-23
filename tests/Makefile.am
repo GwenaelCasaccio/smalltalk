@@ -183,6 +183,6 @@ posix_file_test_SOURCES = vm/posix_file.c
 posix_file_test_CFLAGS = -I$(top_builddir)/lib-src/ -I$(top_builddir)/libgst/ $(INCSNPRINTFV) $(CMOCKA_CFLAGS) -D _GNU_SOURCE
 posix_file_test_LDADD = $(top_builddir)/libgst/libgst.la $(CMOCKA_LIBS) $(LIBSNPRINTFV) $(LIBTHREAD) $(top_builddir)/lib-src/library.la @ICON@
 posix_file_test_DEPENDENCIES = $(top_builddir)/libgst/libgst.la $(top_builddir)/lib-src/library.la @ICON@
-posix_file_test_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS) -Wl,--wrap,nomemory -Wl,--wrap,perror -Wl,--wrap,fork -Wl,--wrap,pipe -Wl,--wrap,fcntl
+posix_file_test_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS) -Wl,--wrap,nomemory -Wl,--wrap,perror -Wl,--wrap,fork -Wl,--wrap,pipe -Wl,--wrap,fcntl -Wl,--wrap,open
 
 
