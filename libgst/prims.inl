@@ -6396,6 +6396,8 @@ static intptr_t VMpr_OSProcess_exec(int id, volatile int numArgs) {
     free(args[i]);
   }
 
+  free(args);
+
   if (result) {
     PRIM_SUCCEEDED;
   } else {

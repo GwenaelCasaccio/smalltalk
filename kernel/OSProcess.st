@@ -14,21 +14,6 @@ Object subclass: OSProcess [
                                   yourself
     ]
 
-    OSProcess class >> ls [
-
-        ^ (self program: '/usr/bin/ls' arguments: #('-l')) execute
-    ]
-
-    OSProcess class >> lsNull [
-
-        ^ ((self basicNew)
-                program: '/usr/bin/ls';
-                arguments: #('-l');
-                stdout: self null;
-                stderr: self null;
-                stdin: self null) execute
-    ]
-
     OSProcess class >> program: aString arguments: anArray [
         <category: 'instance creation'>
 
