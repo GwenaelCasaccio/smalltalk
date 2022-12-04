@@ -83,12 +83,6 @@ cobjects.st:96: Attempt to pass an instance of String as a ...
 returned value is nil
 
 Execution begins...
-Marli loves Steve!!!
-Marli loves Steve!!!
-Marli loves Steve!!!
-returned value is 3
-
-Execution begins...
 true
 'abcabc'
 'this is a test'
