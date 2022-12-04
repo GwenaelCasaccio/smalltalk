@@ -262,9 +262,7 @@ sigchld_handler (int signum)
 }
 
 /* Use sockets or pipes.  */
-int
-_gst_open_pipe (const char *command,
-		const char *mode)
+int _gst_open_pipe(const char *command, const char *mode)
 {
   int fd[2];
   int our_fd, child_fd;
@@ -340,7 +338,7 @@ _gst_open_pipe (const char *command,
       /* Child process */
       close (our_fd);
       if (access != O_WRONLY)
-	dup2 (child_fd, 1);
+        dup2 (child_fd, 1);
       if (access != O_RDONLY)
         dup2 (child_fd, 0);
 
@@ -366,3 +364,118 @@ _gst_open_pipe (const char *command,
     return (our_fd);
 }
 
+#define error_handling(msg)                                                    \
+  do {                                                                         \
+    perror((msg));                                                             \
+    nomemory(true);                                                            \
+    return -1;                                                                 \
+  } while (0)
+
+int _gst_set_fd(int fd_arg, int *parent_fd, int *child_fd) {
+
+  if (fd_arg == -2) {
+    int fd[2];
+    if (pipe(fd) == -1) {
+      error_handling("Cannot create a pipe");
+    }
+
+    if (fcntl(fd[0], F_SETFL, fcntl(fd[0], F_GETFL) | O_NONBLOCK) == -1) {
+      error_handling("Cannot set NONBLOCK mode");
+    }
+
+    *parent_fd = fd[0];
+    *child_fd = fd[1];
+  } else if (fd_arg == -1) {
+    *parent_fd = open("/dev/null", O_RDONLY);
+    if (*parent_fd == -1) {
+      error_handling("Cannot open dev/null");
+    }
+    *child_fd = open("/dev/null", O_WRONLY);
+    if (*child_fd == -1) {
+      error_handling("Cannot open dev/null");
+    }
+  } else if (fd_arg >= 0) {
+    *parent_fd = fd_arg;
+    *child_fd = fd_arg;
+  }
+
+  return 0;
+}
+
+int _gst_set_write_fd(int fd_arg, int *parent_fd, int *child_fd) {
+
+  if (fd_arg == -2) {
+    int fd[2];
+    if (pipe(fd) == -1) {
+      error_handling("Cannot create a pipe");
+    }
+    *parent_fd = fd[1];
+    *child_fd = fd[0];
+  } else if (fd_arg == -1) {
+    *parent_fd = open("/dev/null", O_WRONLY);
+    if (*parent_fd == -1) {
+      error_handling("Cannot open dev/null");
+    }
+    *child_fd = open("/dev/null", O_RDONLY);
+    if (*child_fd == -1) {
+      error_handling("Cannot open dev/null");
+    }
+  } else if (fd_arg >= 0) {
+    *parent_fd = fd_arg;
+    *child_fd = fd_arg;
+  }
+
+  return 0;
+}
+
+int _gst_exec_command_with_fd(const char *command, char *const argv[],
+                              int parent_stdin_arg, int parent_stdout_arg, int parent_stderr_arg,
+                              OOP os_process_oop) {
+  int parent_stdin_fd;
+  int parent_stdout_fd;
+  int parent_stderr_fd;
+  int child_stdin_fd;
+  int child_stdout_fd;
+  int child_stderr_fd;
+
+  _gst_set_write_fd(parent_stdin_arg, &parent_stdin_fd, &child_stdin_fd);
+  _gst_set_fd(parent_stdout_arg, &parent_stdout_fd, &child_stdout_fd);
+  _gst_set_fd(parent_stderr_arg, &parent_stderr_fd, &child_stderr_fd);
+
+  const pid_t pid = fork ();
+  if (pid == 0) {
+    if (dup2(child_stdin_fd, 0) == -1) {
+      error_handling("Cannot duplicate stdin");
+    }
+
+    if (dup2(child_stdout_fd, 1) == -1) {
+      error_handling("Cannot duplicate stdin");
+    }
+
+    if (parent_stdout_arg == -3) {
+      if (dup2(child_stdout_fd, 2) == -1) {
+        error_handling("Cannot duplicate stdout");
+      }
+    } else {
+      if (dup2(child_stderr_fd, 2) == -1) {
+        error_handling("Cannot duplicate stderr");
+      }
+    }
+
+    const int res = execve(command, argv, NULL);
+    if (res == -1) {
+      perror("Failed to execute the command");
+    }
+    exit(errno);
+  } else {
+    gst_object os_process = OOP_TO_OBJ(os_process_oop);
+    OBJ_OS_PROCESS_SET_PID(os_process, FROM_INT(pid));
+    OBJ_FILE_STREAM_SET_FD(OOP_TO_OBJ(OBJ_OS_PROCESS_GET_STDIN(os_process)), FROM_INT(parent_stdin_fd));
+    OBJ_FILE_STREAM_SET_FD(OOP_TO_OBJ(OBJ_OS_PROCESS_GET_STDOUT(os_process)), FROM_INT(parent_stdout_fd));
+    OBJ_FILE_STREAM_SET_FD(OOP_TO_OBJ(OBJ_OS_PROCESS_GET_STDERR(os_process)), FROM_INT(parent_stderr_fd));
+  }
+
+  return 0;
+}
+
+#undef error_handling

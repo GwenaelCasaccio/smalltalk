@@ -556,6 +556,7 @@ static const char standard_files[] = {
     "PkgLoader.st\0"
     "DirPackage.st\0"
     "Autoload.st\0"
+    "OSProcess.st\0"
     "Initialize.st\0"};
 
 /* Instantiate the OOPs that are created before the first classes

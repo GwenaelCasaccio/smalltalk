@@ -95,17 +95,6 @@ String extend [
 Eval [ 'abc%ld%s%g%c' printf: #(3 'def' 4.0e0 10) ]
 Eval [ '%s' printf: 'def' ] "error"
 
-SmallInteger extend [
-    testAsync [
-        "Asynchronous vs. synchronous actually matters only when the function
-         calls back to Smalltalk.  But otherwise, we have no coverage of how
-         the asyncCCall pragma is compiled."
-        <asyncCCall: 'marli' args: #(#self)>
-    ]
-]
-
-Eval [ 3 testAsync ]
-
 Object extend [
 
     testCallin: aCallback [

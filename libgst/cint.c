@@ -132,9 +132,6 @@ typedef struct gst_stat {
   OOP st_cTime; /* time of last change */
 } * gst_stat;
 
-/* Test/example C function and tribute to the original author :-) */
-static void marli(int n);
-
 /* Prints an error message... this should really make the primitive
    fail so that a WrongClass exception is generated (FIXME) */
 static void bad_type(OOP class_oop, cdata_type cType);
@@ -242,20 +239,12 @@ static const char *c_type_name[] = {
 };
 
 /* The errno on output from a callout */
-int _gst_errno = 0;
-
-void marli(int n) {
-  int i;
-
-  for (i = 0; i < n; i++) {
-    printf("Marli loves Steve!!!\n");
-}
-}
+int _gst_errno[100] = { 0 };
 
 int get_errno(void) {
   int old;
-  old = _gst_errno;
-  _gst_errno = 0;
+  old = _gst_errno[0];
+  _gst_errno[0] = 0;
 
   /* When we get one of these, we don't return an error.  However,
      the primitive still fails and the file/socket is closed by the
@@ -587,9 +576,6 @@ void _gst_init_cfuncs(void) {
   _gst_define_cfunc("reh_search", _gst_re_search);
   _gst_define_cfunc("reh_match", _gst_re_match);
   _gst_define_cfunc("reh_make_cacheable", _gst_re_make_cacheable);
-
-  /* Non standard routines */
-  _gst_define_cfunc("marli", marli);
 }
 
 void _gst_define_cfunc(const char *funcName, PTR funcAddr) {
@@ -1407,9 +1393,9 @@ void _gst_set_errno(int errnum) {
      systems.  */
 
 #ifdef ENOTEMPTY
-  _gst_errno = (errnum == ENOTEMPTY) ? EEXIST : errnum;
+  _gst_errno[0] = (errnum == ENOTEMPTY) ? EEXIST : errnum;
 #else
-  _gst_errno = errnum;
+  _gst_errno[0] = errnum;
 #endif
 }
 

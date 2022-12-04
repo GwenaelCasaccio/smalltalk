@@ -63,11 +63,13 @@ $(TESTSUITE): $(srcdir)/testsuite.at $(srcdir)/package.m4 $(srcdir)/local.at
 	$(AUTOTEST) -I '$(srcdir)' -o $@.tmp $@.at
 	mv $@.tmp $@
 
-TESTS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test integration_tlab jit_x64 object_pointer_test bootstrap_test primitive_multithread_vm_test primitive_process_test primitive_atomic_test semaphore_lock_test processor_scheduler_test primitive_semaphore_test \
-method_dictionary_test
+TESTS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test integration_tlab object_pointer_test bootstrap_test primitive_multithread_vm_test primitive_process_test primitive_atomic_test semaphore_lock_test processor_scheduler_test primitive_semaphore_test \
+method_dictionary_test posix_file_test
+# jit_x64
 
-check_PROGRAMS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test integration_tlab jit_x64 object_pointer_test bootstrap_test primitive_multithread_vm_test primitive_process_test primitive_atomic_test semaphore_lock_test processor_scheduler_test primitive_semaphore_test \
-method_dictionary_test
+check_PROGRAMS = from_int grey_list barrier forward_object forward_object_alloc heap_test tlab_test integration_tlab object_pointer_test bootstrap_test primitive_multithread_vm_test primitive_process_test primitive_atomic_test semaphore_lock_test processor_scheduler_test primitive_semaphore_test \
+method_dictionary_test posix_file_test
+# jit_x64
 
 from_int_SOURCES = vm/from_int.c
 from_int_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV) -D _GNU_SOURCE
@@ -117,11 +119,11 @@ integration_tlab_LDADD = $(top_builddir)/libgst/libgst.la $(CMOCKA_LIBS) $(LIBSN
 integration_tlab_DEPENDENCIES = $(top_builddir)/libgst/libgst.la $(top_builddir)/lib-src/library.la @ICON@
 integration_tlab_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS) -Wl,--wrap,nomemory -Wl,--wrap,_gst_scavenge -Wl,--wrap,xcalloc -Wl,--wrap,set_except_flag_for_thread -Wl,--wrap,_gst_vm_global_barrier_wait -Wl,--wrap,_gst_vm_end_barrier_wait
 
-jit_x64_SOURCES = vm/jit_x64.c
-jit_x64_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV) $(CMOCKA_CFLAGS) $(UNICORN_CFLAGS)  -D _GNU_SOURCE
-jit_x64_LDADD = $(top_builddir)/libgst/libgst.la $(CMOCKA_LIBS) $(UNICORN_LIBS) $(LIBSNPRINTFV) $(LIBTHREAD) $(top_builddir)/lib-src/library.la @ICON@ -lunicorn
-jit_x64_DEPENDENCIES = $(top_builddir)/libgst/libgst.la $(top_builddir)/lib-src/library.la @ICON@
-jit_x64_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS)
+# jit_x64_SOURCES = vm/jit_x64.c
+# jit_x64_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV) $(CMOCKA_CFLAGS) $(UNICORN_CFLAGS)  -D _GNU_SOURCE
+# jit_x64_LDADD = $(top_builddir)/libgst/libgst.la $(CMOCKA_LIBS) $(UNICORN_LIBS) $(LIBSNPRINTFV) $(LIBTHREAD) $(top_builddir)/lib-src/library.la @ICON@ -lunicorn
+# jit_x64_DEPENDENCIES = $(top_builddir)/libgst/libgst.la $(top_builddir)/lib-src/library.la @ICON@
+# jit_x64_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS)
 
 object_pointer_test_SOURCES = vm/object_pointer.c
 object_pointer_test_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV) $(CMOCKA_CFLAGS)  -D _GNU_SOURCE
@@ -176,3 +178,11 @@ primitive_semaphore_test_CFLAGS = -I$(top_builddir)/lib-src/ $(INCSNPRINTFV) $(C
 primitive_semaphore_test_LDADD = $(top_builddir)/libgst/libgst.la $(CMOCKA_LIBS) $(LIBSNPRINTFV) $(LIBTHREAD) $(top_builddir)/lib-src/library.la @ICON@
 primitive_semaphore_test_DEPENDENCIES = $(top_builddir)/libgst/libgst.la $(top_builddir)/lib-src/library.la @ICON@
 primitive_semaphore_test_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS) -Wl,--wrap,nomemory -Wl,--wrap,_gst_sync_signal -Wl,--wrap,_gst_sync_wait -Wl,--wrap,wait_for_semaphore -Wl,--wrap,signal_and_broadcast_for_semaphore -Wl,--wrap,STACKTOP -Wl,--wrap,FROM_INT -Wl,--wrap,TO_INT -Wl,--wrap,SET_STACKTOP_BOOLEAN -Wl,--wrap,POP_OOP
+
+posix_file_test_SOURCES = vm/posix_file.c
+posix_file_test_CFLAGS = -I$(top_builddir)/lib-src/ -I$(top_builddir)/libgst/ $(INCSNPRINTFV) $(CMOCKA_CFLAGS) -D _GNU_SOURCE
+posix_file_test_LDADD = $(top_builddir)/libgst/libgst.la $(CMOCKA_LIBS) $(LIBSNPRINTFV) $(LIBTHREAD) $(top_builddir)/lib-src/library.la @ICON@
+posix_file_test_DEPENDENCIES = $(top_builddir)/libgst/libgst.la $(top_builddir)/lib-src/library.la @ICON@
+posix_file_test_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS) -Wl,--wrap,nomemory -Wl,--wrap,perror -Wl,--wrap,fork -Wl,--wrap,pipe -Wl,--wrap,fcntl -Wl,--wrap,open
+
+
