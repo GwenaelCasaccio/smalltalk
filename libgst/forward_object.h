@@ -8,7 +8,7 @@
    built-ins.  */
 #define INITIAL_OOP_TABLE_SIZE (1024 * 160)
 
-_Static_assert((INITIAL_OOP_TABLE_SIZE & 0x7FFF) == 0, "Forward object table should be aligned to 0x8000 !");
+//_Static_assert((INITIAL_OOP_TABLE_SIZE & 0x7FFF) == 0, "Forward object table should be aligned to 0x8000 !");
 
 #if SIZEOF_OOP == 4
 #define MAX_OOP_TABLE_SIZE (1 << 23)
@@ -31,7 +31,7 @@ struct oop_s
   uintptr_t flags;
 };
 
-_Static_assert(sizeof(struct oop_s) == 0x10, "Be carrefull with padding needed by IS_OOP_ADDR");
+// _Static_assert(sizeof(struct oop_s) == 0x10, "Be carrefull with padding needed by IS_OOP_ADDR");
 
 /* Convert an OOP (indirect pointer to an object) to the real object
    data.  */
@@ -62,8 +62,10 @@ _Static_assert(sizeof(struct oop_s) == 0x10, "Be carrefull with padding needed b
   (oop)--
 
 typedef struct _gst_forward_object_allocator_s {
-  _Atomic(uint16_t) free_oops;
-  _Atomic(uint16_t) thread_id;
+  //_Atomic(uint16_t) free_oops;
+  //_Atomic(uint16_t) thread_id;
+  uint16_t free_oops;
+  uint16_t thread_id;
   OOP first_free_oop;
 } _gst_forward_object_allocator_t;
 

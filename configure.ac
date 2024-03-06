@@ -19,7 +19,7 @@ dnl to CURRENT are supported.
 GST_REVISION(8:3:1)
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux])
-AC_CONFIG_SRCDIR([main.c])
+AC_CONFIG_SRCDIR([main.cpp])
 AC_CONFIG_TESTDIR(tests)
 AC_CONFIG_HEADERS([config.h])
 GST_PROG_GAWK
@@ -156,9 +156,9 @@ AC_ARG_WITH(system-libffi,
 [  --with-system-libffi[=PATH]   use system libffi.la (search in PATH if given)],
 [], [with_system_libffi=detect])
 
-PKG_CHECK_MODULES(LIBFFI, libffi,
+PKG_CHECK_MODULES(LIBFFI, ffi,
                   [ac_cv_lib_libffi_ffi_prep_cif=yes],
-                  [GST_HAVE_LIB(libffi, ffi_prep_cif)])
+                  [GST_HAVE_LIB(ffi, ffi_prep_cif)])
 case $with_system_libffi in
   yes|no|detect)
     if test $ac_cv_lib_libffi_ffi_prep_cif = no; then

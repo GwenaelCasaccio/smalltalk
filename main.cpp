@@ -55,6 +55,9 @@
 #include "config.h"
 #endif
 
+#define DOCTEST_CONFIG_IMPLEMENT
+#include "doctest.h"
+
 #include "gstpub.h"
 #include "getopt.h"
 

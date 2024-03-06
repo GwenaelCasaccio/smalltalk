@@ -56,16 +56,19 @@
 
 #include "gstpub.h"
 
-#include <ctype.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <errno.h>
+#include <cctype>
+#include <cstdlib>
+#include <cstring>
+#include <cstdarg>
+#include <cstdio>
+#include <cerrno>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+
+#define DOCTEST_CONFIG_IMPLEMENT
+#include "doctest.h"
 
 char *program_name;
 const char *kernel_dir;
@@ -220,7 +223,7 @@ setup_option (char *p, char *end)
 
       if (long_opt)
 	{
-	  struct long_option *opt = malloc (sizeof (struct long_option));
+	  struct long_option *opt =  new(struct long_option);
 	  opt->name = strdup (long_opt);
 	  opt->arg = arg;
 	  opt->next = long_opts;
@@ -514,7 +517,7 @@ main(int argc, const char **argv)
 	n++;
 
       smalltalk_argc = argc + n - 1;
-      smalltalk_argv = alloca (sizeof (char *) * smalltalk_argc);
+      smalltalk_argv = new const char *[smalltalk_argc];
       for (p = tool->force_opt, n = 0; *p; p += strlen (p) + 1)
 	smalltalk_argv[n++] = p;
       memcpy (&smalltalk_argv[n], &argv[1], argc * sizeof (char *));
@@ -544,7 +547,7 @@ main(int argc, const char **argv)
   result = gst_initialize (kernel_dir, image_file, flags);
   if (result != 0)
     exit (result < 0 ? 1 : result);
-    
+
   if (!gst_process_file (tool->script, GST_DIR_KERNEL_SYSTEM))
     fprintf (stderr, "%s: Couldn't open kernel file `%s': %s\n",
 	     executable_name, tool->script, strerror (errno));

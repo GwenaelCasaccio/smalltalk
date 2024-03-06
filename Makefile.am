@@ -107,18 +107,24 @@ AM_CPPFLAGS = -I$(top_srcdir)/libgst		\
 
 bin_PROGRAMS = gst
 
-gst_SOURCES = main.c
+gst_SOURCES = main.cpp
 gst_LDADD = libgst/libgst.la lib-src/library.la @ICON@
 gst_DEPENDENCIES = libgst/libgst.la lib-src/library.la @ICON@
 gst_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS)
 
 # The single gst-tool executable is installed with multiple names, hence
 # we use noinst here.
-noinst_PROGRAMS = gst-tool
-gst_tool_SOURCES = gst-tool.c
+noinst_PROGRAMS = gst-tool gst-tests
+gst_tool_SOURCES = gst-tool.cpp
 gst_tool_LDADD = libgst/libgst.la lib-src/library.la @ICON@
 gst_tool_DEPENDENCIES = libgst/libgst.la lib-src/library.la @ICON@
 gst_tool_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS)
+
+gst_tests_SOURCES = gst-tests.cpp
+gst_tests_LDADD = libgst/libgst.la lib-src/library.la @ICON@
+gst_tests_DEPENDENCIES = libgst/libgst.la lib-src/library.la @ICON@
+gst_tests_LDFLAGS = -export-dynamic $(RELOC_LDFLAGS) $(LIBFFI_EXECUTABLE_LDFLAGS)
+
 
 # Used to call the Unix zip from Wine
 EXTRA_PROGRAMS = winewrapper

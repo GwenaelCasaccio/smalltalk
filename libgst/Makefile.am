@@ -34,7 +34,8 @@ libgst_la_SOURCES = gstpub.c files.c gst-parse.c lex.c \
 		print.c alloc.c re.c interp.c \
 		real.c sockets.c events.c object_pointer.c \
 		forward_object.c heap/heap.c heap/tlab.c jit-x64.c \
-		method_dictionary.c sip_hash.c bootstrap.c
+		method_dictionary.c sip_hash.c bootstrap.c \
+		object.cpp object_table.cpp
 
 jit-x64.lo: AM_CFLAGS = $(LIBGST_CFLAGS)
 
@@ -42,7 +43,7 @@ dist_noinst_DATA = valgrind.supp builtins.gperf jit-x64.dasc
 
 noinst_HEADERS = gstpriv.h files.h lex.h str.h \
 		re.h tree.h byte.h interp.h \
- 		comp.h	sym.h dict.h oop.h \
+		comp.h	sym.h dict.h oop.h \
 		save.h cint.h sysdep.h	callin.h \
 		gstpub.h opt.h mpz.h md-config.h \
 		heap.h	real.h oop.inl dict.inl \
@@ -60,7 +61,8 @@ noinst_HEADERS = gstpriv.h files.h lex.h str.h \
 		sysdep/win32/findexec.c sysdep/win32/mem.c sysdep/win32/signals.c \
 		sysdep/win32/time.c sysdep/win32/timer.c sysdep/posix/events.c \
 		sysdep/win32/events.c sysdep/cygwin/events.c heap/heap.h heap/tlab.h \
-		method_dictionary.h sip_hash.h bootstrap.h $(BUILT_SOURCES)
+		method_dictionary.h sip_hash.h bootstrap.h $(BUILT_SOURCES) \
+		object.h object_table.h object_data_alloc.h
 
 # rules for invoking gperf
 # not fully idiot-proof but only to be run by maintainers
