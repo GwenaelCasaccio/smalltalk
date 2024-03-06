@@ -35,7 +35,7 @@ libgst_la_SOURCES = gstpub.c files.c gst-parse.c lex.c \
 		real.c sockets.c events.c object_pointer.c \
 		forward_object.c heap/heap.c heap/tlab.c jit-x64.c \
 		method_dictionary.c sip_hash.c bootstrap.c \
-		object.cpp object_table.cpp
+		object.cpp object_table.cpp test_case_export.cpp
 
 jit-x64.lo: AM_CFLAGS = $(LIBGST_CFLAGS)
 

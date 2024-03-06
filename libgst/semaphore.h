@@ -1,7 +1,7 @@
 #ifndef GST_SEMAPHORE_H_
 #define GST_SEMAPHORE_H_
 
-#include <immintrin.h>
+//#include <immintrin.h>
 
 static inline void wait_for_semaphore(OOP semaphoreOOP, size_t thread_id);
 static inline void signal_and_broadcast_for_semaphore(OOP semaphoreOOP, size_t thread_id);
@@ -13,7 +13,7 @@ static inline void wait_for_semaphore(OOP semaphoreOOP, size_t thread_id) {
   while (!atomic_compare_exchange_strong((_Atomic OOP*) &OBJ_SEMAPHORE_GET_LOCK_THREAD_ID(OOP_TO_OBJ(semaphoreOOP)),
                                          &nilOOP,
                                          threadIdOOP)) {
-    _mm_pause();
+    //_mm_pause();
     nilOOP = _gst_nil_oop;
   }
 }

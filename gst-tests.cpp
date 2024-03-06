@@ -2,11 +2,10 @@
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest.h"
 
-DOCTEST_SYMBOL_IMPORT void from_dll();
+DOCTEST_SYMBOL_IMPORT void gst_shared_lib();
 
 int main(int argc, char** argv) {
-  // force the use of a symbol from the dll so tests from it get registered
-  from_dll();
+  gst_shared_lib();
 
   doctest::Context context(argc, argv);
   return context.run();
