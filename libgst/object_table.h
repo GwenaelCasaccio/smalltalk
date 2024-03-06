@@ -46,7 +46,15 @@ template<std::size_t N = 1024 * 1024> class ObjectTable {
 
   void displaySomeStats();
 
- private:
+  typename std::array<object_s, N>::iterator begin() {
+    return table.begin();
+  }
+
+  typename std::array<object_s, N>::iterator end() {
+    return table.end();
+  }
+
+private:
   bool findFirstFreeObject() {
     while (nextObjectToBeAllocatedIT != table.end()) {
       if ((*nextObjectToBeAllocatedIT).getAllocatedFlag() != allocatedFlag) {

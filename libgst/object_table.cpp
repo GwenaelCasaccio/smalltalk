@@ -24,20 +24,30 @@ template <std::size_t N> void ObjectTable<N>::displaySomeStats() {
 TEST_CASE("initialization of the object table") {
   ObjectTable<100> ot;
 
+  for (auto i = ot.begin(); i != ot.end(); i++) {
+    REQUIRE_FALSE((*i).getAllocatedFlag());
+  }
+
   REQUIRE_FALSE(ot.shouldLaunchGC());
 }
 
 TEST_CASE("allocate different objects on the object table") {
   ObjectTable<10> ot;
 
+  for (auto i = ot.begin(); i != ot.end(); i++) {
+    REQUIRE_FALSE((*i).getAllocatedFlag());
+  }
+
   for (uint8_t i = 0; i < 10; i++) {
     std::optional<std::reference_wrapper<object_s>>object = ot.alloc();
     REQUIRE(object.has_value());
   }
 
-  ot.displaySomeStats();
   std::optional<std::reference_wrapper<object_s>>object = ot.alloc();
-  ot.displaySomeStats();
   REQUIRE_FALSE(object.has_value());
   REQUIRE(ot.shouldLaunchGC());
+
+  for (auto i = ot.begin(); i != ot.end(); i++) {
+    REQUIRE((*i).getAllocatedFlag());
+  }
 }
