@@ -2,14 +2,42 @@
 
 #include "doctest.h"
 
-ObjectTable::ObjectTable() :
+#include <iostream>
+#include <ostream>
+
+template <std::size_t N> ObjectTable<N>::ObjectTable() :
   table(),
   nextObjectToBeAllocatedIT(table.begin()),
   numberAllocatedObject(0),
-  gcAllocatedBarrier(table.size() * 0.9)
+  gcAllocatedBarrier(table.size() * 0.9),
+  allocatedFlag(true)
 { }
 
-TEST_CASE("testing the factorial function") {
-  CHECK(1 == 3628800);
+template <std::size_t N> void ObjectTable<N>::displaySomeStats() {
+  std::cerr << "numberAllocatedObject "
+            << numberAllocatedObject
+            << "gcAllocatedBarrier "
+            << gcAllocatedBarrier
+            << std::endl;
 }
 
+TEST_CASE("initialization of the object table") {
+  ObjectTable<100> ot;
+
+  REQUIRE_FALSE(ot.shouldLaunchGC());
+}
+
+TEST_CASE("allocate different objects on the object table") {
+  ObjectTable<10> ot;
+
+  for (uint8_t i = 0; i < 10; i++) {
+    std::optional<std::reference_wrapper<object_s>>object = ot.alloc();
+    REQUIRE(object.has_value());
+  }
+
+  ot.displaySomeStats();
+  std::optional<std::reference_wrapper<object_s>>object = ot.alloc();
+  ot.displaySomeStats();
+  REQUIRE_FALSE(object.has_value());
+  REQUIRE(ot.shouldLaunchGC());
+}

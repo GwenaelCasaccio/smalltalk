@@ -13,11 +13,11 @@ typedef struct object_data_s *ObjectDataPtr;
 struct object_s
 {
   struct object_flags_s {
-    uintptr_t allocated: 1;
-    uintptr_t : 63;
+    uintptr_t allocated: 1  = 0;
+    uintptr_t empty: 63     = 0;
   };
 
-  ObjectDataPtr object;
+  ObjectDataPtr object     = nullptr;
   object_flags_s flags;
 
   void setAllocatedFlag(bool flag) {

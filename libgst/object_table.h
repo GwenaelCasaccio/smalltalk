@@ -5,22 +5,27 @@
 
 #include <array>
 #include <cstdlib>
+#include <functional>
+#include <optional>
 
-class ObjectTable {
+template<std::size_t N = 1024 * 1024> class ObjectTable {
 
  public:
   ObjectTable();
 
-  object_s &alloc() {
-    assert(nextObjectToBeAllocatedIT != table.end());
+  std::optional< std::reference_wrapper<object_s> > alloc() {
+    if (nextObjectToBeAllocatedIT == table.end()) {
+      return std::nullopt;
+    }
 
     object_s &allocatedObject = *nextObjectToBeAllocatedIT;
+    allocatedObject.setAllocatedFlag(allocatedFlag);
 
     numberAllocatedObject++;
 
     findFirstFreeObject();
 
-    return allocatedObject;
+    return std::ref(allocatedObject);
   }
 
   void mark(object_s &object) {
@@ -36,8 +41,10 @@ class ObjectTable {
   }
 
   bool shouldLaunchGC() {
-    return numberAllocatedObject == gcAllocatedBarrier;
+    return numberAllocatedObject >= gcAllocatedBarrier;
   }
+
+  void displaySomeStats();
 
  private:
   bool findFirstFreeObject() {
@@ -52,11 +59,11 @@ class ObjectTable {
     return false;
   }
 
-  std::array<object_s, 1024 * 1024> table;
-  std::array<object_s, 1024 * 1024>::iterator nextObjectToBeAllocatedIT;
+  std::array<object_s, N> table;
+  typename std::array<object_s, N>::iterator nextObjectToBeAllocatedIT;
   size_t numberAllocatedObject;
   size_t gcAllocatedBarrier;
-  uintptr_t allocatedFlag;
+  bool allocatedFlag;
 };
 
 #endif // GST_OBJECT_TABLE_HPP
