@@ -10,7 +10,24 @@ static_assert(C_OBJ_HEADER_SIZE_WORDS == 3, "Be carrefull when adding new fields
 
 #include "doctest.h"
 
-TEST_CASE("testing object") {
-  CHECK(1 == 3628800);
+TEST_CASE("object is an integer") {
+  CHECK(!object_s::isInteger(reinterpret_cast<ObjectPtr>(36280)));
+  CHECK(object_s::isInteger(reinterpret_cast<ObjectPtr>(36281)));
+}
+
+TEST_CASE("object is an object") {
+  CHECK(object_s::isObject(reinterpret_cast<ObjectPtr>(36280)));
+  CHECK(!object_s::isObject(reinterpret_cast<ObjectPtr>(36281)));
+}
+
+TEST_CASE("objects are integers") {
+  CHECK(!object_s::areIntegers(reinterpret_cast<ObjectPtr>(36280),
+                               reinterpret_cast<ObjectPtr>(36282)));
+
+  CHECK(!object_s::areIntegers(reinterpret_cast<ObjectPtr>(36281),
+                               reinterpret_cast<ObjectPtr>(36282)));
+
+  CHECK(object_s::areIntegers(reinterpret_cast<ObjectPtr>(36281),
+                              reinterpret_cast<ObjectPtr>(36283)));
 }
 
