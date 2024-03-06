@@ -65,7 +65,7 @@ $(srcdir)/gst-profile.1: $(top_srcdir)/scripts/Profile.st $(top_srcdir)/configur
 	  --name "GNU Smalltalk profiler" \
 	  "$(GST_TOOL) gst-doc $(GST_TOOL_ARGS)" >$@
 
-$(srcdir)/gst.1: $(top_srcdir)/main.c $(top_srcdir)/configure.ac
+$(srcdir)/gst.1: $(top_srcdir)/main.cpp $(top_srcdir)/configure.ac
 	$(HELP2MAN) \
 	  --name "the GNU Smalltalk virtual machine" $(top_builddir)/gst$(EXEEXT) >$@
 
