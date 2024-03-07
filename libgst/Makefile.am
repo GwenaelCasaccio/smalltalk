@@ -35,7 +35,7 @@ libgst_la_SOURCES = gstpub.c files.c gst-parse.c lex.c \
 		real.c sockets.c events.c object_pointer.c \
 		forward_object.c heap/heap.c heap/tlab.c jit-x64.c \
 		method_dictionary.c sip_hash.c bootstrap.c \
-		object.cpp object_table.cpp test_case_export.cpp
+		object.cpp object_table.cpp alloc_new.cpp test_case_export.cpp
 
 jit-x64.lo: AM_CFLAGS = $(LIBGST_CFLAGS)
 
@@ -62,7 +62,7 @@ noinst_HEADERS = gstpriv.h files.h lex.h str.h \
 		sysdep/win32/time.c sysdep/win32/timer.c sysdep/posix/events.c \
 		sysdep/win32/events.c sysdep/cygwin/events.c heap/heap.h heap/tlab.h \
 		method_dictionary.h sip_hash.h bootstrap.h $(BUILT_SOURCES) \
-		object.h object_table.h object_data_alloc.h
+		object.h object_table.h object_data_alloc.h alloc_new.h
 
 # rules for invoking gperf
 # not fully idiot-proof but only to be run by maintainers

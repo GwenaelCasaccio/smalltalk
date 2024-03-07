@@ -6,6 +6,22 @@
 #include <cstddef>
 #include <atomic>
 
+enum ObjectShape : std::uint8_t {
+  SHAPE_EMTPY,
+  SHAPE_OBJECT,
+  SHAPE_UINT_8,
+  SHAPE_INT_8,
+  SHAPE_UINT_16,
+  SHAPE_INT_16,
+  SHAPE_UINT_32,
+  SHAPE_INT_32,
+  SHAPE_UINT_64,
+  SHAPE_INT_64,
+  SHAPE_FLOAT,
+  SHAPE_DOUBLE,
+  SHAPE_LONG_DOUBLE,
+};
+
 typedef struct object_s *ObjectPtr;
 
 typedef struct object_data_s *ObjectDataPtr;
@@ -14,7 +30,8 @@ struct object_s
 {
   struct object_flags_s {
     uintptr_t allocated: 1  = 0;
-    uintptr_t empty: 63     = 0;
+    ObjectShape shape: 4    = SHAPE_EMTPY;
+    uintptr_t empty: 59     = 0;
   };
 
   ObjectDataPtr object     = nullptr;
@@ -26,6 +43,14 @@ struct object_s
 
   bool getAllocatedFlag() {
     return flags.allocated;
+  }
+
+  void setShape(ObjectShape shape) {
+    flags.shape = shape;
+  }
+
+  ObjectShape getShape() {
+    return flags.shape;
   }
 
   static bool isInteger(const ObjectPtr object) {

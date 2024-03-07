@@ -1,7 +1,5 @@
 #include "object_table.h"
 
-#include "doctest.h"
-
 #include <iostream>
 #include <ostream>
 
@@ -20,6 +18,8 @@ template <std::size_t N> void ObjectTable<N>::displaySomeStats() {
             << gcAllocatedBarrier
             << std::endl;
 }
+
+#include "doctest.h"
 
 TEST_CASE("initialization of the object table") {
   ObjectTable<100> ot;
