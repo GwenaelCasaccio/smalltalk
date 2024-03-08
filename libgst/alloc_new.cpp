@@ -30,8 +30,10 @@ void free_new_generation_buffer() {
   current_buffer_position = nullptr;
 }
 
-std::optional<ObjectDataPtr> alloc_object_data_new_gen(std::size_t slots, std::size_t anonymousSlots, ObjectShape shape) {
+std::optional<ObjectDataPtr> alloc_object_data_new_gen(ObjectPtr object, std::size_t slots, std::size_t anonymousSlots, ObjectShape shape) {
   assert((shape == SHAPE_EMTPY && anonymousSlots == 0) || (shape != SHAPE_EMTPY));
+  assert(object != nullptr);
+  assert(slots < 0b10000);
 
   std::size_t objectDataSize = slots + (sizeof(gst_object_header_s) / sizeof(void *));
 
@@ -42,17 +44,27 @@ std::optional<ObjectDataPtr> alloc_object_data_new_gen(std::size_t slots, std::s
   ObjectDataPtr data = new(current_buffer_position) object_data_s;
   current_buffer_position+=objectDataSize;
 
+  object->flags.generation = NEW_GENERATION;
+
   return {data};
 }
 
-std::optional<ObjectDataPtr> alloc_object_data_old_gen(std::size_t slots, std::size_t anonymousSlots, ObjectShape shape) {
+std::optional<ObjectDataPtr> alloc_object_data_old_gen(ObjectPtr object, std::size_t slots, std::size_t anonymousSlots, ObjectShape shape) {
   assert((shape == SHAPE_EMTPY && anonymousSlots == 0) || (shape != SHAPE_EMTPY));
+  assert(object != nullptr);
+  assert(slots < 0b10000);
+
+  object->flags.generation = OLD_GENERATION;
 
   return {};
 }
 
-std::optional<ObjectDataPtr> alloc_object_data_static_gen(std::size_t slots, std::size_t anonymousSlots, ObjectShape shape) {
+std::optional<ObjectDataPtr> alloc_object_data_static_gen(ObjectPtr object, std::size_t slots, std::size_t anonymousSlots, ObjectShape shape) {
   assert((shape == SHAPE_EMTPY && anonymousSlots == 0) || (shape != SHAPE_EMTPY));
+  assert(object != nullptr);
+  assert(slots < 0b10000);
+
+  object->flags.generation = FIXED_GENERATION;
 
   return {};
 }
@@ -86,7 +98,7 @@ TEST_CASE("initialize new generation") {
 TEST_CASE("new generation allocation") {
   initialize_new_generation_buffer(10);
 
-  std::optional<ObjectDataPtr> optObjectData = alloc_object_data_new_gen(5, 0, SHAPE_EMTPY);
+  std::optional<ObjectDataPtr> optObjectData = alloc_object_data_new_gen(nullptr, 5, 0, SHAPE_EMTPY);
 
   CHECK(optObjectData.has_value());
 
@@ -100,7 +112,7 @@ TEST_CASE("new generation allocation") {
 TEST_CASE("new generation limit allocation") {
   initialize_new_generation_buffer(10);
 
-  std::optional<ObjectDataPtr> optObjectData = alloc_object_data_new_gen(7, 0, SHAPE_EMTPY);
+  std::optional<ObjectDataPtr> optObjectData = alloc_object_data_new_gen(nullptr, 7, 0, SHAPE_EMTPY);
 
   CHECK(optObjectData.has_value());
 
@@ -114,7 +126,7 @@ TEST_CASE("new generation limit allocation") {
 TEST_CASE("new generation too big allocation") {
   initialize_new_generation_buffer(10);
 
-  std::optional<ObjectDataPtr> optObjectData = alloc_object_data_new_gen(500, 0, SHAPE_EMTPY);
+  std::optional<ObjectDataPtr> optObjectData = alloc_object_data_new_gen(nullptr, 500, 0, SHAPE_EMTPY);
 
   uintptr_t *copy_buffer_a = buffer_a;
 

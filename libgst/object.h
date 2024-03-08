@@ -22,6 +22,12 @@ enum ObjectShape : std::uint8_t {
   SHAPE_LONG_DOUBLE,
 };
 
+enum ObjectGeneration : std::uint8_t {
+  NEW_GENERATION,
+  OLD_GENERATION,
+  FIXED_GENERATION
+};
+
 typedef struct object_s *ObjectPtr;
 
 typedef struct object_data_s *ObjectDataPtr;
@@ -29,9 +35,12 @@ typedef struct object_data_s *ObjectDataPtr;
 struct object_s
 {
   struct object_flags_s {
-    uintptr_t allocated: 1  = 0;
-    ObjectShape shape: 4    = SHAPE_EMTPY;
-    uintptr_t empty: 59     = 0;
+    uintptr_t allocated: 1   = 0;
+    ObjectGeneration generation: 2;
+    ObjectShape shape: 4     = SHAPE_EMTPY;
+    uint8_t slots: 4         = 0;
+    uint8_t indexed_slots: 4 = 0;
+    uintptr_t empty: 48      = 0;
   };
 
   ObjectDataPtr object     = nullptr;
