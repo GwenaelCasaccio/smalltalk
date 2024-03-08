@@ -35,15 +35,14 @@ typedef struct object_data_s *ObjectDataPtr;
 struct object_s
 {
   struct object_flags_s {
-    uintptr_t allocated: 1   = 0;
+    uint8_t allocated: 1      = 0;
     ObjectGeneration generation: 2;
-    ObjectShape shape: 4     = SHAPE_EMTPY;
-    uint8_t slots: 4         = 0;
-    uint8_t indexed_slots: 4 = 0;
-    uintptr_t empty: 48      = 0;
+    ObjectShape shape: 4       = SHAPE_EMTPY;
+    unsigned slots: 4          = 0;
+    unsigned indexed_slots: 24 = 0;
   };
 
-  ObjectDataPtr object     = nullptr;
+  ObjectDataPtr object = nullptr;
   object_flags_s flags;
 
   void setAllocatedFlag(bool flag) {
@@ -54,12 +53,40 @@ struct object_s
     return flags.allocated;
   }
 
+  void setGeneration(ObjectGeneration generation) {
+    flags.generation = generation;
+  }
+
+  ObjectGeneration getGeneration() {
+    return flags.generation;
+  }
+
   void setShape(ObjectShape shape) {
     flags.shape = shape;
   }
 
   ObjectShape getShape() {
     return flags.shape;
+  }
+
+  void setSlots(uint8_t slots) {
+    assert(slots < 0b10000);
+
+    flags.slots = slots;
+  }
+
+  uint8_t getSlots() {
+    return flags.slots;
+  }
+
+  void setIndexedSlots(uint32_t indexed_slots) {
+    assert(indexed_slots < 0b1000000000000000000000000);
+
+    flags.indexed_slots = indexed_slots;
+  }
+
+  uint32_t getIndexedSlots() {
+    return flags.indexed_slots;
   }
 
   static bool isInteger(const ObjectPtr object) {
