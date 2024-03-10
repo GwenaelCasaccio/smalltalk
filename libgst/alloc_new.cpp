@@ -73,12 +73,12 @@ void copy_garbage_collector(uintptr_t *from_buffer, uintptr_t *dest_buffer, std:
     switch (object->getGeneration()) {
     case NEW_GENERATION: {
       const size_t object_size = object->getSlots();
-      std::memcpy(dest_buffer_it, object->object, object_size * sizeof(uintptr_t));
+      std::memcpy(dest_buffer_it, object->object, (object_size * sizeof(uintptr_t)) + sizeof(gst_object_header_s));
       object->object = reinterpret_cast<ObjectDataPtr>(dest_buffer_it);
       object->setGeneration(NEW_GENERATION_TENURED);
       dest_buffer_it+=object_size;
-      break;
     }
+      break;
     case NEW_GENERATION_TENURED:  {
       // TENURE TO OLD GENERATION
       std::abort();
@@ -100,6 +100,7 @@ void copy_garbage_collector(uintptr_t *from_buffer, uintptr_t *dest_buffer, std:
         break;
       }
       case NEW_GENERATION_TENURED:
+        break ;
       default:
         std::abort();
       }
@@ -249,6 +250,9 @@ TEST_CASE("new generation copy garbage collection") {
 
     to_add = !to_add;
   }
+
+  CHECK(intergenerational_pointers.size() == 50);
+  CHECK(queue.size() == 50);
 
   copy_garbage_collector(src_buffer, dst_buffer, intergenerational_pointers, queue);
 
