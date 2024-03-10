@@ -16,6 +16,8 @@ static uintptr_t *dst_buffer_limit = nullptr;
 
 static uintptr_t *current_buffer_position = nullptr;
 
+static void tenure_to_old_space(ObjectPtr object);
+
 void initialize_new_generation_buffer(std::size_t size) {
   assert(size > 0);
 
@@ -81,11 +83,11 @@ void copy_garbage_collector(uintptr_t *from_buffer, uintptr_t *dest_buffer, std:
     }
       break;
     case NEW_GENERATION_TENURED:  {
-      // TENURE TO OLD GENERATION
-      std::abort();
+      tenure_to_old_space(object);
     }
+      break;
     default:
-      std::abort();
+      break;
     }
 
     const size_t number_of_slots = object->getSlots() + (object->getShape() == SHAPE_OBJECT ? object->getIndexedSlots() : 0);
@@ -100,10 +102,15 @@ void copy_garbage_collector(uintptr_t *from_buffer, uintptr_t *dest_buffer, std:
         }
         break;
       }
-      case NEW_GENERATION_TENURED:
-        break ;
+      case NEW_GENERATION_TENURED: {
+        auto res = intergenerational_pointers.insert(nested);
+        if (res.second) {
+          queue.push_back(nested);
+        }
+        break;
+      }
       default:
-        std::abort();
+        break ;
       }
     }
   }
@@ -117,6 +124,16 @@ void copy_garbage_collector(uintptr_t *from_buffer, uintptr_t *dest_buffer, std:
   dst_buffer_limit = tmp_buffer_limit;
 
   current_buffer_position = dest_buffer_it;
+}
+
+void tenure_to_old_space(ObjectPtr object) {
+  assert(object->getGeneration() == NEW_GENERATION_TENURED);
+
+  const size_t object_size = object->getSlots();
+  uintptr_t *buffer = new uintptr_t[object_size + (sizeof(gst_object_header_s) / sizeof(void *))];
+  std::memcpy(buffer, object->object, (object_size * sizeof(uintptr_t)) + sizeof(gst_object_header_s));
+  object->object = reinterpret_cast<ObjectDataPtr>(buffer);
+  object->setGeneration(OLD_GENERATION);
 }
 
 std::optional<ObjectDataPtr> alloc_object_data_old_gen(ObjectPtr object, std::size_t slots, std::size_t indexedSlots, ObjectShape shape) {
@@ -291,3 +308,78 @@ TEST_CASE("new generation copy garbage collection") {
 
   free_new_generation_buffer();
 }
+
+TEST_CASE("new generation copy garbage collection two times for tenuring objects to the old generation") {
+  initialize_new_generation_buffer(1000);
+
+  std::array<ObjectPtr, 100> objectTable;
+  std::set<ObjectPtr> intergenerational_pointers;
+  std::vector<ObjectPtr> queue;
+  bool to_add = true;
+
+  for (size_t i = 0; i < 100; i++) {
+    objectTable[i] = new object_s;
+    std::optional<ObjectDataPtr> optObjectData = alloc_object_data_new_gen(objectTable[i], 5, 0, SHAPE_EMTPY);
+    CHECK(objectTable[i]->getSlots() == 5);
+    CHECK(optObjectData.has_value());
+    optObjectData.value()->objClass = objectTable[i];
+
+    for (size_t j = 0; j < 5; j++) {
+      optObjectData.value()->data[j] = objectTable[i];
+    }
+
+    if (to_add) {
+      intergenerational_pointers.insert(objectTable[i]);
+      queue.push_back(objectTable[i]);
+    }
+
+    to_add = !to_add;
+  }
+
+  std::reverse(queue.begin(), queue.end());
+  CHECK(intergenerational_pointers.size() == 50);
+  CHECK(queue.size() == 50);
+
+  copy_garbage_collector(src_buffer, dst_buffer, intergenerational_pointers, queue);
+
+  intergenerational_pointers.clear();
+  queue.clear();
+
+  for (size_t i = 0; i < 20; i++) {
+    if (to_add) {
+      intergenerational_pointers.insert(objectTable[i]);
+      queue.push_back(objectTable[i]);
+    }
+
+    to_add = !to_add;
+  }
+
+  copy_garbage_collector(src_buffer, dst_buffer, intergenerational_pointers, queue);
+
+  {
+    uintptr_t *src_it = src_buffer;
+
+    for (size_t i = 0; i < 20; i+=2) {
+      ObjectPtr object = objectTable[i];
+
+      CHECK(object->getGeneration() == OLD_GENERATION);
+      CHECK(object->getSlots() == 5);
+      for (size_t j = 0; j < 5; j++) {
+        CHECK(object->object->data[j] == object);
+      }
+
+      delete[] object->object;
+    }
+  }
+
+  for (ObjectPtr ptr : objectTable) {
+    delete ptr;
+  }
+
+  free_new_generation_buffer();
+}
+
+TEST_CASE("new generation copy garbage collection with differents indexed slots") {
+}
+
+
