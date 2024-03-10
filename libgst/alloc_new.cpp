@@ -1,5 +1,6 @@
 #include "alloc_new.h"
 
+#include <array>
 #include <cstring>
 #include <iostream>
 #include <ostream>
@@ -69,48 +70,39 @@ void copy_garbage_collector(uintptr_t *from_buffer, uintptr_t *dest_buffer, std:
     ObjectPtr object = queue.back();
     queue.pop_back();
 
-    {
-      ObjectPtr klass = object->object->objClass;
-      const ObjectGeneration generation = klass->getGeneration();
-
-      if (generation == NEW_GENERATION) {
-        const size_t klass_size = klass->getSlots();
-        std::memcpy(klass->object, dest_buffer_it, klass_size);
-        klass->object = reinterpret_cast<ObjectDataPtr>(dest_buffer_it);
-        klass->setGeneration(NEW_GENERATION_TENURED);
-        dest_buffer_it+=klass_size;
-
-        auto res = intergenerational_pointers.insert(klass);
-        if (res.second) {
-          queue.push_back(klass);
-        }
-      } else if (generation == NEW_GENERATION_TENURED) {
-        // TENURE TO OLD GENERATION
-        std::abort();
-      }
-
+    switch (object->getGeneration()) {
+    case NEW_GENERATION: {
+      const size_t object_size = object->getSlots();
+      std::memcpy(object->object, dest_buffer_it, object_size * sizeof(uintptr_t));
+      object->object = reinterpret_cast<ObjectDataPtr>(dest_buffer_it);
+      object->setGeneration(NEW_GENERATION_TENURED);
+      dest_buffer_it+=object_size;
+      break;
+    }
+    case NEW_GENERATION_TENURED:  {
+      // TENURE TO OLD GENERATION
+      std::abort();
+    }
+    default:
+      std::abort();
     }
 
-    for (size_t i = 0; i < object->getSlots(); i++) {
-      ObjectPtr nested = object->object->data[i];
-      const ObjectGeneration generation = nested->getGeneration();
-
-      if (generation == NEW_GENERATION) {
-        const size_t object_size = nested->getSlots();
-        std::memcpy(nested->object, dest_buffer_it, object_size);
-        object->object = reinterpret_cast<ObjectDataPtr>(dest_buffer_it);
-        nested->setGeneration(NEW_GENERATION_TENURED);
-        dest_buffer_it+=object_size;
-
+    const size_t number_of_slots = object->getSlots();
+    ObjectDataPtr object_data = object->object;
+    for (size_t i = 0; i < number_of_slots; i++) {
+      ObjectPtr nested = object_data->data[i];
+      switch (nested->getGeneration()) {
+      case NEW_GENERATION: {
         auto res = intergenerational_pointers.insert(nested);
         if (res.second) {
           queue.push_back(nested);
         }
-      } else if (generation == NEW_GENERATION_TENURED) {
-        // TENURE TO OLD GENERATION
+        break;
+      }
+      case NEW_GENERATION_TENURED:
+      default:
         std::abort();
       }
-
     }
   }
 
@@ -135,6 +127,8 @@ std::optional<ObjectDataPtr> alloc_object_data_old_gen(ObjectPtr object, std::si
   object->flags.slots = slots;
   // object->object = data;
 
+  std::abort();
+
   return {};
 }
 
@@ -147,6 +141,8 @@ std::optional<ObjectDataPtr> alloc_object_data_static_gen(ObjectPtr object, std:
   object->flags.generation = FIXED_GENERATION;
   object->flags.slots = slots;
   // object->object = data;
+
+  std::abort();
 
   return {};
 }
@@ -229,3 +225,32 @@ TEST_CASE("new generation too big allocation") {
   free_new_generation_buffer();
 }
 
+TEST_CASE("new generation copy garbage collection") {
+  initialize_new_generation_buffer(1000);
+
+  std::array<object_s, 100> objectTable;
+  std::set<ObjectPtr> intergenerational_pointers;
+  std::vector<ObjectPtr> queue;
+  bool to_add = true;
+
+  for (size_t i = 0; i < 100; i++) {
+    std::optional<ObjectDataPtr> optObjectData = alloc_object_data_new_gen(&objectTable[i], 5, 0, SHAPE_EMTPY);
+    CHECK(optObjectData.has_value());
+    optObjectData.value()->objClass = &objectTable[i];
+
+    for (size_t j = 0; j < 5; j++) {
+      optObjectData.value()->data[j] = &objectTable[i];
+    }
+
+    if (to_add) {
+      intergenerational_pointers.insert(&objectTable[i]);
+      queue.push_back(&objectTable[i]);
+    }
+
+    to_add = !to_add;
+  }
+
+  copy_garbage_collector(src_buffer, dst_buffer, intergenerational_pointers, queue);
+
+  free_new_generation_buffer();
+}
