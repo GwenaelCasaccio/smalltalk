@@ -1,5 +1,6 @@
 #include "alloc_new.h"
 
+#include <algorithm>
 #include <array>
 #include <cstring>
 #include <iostream>
@@ -229,44 +230,63 @@ TEST_CASE("new generation too big allocation") {
 TEST_CASE("new generation copy garbage collection") {
   initialize_new_generation_buffer(1000);
 
-  std::array<object_s, 100> objectTable;
+  std::array<ObjectPtr, 100> objectTable;
   std::set<ObjectPtr> intergenerational_pointers;
   std::vector<ObjectPtr> queue;
   bool to_add = true;
 
   for (size_t i = 0; i < 100; i++) {
-    std::optional<ObjectDataPtr> optObjectData = alloc_object_data_new_gen(&objectTable[i], 5, 0, SHAPE_EMTPY);
+    objectTable[i] = new object_s;
+    std::optional<ObjectDataPtr> optObjectData = alloc_object_data_new_gen(objectTable[i], 5, 0, SHAPE_EMTPY);
+    CHECK(objectTable[i]->getSlots() == 5);
     CHECK(optObjectData.has_value());
-    optObjectData.value()->objClass = &objectTable[i];
+    optObjectData.value()->objClass = objectTable[i];
 
     for (size_t j = 0; j < 5; j++) {
-      optObjectData.value()->data[j] = &objectTable[i];
+      optObjectData.value()->data[j] = objectTable[i];
     }
 
     if (to_add) {
-      intergenerational_pointers.insert(&objectTable[i]);
-      queue.push_back(&objectTable[i]);
+      intergenerational_pointers.insert(objectTable[i]);
+      queue.push_back(objectTable[i]);
     }
 
     to_add = !to_add;
   }
 
+  std::reverse(queue.begin(), queue.end());
   CHECK(intergenerational_pointers.size() == 50);
   CHECK(queue.size() == 50);
 
   copy_garbage_collector(src_buffer, dst_buffer, intergenerational_pointers, queue);
 
-  to_add = true;
-  for (size_t i = 0; i < 100; i++) {
-    ObjectPtr object = &objectTable[i];
+  {
+    to_add = true;
+    uintptr_t *src_it = src_buffer;
+    uintptr_t *dst_it = dst_buffer;
 
-    CHECK(object->getGeneration() == (to_add ? NEW_GENERATION_TENURED : NEW_GENERATION));
-    CHECK(object->getSlots() == 5);
-    for (size_t j = 0; j < 5; j++) {
-      CHECK(object->object->data[j] == object);
+    for (size_t i = 0; i < 100; i++) {
+      ObjectPtr object = objectTable[i];
+
+      CHECK(object->getGeneration() == (to_add ? NEW_GENERATION_TENURED : NEW_GENERATION));
+      CHECK(reinterpret_cast<uintptr_t *>(object->object) == (to_add ? src_it : dst_it));
+      CHECK(object->getSlots() == 5);
+      for (size_t j = 0; j < 5; j++) {
+        CHECK(object->object->data[j] == object);
+      }
+
+      if (to_add) {
+        src_it += 8;
+      }
+
+      dst_it += 8;
+
+      to_add = !to_add;
     }
+  }
 
-    to_add = !to_add;
+  for (ObjectPtr ptr : objectTable) {
+    delete ptr;
   }
 
   free_new_generation_buffer();
