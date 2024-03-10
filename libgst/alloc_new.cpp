@@ -76,7 +76,7 @@ void copy_garbage_collector(uintptr_t *from_buffer, uintptr_t *dest_buffer, std:
       std::memcpy(dest_buffer_it, object->object, (object_size * sizeof(uintptr_t)) + sizeof(gst_object_header_s));
       object->object = reinterpret_cast<ObjectDataPtr>(dest_buffer_it);
       object->setGeneration(NEW_GENERATION_TENURED);
-      dest_buffer_it+=object_size;
+      dest_buffer_it = dest_buffer_it + object_size + (sizeof(gst_object_header_s) / sizeof(void *));
     }
       break;
     case NEW_GENERATION_TENURED:  {
@@ -255,6 +255,19 @@ TEST_CASE("new generation copy garbage collection") {
   CHECK(queue.size() == 50);
 
   copy_garbage_collector(src_buffer, dst_buffer, intergenerational_pointers, queue);
+
+  to_add = true;
+  for (size_t i = 0; i < 100; i++) {
+    ObjectPtr object = &objectTable[i];
+
+    CHECK(object->getGeneration() == (to_add ? NEW_GENERATION_TENURED : NEW_GENERATION));
+    CHECK(object->getSlots() == 5);
+    for (size_t j = 0; j < 5; j++) {
+      CHECK(object->object->data[j] == object);
+    }
+
+    to_add = !to_add;
+  }
 
   free_new_generation_buffer();
 }
