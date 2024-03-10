@@ -95,13 +95,7 @@ void copy_garbage_collector(uintptr_t *from_buffer, uintptr_t *dest_buffer, std:
     for (size_t i = 0; i < number_of_slots; i++) {
       ObjectPtr nested = object_data->data[i];
       switch (nested->getGeneration()) {
-      case NEW_GENERATION: {
-        auto res = intergenerational_pointers.insert(nested);
-        if (res.second) {
-          queue.push_back(nested);
-        }
-        break;
-      }
+      case NEW_GENERATION:
       case NEW_GENERATION_TENURED: {
         auto res = intergenerational_pointers.insert(nested);
         if (res.second) {
