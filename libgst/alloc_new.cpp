@@ -73,7 +73,7 @@ void copy_garbage_collector(uintptr_t *from_buffer, uintptr_t *dest_buffer, std:
     switch (object->getGeneration()) {
     case NEW_GENERATION: {
       const size_t object_size = object->getSlots();
-      std::memcpy(object->object, dest_buffer_it, object_size * sizeof(uintptr_t));
+      std::memcpy(dest_buffer_it, object->object, object_size * sizeof(uintptr_t));
       object->object = reinterpret_cast<ObjectDataPtr>(dest_buffer_it);
       object->setGeneration(NEW_GENERATION_TENURED);
       dest_buffer_it+=object_size;
@@ -87,7 +87,7 @@ void copy_garbage_collector(uintptr_t *from_buffer, uintptr_t *dest_buffer, std:
       std::abort();
     }
 
-    const size_t number_of_slots = object->getSlots();
+    const size_t number_of_slots = object->getSlots() + (object->getShape() == SHAPE_OBJECT ? object->getIndexedSlots() : 0);
     ObjectDataPtr object_data = object->object;
     for (size_t i = 0; i < number_of_slots; i++) {
       ObjectPtr nested = object_data->data[i];
